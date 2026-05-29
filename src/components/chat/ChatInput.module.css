@@ -36,6 +36,11 @@
 
 .textarea::placeholder { color: var(--text-disabled); }
 
+.textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* ── Action Buttons ───────────────────────────────── */
 .actions {
   display: flex;
@@ -190,6 +195,16 @@
 }
 
 .sendBtn.hasText:active { transform: scale(0.96); }
+
+.sendStop {
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+}
+
+.sendStop:hover {
+  color: var(--red);
+  background: rgba(239, 68, 68, 0.1);
+}
 
 /* ── Listening Bar ────────────────────────────────── */
 .listeningBar {

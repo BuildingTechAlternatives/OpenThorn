@@ -1,6 +1,9 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useApp } from '../../App'
-import { sendChatMessage } from '../../lib/chat'
+import { streamChat, detectMode } from '../../lib/chat'
+import { getProject } from '../../lib/project'
+import { supabase } from '../../lib/supabase'
+import type { ProviderConfig } from '../../lib/providers'
 import ChatMessage from './ChatMessage'
 import ChatInput from './ChatInput'
 import styles from './ChatPanel.module.css'
@@ -22,7 +25,8 @@ export default function ChatPanel() {
   const [mode, setMode] = useState<'plan' | 'build'>('build')
   const [providerId, setProviderId] = useState<string | null>(null)
   const [model, setModel] = useState<string | null>(null)
-  const [sending, setSending] = useState(false)
+  const [streaming, setStreaming] = useState<string | null>(null)
+  const abortRef = useRef<AbortController | null>(null)
   const [projectMenuOpen, setProjectMenuOpen] = useState(false)
   const [appearance, setAppearance] = useState<'light' | 'dark' | 'system'>('dark')
   const { navigateTo } = useApp()
@@ -31,7 +35,70 @@ export default function ChatPanel() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  }, [messages, streaming])
+
+  const handleSend = useCallback(async (text: string) => {
+    const userMsg: Message = { id: Date.now().toString(), role: 'user', text }
+    setMessages((prev) => [...prev, userMsg])
+    if (!providerId || !model) return
+
+    // Fetch provider config from Supabase
+    const { data: provider } = await supabase
+      .from('providers')
+      .select('*')
+      .eq('id', providerId)
+      .single()
+
+    if (!provider) return
+
+    const activeMode = detectMode(text, getProject().files.length)
+    const assistantId = (Date.now() + 1).toString()
+    setStreaming('')
+
+    try {
+      for await (const chunk of streamChat(
+        [...messages, userMsg],
+        provider as ProviderConfig,
+        model,
+        activeMode,
+        getProject().files
+      )) {
+        if (chunk.error) {
+          setMessages((prev) => [
+            ...prev,
+            { id: assistantId, role: 'assistant', text: `Error: ${chunk.error}` },
+          ])
+          setStreaming(null)
+          return
+        }
+        if (chunk.token !== undefined) {
+          setStreaming((prev) => (prev ?? '') + chunk.token)
+        }
+        if (chunk.files) {
+          // Files were generated — show a brief summary
+          const fileList = Object.keys(chunk.files).join(', ')
+        }
+      }
+    } catch (e) {
+      setMessages((prev) => [
+        ...prev,
+        { id: assistantId, role: 'assistant', text: `Error: ${(e as Error).message}` },
+      ])
+      setStreaming(null)
+      return
+    }
+
+    // Streaming complete — add the full message
+    setStreaming((current) => {
+      if (current) {
+        setMessages((prev) => [
+          ...prev,
+          { id: assistantId, role: 'assistant', text: current },
+        ])
+      }
+      return null
+    })
+  }, [messages, providerId, model])
 
   useEffect(() => {
     if (!projectMenuOpen) return
@@ -196,31 +263,20 @@ export default function ChatPanel() {
         providerId={providerId}
         model={model}
         onProviderSelect={(pid, m) => { setProviderId(pid); setModel(m) }}
-        onSend={async (text) => {
-          const userMsg: Message = { id: Date.now().toString(), role: 'user', text }
-          setMessages((prev) => [...prev, userMsg])
-          if (!providerId || !model) return
-          setSending(true)
-          try {
-            const result = await sendChatMessage(
-              [...messages, userMsg],
-              providerId,
-              model
-            )
-            setMessages((prev) => [
-              ...prev,
-              { id: (Date.now() + 1).toString(), role: 'assistant', text: result.message },
-            ])
-          } catch (e) {
-            setMessages((prev) => [
-              ...prev,
-              { id: (Date.now() + 1).toString(), role: 'assistant', text: `Error: ${(e as Error).message}` },
-            ])
-          } finally {
-            setSending(false)
-          }
-        }}
+        onSend={handleSend}
+        streaming={streaming !== null}
       />
+
+      {/* Streaming message */}
+      {streaming !== null && (
+        <ChatMessage
+          message={{
+            id: 'streaming',
+            role: 'assistant',
+            text: streaming || '...',
+          }}
+        />
+      )}
     </div>
   )
 }

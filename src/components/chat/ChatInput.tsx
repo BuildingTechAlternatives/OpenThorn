@@ -10,9 +10,10 @@ interface Props {
   providerId: string | null
   model: string | null
   onProviderSelect: (providerId: string, model: string) => void
+  streaming: boolean
 }
 
-export default function ChatInput({ mode, onToggleMode, onSend, providerId, model, onProviderSelect }: Props) {
+export default function ChatInput({ mode, onToggleMode, onSend, providerId, model, onProviderSelect, streaming }: Props) {
   const [text, setText] = useState('')
   const [listening, setListening] = useState(false)
   const [modeOpen, setModeOpen] = useState(false)
@@ -36,12 +37,13 @@ export default function ChatInput({ mode, onToggleMode, onSend, providerId, mode
         <div className={styles.inputWrapper}>
           <textarea
             className={styles.textarea}
-            placeholder={mode === 'plan' ? 'Describe your plan...' : 'Describe what you want to build...'}
+            placeholder={streaming ? 'Bloom is generating...' : mode === 'plan' ? 'Describe your plan...' : 'Describe what you want to build...'}
             rows={2}
             value={text}
+            disabled={streaming}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
+              if (e.key === 'Enter' && !e.shiftKey && !streaming) {
                 e.preventDefault()
                 if (text.trim()) {
                   onSend(text.trim())
@@ -135,19 +137,26 @@ export default function ChatInput({ mode, onToggleMode, onSend, providerId, mode
             </button>
 
             <button
-              className={`${styles.sendBtn} ${text.trim() ? styles.hasText : ''}`}
-              disabled={!text.trim()}
-              title="Send"
+              className={`${styles.sendBtn} ${streaming ? styles.sendStop : ''} ${text.trim() && !streaming ? styles.hasText : ''}`}
+              disabled={!streaming && !text.trim()}
+              title={streaming ? 'Stop' : 'Send'}
               onClick={() => {
+                if (streaming) return
                 if (text.trim()) {
                   onSend(text.trim())
                   setText('')
                 }
               }}
             >
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-                <path d="m21.426 11.095-17-8A.999.999 0 0 0 3.03 4.242L4.969 12 3.03 19.758a.998.998 0 0 0 1.396 1.147l17-8a1 1 0 0 0 0-1.81z"/>
-              </svg>
+              {streaming ? (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="6" y="6" width="12" height="12" rx="1" />
+                </svg>
+              ) : (
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="m21.426 11.095-17-8A.999.999 0 0 0 3.03 4.242L4.969 12 3.03 19.758a.998.998 0 0 0 1.396 1.147l17-8a1 1 0 0 0 0-1.81z"/>
+                </svg>
+              )}
             </button>
           </div>
         </div>
