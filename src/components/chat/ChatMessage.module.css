@@ -67,10 +67,11 @@
 }
 
 .ai .content {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
-  border-radius: 18px 18px 18px 5px;
-  box-shadow: var(--shadow-sm);
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
 }
 
 /* ── Markdown ──────────────────────────────────────── */
