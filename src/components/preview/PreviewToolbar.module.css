@@ -4,7 +4,7 @@
   justify-content: space-between;
   padding: 8px 14px;
   border-bottom: 1px solid var(--border-subtle);
-  background: var(--bg-panel);
+  background: #1e1e1e;
   gap: 12px;
   flex-shrink: 0;
   min-height: 49px;
@@ -17,7 +17,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  background: #1e1e1e;
+  background: var(--bg-field);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
   padding: 6px 12px;
