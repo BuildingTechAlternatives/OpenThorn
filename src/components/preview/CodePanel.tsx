@@ -103,7 +103,7 @@ export default function CodePanel({ initialView = 'code', onClose }: Props) {
                 customStyle={{
                   margin: 0,
                   padding: '20px',
-                  background: '#0a0a14',
+                  background: '#1e1e1e',
                   fontSize: '13px',
                   lineHeight: '1.6',
                   fontFamily: "'Fira Code', 'Cascadia Code', monospace",

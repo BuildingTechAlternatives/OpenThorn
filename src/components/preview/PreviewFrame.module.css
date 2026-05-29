@@ -1,7 +1,7 @@
 .wrapper {
   flex: 1;
   overflow: auto;
-  background: #06060f;
+  background: #1e1e1e;
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -91,7 +91,7 @@
 /* ── Demo Site ────────────────────────────────────── */
 .demoSite {
   min-height: 100%;
-  background: #05050d;
+  background: #0b0b0b;
   color: #e4e4e7;
   font-family: 'Manrope', system-ui, -apple-system, sans-serif;
 }
@@ -104,7 +104,7 @@
   padding: 13px 30px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(12px);
-  background: rgba(5, 5, 13, 0.85);
+  background: rgba(11, 11, 11, 0.85);
   position: sticky;
   top: 0;
   z-index: 10;

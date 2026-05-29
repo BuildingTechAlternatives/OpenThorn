@@ -4,47 +4,34 @@
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  background: #06060c;
+  background: #000;
   position: relative;
   overflow: hidden;
-}
-
-/* Subtle radial vignette */
-.page::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 30% 40%, rgba(79, 143, 255, 0.03) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(99, 102, 241, 0.02) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
 }
 
 /* ── Floating Back ────────────────────────────────── */
 .floatingBack {
   position: fixed;
-  top: 20px;
-  left: 20px;
+  top: 18px;
+  left: 18px;
   z-index: 100;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.10);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .floatingBack:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
   transform: translateX(-2px);
-  border-color: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .floatingBack:active {
@@ -65,10 +52,8 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 30%),
-    #0a0a14;
-  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  background: #0b0b0b;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
   padding: 72px 0 20px;
 }
 
@@ -84,12 +69,12 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .brandDot:nth-child(1) { background: var(--accent); }
-.brandDot:nth-child(2) { background: rgba(255, 255, 255, 0.15); }
-.brandDot:nth-child(3) { background: rgba(255, 255, 255, 0.08); }
+.brandDot:nth-child(2) { background: rgba(255, 255, 255, 0.3); }
+.brandDot:nth-child(3) { background: rgba(255, 255, 255, 0.15); }
 
 /* ── Navigation ───────────────────────────────────── */
 .nav {
@@ -98,7 +83,7 @@
   padding: 0 16px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
 }
 
 .navGroup {
@@ -109,11 +94,11 @@
 .navGroupLabel {
   font-size: 9.5px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.28);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.13em;
   padding: 0 10px;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
 
 .navItems {
@@ -131,16 +116,16 @@
   border-radius: 6px;
   font-size: 12.5px;
   font-weight: 450;
-  color: rgba(255, 255, 255, 0.45);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  color: rgba(255, 255, 255, 0.55);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   text-align: left;
   position: relative;
   letter-spacing: 0.01em;
 }
 
 .navItem:hover {
-  color: rgba(255, 255, 255, 0.75);
-  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .navItemIcon {
@@ -149,18 +134,16 @@
   justify-content: center;
   width: 18px;
   height: 18px;
-  opacity: 0.5;
-  transition: opacity 0.2s;
+  opacity: 0.65;
+  transition: opacity 0.18s;
   flex-shrink: 0;
 }
 
-.navItem:hover .navItemIcon {
-  opacity: 0.8;
-}
+.navItem:hover .navItemIcon { opacity: 0.9; }
 
 .navItemActive {
   color: #fff;
-  background: rgba(79, 143, 255, 0.08);
+  background: rgba(80, 148, 255, 0.12);
   font-weight: 500;
 }
 
@@ -171,7 +154,7 @@
 
 .navItemActive:hover {
   color: #fff;
-  background: rgba(79, 143, 255, 0.12);
+  background: rgba(80, 148, 255, 0.16);
 }
 
 /* Active indicator line */
@@ -190,10 +173,10 @@
 /* ── Sidebar Meta ────────────────────────────────── */
 .sidebarMeta {
   margin: 12px 16px 0;
-  padding: 12px 14px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 11px 14px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -201,7 +184,7 @@
 
 .metaLabel {
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.35);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -210,7 +193,7 @@
 .metaValue {
   font-size: 11px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* ── Main Content ─────────────────────────────────── */
@@ -220,11 +203,12 @@
   padding: 72px 0 60px;
   display: flex;
   flex-direction: column;
+  background: #1e1e1e;
 }
 
 .contentHeader {
   padding: 0 60px 32px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .headerTop {
@@ -246,16 +230,16 @@
 .version {
   font-family: var(--font-mono);
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
   padding: 3px 8px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .subtitle {
   font-size: 13.5px;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.45);
   line-height: 1.6;
   max-width: 460px;
 }
@@ -273,10 +257,10 @@
 .settingsGroup {
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.01);
+  background: rgba(255, 255, 255, 0.015);
   max-width: 560px;
 }
 
@@ -285,12 +269,10 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
-.settingsRow:last-child {
-  border-bottom: none;
-}
+.settingsRow:last-child { border-bottom: none; }
 
 .settingInfo {
   display: flex;
@@ -301,17 +283,17 @@
 .settingLabel {
   font-size: 13px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .settingDesc {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.35);
 }
 
 .settingValue {
   font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.45);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -341,8 +323,8 @@
 
 .emptyVisual {
   position: relative;
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -353,15 +335,15 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
 }
 
 .emptyInner {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: rgba(79, 143, 255, 0.12);
-  border: 1px solid rgba(79, 143, 255, 0.18);
+  background: rgba(80, 148, 255, 0.15);
+  border: 1px solid rgba(80, 148, 255, 0.2);
 }
 
 .emptyText {
@@ -373,21 +355,19 @@
 .emptyLabel {
   font-size: 14px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .emptyDesc {
   font-size: 13px;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.3);
   max-width: 380px;
 }
 
 /* ── Scrollbar (override for sidebar) ─────────────── */
-.nav::-webkit-scrollbar {
-  width: 3px;
-}
+.nav::-webkit-scrollbar { width: 3px; }
 .nav::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.06);
   border-radius: 2px;
 }

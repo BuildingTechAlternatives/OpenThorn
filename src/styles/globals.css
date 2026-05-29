@@ -3,12 +3,12 @@
 /* ── Design Tokens ─────────────────────────────────── */
 :root {
   /* Background layers */
-  --bg-root: #05050a;
-  --bg-panel: #0a0a14;
-  --bg-elevated: #11111d;
-  --bg-field: #080810;
-  --bg-hover: #161627;
-  --bg-active: #1c1c30;
+  --bg-root: #0b0b0b;
+  --bg-panel: #0b0b0b;
+  --bg-elevated: #161616;
+  --bg-field: #121212;
+  --bg-hover: #1c1c1c;
+  --bg-active: #242424;
 
   /* Borders */
   --border-subtle: rgba(255, 255, 255, 0.035);

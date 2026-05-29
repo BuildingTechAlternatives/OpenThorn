@@ -71,7 +71,7 @@
   width: 220px;
   flex-shrink: 0;
   border-right: 1px solid var(--border-subtle);
-  background: #0d0d18;
+  background: #0b0b0b;
   overflow-y: auto;
   padding: 8px;
   display: flex;
@@ -150,7 +150,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px;
-  background: #0d0d18;
+  background: #0b0b0b;
   border-bottom: 1px solid var(--border-subtle);
   flex-shrink: 0;
 }
