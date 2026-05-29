@@ -59,10 +59,10 @@
 }
 
 .user .content {
-  background: linear-gradient(140deg, #5094ff 0%, #3d73d6 100%);
+  background: #18181b;
   color: #fff;
   border-radius: 18px 18px 5px 18px;
-  box-shadow: 0 2px 14px rgba(80, 148, 255, 0.18);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   white-space: pre-wrap;
 }
 
