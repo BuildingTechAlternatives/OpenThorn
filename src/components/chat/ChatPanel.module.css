@@ -10,8 +10,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px;
+  padding: 12px 18px;
   border-bottom: 1px solid var(--border-subtle);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.015) 0%, transparent 100%);
   flex-shrink: 0;
 }
 
@@ -22,10 +23,11 @@
 }
 
 .logoImg {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: var(--radius-sm);
   object-fit: contain;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* ── Project Menu ─────────────────────────────────── */
@@ -37,7 +39,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 8px;
+  padding: 5px 9px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background var(--duration-fast) var(--ease-out);
@@ -57,7 +59,7 @@
 }
 
 .chevron {
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   transition: transform var(--duration-fast) var(--ease-out);
 }
 
@@ -68,13 +70,13 @@
 .projectMenu {
   position: absolute;
   top: calc(100% + 8px);
-  left: 0;
-  width: 230px;
+  left: -4px;
+  width: 240px;
   background: var(--bg-panel);
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-elevated);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
   padding: 6px;
   z-index: 200;
   animation: dropIn var(--duration-normal) var(--ease-out);
@@ -83,7 +85,7 @@
 @keyframes dropIn {
   from {
     opacity: 0;
-    transform: translateY(-6px) scale(0.97);
+    transform: translateY(-8px) scale(0.96);
   }
   to {
     opacity: 1;
@@ -96,11 +98,11 @@
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 9px 10px;
+  padding: 8px 10px;
   border-radius: var(--radius-sm);
   font-size: 13px;
   color: var(--text-primary);
-  transition: background var(--duration-fast) var(--ease-out);
+  transition: all var(--duration-fast) var(--ease-out);
   text-align: left;
 }
 
@@ -111,6 +113,11 @@
 .projectMenuItem svg {
   flex-shrink: 0;
   color: var(--text-secondary);
+  transition: color var(--duration-fast);
+}
+
+.projectMenuItem:hover svg {
+  color: var(--text-primary);
 }
 
 .menuDivider {
@@ -121,17 +128,17 @@
 
 /* ── Appearance ───────────────────────────────────── */
 .appearanceGroup {
-  padding: 4px 6px 2px;
+  padding: 6px 6px 2px;
 }
 
 .appearanceLabel {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-disabled);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-tertiary);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   padding: 0 4px;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   display: block;
 }
 
@@ -145,9 +152,10 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 10px;
+  padding: 6px 11px;
   border-radius: var(--radius-sm);
   font-size: 12px;
+  font-weight: 500;
   color: var(--text-secondary);
   transition: all var(--duration-fast) var(--ease-out);
 }
@@ -158,11 +166,12 @@
 }
 
 .appearanceActive {
-  background: var(--bg-elevated);
+  background: rgba(79, 143, 255, 0.08);
   color: var(--accent);
 }
 
 .appearanceActive:hover {
+  background: rgba(79, 143, 255, 0.12);
   color: var(--accent);
 }
 
@@ -172,7 +181,7 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 20px 0;
+  gap: 22px;
+  padding: 22px 0;
   scroll-behavior: smooth;
 }

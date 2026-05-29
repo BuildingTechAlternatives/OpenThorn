@@ -3,6 +3,7 @@
   height: 100%;
   width: 100%;
   position: relative;
+  background: var(--bg-root);
 }
 
 .left,
@@ -18,10 +19,10 @@
 }
 
 .divider {
-  width: 6px;
-  margin-left: -3px;
+  width: 8px;
+  margin-left: -4px;
   cursor: col-resize;
-  z-index: 10;
+  z-index: 20;
   position: relative;
   display: flex;
   align-items: center;
@@ -34,7 +35,7 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 2px;
+  width: 1px;
   background: transparent;
   transition: background var(--duration-normal) var(--ease-out);
 }
@@ -42,15 +43,16 @@
 .divider:hover::before,
 .divider.dragging::before {
   background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
 }
 
 .handle {
-  width: 4px;
-  height: 32px;
+  width: 3px;
+  height: 36px;
   border-radius: 2px;
   background: var(--text-disabled);
   opacity: 0;
-  transition: opacity var(--duration-normal) var(--ease-out);
+  transition: opacity var(--duration-normal) var(--ease-out), background var(--duration-normal);
 }
 
 .divider:hover .handle,
@@ -60,4 +62,5 @@
 
 .divider.dragging .handle {
   background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
 }

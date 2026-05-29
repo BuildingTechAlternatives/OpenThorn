@@ -2,10 +2,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--border-subtle);
   background: var(--bg-panel);
-  gap: 12px;
+  gap: 14px;
   flex-shrink: 0;
 }
 
@@ -13,7 +13,7 @@
 .left {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex: 1;
   min-width: 0;
 }
@@ -25,19 +25,19 @@
   background: var(--bg-field);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
-  padding: 7px 12px;
-  max-width: 220px;
+  padding: 7px 14px;
+  max-width: 240px;
   flex: 1;
-  transition: border-color var(--duration-fast) var(--ease-out);
+  transition: all var(--duration-fast) var(--ease-out);
 }
 
 .routeBar:focus-within {
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 0 0 3px var(--accent-soft);
+  border-color: rgba(79, 143, 255, 0.2);
+  box-shadow: 0 0 0 3px rgba(79, 143, 255, 0.05);
 }
 
 .routeIcon {
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   flex-shrink: 0;
 }
 
@@ -67,18 +67,19 @@
 }
 
 .deviceBtn {
-  width: 30px;
+  width: 32px;
   height: 28px;
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   transition: all var(--duration-fast) var(--ease-out);
 }
 
 .deviceBtn:hover {
   color: var(--text-primary);
+  background: var(--bg-hover);
 }
 
 .deviceActive {
@@ -99,7 +100,7 @@
 .iconBtn {
   width: 32px;
   height: 32px;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -109,7 +110,7 @@
 
 .iconBtn:hover,
 .iconBtn.active {
-  background: var(--bg-elevated);
+  background: var(--bg-hover);
   color: var(--text-primary);
 }
 
@@ -120,14 +121,14 @@
 
 .dropdown {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   right: 0;
   width: 160px;
   background: var(--bg-panel);
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-elevated);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
   padding: 6px;
   z-index: 100;
   animation: dropIn var(--duration-normal) var(--ease-out);
@@ -136,7 +137,7 @@
 @keyframes dropIn {
   from {
     opacity: 0;
-    transform: translateY(-4px) scale(0.96);
+    transform: translateY(-6px) scale(0.95);
   }
   to {
     opacity: 1;
@@ -167,25 +168,28 @@
 /* ── Profile ──────────────────────────────────────── */
 .profile {
   flex-shrink: 0;
+  margin-left: 2px;
 }
 
 .avatar {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #fff;
   cursor: pointer;
-  transition: transform var(--duration-fast) var(--ease-out);
+  transition: all var(--duration-fast) var(--ease-spring);
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
 }
 
 .avatar:hover {
-  transform: scale(1.05);
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
 }
 
 /* ── Action buttons ───────────────────────────────── */
@@ -193,8 +197,8 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 13px;
-  border-radius: var(--radius-md);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
   font-size: 12.5px;
   font-weight: 500;
   color: var(--text-secondary);
@@ -203,7 +207,7 @@
 }
 
 .actionBtn:hover {
-  background: var(--bg-elevated);
+  background: var(--bg-hover);
   color: var(--text-primary);
   border-color: var(--border-strong);
 }
@@ -212,16 +216,17 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 14px;
-  border-radius: var(--radius-md);
+  padding: 6px 16px;
+  border-radius: var(--radius-sm);
   font-size: 12.5px;
   font-weight: 600;
   color: #fff;
-  background: var(--accent);
-  transition: all var(--duration-fast) var(--ease-out);
+  background: linear-gradient(135deg, var(--accent), #3b6fdb);
+  transition: all var(--duration-fast) var(--ease-spring);
+  box-shadow: 0 2px 8px rgba(79, 143, 255, 0.2);
 }
 
 .publishBtn:hover {
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 4px 16px rgba(79, 143, 255, 0.35);
   transform: translateY(-1px);
 }

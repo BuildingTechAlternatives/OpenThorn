@@ -35,11 +35,14 @@ export default function PreviewFrame({ device }: Props) {
           {/* Demo preview content */}
           <div className={styles.demoSite}>
             <nav className={styles.demoNav}>
-              <span className={styles.demoLogo}>Flowly</span>
+              <span className={styles.demoLogo}>
+                <span className={styles.demoLogoDot} />
+                Flowly
+              </span>
               <div className={styles.demoLinks}>
                 <span>Features</span>
                 <span>Pricing</span>
-                <span>About</span>
+                <span>Docs</span>
                 <span className={styles.demoCTA}>Get Started</span>
               </div>
             </nav>
@@ -57,14 +60,29 @@ export default function PreviewFrame({ device }: Props) {
                 <button className={styles.demoSecondary}>Watch demo →</button>
               </div>
             </main>
-            <section className={styles.demoGrid}>
-              {['AI Planning', 'Real-time Sync', 'Custom Views', 'Analytics', 'Integrations', 'Security'].map((f) => (
-                <div key={f} className={styles.demoCard}>
-                  <div className={styles.demoIcon} />
-                  <span>{f}</span>
-                </div>
-              ))}
+            <section className={styles.demoSection}>
+              <div className={styles.demoSectionTitle}>Key Features</div>
+              <div className={styles.demoGrid}>
+                {[
+                  { label: 'AI Planning', desc: 'Smart task prioritization' },
+                  { label: 'Real-time Sync', desc: 'Instant team updates' },
+                  { label: 'Custom Views', desc: 'Flexible workflows' },
+                  { label: 'Analytics', desc: 'Deep insights' },
+                  { label: 'Integrations', desc: 'Connect your stack' },
+                  { label: 'Security', desc: 'Enterprise-grade' },
+                ].map((f) => (
+                  <div key={f.label} className={styles.demoCard}>
+                    <div className={styles.demoIcon}>✦</div>
+                    <span className={styles.demoCardLabel}>{f.label}</span>
+                    <span className={styles.demoCardDesc}>{f.desc}</span>
+                  </div>
+                ))}
+              </div>
             </section>
+            <footer className={styles.demoFooter}>
+              <span>© 2026 Flowly</span>
+              <span>Privacy · Terms · Contact</span>
+            </footer>
           </div>
         </div>
       </div>

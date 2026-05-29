@@ -3,32 +3,37 @@
 }
 
 .trigger {
-  width: 34px;
-  height: 34px;
-  border-radius: var(--radius-md);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-secondary);
-  transition: all var(--duration-fast) var(--ease-out);
+  transition: all var(--duration-fast) var(--ease-spring);
 }
 
-.trigger:hover,
+.trigger:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  transform: scale(1.05);
+}
+
 .trigger.active {
   background: var(--bg-elevated);
-  color: var(--text-primary);
+  color: var(--accent);
 }
 
 .menu {
   position: absolute;
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 10px);
   left: 0;
-  width: 220px;
+  width: 230px;
   background: var(--bg-panel);
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-elevated);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
   padding: 6px;
   z-index: 100;
   animation: slideUp var(--duration-normal) var(--ease-out);
@@ -37,7 +42,7 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(6px) scale(0.97);
+    transform: translateY(8px) scale(0.96);
   }
   to {
     opacity: 1;
@@ -54,16 +59,21 @@
   border-radius: var(--radius-sm);
   font-size: 13px;
   color: var(--text-primary);
-  transition: background var(--duration-fast) var(--ease-out);
+  transition: all var(--duration-fast) var(--ease-out);
 }
 
 .item:hover {
-  background: var(--bg-elevated);
+  background: var(--bg-hover);
 }
 
 .item svg {
   flex-shrink: 0;
   color: var(--text-secondary);
+  transition: color var(--duration-fast);
+}
+
+.item:hover svg {
+  color: var(--text-primary);
 }
 
 .label {
@@ -73,10 +83,11 @@
 
 .shortcut {
   font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-disabled);
-  background: var(--bg-field);
-  padding: 2px 5px;
-  border-radius: 3px;
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 2px 6px;
+  border-radius: 4px;
   border: 1px solid var(--border-subtle);
+  letter-spacing: 0.02em;
 }
