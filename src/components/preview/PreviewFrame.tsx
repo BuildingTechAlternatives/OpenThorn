@@ -21,70 +21,55 @@ interface Props {
 function buildPreviewSrcDoc(): string {
   const { files } = getWorkspace()
 
-  // Check if index.html has been modified from the scaffold
-  const scaffoldHtml = `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bloom Project</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>`
+  const scaffoldPaths = [
+    'index.html',
+    'package.json',
+    'tsconfig.json',
+    'vite.config.ts',
+    'src/main.tsx',
+    'src/App.tsx',
+    'src/App.module.css',
+    'src/styles/globals.css',
+  ]
 
-  const indexHtml = files.find((f) => f.path === 'index.html')
-  const hasUserFiles =
-    files.filter(
-      (f) =>
-        ![
-          'index.html',
-          'package.json',
-          'tsconfig.json',
-          'vite.config.ts',
-          'src/main.tsx',
-          'src/App.tsx',
-          'src/App.module.css',
-          'src/styles/globals.css',
-        ].includes(f.path)
-    ).length > 0
+  // Check if any scaffold file was modified or new files were created
+  const hasChanges =
+    files.length !== scaffoldPaths.length ||
+    files.some((f) => !scaffoldPaths.includes(f.path))
 
   // Before any user work — blank screen
-  if (!hasUserFiles && indexHtml && indexHtml.content === scaffoldHtml) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{background:#0b0b0f;margin:0}</style></head><body></body></html>`
+  if (!hasChanges) {
+    return blankDoc()
   }
 
   // User has built something — render index.html
-  if (indexHtml) {
-    let doc = indexHtml.content
-
-    // Inject CSS files into <head> if not already linked
-    for (const f of files) {
-      if (f.path.endsWith('.css')) {
-        if (!doc.includes(f.path)) {
-          doc = doc.replace('</head>', `  <style>/* ${f.path} */\n${f.content}\n</style>\n</head>`)
-        }
-      }
-      // Replace TS module scripts with inline JS (strip types)
-      if (f.path.endsWith('.ts') || f.path.endsWith('.tsx')) {
-        const srcAttr = `src="/${f.path}"`
-        if (doc.includes(srcAttr)) {
-          const js = stripTypes(f.content)
-          doc = doc.replace(
-            new RegExp(`<script[^>]*src="/${f.path.replace(/\./g, '\\.')}"[^>]*></script>`, 'g'),
-            `<script type="module">\n${js}\n</script>`
-          )
-        }
-      }
-    }
-
-    return doc
+  const indexHtml = files.find((f) => f.path === 'index.html')
+  if (!indexHtml) {
+    return blankDoc()
   }
 
-  // Fallback
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{background:#0b0b0f;display:flex;align-items:center;justify-content:center;height:100vh;color:#888;font-family:system-ui,sans-serif;margin:0}</style></head><body><div style="text-align:center"><p style="font-size:18px;color:#ccc;margin-bottom:8px">Preview loading...</p><p style="font-size:13px">Click <strong>Code</strong> to view source files</p></div></body></html>`
+  let doc = indexHtml.content
+
+  // Inject CSS files into <head>
+  for (const f of files) {
+    if (f.path.endsWith('.css') && !doc.includes(f.path)) {
+      doc = doc.replace('</head>', `  <style>/* ${f.path} */\n${f.content}\n</style>\n</head>`)
+    }
+    // Replace TS module script references with inline JS
+    if ((f.path.endsWith('.ts') || f.path.endsWith('.tsx')) && doc.includes(`src="/${f.path}"`)) {
+      const js = stripTypes(f.content)
+      doc = doc.replace(
+        new RegExp(`<script[^>]*src="/${f.path.replace(/\./g, '\\.')}"[^>]*></script>`, 'g'),
+        `<script type="module">\n${js}\n</script>`
+      )
+    }
+  }
+
+  return doc
+}
+
+function blankDoc(): string {
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{background:#0b0b0f;margin:0}</style></head><body></body></html>'
 }
 
 /** Strip TypeScript type annotations for browser execution */
