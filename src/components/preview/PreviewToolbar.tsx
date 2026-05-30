@@ -11,7 +11,7 @@ interface Props {
   codeOpen: boolean
 }
 
-export default function PreviewToolbar({ device, onDeviceChange, onOpenCode, codeOpen }: Props) {
+export default function PreviewToolbar({ device, onDeviceChange, onOpenCode, codeOpen: _codeOpen }: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)

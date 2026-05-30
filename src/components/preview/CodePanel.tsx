@@ -131,7 +131,7 @@ export default function CodePanel({ initialView = 'code', onClose }: Props) {
                   userSelect: 'none',
                 }}
               >
-                {activeFile.content}
+                {activeFile?.content ?? ''}
               </SyntaxHighlighter>
             </div>
           </div>

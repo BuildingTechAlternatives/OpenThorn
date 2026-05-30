@@ -13,8 +13,6 @@ import {
   executeBuild,
   getErrors,
 } from './workspace'
-import type { BuildResult } from './workspace'
-
 /* ── Tool Definitions ─────────────────────────────── */
 
 export interface ToolDefinition {

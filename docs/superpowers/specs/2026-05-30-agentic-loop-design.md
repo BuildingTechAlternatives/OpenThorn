@@ -38,7 +38,8 @@ Use `@webcontainer/api` to run a real Node/Vite dev server in the browser. This 
 |------|---------|
 | `list_files` | List all files in the project workspace |
 | `read_file(path)` | Read a specific file's content |
-| `write_file(path, content)` | Create or update a file |
+| `write_file(path, content)` | Create or overwrite a file |
+| `edit_file(path, old_string, new_string)` | Surgical string replacement in a file |
 | `delete_file(path)` | Remove a file |
 | `execute_build()` | Run the WebContainer build (vite) |
 | `get_errors()` | Get build errors + runtime console errors |

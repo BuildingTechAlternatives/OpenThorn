@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useApp } from '../../App'
-import { runAgentLoop, type AgentStreamEvent } from '../../lib/agent-loop'
-import { getWorkspace, resetWorkspace } from '../../lib/workspace'
+import { runAgentLoop } from '../../lib/agent-loop'
+import { resetWorkspace } from '../../lib/workspace'
 import { supabase } from '../../lib/supabase'
 import type { ProviderConfig } from '../../lib/providers'
 import ChatMessage from './ChatMessage'
@@ -35,7 +35,6 @@ export default function ChatPanel() {
   const [providerId, setProviderId] = useState<string | null>(null)
   const [model, setModel] = useState<string | null>(null)
   const [streaming, setStreaming] = useState(false)
-  const abortRef = useRef<AbortController | null>(null)
   const [projectMenuOpen, setProjectMenuOpen] = useState(false)
   const [appearance, setAppearance] = useState<'light' | 'dark' | 'system'>('dark')
   const { navigateTo } = useApp()
