@@ -37,13 +37,8 @@ function buildPreviewSrcDoc(): string {
   const cssFiles = files.filter(f => f.path.endsWith('.css'))
   const htmlFiles = files.filter(f => f.path.endsWith('.html'))
 
-  // If AI wrote a self-contained index.html, use it directly
-  const indexHtml = htmlFiles.find(f => f.path === 'index.html')
-  if (indexHtml && indexHtml.content.includes('<script') && indexHtml.content.includes('</script>')) {
-    return indexHtml.content
-  }
-
-  // Build a bundled preview from all source files
+  // Always build a bundled preview from source files
+  // (index.html is just a module entry point — not standalone)
   return buildBundledPreview(jsxFiles, cssFiles, indexHtml)
 }
 
