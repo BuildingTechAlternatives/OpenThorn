@@ -104,24 +104,43 @@ function blankDoc(): string {
   return '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{background:#0b0b0f;margin:0}</style></head><body></body></html>'
 }
 
-/** Strip TypeScript type annotations for browser execution */
+/** Strip TypeScript syntax so Babel standalone can parse it */
 function stripTypes(code: string): string {
   let out = code
-  // Remove type annotations after variable declarations
-  out = out.replace(/:\s*[\w<>[\],\s|&{}]+(\s*=\s*)/g, '$1')
-  // Remove interface/type declarations
-  out = out.replace(/^(export\s+)?(interface|type)\s+\w+[\s\S]*?\{[\s\S]*?\}/gm, '')
-  out = out.replace(/^(export\s+)?(interface|type)\s+\w+[\s\S]*?=\s*[\w|&'"[\]]+;/gm, '')
-  // Remove return type annotations on functions
-  out = out.replace(/(\))\s*:\s*[\w<>[\],\s|&{}]+(\s*\{)/g, '$1$2')
-  // Remove generic type parameters
+  // Non-null assertions: x!.y → x.y, x! → x
+  out = out.replace(/!(\s*[.)}\]>,;:[])/g, '$1')
+  out = out.replace(/!(\s*$)/gm, '')
+  // Type annotations on variables/params: const x: Type = val
+  out = out.replace(/:\s*([\w<>[\],\s|&'"{}]+?)(\s*[=,)}\]]|\s*$)/g, (_, type, end) => {
+    // Don't strip if it looks like a ternary (contains ?)
+    if (type.includes('?')) return `: ${type}${end}`
+    return end
+  })
+  // Return type annotations: function foo(): Type {
+  out = out.replace(/(\))\s*:\s*[\w<>[\],\s|&'"{}]+?(\s*\{)/g, '$1$2')
+  // Generic type parameters: function foo<T>(...) → function foo(...)
   out = out.replace(/<[\w\s,]+>(?=\s*\()/g, '')
+  // Remove interface/type declarations (multi-line)
+  out = out.replace(/^(export\s+)?interface\s+\w+(\s+extends\s+[\w\s,]+)?\s*\{[\s\S]*?\}/gm, '')
+  // Remove single-line type aliases
+  out = out.replace(/^(export\s+)?type\s+\w+(\s*<[^>]+>)?\s*=\s*.+;?$/gm, '')
   // Remove import type
   out = out.replace(/import\s+type\s+.*?from\s+['"][^'"]+['"]\s*;?/g, '')
-  // Remove satisfies operator
-  out = out.replace(/\s+satisfies\s+[\w<>[\],\s|&{}]+/g, '')
-  // Remove as const
-  out = out.replace(/\s+as\s+const/g, '')
+  // Remove type-only imports within regular imports: import { type Foo, Bar }
+  out = out.replace(/import\s+\{([^}]*)\}\s+from/g, (_, inner) => {
+    const cleaned = inner.replace(/type\s+\w+,?\s*/g, '').replace(/,\s*$/, '').trim()
+    return `import {${cleaned}} from`
+  })
+  // satisfies operator
+  out = out.replace(/\s+satisfies\s+[\w<>[\],\s|&'"{}]+/g, '')
+  // as const / as Type casts
+  out = out.replace(/\s+as\s+(const|[\w<>[\],\s|&'"{}]+)/g, '')
+  // Angle bracket type assertions: <Type>value (but not JSX <Component>)
+  out = out.replace(/<([A-Z]\w*(?:\[\])?(?:\s*[|&]\s*[A-Z]\w*(?:\[\])?)*)>(\s*[^(<])/g, '$2')
+  // Generic type parameters on interfaces/types (already handled, but catch leftovers)
+  out = out.replace(/^export\s+type\s+\w+.*$/gm, '')
+  // Remove empty lines left by removed declarations
+  out = out.replace(/^\s*\n/gm, '')
   return out
 }
 
