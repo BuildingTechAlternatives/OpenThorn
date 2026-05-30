@@ -60,7 +60,12 @@ function buildBundledPreview(
   const allJs = jsxFiles
     .map(f => {
       let code = f.content
-      // Strip ALL import statements (React loaded via CDN, CSS injected separately)
+      // Replace CSS module imports with identity proxy (styles.xyz → "xyz")
+      code = code.replace(
+        /^import\s+(\w+)\s+from\s+['"](\.\/|\.\.\/)*[^'"]+\.module\.css['"]\s*;?\s*$/gm,
+        (_, name) => `const ${name} = new Proxy({}, {get: (_, k) => k})`
+      )
+      // Strip ALL other import statements (React loaded via CDN, plain CSS injected)
       code = code.replace(/^import\s+.*?from\s+['"][^'"]+['"]\s*;?\s*$/gm, '')
       code = code.replace(/^import\s+['"][^'"]+['"]\s*;?\s*$/gm, '')
       // Strip export default but keep the declaration
