@@ -139,6 +139,11 @@ export async function* runAgentLoop(
 
     // ── No tool calls → agent considers itself done ──
     if (!toolCalls || toolCalls.length === 0) {
+      // If no text AND no tool calls, something went wrong
+      if (!textContent) {
+        yield { type: 'error', content: 'The AI returned an empty response. This may be a provider issue — try again or switch providers.' }
+        return
+      }
       if (!lastBuildFailed) {
         // Auto-verify: trigger build
         const verifyCall: ToolCall = {

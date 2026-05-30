@@ -49,15 +49,28 @@ export default function ChatPanel() {
     async (text: string) => {
       const userMsg: Message = { id: Date.now().toString(), role: 'user', text }
       setMessages((prev) => [...prev, userMsg])
-      if (!providerId || !model) return
+      if (!providerId || !model) {
+        setMessages((prev) => [
+          ...prev,
+          { id: (Date.now() + 1).toString(), role: 'assistant', text: 'Please select a provider and model first. Click the provider dropdown in the input bar.' },
+        ])
+        return
+      }
 
-      const { data: provider } = await supabase
+      const { data: provider, error: providerError } = await supabase
         .from('providers')
         .select('*')
         .eq('id', providerId)
         .single()
 
-      if (!provider) return
+      if (providerError || !provider) {
+        console.error('Provider lookup failed:', providerError)
+        setMessages((prev) => [
+          ...prev,
+          { id: (Date.now() + 1).toString(), role: 'assistant', text: 'Could not find your provider configuration. Please check your settings.' },
+        ])
+        return
+      }
 
       const assistantId = (Date.now() + 1).toString()
       setStreaming(true)
@@ -215,6 +228,7 @@ export default function ChatPanel() {
           }
         }
       } catch (e) {
+        console.error('Agent loop error:', e)
         flushText()
         blocks.push({
           type: 'status',
