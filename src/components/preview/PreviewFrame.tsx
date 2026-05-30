@@ -71,11 +71,8 @@ function buildBundledPreview(
     })
     .join('\n\n')
 
-  // Entry: main.jsx → render App, or just render App.jsx directly
-  const hasMain = jsxFiles.some(f => f.path === 'src/main.jsx')
-  const initCode = hasMain
-    ? `\nconst root = ReactDOM.createRoot(document.getElementById('root'));\nroot.render(<App />);`
-    : `\nconst root = ReactDOM.createRoot(document.getElementById('root'));\nroot.render(<App />);`
+  // Entry: render the App component
+  const initCode = `\nconst root = ReactDOM.createRoot(document.getElementById('root'));\nroot.render(<App />);`
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -90,6 +87,11 @@ function buildBundledPreview(
 </head>
 <body>
 <div id="root"></div>
+<script>
+// Make React hooks available as globals (imports are stripped by the bundler)
+const { useState, useEffect, useRef, useCallback, useMemo, useContext, useReducer } = React;
+const { createRoot } = ReactDOM;
+</script>
 <script type="text/babel">
 ${allJs}
 ${initCode}
