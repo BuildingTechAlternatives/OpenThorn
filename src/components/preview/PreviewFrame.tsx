@@ -88,9 +88,9 @@ function buildBundledPreview(
 <body>
 <div id="root"></div>
 <script>
-// Make React hooks available as globals (imports are stripped by the bundler)
-const { useState, useEffect, useRef, useCallback, useMemo, useContext, useReducer } = React;
-const { createRoot } = ReactDOM;
+// Make all React APIs available as globals since imports are stripped
+Object.assign(window, React);
+Object.assign(window, ReactDOM);
 </script>
 <script type="text/babel">
 ${allJs}
