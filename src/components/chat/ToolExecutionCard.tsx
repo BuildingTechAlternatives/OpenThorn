@@ -76,11 +76,12 @@ function getToolConfig(
     case 'read_file': {
       const path = args.path ?? ''
       const content = path ? readFile(path) : null
+      const lines = content ? content.split('\n').length : 0
       return {
         icon: <ReadIcon />,
         label: 'Read',
         detail: path,
-        badge: success ? `${content?.split('\n').length ?? 0} lines` : 'Failed',
+        badge: success ? (lines > 0 ? `${lines} lines` : 'OK') : 'Failed',
         expandable: !!content,
         body: content ? <CodeBlock path={path} code={content} /> : undefined,
       }
@@ -89,12 +90,13 @@ function getToolConfig(
     case 'write_file': {
       const path = args.path ?? ''
       const content = path ? readFile(path) : null
+      const lines = content ? content.split('\n').length : 0
       const isNew = result.includes('Created')
       return {
         icon: isNew ? <NewIcon /> : <EditIcon />,
         label: isNew ? 'Created' : 'Modified',
         detail: path,
-        badge: success ? `${content?.split('\n').length ?? 0} lines` : 'Failed',
+        badge: success ? (lines > 0 ? `${lines} lines` : 'OK') : 'Failed',
         expandable: !!content,
         body: content ? <CodeBlock path={path} code={content} /> : undefined,
       }

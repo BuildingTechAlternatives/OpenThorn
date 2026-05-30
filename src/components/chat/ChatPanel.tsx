@@ -166,12 +166,15 @@ export default function ChatPanel() {
               const tr = event.toolResult
               if (!tr) break
 
-              // Remove matching status block
+              // Remove matching status block and capture its args
+              let toolArgs: Record<string, string> = {}
               const statusIdx = findLastIndex(
                 blocks,
                 (b) => b.type === 'status'
               )
               if (statusIdx >= 0) {
+                const removed = blocks[statusIdx]
+                toolArgs = removed.toolArgs ?? {}
                 blocks.splice(statusIdx, 1)
               }
 
@@ -180,11 +183,10 @@ export default function ChatPanel() {
                 !tr.display.includes('failed') &&
                 !tr.display.includes('Error')
 
-              // Extract args from the preceding tool_call — we store them in the status block
               blocks.push({
                 type: 'tool',
                 tool: tr.name,
-                toolArgs: {},
+                toolArgs,
                 toolResult: tr.display,
                 toolSuccess: isOk,
               })
