@@ -209,17 +209,66 @@ export function resetWorkspace() {
   notify()
 }
 
+/* ── Path Validation ──────────────────────────────── */
+
+/**
+ * Validate and normalize a file path to prevent path traversal attacks.
+ * All file CRUD operations must go through this check.
+ */
+function validatePath(userPath: string): string {
+  // Block empty paths
+  if (!userPath || userPath.trim().length === 0) {
+    throw new Error('Path must not be empty')
+  }
+
+  // Block absolute paths
+  if (userPath.startsWith('/') || userPath.startsWith('\\')) {
+    throw new Error(`Absolute paths are not allowed: ${userPath}`)
+  }
+
+  // Block Windows drive letters
+  if (/^[a-zA-Z]:/.test(userPath)) {
+    throw new Error(`Windows drive paths are not allowed: ${userPath}`)
+  }
+
+  // Normalize: resolve .. and .
+  const segments = userPath.replace(/\\/g, '/').split('/')
+  const resolved: string[] = []
+  for (const seg of segments) {
+    if (seg === '' || seg === '.') continue
+    if (seg === '..') {
+      if (resolved.length === 0) {
+        throw new Error(`Path traversal blocked: ${userPath} (attempted to escape workspace)`)
+      }
+      resolved.pop()
+      continue
+    }
+    // Block suspicious segments
+    if (seg.includes('\0') || seg.includes('\n') || seg.includes('\r')) {
+      throw new Error(`Invalid characters in path: ${userPath}`)
+    }
+    resolved.push(seg)
+  }
+
+  if (resolved.length === 0) {
+    throw new Error(`Path resolves to workspace root: ${userPath}`)
+  }
+
+  return resolved.join('/')
+}
+
 /* ── File CRUD ────────────────────────────────────── */
 
 export function writeFile(path: string, content: string): WorkspaceFile {
-  const existing = workspace.files.find((f) => f.path === path)
+  const safePath = validatePath(path)
+  const existing = workspace.files.find((f) => f.path === safePath)
   if (existing) {
     existing.content = content
     existing.lastModified = Date.now()
     notify()
     return existing
   }
-  const file: WorkspaceFile = { path, content, lastModified: Date.now() }
+  const file: WorkspaceFile = { path: safePath, content, lastModified: Date.now() }
   workspace.files.push(file)
   // Keep files sorted by path
   workspace.files.sort((a, b) => a.path.localeCompare(b.path))
@@ -228,11 +277,13 @@ export function writeFile(path: string, content: string): WorkspaceFile {
 }
 
 export function readFile(path: string): string | null {
-  return workspace.files.find((f) => f.path === path)?.content ?? null
+  const safePath = validatePath(path)
+  return workspace.files.find((f) => f.path === safePath)?.content ?? null
 }
 
 export function deleteFile(path: string): boolean {
-  const idx = workspace.files.findIndex((f) => f.path === path)
+  const safePath = validatePath(path)
+  const idx = workspace.files.findIndex((f) => f.path === safePath)
   if (idx === -1) return false
   workspace.files.splice(idx, 1)
   notify()
@@ -244,8 +295,9 @@ export function editFile(
   oldString: string,
   newString: string
 ): { success: boolean; error?: string } {
-  const file = workspace.files.find((f) => f.path === path)
-  if (!file) return { success: false, error: `File not found: ${path}` }
+  const safePath = validatePath(path)
+  const file = workspace.files.find((f) => f.path === safePath)
+  if (!file) return { success: false, error: `File not found: ${safePath}` }
   if (!file.content.includes(oldString)) {
     return { success: false, error: 'old_string not found in file — it may have changed since you last read it' }
   }

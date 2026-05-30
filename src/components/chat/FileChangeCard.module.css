@@ -1,0 +1,123 @@
+.card {
+  margin: 6px 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: var(--bg-elevated);
+  overflow: hidden;
+  font-size: 13px;
+  transition: border-color 0.15s ease;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  text-align: left;
+  transition: background 0.1s ease;
+}
+
+.header:hover {
+  background: var(--bg-hover);
+}
+
+.icon {
+  font-size: 15px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.action {
+  color: var(--text-secondary);
+  font-weight: 500;
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+.path {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  transition: transform 0.15s ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+/* ── Action variants ──────────────────────────────── */
+
+.created {
+  border-left: 3px solid #4ade80;
+}
+
+.modified {
+  border-left: 3px solid var(--accent);
+}
+
+.deleted {
+  border-left: 3px solid #f87171;
+  opacity: 0.7;
+}
+
+/* ── Expanded code block ──────────────────────────── */
+
+.codeBlock {
+  border-top: 1px solid var(--border-subtle);
+  background: #1a1a1e;
+}
+
+.codeHeader {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 12px;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.lang {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.lineCount {
+  opacity: 0.6;
+}
+
+.code {
+  padding: 12px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: #d4d4d8;
+  overflow-x: auto;
+  max-height: 300px;
+  overflow-y: auto;
+  white-space: pre;
+  tab-size: 2;
+}
+
+.code code {
+  font-family: inherit;
+  font-size: inherit;
+}
