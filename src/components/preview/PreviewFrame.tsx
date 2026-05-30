@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import type { Device } from './PreviewPanel'
 import { getWorkspace, subscribeToWorkspace } from '../../lib/workspace'
 import styles from './PreviewFrame.module.css'
@@ -50,19 +50,51 @@ function buildPreviewSrcDoc(): string {
 
   let doc = indexHtml.content
 
+  // Inject Babel standalone for JSX transpilation
+  if (!doc.includes('babel-standalone')) {
+    doc = doc.replace(
+      '</head>',
+      '<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>\n</head>'
+    )
+  }
+
+  // Inject React if not already loaded
+  if (!doc.includes('esm.sh/react') && !doc.includes('unpkg.com/react')) {
+    doc = doc.replace(
+      '</head>',
+      '<script type="importmap">{"imports":{"react":"https://esm.sh/react@19","react-dom/":"https://esm.sh/react-dom@19/"}}</script>\n</head>'
+    )
+  }
+
   // Inject CSS files into <head>
   for (const f of files) {
     if (f.path.endsWith('.css') && !doc.includes(f.path)) {
       doc = doc.replace('</head>', `  <style>/* ${f.path} */\n${f.content}\n</style>\n</head>`)
     }
-    // Replace TS module script references with inline JS
-    if ((f.path.endsWith('.ts') || f.path.endsWith('.tsx')) && doc.includes(`src="/${f.path}"`)) {
+    // Replace .tsx/.ts script references with text/babel for transpilation
+    if ((f.path.endsWith('.tsx') || f.path.endsWith('.ts')) && doc.includes(f.path)) {
       const js = stripTypes(f.content)
+      const escapedPath = f.path.replace(/\./g, '\\.')
+      // Replace src references
       doc = doc.replace(
-        new RegExp(`<script[^>]*src="/${f.path.replace(/\./g, '\\.')}"[^>]*></script>`, 'g'),
-        `<script type="module">\n${js}\n</script>`
+        new RegExp(`<script[^>]*src=["']/${escapedPath}["'][^>]*></script>`, 'g'),
+        `<script type="text/babel" data-type="module">\n${js}\n</script>`
+      )
+      // Also replace importmap-style module references
+      doc = doc.replace(
+        new RegExp(`<script[^>]*src=["']\\./${escapedPath}["'][^>]*></script>`, 'g'),
+        `<script type="text/babel" data-type="module">\n${js}\n</script>`
       )
     }
+  }
+
+  // Convert remaining type="module" scripts to text/babel if they contain JSX
+  // This handles inline scripts that reference React components
+  if (files.some((f) => f.path.endsWith('.tsx'))) {
+    doc = doc.replace(
+      /<script type="module"/g,
+      '<script type="text/babel" data-type="module"'
+    )
   }
 
   return doc
@@ -94,13 +126,31 @@ function stripTypes(code: string): string {
 }
 
 export default function PreviewFrame({ device }: Props) {
-  const [srcDoc, setSrcDoc] = useState(buildPreviewSrcDoc)
+  const [blobUrl, setBlobUrl] = useState('')
+  const blobUrlRef = useRef('')
 
-  useEffect(() => {
-    return subscribeToWorkspace(() => {
-      setSrcDoc(buildPreviewSrcDoc())
-    })
+  // Build preview HTML as a blob URL for origin isolation
+  const updatePreview = useCallback(() => {
+    if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current)
+    const html = buildPreviewSrcDoc()
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    blobUrlRef.current = url
+    setBlobUrl(url)
   }, [])
+
+  // Initial render
+  useEffect(() => {
+    updatePreview()
+    return () => {
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current)
+    }
+  }, [updatePreview])
+
+  // Subscribe to workspace changes
+  useEffect(() => {
+    return subscribeToWorkspace(() => updatePreview())
+  }, [updatePreview])
 
   return (
     <div className={`${styles.wrapper} ${device !== 'pc' ? styles.framed : ''}`}>
@@ -120,7 +170,7 @@ export default function PreviewFrame({ device }: Props) {
         )}
         <div className={styles.content}>
           <iframe
-            srcDoc={srcDoc}
+            src={blobUrl || 'about:blank'}
             className={styles.iframe}
             title="Website preview"
             sandbox="allow-scripts allow-same-origin"
