@@ -9,11 +9,15 @@ import ChatInput from './ChatInput'
 import styles from './ChatPanel.module.css'
 
 export interface ContentBlock {
-  type: 'text' | 'file_change' | 'status'
+  type: 'text' | 'tool' | 'file_change' | 'status'
   content?: string
   icon?: string
   action?: string
   path?: string
+  tool?: string
+  toolArgs?: Record<string, string>
+  toolResult?: string
+  toolSuccess?: boolean
 }
 
 export interface Message {
@@ -144,10 +148,15 @@ export default function ChatPanel() {
               // Flush current text before showing tool work
               flushText()
 
-              // Add a status block describing what's happening
+              // Add a status block with args for the tool result to use
               const statusText = getToolStatus(tc.name, tc.arguments)
               if (statusText) {
-                blocks.push({ type: 'status', content: statusText })
+                blocks.push({
+                  type: 'status',
+                  content: statusText,
+                  tool: tc.name,
+                  toolArgs: tc.arguments,
+                })
               }
               updateMessage()
               break
@@ -157,7 +166,7 @@ export default function ChatPanel() {
               const tr = event.toolResult
               if (!tr) break
 
-              // Remove the matching status block (replace with result)
+              // Remove matching status block
               const statusIdx = findLastIndex(
                 blocks,
                 (b) => b.type === 'status'
@@ -166,45 +175,19 @@ export default function ChatPanel() {
                 blocks.splice(statusIdx, 1)
               }
 
-              // Add file change card or status based on result
-              if (
-                tr.name === 'write_file' ||
-                tr.name === 'edit_file' ||
-                tr.name === 'delete_file'
-              ) {
-                const display = tr.display
-                const isNew = display.includes('📄')
-                const isDeleted = display.includes('🗑️')
-                const icon = isDeleted ? '🗑️' : isNew ? '📄' : '✏️'
-                const action = isDeleted
-                  ? 'Deleted'
-                  : isNew
-                    ? 'Created'
-                    : tr.name === 'edit_file'
-                      ? 'Edited'
-                      : 'Modified'
+              // Determine success from display
+              const isOk = !tr.display.includes('❌') &&
+                !tr.display.includes('failed') &&
+                !tr.display.includes('Error')
 
-                // Extract path from display string
-                const pathMatch = display.match(
-                  /(?:Created|Modified|Edited|Deleted)\s+(.+)$/
-                )
-                const path = pathMatch ? pathMatch[1].trim() : tr.display
-
-                blocks.push({
-                  type: 'file_change',
-                  icon,
-                  action,
-                  path,
-                })
-              } else if (
-                tr.name === 'execute_build' ||
-                tr.name === 'get_errors'
-              ) {
-                blocks.push({
-                  type: 'status',
-                  content: tr.display,
-                })
-              }
+              // Extract args from the preceding tool_call — we store them in the status block
+              blocks.push({
+                type: 'tool',
+                tool: tr.name,
+                toolArgs: {},
+                toolResult: tr.display,
+                toolSuccess: isOk,
+              })
 
               updateMessage()
               break

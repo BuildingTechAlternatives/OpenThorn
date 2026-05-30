@@ -1,0 +1,180 @@
+/* ── Card ────────────────────────────────────────── */
+
+.card {
+  margin: 3px 0;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.015);
+  overflow: hidden;
+  font-size: 12.5px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  animation: slideIn 0.2s ease both;
+}
+
+.card:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.success {
+  border-left: 2px solid rgba(74, 222, 128, 0.3);
+}
+
+.failure {
+  border-left: 2px solid rgba(248, 113, 113, 0.3);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Header ──────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 10px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  text-align: left;
+  transition: background 0.1s ease;
+}
+
+.header:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* ── Elements ────────────────────────────────────── */
+
+.icon {
+  font-size: 13px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.label {
+  font-weight: 500;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.detail {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--accent);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+.badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.badgeOk {
+  background: rgba(74, 222, 128, 0.12);
+  color: #4ade80;
+}
+
+.badgeErr {
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  transition: transform 0.12s ease;
+  opacity: 0.5;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+/* ── Expanded ────────────────────────────────────── */
+
+.expanded {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  animation: expandIn 0.15s ease;
+}
+
+@keyframes expandIn {
+  from { opacity: 0; max-height: 0; }
+  to { opacity: 1; max-height: 400px; }
+}
+
+/* ── Code block ──────────────────────────────────── */
+
+.codeBlock {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 0 0 5px 5px;
+}
+
+.codeMeta {
+  padding: 5px 10px;
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.code {
+  padding: 10px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: #b0b0b8;
+  overflow-x: auto;
+  max-height: 250px;
+  overflow-y: auto;
+  white-space: pre;
+  tab-size: 2;
+}
+
+.code code {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* ── Error block ─────────────────────────────────── */
+
+.errorBlock {
+  padding: 10px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: #f87171;
+  white-space: pre-wrap;
+  background: rgba(248, 113, 113, 0.04);
+}

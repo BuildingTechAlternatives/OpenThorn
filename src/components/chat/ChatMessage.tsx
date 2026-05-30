@@ -2,7 +2,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeSanitize from 'rehype-sanitize'
 import type { ContentBlock } from './ChatPanel'
-import FileChangeCard from './FileChangeCard'
+import ToolExecutionCard from './ToolExecutionCard'
 import styles from './ChatMessage.module.css'
 
 interface Message {
@@ -43,13 +43,25 @@ export default function ChatMessage({ message, streaming }: Props) {
                     </div>
                   ) : null
 
+                case 'tool':
+                  return block.tool && block.toolResult ? (
+                    <ToolExecutionCard
+                      key={i}
+                      tool={block.tool}
+                      args={block.toolArgs}
+                      result={block.toolResult}
+                      success={block.toolSuccess ?? true}
+                    />
+                  ) : null
+
                 case 'file_change':
                   return block.action && block.path ? (
-                    <FileChangeCard
+                    <ToolExecutionCard
                       key={i}
-                      icon={block.icon ?? '📄'}
-                      action={block.action}
-                      path={block.path}
+                      tool="write_file"
+                      args={{ path: block.path }}
+                      result={`${block.icon} ${block.action} ${block.path}`}
+                      success={true}
                     />
                   ) : null
 
