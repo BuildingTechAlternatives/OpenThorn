@@ -118,20 +118,17 @@ export async function* runAgentLoop(
       return
     }
 
-    // ── Read the streaming response ───────────────
+    // ── Read the response ─────────────────────────
     let textContent: string
     let toolCalls: ToolCall[] | null
     try {
-      const result = await readStream(res, adapter.name)
-      textContent = result.textContent
-      toolCalls = result.toolCalls
+      const data = (await res.json()) as Record<string, unknown>
+      const parsed = parseResponse(data, adapter.name)
+      textContent = parsed.content ?? ''
+      toolCalls = parsed.toolCalls
     } catch (e) {
       const msg = (e as Error).message
-      if (msg.includes('aborted') || msg.includes('AbortError')) {
-        yield { type: 'error', content: 'The request timed out. Try breaking your task into smaller steps or check your provider connection.' }
-      } else {
-        yield { type: 'error', content: `Stream error: ${msg}` }
-      }
+      yield { type: 'error', content: `Response error: ${msg}` }
       return
     }
 
@@ -241,147 +238,108 @@ export async function* runAgentLoop(
   }
 }
 
-/* ── Streaming Response Reader ────────────────────── */
+/* ── Non-Streaming Response Parsing ──────────────── */
 
-/**
- * Read an SSE stream, accumulating text and tool calls.
- * Text is yielded as a single block since async generators can't yield from callbacks.
- * The caller yields the text as a single event, which gives progressive display
- * across multiple agent turns (each turn adds text between tool calls).
- */
-async function readStream(
-  res: Response,
-  adapterName: string,
-): Promise<{ textContent: string; toolCalls: ToolCall[] | null }> {
-  const reader = res.body!.getReader()
-  const decoder = new TextDecoder('utf-8')
-  let buffer = ''
-  let textContent = ''
+interface ParsedResponse {
+  content: string | null
+  toolCalls: ToolCall[] | null
+}
 
-  // Accumulate tool call chunks
-  const toolCallAccum: Map<
-    number,
-    { id: string; name: string; arguments: string }
-  > = new Map()
+function parseResponse(
+  data: Record<string, unknown>,
+  adapterName: string
+): ParsedResponse {
+  if (adapterName === 'anthropic') {
+    const contentBlocks = data.content as
+      | Array<{
+          type: string
+          text?: string
+          name?: string
+          input?: Record<string, unknown>
+          id?: string
+        }>
+      | undefined
+    if (!contentBlocks) return { content: null, toolCalls: null }
 
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
+    let textContent: string | null = null
+    const toolCalls: ToolCall[] = []
 
-    buffer += decoder.decode(value, { stream: true })
-    const lines = buffer.split('\n')
-    buffer = lines.pop() ?? ''
-
-    for (const line of lines) {
-      const trimmed = line.trim()
-      if (!trimmed) continue
-
-      if (adapterName === 'gemini') {
-        if (!trimmed.startsWith('data: ')) continue
-        try {
-          const json = JSON.parse(trimmed.slice(6))
-          // Gemini streaming — text in candidates[0].content.parts[0].text
-          const candidates = json.candidates as
-            | Array<{
-                content?: { parts?: Array<{ text?: string }> }
-              }>
-            | undefined
-          const token = candidates?.[0]?.content?.parts?.[0]?.text
-          if (token) textContent += token
-        } catch {
-          /* skip malformed JSON */
-        }
-      } else if (adapterName === 'anthropic') {
-        // Anthropic uses a different SSE format
-        if (!trimmed.startsWith('data: ')) continue
-        try {
-          const json = JSON.parse(trimmed.slice(6))
-          if (json.type === 'content_block_delta') {
-            const text = (json.delta as { text?: string })?.text
-            if (text) textContent += text
-          }
-          if (
-            json.type === 'content_block_start' &&
-            json.content_block?.type === 'tool_use'
-          ) {
-            const block = json.content_block as {
-              id: string
-              name: string
-            }
-            toolCallAccum.set(0, {
-              id: block.id,
-              name: block.name,
-              arguments: '',
-            })
-          }
-          if (json.type === 'content_block_delta' && json.delta?.type === 'input_json_delta') {
-            const existing = toolCallAccum.get(0)
-            if (existing) {
-              existing.arguments +=
-                (json.delta as { partial_json?: string }).partial_json ?? ''
-            }
-          }
-        } catch {
-          /* skip */
-        }
-      } else {
-        // OpenAI-compatible streaming
-        if (!trimmed.startsWith('data: ')) continue
-        if (trimmed === 'data: [DONE]') continue
-        try {
-          const json = JSON.parse(trimmed.slice(6))
-          const choices = json.choices as
-            | Array<{ delta?: { content?: string; tool_calls?: Array<{ index: number; id?: string; function?: { name?: string; arguments?: string } }> } }>
-            | undefined
-          if (!choices) continue
-
-          const delta = choices[0]?.delta
-          if (!delta) continue
-
-          // Text token
-          if (delta.content) {
-            textContent += delta.content
-          }
-
-          // Tool call chunks
-          if (delta.tool_calls) {
-            for (const tc of delta.tool_calls) {
-              const existing = toolCallAccum.get(tc.index) ?? {
-                id: '',
-                name: '',
-                arguments: '',
-              }
-              if (tc.id) existing.id = tc.id
-              if (tc.function?.name) existing.name = tc.function.name
-              if (tc.function?.arguments)
-                existing.arguments += tc.function.arguments
-              toolCallAccum.set(tc.index, existing)
-            }
-          }
-        } catch {
-          /* skip malformed JSON */
-        }
+    for (const block of contentBlocks) {
+      if (block.type === 'text' && block.text) {
+        textContent = (textContent ?? '') + block.text
+      }
+      if (block.type === 'tool_use' && block.name && block.input) {
+        toolCalls.push({
+          id: block.id ?? `tc_${Date.now()}`,
+          name: block.name,
+          arguments: block.input as Record<string, string>,
+        })
       }
     }
+    return { content: textContent, toolCalls: toolCalls.length > 0 ? toolCalls : null }
   }
 
-  // Parse accumulated tool calls
-  const toolCalls: ToolCall[] = []
-  for (const [, acc] of toolCallAccum) {
-    if (acc.name) {
-      let args: Record<string, string> = {}
-      try {
-        args = JSON.parse(acc.arguments)
-      } catch {
-        args = {}
-      }
-      toolCalls.push({ id: acc.id, name: acc.name, arguments: args })
+  if (adapterName === 'gemini') {
+    const candidates = data.candidates as
+      | Array<{
+          content?: {
+            parts?: Array<{
+              text?: string
+              functionCall?: { name: string; args: Record<string, string> }
+            }>
+          }
+        }>
+      | undefined
+    if (!candidates?.[0]?.content?.parts) {
+      return { content: null, toolCalls: null }
     }
+
+    let textContent: string | null = null
+    const toolCalls: ToolCall[] = []
+
+    for (const part of candidates[0].content.parts) {
+      if (part.text) textContent = (textContent ?? '') + part.text
+      if (part.functionCall) {
+        toolCalls.push({
+          id: `tc_${Date.now()}_${toolCalls.length}`,
+          name: part.functionCall.name,
+          arguments: part.functionCall.args,
+        })
+      }
+    }
+    return { content: textContent, toolCalls: toolCalls.length > 0 ? toolCalls : null }
   }
+
+  // Default: OpenAI-compatible
+  const choice = (
+    data.choices as Array<Record<string, unknown>> | undefined
+  )?.[0]
+  if (!choice) return { content: null, toolCalls: null }
+
+  const msg = choice.message as
+    | {
+        content?: string
+        tool_calls?: Array<{
+          id: string
+          function: { name: string; arguments: string }
+        }>
+      }
+    | undefined
+  if (!msg) return { content: null, toolCalls: null }
+
+  const parsedCalls: ToolCall[] = (msg.tool_calls ?? []).map((tc) => {
+    let args: Record<string, string> = {}
+    try {
+      args = JSON.parse(tc.function.arguments)
+    } catch {
+      args = {}
+    }
+    return { id: tc.id, name: tc.function.name, arguments: args }
+  })
 
   return {
-    textContent,
-    toolCalls: toolCalls.length > 0 ? toolCalls : null,
+    content: msg.content ?? null,
+    toolCalls: parsedCalls.length > 0 ? parsedCalls : null,
   }
 }
 
@@ -415,7 +373,7 @@ function buildStreamingPayload(
         content: m.content ? [{ type: 'text', text: m.content }] : m.content,
       })),
       max_tokens: 8192,
-      stream: true,
+      stream: false,
       tools: availableTools.map((t) => ({
         name: t.function.name,
         description: t.function.description,
@@ -460,8 +418,8 @@ function buildStreamingPayload(
     messages: cleanMessages,
     max_tokens: 8192,
     temperature,
-    stream: true,
-    tools: TOOL_DEFINITIONS,
+    stream: false,
+    tools: availableTools,
     tool_choice: 'auto',
   }
 }
