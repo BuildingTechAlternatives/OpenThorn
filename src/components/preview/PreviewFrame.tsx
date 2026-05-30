@@ -40,17 +40,19 @@ function buildPreviewSrcDoc(): string {
   }
 
   // React/TypeScript project — show the file overview in a nice preview
+  const configPaths = new Set([
+    'package.json',
+    'tsconfig.json',
+    'vite.config.ts',
+    'index.html',
+  ])
+  const configFiles = files.filter((f) => configPaths.has(f.path))
   const componentFiles = files.filter(
-    (f) => f.path.endsWith('.tsx') || f.path.endsWith('.ts')
+    (f) =>
+      (f.path.endsWith('.tsx') || f.path.endsWith('.ts')) &&
+      !configPaths.has(f.path)
   )
   const styleFiles = files.filter((f) => f.path.endsWith('.css'))
-  const configFiles = files.filter(
-    (f) =>
-      f.path === 'package.json' ||
-      f.path === 'tsconfig.json' ||
-      f.path === 'vite.config.ts' ||
-      f.path === 'index.html'
-  )
   const otherFiles = files.filter(
     (f) =>
       !componentFiles.includes(f) &&
@@ -171,10 +173,10 @@ function buildPreviewSrcDoc(): string {
     <div class="stat"><strong>${styleFiles.length}</strong> stylesheets</div>
   </div>
 </div>
-${fileList(configFiles, '📋 Config')}
-${fileList(componentFiles, '⚛️ Components')}
-${fileList(styleFiles, '🎨 Styles')}
-${fileList(otherFiles.filter(f => !configFiles.includes(f)), '📄 Other')}
+${fileList(configFiles, 'Config')}
+${fileList(componentFiles, 'Components')}
+${fileList(styleFiles, 'Styles')}
+${fileList(otherFiles.filter(f => !configFiles.includes(f)), 'Other')}
 <div class="footer">Preview powered by Bloom — WebContainer support coming soon</div>
 </body>
 </html>`

@@ -47,22 +47,22 @@ function fileIcon(name: string): string {
   switch (ext) {
     case 'html':
     case 'htm':
-      return '⬡'
+      return 'HTML'
     case 'css':
-      return '🎨'
+      return 'CSS'
     case 'js':
     case 'mjs':
-      return '⚡'
+      return 'JS'
     case 'ts':
       return 'TS'
     case 'tsx':
-      return '⚛️'
+      return 'TSX'
     case 'json':
-      return '{ }'
+      return '{}'
     case 'md':
-      return '📝'
+      return 'MD'
     default:
-      return '📄'
+      return '--'
   }
 }
 
@@ -167,8 +167,7 @@ export default function CodePanel({ initialView = 'code', onClose }: Props) {
             if ('folder' in entry) {
               return (
                 <div key={entry.folder} className={styles.folder}>
-                  <span className={styles.folderIcon}>📁</span>
-                  <span className={styles.folderName}>{entry.folder}</span>
+                  <span className={styles.folderName}>{entry.folder}/</span>
                 </div>
               )
             }
