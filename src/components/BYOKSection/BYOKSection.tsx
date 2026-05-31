@@ -15,11 +15,6 @@ const featureCards: Carousel3DCard[] = [
     description: 'Unlike Lovable or Base44, Bloom charges no subscription and no hidden fees. Pay only API costs.',
   },
   {
-    icon: <DbIcon />,
-    title: 'Powered by Supabase',
-    description: 'Your projects, settings, and data are stored securely in your own Supabase instance.',
-  },
-  {
     icon: <CodeIcon />,
     title: 'Full stack control',
     description: 'Deploy anywhere. Export your code. No vendor lock-in — your project, your rules.',
@@ -53,7 +48,7 @@ export default function BYOKSection() {
         <p className={styles.bodyText}>
           Most AI website builders lock you into expensive subscriptions.
           <span className={styles.bodyHighlight}> Bloom is different.</span> BYOK —
-          bring your own keys, store data in your own Supabase, deploy anywhere.
+          bring your own keys, deploy anywhere.
           No markup, no lock-in.
         </p>
       </motion.div>
@@ -99,13 +94,6 @@ function DollarIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
       <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
-    </svg>
-  )
-}
-function DbIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" /><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
     </svg>
   )
 }
