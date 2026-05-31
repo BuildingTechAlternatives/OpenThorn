@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
+import SlideInButton from '../SlideInButton/SlideInButton'
+import NeumorphButton from '../NeumorphButton/NeumorphButton'
 import styles from './Header.module.css'
 
 interface DropdownItem {
@@ -113,8 +115,8 @@ export default function Header() {
         </nav>
 
         <div className={styles.actions}>
-          <button className={styles.loginBtn}>Login</button>
-          <button className={styles.ctaBtn}>Get Started</button>
+          <NeumorphButton>Login</NeumorphButton>
+          <SlideInButton>Get Started</SlideInButton>
           <button className={styles.mobileMenuBtn} aria-label="Menu">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 12h18M3 6h18M3 18h18" />
