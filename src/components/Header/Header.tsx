@@ -53,8 +53,8 @@ function DropdownMenu({ items, isOpen, cols = 2 }: { items: DropdownItem[]; isOp
             <div key={ci}>
               {col.map((item) => (
                 <a key={item.label} href={item.href} className={styles.dropdownItem}>
-                  <span className={styles.dropdownItemTitle}>{item.label}</span>
-                  <span className={styles.dropdownItemDesc}>{item.description}</span>
+                  <div className={styles.dropdownItemTitle}>{item.label}</div>
+                  <div className={styles.dropdownItemDesc}>{item.description}</div>
                 </a>
               ))}
             </div>

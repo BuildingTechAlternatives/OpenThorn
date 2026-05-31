@@ -152,8 +152,8 @@
 /* Dropdown items — no line breaks */
 .dropdownItem {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  gap: 2px;
   padding: 10px 14px;
   border-radius: var(--radius-sm);
   transition: background 0.15s;
@@ -170,13 +170,11 @@
   font-size: 13.5px;
   font-weight: 600;
   color: var(--color-text);
-  white-space: nowrap;
 }
 
 .dropdownItemDesc {
-  font-size: 13px;
+  font-size: 12.5px;
   color: var(--color-text-muted);
-  white-space: nowrap;
 }
 
 /* Actions */
