@@ -31,12 +31,31 @@ const resourcesItems: DropdownItem[] = [
   { label: 'Blog', description: 'Stories and updates', href: '#' },
 ]
 
+type DropdownKey = 'solutions' | 'useCases' | 'resources'
+
+function DropdownMenu({ items, isOpen }: { items: DropdownItem[]; isOpen: boolean }) {
+  return (
+    <div className={`${styles.dropdown} ${isOpen ? styles.dropdownOpen : ''}`}>
+      <div className={styles.dropdownInner}>
+        {items.map((item) => (
+          <a key={item.label} href={item.href} className={styles.dropdownItem}>
+            <div className={styles.dropdownItemTitle}>{item.label}</div>
+            <div className={styles.dropdownItemDesc}>{item.description}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function Header() {
   const [scrolled, setScrolled] = useState(false)
-  const [openDropdown, setOpenDropdown] = useState<'solutions' | 'useCases' | 'resources' | null>(null)
+  const [openDropdown, setOpenDropdown] = useState<DropdownKey | null>(null)
   const solutionsRef = useRef<HTMLDivElement>(null)
   const useCasesRef = useRef<HTMLDivElement>(null)
   const resourcesRef = useRef<HTMLDivElement>(null)
+
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10)
@@ -46,17 +65,23 @@ export default function Header() {
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (
-        solutionsRef.current && !solutionsRef.current.contains(e.target as Node) &&
-        useCasesRef.current && !useCasesRef.current.contains(e.target as Node) &&
-        resourcesRef.current && !resourcesRef.current.contains(e.target as Node)
-      ) {
+      const refs = [solutionsRef, useCasesRef, resourcesRef]
+      if (refs.every((ref) => ref.current && !ref.current.contains(e.target as Node))) {
         setOpenDropdown(null)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  const handleEnter = (key: DropdownKey) => {
+    if (closeTimer.current) clearTimeout(closeTimer.current)
+    setOpenDropdown(key)
+  }
+
+  const handleLeave = () => {
+    closeTimer.current = setTimeout(() => setOpenDropdown(null), 150)
+  }
 
   return (
     <header className={`${styles.header} ${scrolled ? styles.headerScrolled : ''}`}>
@@ -67,87 +92,66 @@ export default function Header() {
         </a>
 
         <nav className={styles.nav}>
+          {/* Solutions */}
           <div
             ref={solutionsRef}
             className={styles.navItem}
-            onMouseEnter={() => setOpenDropdown('solutions')}
-            onMouseLeave={() => setOpenDropdown(null)}
+            onMouseEnter={() => handleEnter('solutions')}
+            onMouseLeave={handleLeave}
             role="button"
             tabIndex={0}
             aria-expanded={openDropdown === 'solutions'}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setOpenDropdown(openDropdown === 'solutions' ? null : 'solutions') }}
           >
             Solutions
             <svg className={`${styles.chevron} ${openDropdown === 'solutions' ? styles.chevronOpen : ''}`} viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 5l4 4 4-4" />
             </svg>
-            <div className={`${styles.dropdown} ${openDropdown === 'solutions' ? styles.dropdownOpen : ''}`}>
-              <div className={styles.dropdownInner}>
-                {solutionsItems.map((item) => (
-                  <a key={item.label} href={item.href} className={styles.dropdownItem}>
-                    <div className={styles.dropdownItemTitle}>{item.label}</div>
-                    <div className={styles.dropdownItemDesc}>{item.description}</div>
-                  </a>
-                ))}
-              </div>
-            </div>
+            <DropdownMenu items={solutionsItems} isOpen={openDropdown === 'solutions'} />
           </div>
+
+          <span className={styles.divider} />
 
           {/* Use Cases */}
           <div
             ref={useCasesRef}
             className={styles.navItem}
-            onMouseEnter={() => setOpenDropdown('useCases')}
-            onMouseLeave={() => setOpenDropdown(null)}
+            onMouseEnter={() => handleEnter('useCases')}
+            onMouseLeave={handleLeave}
             role="button"
             tabIndex={0}
             aria-expanded={openDropdown === 'useCases'}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setOpenDropdown(openDropdown === 'useCases' ? null : 'useCases') }}
           >
             Use Cases
             <svg className={`${styles.chevron} ${openDropdown === 'useCases' ? styles.chevronOpen : ''}`} viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 5l4 4 4-4" />
             </svg>
-            <div className={`${styles.dropdown} ${openDropdown === 'useCases' ? styles.dropdownOpen : ''}`}>
-              <div className={styles.dropdownInner}>
-                {useCasesItems.map((item) => (
-                  <a key={item.label} href={item.href} className={styles.dropdownItem}>
-                    <div className={styles.dropdownItemTitle}>{item.label}</div>
-                    <div className={styles.dropdownItemDesc}>{item.description}</div>
-                  </a>
-                ))}
-              </div>
-            </div>
+            <DropdownMenu items={useCasesItems} isOpen={openDropdown === 'useCases'} />
           </div>
 
+          <span className={styles.divider} />
+
+          {/* GitHub */}
           <a href="https://github.com" className={styles.navItem} target="_blank" rel="noopener noreferrer">
             GitHub
           </a>
 
+          <span className={styles.divider} />
+
+          {/* Resources */}
           <div
             ref={resourcesRef}
             className={styles.navItem}
-            onMouseEnter={() => setOpenDropdown('resources')}
-            onMouseLeave={() => setOpenDropdown(null)}
+            onMouseEnter={() => handleEnter('resources')}
+            onMouseLeave={handleLeave}
             role="button"
             tabIndex={0}
             aria-expanded={openDropdown === 'resources'}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setOpenDropdown(openDropdown === 'resources' ? null : 'resources') }}
           >
             Resources
             <svg className={`${styles.chevron} ${openDropdown === 'resources' ? styles.chevronOpen : ''}`} viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 5l4 4 4-4" />
             </svg>
-            <div className={`${styles.dropdown} ${openDropdown === 'resources' ? styles.dropdownOpen : ''}`}>
-              <div className={styles.dropdownInner}>
-                {resourcesItems.map((item) => (
-                  <a key={item.label} href={item.href} className={styles.dropdownItem}>
-                    <div className={styles.dropdownItemTitle}>{item.label}</div>
-                    <div className={styles.dropdownItemDesc}>{item.description}</div>
-                  </a>
-                ))}
-              </div>
-            </div>
+            <DropdownMenu items={resourcesItems} isOpen={openDropdown === 'resources'} />
           </div>
         </nav>
 
