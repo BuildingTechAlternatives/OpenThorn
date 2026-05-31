@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 
 // Import the module under test, but we'll also test via mocking
 import { detectCapability, hasSharedArrayBuffer } from '../capabilities'
