@@ -74,6 +74,7 @@ describe('PreviewFrame', () => {
     const iframe = screen.getByTitle('Website preview')
     expect(iframe).toBeTruthy()
     expect(iframe.getAttribute('sandbox')).toContain('allow-scripts')
+    expect(iframe.getAttribute('sandbox')).toContain('allow-same-origin')
   })
 
   it('uses srcDoc in transpiler mode', () => {

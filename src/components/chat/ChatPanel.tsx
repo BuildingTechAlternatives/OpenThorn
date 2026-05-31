@@ -3,6 +3,7 @@ import { useApp } from '../../App'
 import { runAgentLoop } from '../../lib/agent-loop'
 import { resetWorkspace } from '../../lib/workspace'
 import { supabase } from '../../lib/supabase'
+import { triggerFlushPreview } from '../preview/PreviewFrame'
 import type { ProviderConfig } from '../../lib/providers'
 import ChatMessage from './ChatMessage'
 import ChatInput from './ChatInput'
@@ -227,6 +228,8 @@ export default function ChatPanel() {
             case 'done': {
               flushText()
               updateMessage()
+              // Agent finished — flush all file changes to preview at once
+              triggerFlushPreview()
               break
             }
           }

@@ -147,18 +147,35 @@ export default function PreviewFrame({ device }: Props) {
     return ''
   })
 
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   // Subscribe to WebContainer state
   useEffect(() => {
     return subscribeWcState(setWcState)
   }, [])
 
-  // Subscribe to workspace changes for transpiler live updates
+  // Subscribe to workspace changes for transpiler live updates.
+  // Debounced: rapid file writes (e.g. agent creating 5+ files) batch
+  // into a single rebuild so the iframe doesn't remount N times.
   useEffect(() => {
     if (capability !== 'transpiler') return
     return subscribeToWorkspace(() => {
-      setSrcdoc(buildTranspiledPreview(getWorkspace().files))
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      debounceRef.current = setTimeout(() => {
+        debounceRef.current = null
+        const newSrcdoc = buildTranspiledPreview(getWorkspace().files)
+        setSrcdoc(newSrcdoc)
+      }, 250)
     })
   }, [capability])
+
+  // Push srcdoc to the already-mounted iframe without remounting.
+  // The stable key keeps the iframe alive; this effect writes content.
+  useEffect(() => {
+    if (capability !== 'transpiler') return
+    if (!iframeRef.current) return
+    iframeRef.current.srcdoc = srcdoc
+  }, [srcdoc, capability])
 
   // Boot WebContainer once on mount (only in webcontainer path)
   useEffect(() => {
@@ -181,11 +198,23 @@ export default function PreviewFrame({ device }: Props) {
     }
   }, [capability])
 
-  // Register flush callback for ChatPanel
+  // Clean up debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [])
+
+  // Register flush callback for ChatPanel (fires immediately, no debounce)
   useEffect(() => {
     _flushPreview = () => {
       if (capability === 'transpiler') {
-        setSrcdoc(buildTranspiledPreview(getWorkspace().files))
+        if (debounceRef.current) {
+          clearTimeout(debounceRef.current)
+          debounceRef.current = null
+        }
+        const newSrcdoc = buildTranspiledPreview(getWorkspace().files)
+        setSrcdoc(newSrcdoc)
       } else {
         syncWorkspace()
       }
@@ -218,9 +247,11 @@ export default function PreviewFrame({ device }: Props) {
         : buildPlaceholderSrcDoc(title, wcState.phase)
       : undefined
 
-  // Key changes only when dev server URL changes or srcdoc content changes
+  // Stable key: transpiler iframe stays mounted — content updates via
+  // useEffect writing srcdoc directly. WebContainer key changes on URL
+  // change (new boot/reinstall) to force a fresh iframe load.
   const iframeKey = capability === 'transpiler'
-    ? `transpiler-${srcdoc.length}`
+    ? 'transpiler-preview'
     : isRunning
       ? wcState.url!
       : 'placeholder'
@@ -245,6 +276,10 @@ export default function PreviewFrame({ device }: Props) {
             </div>
           </div>
         )}
+        {/* allow-same-origin is needed: without it browsers assign an opaque
+            origin to sandboxed iframes, blocking all storage APIs (localStorage,
+            cookies, Service Workers). Safe here — single-user BYOK tool, no
+            allow-top-navigation/allow-popups, trusted srcdoc or local dev URL. */}
         <div className={styles.content}>
           <iframe
             key={iframeKey}
@@ -253,7 +288,7 @@ export default function PreviewFrame({ device }: Props) {
             srcDoc={iframeSrcDoc}
             className={styles.iframe}
             title="Website preview"
-            sandbox="allow-scripts allow-forms"
+            sandbox="allow-scripts allow-forms allow-same-origin"
           />
         </div>
       </div>
