@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { Device } from './PreviewPanel'
 import { getWorkspace, subscribeToWorkspace } from '../../lib/workspace'
+import { detectCapability } from '../../lib/capabilities'
+import { buildTranspiledPreview } from '../../lib/transpiler'
 import {
   boot,
   ensureRunning,
@@ -15,6 +17,13 @@ const deviceWidths: Record<Device, string> = {
   phone: '375px',
   tablet: '768px',
   pc: '100%',
+}
+
+// Module-level callback so ChatPanel can trigger a preview sync
+// after the agent finishes generating (batch all changes, not per-file)
+let _flushPreview: (() => void) | null = null
+export function triggerFlushPreview() {
+  _flushPreview?.()
 }
 
 interface Props {
@@ -126,52 +135,69 @@ function buildErrorSrcDoc(message: string): string {
 /* ── Component ────────────────────────────────────── */
 
 export default function PreviewFrame({ device }: Props) {
+  const capability = detectCapability()
   const [wcState, setWcState] = useState<WcState>(getWcState)
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const bootedRef = useRef(false)
-  const prevUrlRef = useRef<string | null>(null)
+
+  const [srcdoc, setSrcdoc] = useState<string>(() => {
+    if (capability === 'transpiler') {
+      return buildTranspiledPreview(getWorkspace().files)
+    }
+    return ''
+  })
 
   // Subscribe to WebContainer state
   useEffect(() => {
     return subscribeWcState(setWcState)
   }, [])
 
-  // Boot WebContainer once on mount
+  // Subscribe to workspace changes for transpiler live updates
   useEffect(() => {
-    if (bootedRef.current) return
+    if (capability !== 'transpiler') return
+    return subscribeToWorkspace(() => {
+      setSrcdoc(buildTranspiledPreview(getWorkspace().files))
+    })
+  }, [capability])
+
+  // Boot WebContainer once on mount (only in webcontainer path)
+  useEffect(() => {
+    if (capability !== 'webcontainer' || bootedRef.current) return
     bootedRef.current = true
     boot().catch(() => {
       // error handled via wcState subscription
     })
-  }, [])
+  }, [capability])
 
-  // Sync workspace → WebContainer: write files via ensureRunning.
-  // Vite HMR handles updating the iframe content — no force-reload needed.
+  // Sync workspace → WebContainer: write ALL files at once.
   const syncWorkspace = useCallback(async () => {
+    if (capability !== 'webcontainer') return
     const { files } = getWorkspace()
     const wcFiles = files.map((f) => ({ path: f.path, content: f.content }))
     try {
       await ensureRunning(wcFiles)
-      // If URL changed (re-launch from pkg change), React handles the
-      // iframe transition via the key change in the render below.
     } catch {
       // error handled via wcState subscription
     }
-  }, [])
+  }, [capability])
 
-  // Watch workspace for changes
+  // Register flush callback for ChatPanel
   useEffect(() => {
-    return subscribeToWorkspace(() => {
-      syncWorkspace()
-    })
-  }, [syncWorkspace])
-
-  // Kick off first sync after boot
-  useEffect(() => {
-    if (wcState.phase === 'ready') {
-      syncWorkspace()
+    _flushPreview = () => {
+      if (capability === 'transpiler') {
+        setSrcdoc(buildTranspiledPreview(getWorkspace().files))
+      } else {
+        syncWorkspace()
+      }
     }
-  }, [wcState.phase, syncWorkspace])
+    return () => { _flushPreview = null }
+  }, [capability, syncWorkspace])
+
+  // Kick off first sync after boot (webcontainer path only)
+  useEffect(() => {
+    if (capability !== 'webcontainer' || wcState.phase !== 'ready') return
+    syncWorkspace()
+  }, [capability, wcState.phase, syncWorkspace])
 
   /* ── Derive iframe props from state ─────────────── */
 
@@ -181,24 +207,23 @@ export default function PreviewFrame({ device }: Props) {
     )?.[1] ?? 'Bloom'
 
   const isRunning = wcState.phase === 'running' && wcState.url
-  const urlChanged = isRunning && wcState.url !== prevUrlRef.current
-  if (urlChanged && wcState.url) {
-    prevUrlRef.current = wcState.url
-  }
 
-  // When running: use src (no srcDoc). When not running: use srcDoc (no src).
-  // Never set both simultaneously — browser prioritizes srcDoc over src.
-  const iframeSrc = isRunning ? wcState.url! : undefined
-  const iframeSrcDoc =
-    wcState.phase === 'error'
-      ? buildErrorSrcDoc(wcState.error ?? 'Unknown error')
-      : !isRunning
-        ? buildPlaceholderSrcDoc(title, wcState.phase)
-        : undefined
+  // iframe source: URL for WebContainer, srcdoc for transpiler
+  const iframeSrc = (capability === 'webcontainer' && isRunning) ? wcState.url! : undefined
+  const iframeSrcDoc = capability === 'transpiler'
+    ? srcdoc
+    : capability === 'webcontainer' && !isRunning
+      ? wcState.phase === 'error'
+        ? buildErrorSrcDoc(wcState.error ?? 'Unknown error')
+        : buildPlaceholderSrcDoc(title, wcState.phase)
+      : undefined
 
-  // Only change the iframe key when the URL changes (new dev server).
-  // Normal file edits go through Vite HMR — the iframe stays alive.
-  const iframeKey = isRunning ? wcState.url! : 'placeholder'
+  // Key changes only when dev server URL changes or srcdoc content changes
+  const iframeKey = capability === 'transpiler'
+    ? `transpiler-${srcdoc.length}`
+    : isRunning
+      ? wcState.url!
+      : 'placeholder'
 
   /* ── Render ─────────────────────────────────────── */
 
@@ -228,7 +253,7 @@ export default function PreviewFrame({ device }: Props) {
             srcDoc={iframeSrcDoc}
             className={styles.iframe}
             title="Website preview"
-            sandbox="allow-scripts allow-same-origin allow-forms"
+            sandbox="allow-scripts allow-forms"
           />
         </div>
       </div>

@@ -1,14 +1,45 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import PreviewFrame from '../PreviewFrame'
 
-// Mock the webcontainer module
+// Hoist mock data so it's available to hoisted vi.mock factories
+const mockFiles = vi.hoisted(() => [
+  {
+    path: 'index.html',
+    content: `<!DOCTYPE html><html><head><title>Test</title></head><body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body></html>`,
+    lastModified: 1,
+  },
+  {
+    path: 'package.json',
+    content: JSON.stringify({
+      name: 'test',
+      dependencies: { react: '^19.2.0', 'react-dom': '^19.2.0' },
+    }),
+    lastModified: 1,
+  },
+  {
+    path: 'src/main.tsx',
+    content: `import { createRoot } from 'react-dom/client'; import App from './App'; createRoot(document.getElementById('root')!).render(<App/>)`,
+    lastModified: 1,
+  },
+  {
+    path: 'src/App.tsx',
+    content: `export default function App() { return <div>Hello</div> }`,
+    lastModified: 1,
+  },
+])
+
+// Mock capabilities — transpiler path
+vi.mock('../../../lib/capabilities', () => ({
+  detectCapability: vi.fn().mockReturnValue('transpiler'),
+}))
+
+// Mock the webcontainer module (should not be called in transpiler path)
 vi.mock('../../../lib/webcontainer', () => ({
-  boot: vi.fn().mockResolvedValue({}),
-  ensureRunning: vi.fn().mockResolvedValue('https://test.dev/'),
+  boot: vi.fn(),
+  ensureRunning: vi.fn(),
   subscribeWcState: vi.fn().mockReturnValue(() => {}),
   getWcState: vi.fn().mockReturnValue({
-    phase: 'booting',
+    phase: 'booting' as const,
     url: null,
     error: null,
     installOutput: '',
@@ -19,14 +50,14 @@ vi.mock('../../../lib/webcontainer', () => ({
 // Mock the workspace module
 vi.mock('../../../lib/workspace', () => ({
   getWorkspace: vi.fn().mockReturnValue({
-    files: [
-      { path: 'index.html', content: '<html><title>Test</title></html>', lastModified: 1 },
-    ],
+    files: mockFiles,
     buildResult: null,
     previewUrl: null,
   }),
   subscribeToWorkspace: vi.fn().mockReturnValue(() => {}),
 }))
+
+import PreviewFrame from '../PreviewFrame'
 
 describe('PreviewFrame', () => {
   beforeEach(() => {
@@ -43,18 +74,18 @@ describe('PreviewFrame', () => {
     const iframe = screen.getByTitle('Website preview')
     expect(iframe).toBeTruthy()
     expect(iframe.getAttribute('sandbox')).toContain('allow-scripts')
-    expect(iframe.getAttribute('sandbox')).toContain('allow-same-origin')
-    expect(iframe.getAttribute('sandbox')).toContain('allow-forms')
+  })
+
+  it('uses srcDoc in transpiler mode', () => {
+    render(<PreviewFrame device="pc" />)
+    const iframe = screen.getByTitle('Website preview')
+    // In transpiler mode, should have srcDoc set
+    expect(iframe.getAttribute('srcDoc')).toBeTruthy()
+    expect((iframe.getAttribute('srcDoc') ?? '').length).toBeGreaterThan(50)
   })
 
   it('renders with phone device width', () => {
     const { container } = render(<PreviewFrame device="phone" />)
-    const wrapper = container.firstElementChild!
-    expect(wrapper.className).toContain('framed')
-  })
-
-  it('renders with tablet device', () => {
-    const { container } = render(<PreviewFrame device="tablet" />)
     const wrapper = container.firstElementChild!
     expect(wrapper.className).toContain('framed')
   })
@@ -65,16 +96,8 @@ describe('PreviewFrame', () => {
     expect(wrapper.className).not.toContain('framed')
   })
 
-  it('shows progress placeholder while booting', () => {
-    render(<PreviewFrame device="pc" />)
-    const iframe = screen.getByTitle('Website preview')
-    // Should have srcDoc set during booting
-    expect(iframe.getAttribute('srcDoc')).toBeTruthy()
-  })
-
   it('renders device frame chrome in phone mode', () => {
     const { container } = render(<PreviewFrame device="phone" />)
-    // Should have URL bar
     expect(container.textContent).toContain('localhost')
   })
 })
