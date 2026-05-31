@@ -124,6 +124,8 @@
 .dropdownInnerCols {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  column-gap: 20px;
 }
 
 .dropdownItem {
