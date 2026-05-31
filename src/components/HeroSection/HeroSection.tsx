@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import PromptInput from '../PromptInput/PromptInput'
+import InteractiveGradient from '../InteractiveGradient/InteractiveGradient'
 import styles from './HeroSection.module.css'
 
 const trustItems = [
@@ -11,8 +12,15 @@ const trustItems = [
 export default function HeroSection() {
   return (
     <section className={styles.section}>
-      <div className={styles.bgGrid} />
-      <div className={styles.bgGlow} />
+      <InteractiveGradient
+        color1="#A78BFA"
+        color2="#7B61FF"
+        color3="#6366F1"
+        blur={80}
+        brightness={0.8}
+        orbitRadius={24}
+        followStrength={0.3}
+      />
 
       <div className={styles.content}>
         {/* Ornament */}
