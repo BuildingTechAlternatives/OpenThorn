@@ -14,6 +14,7 @@
  */
 
 import type { WorkspaceFile } from './workspace'
+import { detectCapability, type PreviewCapability } from './capabilities'
 
 /* ── Core System Prompt ────────────────────────────── */
 
@@ -77,29 +78,23 @@ Never write "THINK:" or planning text in your response. Just start using tools.
 - execute_build: quick syntax check (unbalanced braces, missing imports). Fast but shallow.
 - get_errors: read detailed build errors when execute_build fails
 
-## REAL TYPE CHECKING (CRITICAL)
-execute_build is a FAST pre-check only — it catches syntax errors but NOT type errors.
-After ALL file changes, ALSO run this for real TypeScript verification:
-  run_command("npm run typecheck")
-This uses the project's local TypeScript version (never npx).
+## BUILD VERIFICATION
+During generation, use execute_build — it's instant and catches syntax errors, unbalanced braces, missing imports.
+It runs on the in-memory workspace, not the WebContainer.
 
-IMPORTANT about tsc output:
-- Exit code 0 + no output = SUCCESS. TypeScript found zero errors. You're done.
-- Exit code 1 or 2 + output = errors found. Read the output, fix what it says, run again.
-- Exit code 127 = npm install still in progress (tsc not on disk yet). Wait a moment and retry — do NOT debug.
-- Do NOT run npm install, ls, npx tsc, or any other debugging commands after a clean typecheck.
-- tsc produces NO output on success — silence means everything compiled correctly.
-- The vite-env.d.ts file already exists in the scaffold — do NOT recreate it.
+Files are synced to the preview WebContainer only AFTER you finish all changes (on "done").
+Vite's dev server handles TypeScript compilation automatically when the iframe loads the page.
+Do NOT run "npm run typecheck" during generation — WebContainer files are stale until the final sync.
 
 ## WORKFLOW
 1. ANALYZE: list_files + search_files + read_file on files you'll modify
 2. RESEARCH: web_search for docs/APIs if using unfamiliar packages or patterns
 3. THINK: one sentence — what changes, what deps, what risks
 4. IMPLEMENT: write_file or edit_file. Complete content, not fragments.
-5. VERIFY (fast): execute_build — catches syntax issues instantly
-6. VERIFY (deep): run_command("npm run typecheck") — catches type errors
-7. FIX: if errors → get_errors or read tsc output → fix → go to step 5 (max 3 cycles)
-8. SUMMARIZE: one sentence — what was built, files changed, key decisions
+5. VERIFY: execute_build — catches syntax issues, unbalanced braces, missing imports
+6. FIX: if errors → get_errors → fix → go to step 5 (max 3 cycles)
+7. SUMMARIZE: one sentence — what was built, files changed, key decisions
+   (Files are synced to the preview automatically after you finish)
 
 ## ERROR RECOVERY PROTOCOL
 When build or tsc fails:
@@ -130,10 +125,10 @@ Adding/removing/updating npm packages:
 
 ## ANTI-PATTERNS
 - NEVER output code in chat — use write_file or edit_file
-- NEVER use 'npx tsc' — always use 'npm run typecheck' to get the project's local TypeScript version
-- NEVER run npm install, ls, or debug commands after a clean typecheck (exit 0 = success, silence = no errors)
+- NEVER run 'npm run typecheck' during generation — files aren't synced to WebContainer until you finish. Use execute_build instead.
+- NEVER run npm install, ls, or debug commands after a clean execute_build
 - NEVER create vite-env.d.ts — it already exists in the scaffold
-- NEVER skip type checking after changes (both execute_build AND npm run typecheck)
+- NEVER skip execute_build verification after file changes
 - NEVER assume file contents — always read before editing
 - NEVER use 'any' in TypeScript
 - NEVER leave stubs, TODOs, or placeholder content
@@ -193,17 +188,44 @@ All tools available. Think briefly, then build immediately.
 2. Read: read_file on files you'll modify
 3. Think: one sentence — what, deps, risks
 4. Build: write_file/edit_file
-5. Verify: execute_build → run_command("npm run typecheck")
-6. Fix if needed (max 3 cycles)
-7. Summary + update PROJECT.md if significant changes`,
+5. Verify: execute_build → fix if needed (max 3 cycles)
+6. Summary + update PROJECT.md if significant changes`,
 }
+
+const FALLBACK_INSTRUCTIONS = `
+## FALLBACK MODE — Browser Transpiler
+
+IMPORTANT: You are running in browser-transpiler mode — there is NO Node.js runtime, NO npm install, and NO WebContainer. Your code runs directly in the browser after in-browser transpilation.
+
+### What's available
+- React and ReactDOM are loaded as global variables (UMD builds from CDN)
+- Tailwind CSS is available via CDN (utility classes work, but @apply/@layer directives do NOT)
+- All code is transpiled from TypeScript/JSX to JavaScript via Babel in the browser
+- npm dependencies are resolved from https://esm.sh CDN
+
+### What to avoid
+- Do NOT use packages with native Node.js dependencies: fs, path, crypto, child_process, net, tls, http, stream
+- Do NOT use server-side features: file system operations, server routes, API handlers
+- Do NOT use @apply or @layer in CSS — use Tailwind utility classes directly in JSX className
+- Do NOT use dynamic imports or require() — only static ES module imports
+
+### Safe packages (CDN-compatible)
+You CAN use: react, react-dom, react-router-dom, zustand, axios, tanstack-query, lucide-react, recharts, date-fns, lodash-es, framer-motion, @tanstack/react-table, zod, clsx, immer
+
+### Imports
+- Write imports normally: \`import { useState } from 'react'\` — the transpiler rewrites them
+- The transpiler strips imports and uses the UMD globals (React, ReactDOM) or CDN URLs (other packages)
+- Relative imports work normally: \`import Header from './Header'\`
+`
 
 /* ── Builder ────────────────────────────────────────── */
 
 export function buildSystemPrompt(
   files: WorkspaceFile[],
-  mode: AgentMode = 'build'
+  mode: AgentMode = 'build',
+  capability?: PreviewCapability
 ): string {
+  const effectiveCapability = capability ?? detectCapability()
   const fileTree = files
     .sort((a, b) => a.path.localeCompare(b.path))
     .map((f) => `  ${f.path} (${(f.content.length / 1024).toFixed(1)} KB)`)
@@ -214,6 +236,14 @@ export function buildSystemPrompt(
     ? '\nA PROJECT.md file exists — read it first for context on previous decisions.'
     : ''
 
+  const runtimeDesc = effectiveCapability === 'transpiler'
+    ? 'Runtime: Browser transpiler (Babel transpilation, CDN imports, UMD globals for React/ReactDOM).'
+    : 'Runtime: WebContainer (Node.js, npm, Vite dev server with HMR).'
+
+  const stackDesc = effectiveCapability === 'transpiler'
+    ? 'Stack: Vite + React 19 + TypeScript + Tailwind CSS v3 (CDN) + CSS Modules.'
+    : 'Stack: Vite + React 19 + TypeScript + Tailwind CSS v3 + CSS Modules.'
+
   const workspaceContext = [
     '',
     '## CURRENT WORKSPACE',
@@ -221,15 +251,21 @@ export function buildSystemPrompt(
     fileTree,
     projectMdNote,
     '',
-    'Stack: Vite + React 19 + TypeScript + Tailwind CSS v3 + CSS Modules.',
-    'Runtime: WebContainer (Node.js, npm, Vite dev server with HMR).',
+    stackDesc,
+    runtimeDesc,
   ]
     .filter(Boolean)
     .join('\n')
 
   const modeInstruction = MODE_INSTRUCTIONS[mode] ?? MODE_INSTRUCTIONS.build
+  const fallbackSection = effectiveCapability === 'transpiler' ? FALLBACK_INSTRUCTIONS : ''
 
-  return SYSTEM_PROMPT + '\n' + modeInstruction + '\n' + workspaceContext
+  return [
+    SYSTEM_PROMPT,
+    fallbackSection,
+    modeInstruction,
+    workspaceContext,
+  ].filter(Boolean).join('\n')
 }
 
 /* ── Prompt Enhancer ────────────────────────────────── */
@@ -241,8 +277,10 @@ export function buildSystemPrompt(
  */
 export function enhanceUserPrompt(
   rawPrompt: string,
-  files: WorkspaceFile[]
+  files: WorkspaceFile[],
+  capability?: PreviewCapability
 ): string {
+  const effectiveCapability = capability ?? detectCapability()
   const fileSummary = files
     .slice(0, 20)
     .map((f) => `  ${f.path}`)
@@ -253,6 +291,10 @@ export function enhanceUserPrompt(
     ? '\nA PROJECT.md file exists — read it for previous architecture decisions.'
     : ''
 
+  const runtimeDesc = effectiveCapability === 'transpiler'
+    ? 'Runtime: Browser transpiler (no Node.js — Babel transpilation with CDN imports).'
+    : 'Runtime: WebContainer (full Node.js in-browser, npm, Vite dev server with HMR).'
+
   const contextAnchor = [
     '## PROJECT CONTEXT',
     `Files in workspace: ${files.length}`,
@@ -261,7 +303,7 @@ export function enhanceUserPrompt(
     projectMdHint,
     '',
     'Tech stack: React 19 + TypeScript + Vite + Tailwind CSS v3 + CSS Modules.',
-    'Runtime: WebContainer (full Node.js in-browser, npm, Vite dev server with HMR).',
+    runtimeDesc,
     '',
     '## USER REQUEST',
     rawPrompt,
