@@ -5,12 +5,13 @@
 .card {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 8px 8px 8px 22px;
+  gap: 10px;
+  padding: 6px 6px 6px 18px;
   background: var(--color-surface-raised);
   border: 1px solid var(--color-border-visible);
   border-radius: var(--radius-2xl);
   transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out), background 0.25s;
+  height: 60px;
 }
 
 .card:focus-within {
@@ -19,16 +20,43 @@
   background: var(--color-surface-overlay);
 }
 
-.input {
+/* + icon */
+.plusIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border-visible);
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  transition: border-color 0.2s, color 0.2s;
+  cursor: pointer;
+}
+
+.plusIcon:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.inputWrapper {
   flex: 1;
+  position: relative;
+  min-width: 0;
+}
+
+.input {
+  width: 100%;
   border: none;
   outline: none;
-  font-size: 17px;
+  font-size: 16px;
   color: var(--color-text);
   background: transparent;
   min-width: 0;
-  padding: 15px 0;
+  padding: 16px 0;
   font-weight: 400;
+  font-family: var(--font-body);
 }
 
 .input::placeholder {
@@ -36,33 +64,43 @@
   font-weight: 400;
 }
 
-.leftIcon {
-  display: flex;
-  align-items: center;
-  color: var(--color-accent);
-  flex-shrink: 0;
-  opacity: 0.65;
-}
-
-.rightIcon {
-  display: flex;
-  align-items: center;
+/* Typing animation placeholder text */
+.typingPlaceholder {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  font-size: 16px;
   color: var(--color-text-muted);
-  flex-shrink: 0;
-  cursor: pointer;
-  transition: color 0.2s;
-  padding: 4px;
+  font-weight: 400;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.rightIcon:hover {
-  color: var(--color-text-secondary);
+.cursor {
+  display: inline-block;
+  width: 1.5px;
+  height: 18px;
+  background: var(--color-accent);
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  animation: blink 0.8s steps(2) infinite;
 }
 
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Submit button */
 .submitBtn {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 13px 28px;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 28px;
+  height: 48px;
   background: var(--color-accent);
   color: #08050C;
   border-radius: var(--radius-full);
@@ -72,6 +110,10 @@
   transition: transform 0.18s var(--ease-spring), box-shadow 0.25s var(--ease-out), filter 0.2s;
   will-change: transform;
   letter-spacing: -0.01em;
+  cursor: pointer;
+  border: none;
+  position: relative;
+  overflow: hidden;
 }
 
 .submitBtn:hover {
@@ -86,13 +128,22 @@
 
 /* Small variant */
 .small .card {
-  padding: 6px 6px 6px 18px;
+  height: 52px;
+  padding: 4px 4px 4px 16px;
 }
 .small .input {
   padding: 12px 0;
   font-size: 15px;
 }
+.small .typingPlaceholder {
+  font-size: 15px;
+}
 .small .submitBtn {
-  padding: 10px 22px;
+  padding: 0 22px;
+  height: 42px;
   font-size: 14px;
+}
+.small .plusIcon {
+  width: 22px;
+  height: 22px;
 }
