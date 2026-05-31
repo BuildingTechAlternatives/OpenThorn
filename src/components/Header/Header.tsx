@@ -20,11 +20,13 @@ const solutionsItems: DropdownItem[] = [
 ]
 
 const useCasesItems: DropdownItem[] = [
-  { label: 'Landing Pages', description: 'High-converting marketing sites', href: '#' },
-  { label: 'SaaS Products', description: 'Full web apps with auth and dashboards', href: '#' },
-  { label: 'Portfolios', description: 'Showcase your work beautifully', href: '#' },
-  { label: 'E-Commerce', description: 'Online stores with payment integration', href: '#' },
-  { label: 'Blogs & Content', description: 'Content-rich sites with CMS', href: '#' },
+  { label: 'Productivity', description: 'Dashboards, planners, and internal tools', href: '#' },
+  { label: 'E-Commerce & Retail', description: 'Storefronts with payments and inventory', href: '#' },
+  { label: 'Marketing & Sales', description: 'Landing pages, funnels, and CRM portals', href: '#' },
+  { label: 'Finance', description: 'Analytics dashboards and fintech apps', href: '#' },
+  { label: 'HR & Recruitment', description: 'Career pages, onboarding, and team tools', href: '#' },
+  { label: 'Education', description: 'Course platforms and learning apps', href: '#' },
+  { label: 'Health & Wellness', description: 'Booking, patient portals, and wellness apps', href: '#' },
 ]
 
 const resourcesItems: DropdownItem[] = [
