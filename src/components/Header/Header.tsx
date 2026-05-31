@@ -50,12 +50,11 @@ export default function Header() {
     <header className={`${styles.header} ${scrolled ? styles.headerScrolled : ''}`}>
       <div className={styles.inner}>
         <a href="/" className={styles.logo}>
-          <img src="/assets/logo.png" alt="Bloom" className={styles.logoImg} />
-          Bloom
+          <img src="/assets/logo.png" alt="" className={styles.logoImg} />
+          <span className={styles.logoText}>Bloom</span>
         </a>
 
         <nav className={styles.nav}>
-          {/* Solutions */}
           <div
             ref={solutionsRef}
             className={styles.navItem}
@@ -82,12 +81,10 @@ export default function Header() {
             </div>
           </div>
 
-          {/* GitHub */}
           <a href="https://github.com" className={styles.navItem} target="_blank" rel="noopener noreferrer">
             GitHub
           </a>
 
-          {/* Resources */}
           <div
             ref={resourcesRef}
             className={styles.navItem}

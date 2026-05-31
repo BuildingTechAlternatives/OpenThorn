@@ -1,100 +1,133 @@
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import PromptInput from '../PromptInput/PromptInput'
 import styles from './HeroSection.module.css'
 
-const stagger = {
-  initial: {},
-  animate: {
-    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
-  },
-}
-
-const fadeUp = {
-  initial: { opacity: 0, y: 24 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const },
-  },
-}
-
-const trustPills = [
-  { icon: 'key', text: 'Configure your own API keys' },
-  { icon: 'check', text: 'No hidden costs, no ads' },
-  { icon: 'shield', text: 'Full control, full privacy' },
+const trustItems = [
+  'Configure your own API keys',
+  'No hidden costs, no ads',
+  'Full control, full privacy',
 ]
 
 export default function HeroSection() {
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 })
+  const glowRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleMouse = (e: MouseEvent) => {
+      if (!glowRef.current) return
+      const rect = glowRef.current.getBoundingClientRect()
+      setMousePos({
+        x: (e.clientX - rect.left) / rect.width,
+        y: (e.clientY - rect.top) / rect.height,
+      })
+    }
+    window.addEventListener('mousemove', handleMouse, { passive: true })
+    return () => window.removeEventListener('mousemove', handleMouse)
+  }, [])
+
   return (
     <section className={styles.section}>
-      <div className={styles.bgGlow} />
-      <div className={styles.bgBlob1} />
+      {/* Background */}
+      <div className={styles.bgGrid} />
+      <div
+        ref={glowRef}
+        className={styles.bgGlow}
+        style={{
+          transform: `translate(${(mousePos.x - 0.5) * 30}px, ${(mousePos.y - 0.5) * 30}px)`,
+          transition: 'transform 1.5s cubic-bezier(0.17, 0.55, 0.55, 1)',
+        }}
+      />
 
-      <motion.div
-        className={styles.content}
-        variants={stagger}
-        initial="initial"
-        animate="animate"
-      >
-        <motion.h1 className={styles.headline} variants={fadeUp}>
-          Build with{' '}
-          <span className={styles.headlineGradient}>Bloom</span>
+      <div className={styles.content}>
+        {/* Kicker */}
+        <motion.div
+          className={styles.kicker}
+          initial={{ opacity: 0, x: -8 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1], delay: 0.1 }}
+        >
+          <span className={styles.kickerLine} />
+          BYOK AI Website Builder
+        </motion.div>
+
+        {/* Headline — clip-path reveal instead of fade */}
+        <motion.h1
+          className={styles.headline}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.15 }}
+        >
+          <span style={{ display: 'block', overflow: 'hidden' }}>
+            <motion.span
+              style={{ display: 'block' }}
+              initial={{ y: '105%' }}
+              animate={{ y: '0%' }}
+              transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1], delay: 0.2 }}
+            >
+              <span className={styles.headlineBold}>Build</span>{' '}
+              <span className={styles.headlineItalic}>with</span>
+            </motion.span>
+          </span>
+          <span style={{ display: 'block', overflow: 'hidden' }}>
+            <motion.span
+              style={{ display: 'block' }}
+              initial={{ y: '105%' }}
+              animate={{ y: '0%' }}
+              transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1], delay: 0.3 }}
+            >
+              <span className={styles.headlineAccent}>Bloom</span>
+            </motion.span>
+          </span>
         </motion.h1>
 
-        <motion.p className={styles.subtitle} variants={fadeUp}>
+        {/* Subtitle */}
+        <motion.p
+          className={styles.subtitle}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1], delay: 0.5 }}
+        >
           Create beautiful websites just by talking to AI. Describe what you want
           and watch it come to life — no coding required.
         </motion.p>
 
-        <motion.div className={styles.inputWrapper} variants={fadeUp}>
+        {/* Input — springs in from below */}
+        <motion.div
+          className={styles.inputWrapper}
+          initial={{ opacity: 0, y: 20, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.7, ease: [0.34, 1.56, 0.64, 1], delay: 0.6 }}
+        >
           <PromptInput />
         </motion.div>
 
-        <motion.div className={styles.trustBar} variants={fadeUp}>
-          {trustPills.map((pill) => (
-            <div key={pill.text} className={styles.trustPill}>
-              <span className={styles.trustIcon} aria-hidden="true">
-                {pill.icon === 'key' && <KeyIcon />}
-                {pill.icon === 'check' && <CheckIcon />}
-                {pill.icon === 'shield' && <ShieldIcon />}
-              </span>
-              {pill.text}
-            </div>
+        {/* Trust — subtle rule with text, no pills */}
+        <motion.div
+          className={styles.trust}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.9 }}
+        >
+          {trustItems.map((item) => (
+            <span key={item} className={styles.trustItem}>
+              <span className={styles.trustDot} />
+              {item}
+            </span>
           ))}
         </motion.div>
+      </div>
 
-        <motion.div
-          className={styles.scrollIndicator}
-          variants={fadeUp}
-          aria-hidden="true"
-        >
-          <div className={styles.scrollDot} />
-        </motion.div>
+      {/* Scroll hint — right edge */}
+      <motion.div
+        className={styles.scrollHint}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2, duration: 0.6 }}
+      >
+        <span className={styles.scrollHintText}>Scroll</span>
+        <div className={styles.scrollHintLine} />
       </motion.div>
     </section>
-  )
-}
-
-function KeyIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
-    </svg>
-  )
-}
-
-function CheckIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 6L9 17l-5-5" />
-    </svg>
-  )
-}
-
-function ShieldIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    </svg>
   )
 }

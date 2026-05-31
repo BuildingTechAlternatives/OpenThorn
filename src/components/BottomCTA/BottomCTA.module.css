@@ -1,19 +1,21 @@
 .section {
-  padding: var(--space-4xl) var(--space-lg);
-  text-align: center;
+  padding: var(--space-6xl) var(--space-2xl);
+  border-top: 1px solid var(--color-border);
   position: relative;
+  text-align: center;
 }
 
+/* Subtle radial glow behind the CTA */
 .bgGlow {
   position: absolute;
-  bottom: 0;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  width: 50vw;
-  height: 40vw;
-  max-width: 600px;
-  max-height: 400px;
-  background: radial-gradient(circle, rgba(124, 58, 237, 0.06) 0%, transparent 60%);
+  transform: translate(-50%, -50%);
+  width: 70vw;
+  height: 50vw;
+  max-width: 800px;
+  max-height: 500px;
+  background: radial-gradient(ellipse, rgba(139,92,246,0.06) 0%, transparent 60%);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -21,23 +23,33 @@
 .content {
   position: relative;
   z-index: 1;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .title {
   font-family: var(--font-display);
-  font-size: clamp(28px, 4vw, 36px);
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 300;
+  color: var(--color-text);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-md);
+}
+
+.titleAccent {
   font-weight: 700;
-  color: var(--color-primary-deep);
-  margin-bottom: var(--space-lg);
+  font-style: italic;
+  color: var(--color-accent);
 }
 
 .subtitle {
-  font-size: 17px;
-  color: var(--color-ink-soft);
-  margin-bottom: var(--space-xl);
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2xl);
 }
 
 .inputWrapper {
-  max-width: 560px;
+  max-width: 520px;
   margin: 0 auto;
 }
