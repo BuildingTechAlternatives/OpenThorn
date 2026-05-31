@@ -80,9 +80,22 @@ export async function fetchModels(): Promise<ModelEntry[]> {
     const inputPer1M = parseFloat(m.pricing?.prompt || '0') * 1_000_000
     const outputPer1M = parseFloat(m.pricing?.completion || '0') * 1_000_000
     const q = qualityMap[m.id] || { index: 0, strengths: '' }
+    // Strip "Provider: " prefix and fix casing
+    let cleanName = (m.name || m.id).replace(/^[^:]+:\s*/, '')
+    // Fix common capitalization issues
+    cleanName = cleanName
+      .replace(/\bGpt\b/g, 'GPT')
+      .replace(/\bO4\b/g, 'O4')
+      .replace(/\bO3\b/g, 'O3')
+      .replace(/\bClaude\b/g, 'Claude')
+      .replace(/\bGemini\b/g, 'Gemini')
+      .replace(/\bDeepseek\b/gi, 'DeepSeek')
+      .replace(/\bQwen\b/g, 'Qwen')
+      .replace(/\bKimi\b/g, 'Kimi')
+      .replace(/\bMistral\b/g, 'Mistral')
     return {
       id: m.id,
-      name: m.name || m.id,
+      name: cleanName,
       provider: getProvider(m.id),
       inputPer1M: Math.round(inputPer1M * 10000) / 10000,
       outputPer1M: Math.round(outputPer1M * 10000) / 10000,
