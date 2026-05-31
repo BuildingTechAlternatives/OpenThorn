@@ -1,34 +1,36 @@
 /* ===== Fonts ===== */
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,300;1,9..144,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Satoshi:wght@300;400;500;600;700&display=swap');
+/* Satoshi fallback via CDN if not on Google Fonts */
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&display=swap');
 
 /* ===== Design Tokens ===== */
 :root {
   /* Base */
-  --color-bg: #08060B;
-  --color-surface: #0F0D14;
-  --color-surface-raised: #16131E;
-  --color-surface-overlay: #1C1826;
+  --color-bg: #07050A;
+  --color-surface: #0E0B14;
+  --color-surface-raised: #14101C;
+  --color-surface-overlay: #1A1524;
 
   /* Accent */
   --color-accent: #A78BFA;
   --color-accent-glow: #8B5CF6;
   --color-accent-subtle: rgba(139, 92, 246, 0.15);
-  --color-accent-wash: rgba(139, 92, 246, 0.06);
+  --color-accent-wash: rgba(139, 92, 246, 0.07);
 
   /* Text */
-  --color-text: #EDEAF0;
-  --color-text-secondary: #8E8A98;
-  --color-text-muted: #5C5866;
+  --color-text: #F0ECF5;
+  --color-text-secondary: #9D97A8;
+  --color-text-muted: #5F5968;
 
   /* Borders */
-  --color-border: rgba(255, 255, 255, 0.06);
-  --color-border-visible: rgba(255, 255, 255, 0.10);
-  --color-border-glow: rgba(139, 92, 246, 0.20);
+  --color-border: rgba(255, 255, 255, 0.05);
+  --color-border-visible: rgba(255, 255, 255, 0.09);
+  --color-border-glow: rgba(139, 92, 246, 0.18);
 
   /* Typography */
-  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
-  --font-body: 'DM Sans', -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --font-display: 'Playfair Display', 'Times New Roman', Georgia, serif;
+  --font-body: 'Satoshi', 'Inter', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
   /* Spacing */
   --space-xs: 4px;
@@ -43,9 +45,9 @@
   --space-6xl: 160px;
 
   /* Radii */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
   --radius-xl: 24px;
   --radius-2xl: 32px;
   --radius-full: 9999px;
@@ -53,25 +55,21 @@
   /* Transitions */
   --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
   --ease-out: cubic-bezier(0.17, 0.55, 0.55, 1);
-  --ease-in-out: cubic-bezier(0.73, 0.01, 0.19, 1.01);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --duration-fast: 150ms;
-  --duration-normal: 300ms;
-  --duration-slow: 600ms;
 
   /* Layout */
-  --max-width: 1280px;
-  --header-height: 64px;
+  --max-width: 1100px;
+  --header-height: 68px;
 }
 
-/* ===== Noise Texture Overlay ===== */
+/* ===== Noise Texture ===== */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   z-index: 9998;
   pointer-events: none;
-  opacity: 0.035;
+  opacity: 0.03;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 256px 256px;
@@ -93,37 +91,18 @@ html {
 
 body {
   font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 17px;
+  line-height: 1.65;
   color: var(--color-text);
   background: var(--color-bg);
   overflow-x: hidden;
   position: relative;
 }
 
-img {
-  display: block;
-  max-width: 100%;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button {
-  font-family: inherit;
-  cursor: pointer;
-  border: none;
-  background: none;
-  color: inherit;
-}
-
-input, textarea {
-  font-family: inherit;
-  font-size: inherit;
-  color: inherit;
-}
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, textarea { font-family: inherit; font-size: inherit; color: inherit; }
 
 ::selection {
   background: rgba(139, 92, 246, 0.35);
@@ -132,11 +111,10 @@ input, textarea {
 
 :focus-visible {
   outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-  border-radius: 3px;
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
-/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -145,17 +123,7 @@ input, textarea {
   }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-text-muted);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-secondary);
-}
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-text-muted); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-secondary); }

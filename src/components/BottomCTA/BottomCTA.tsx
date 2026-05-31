@@ -15,7 +15,7 @@ export default function BottomCTA() {
       >
         <h2 className={styles.title}>
           Ready to{' '}
-          <span className={styles.titleAccent}>build</span>?
+          <span className={styles.titleItalic}>build</span>?
         </h2>
         <p className={styles.subtitle}>
           Start building now — no credit card, no subscription, no limits.

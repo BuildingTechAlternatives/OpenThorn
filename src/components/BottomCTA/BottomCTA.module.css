@@ -1,55 +1,50 @@
 .section {
-  padding: var(--space-6xl) var(--space-2xl);
+  padding: var(--space-6xl) var(--space-lg);
+  text-align: center;
   border-top: 1px solid var(--color-border);
   position: relative;
-  text-align: center;
 }
 
-/* Subtle radial glow behind the CTA */
 .bgGlow {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  width: 70vw;
-  height: 50vw;
-  max-width: 800px;
-  max-height: 500px;
-  background: radial-gradient(ellipse, rgba(139,92,246,0.06) 0%, transparent 60%);
+  width: 60vw; height: 40vw;
+  max-width: 700px; max-height: 450px;
+  background: radial-gradient(ellipse, rgba(139,92,246,0.05) 0%, transparent 60%);
   border-radius: 50%;
   pointer-events: none;
 }
 
 .content {
-  position: relative;
-  z-index: 1;
+  position: relative; z-index: 1;
   max-width: 600px;
   margin: 0 auto;
 }
 
 .title {
   font-family: var(--font-display);
-  font-size: clamp(32px, 5vw, 52px);
-  font-weight: 300;
+  font-size: clamp(32px, 5vw, 50px);
+  font-weight: 500;
   color: var(--color-text);
-  line-height: 1.08;
-  letter-spacing: -0.02em;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
   margin-bottom: var(--space-md);
 }
 
-.titleAccent {
-  font-weight: 700;
+.titleItalic {
   font-style: italic;
+  font-weight: 600;
   color: var(--color-accent);
 }
 
 .subtitle {
-  font-size: 16px;
+  font-size: 17px;
   color: var(--color-text-secondary);
   margin-bottom: var(--space-2xl);
 }
 
 .inputWrapper {
-  max-width: 520px;
+  max-width: 560px;
   margin: 0 auto;
 }

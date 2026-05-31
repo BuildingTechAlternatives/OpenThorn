@@ -5,15 +5,14 @@
   height: var(--header-height);
   display: flex;
   align-items: center;
-  transition: background 0.35s var(--ease-out), border-color 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
+  transition: background 0.35s var(--ease-out), border-color 0.35s var(--ease-out);
   border-bottom: 1px solid transparent;
 }
 .headerScrolled {
-  background: rgba(8, 6, 11, 0.82);
+  background: rgba(7, 5, 10, 0.82);
   backdrop-filter: blur(20px) saturate(1.2);
   -webkit-backdrop-filter: blur(20px) saturate(1.2);
   border-bottom-color: var(--color-border);
-  box-shadow: 0 1px 0 rgba(139, 92, 246, 0.04);
 }
 .inner {
   width: 100%;
@@ -22,7 +21,7 @@
   padding: 0 var(--space-2xl);
   display: flex;
   align-items: center;
-  gap: var(--space-3xl);
+  justify-content: space-between;
 }
 /* Logo */
 .logo {
@@ -30,22 +29,20 @@
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
-  text-decoration: none;
 }
 .logoImg { height: 26px; width: auto; }
 .logoText {
   font-family: var(--font-display);
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-text);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 /* Nav */
 .nav {
   display: flex;
   align-items: center;
   gap: 2px;
-  flex: 1;
 }
 .navItem {
   position: relative;
@@ -61,6 +58,7 @@
   cursor: pointer;
   user-select: none;
   text-decoration: none;
+  font-family: var(--font-body);
 }
 .navItem:hover { color: var(--color-text); }
 .chevron {
@@ -127,27 +125,25 @@
   font-size: 13.5px;
   font-weight: 600;
   background: var(--color-accent);
-  color: #09070D;
+  color: #08050C;
   border-radius: var(--radius-full);
-  transition: transform 0.18s var(--ease-spring), box-shadow 0.25s var(--ease-out), filter 0.2s;
+  transition: transform 0.18s var(--ease-spring), box-shadow 0.25s, filter 0.2s;
   will-change: transform;
 }
 .ctaBtn:hover {
   transform: scale(1.04);
   box-shadow: 0 0 28px rgba(139,92,246,0.35);
-  filter: brightness(1.08);
+  filter: brightness(1.1);
 }
 .ctaBtn:active { transform: scale(0.96); }
-/* Mobile */
 .mobileMenuBtn {
   display: none;
   padding: 8px;
   color: var(--color-text-secondary);
 }
-
 @media (max-width: 860px) {
   .nav { display: none; }
   .loginBtn { display: none; }
   .mobileMenuBtn { display: flex; align-items: center; justify-content: center; }
-  .inner { padding: 0 var(--space-lg); gap: var(--space-lg); }
+  .inner { padding: 0 var(--space-lg); }
 }

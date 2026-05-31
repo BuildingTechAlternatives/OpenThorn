@@ -1,99 +1,93 @@
 .section {
-  padding: var(--space-6xl) var(--space-2xl);
+  padding: var(--space-6xl) var(--space-lg);
+  text-align: center;
   position: relative;
   border-top: 1px solid var(--color-border);
 }
 
-/* Kicker */
+/* Section header */
 .kicker {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--color-accent);
-  margin-bottom: var(--space-lg);
-}
-
-/* Title — editorial, left-aligned */
-.title {
-  font-family: var(--font-display);
-  font-size: clamp(36px, 5vw, 56px);
-  font-weight: 300;
-  color: var(--color-text);
-  line-height: 1.08;
-  letter-spacing: -0.02em;
-  margin-bottom: var(--space-4xl);
-  max-width: 600px;
-}
-
-.titleStrong {
-  font-weight: 700;
-  font-style: italic;
-}
-
-/* Timeline layout */
-.timeline {
-  max-width: 900px;
-  position: relative;
-}
-
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: 21px;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: var(--color-border-visible);
-}
-
-.step {
-  display: grid;
-  grid-template-columns: 44px 1fr;
-  gap: var(--space-xl);
-  padding-bottom: var(--space-3xl);
-  position: relative;
-}
-
-.step:last-child {
-  padding-bottom: 0;
-}
-
-/* Large number */
-.stepNum {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--color-accent);
-  line-height: 1;
-  padding-top: 2px;
-  text-align: right;
-}
-
-.stepNumLine {
-  display: none;
-}
-
-/* Content */
-.stepContent {
-  padding-top: 2px;
-}
-
-.stepIcon {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-sm);
-  background: var(--color-accent-wash);
+  letter-spacing: 0.13em;
   color: var(--color-accent);
   margin-bottom: var(--space-md);
 }
 
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 5vw, 52px);
+  font-weight: 500;
+  color: var(--color-text);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  margin-bottom: var(--space-4xl);
+}
+
+.titleItalic {
+  font-style: italic;
+  font-weight: 600;
+}
+
+/* Steps — centered cards */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xl);
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.stepCard {
+  text-align: center;
+  padding: var(--space-2xl) var(--space-lg);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  transition: border-color 0.3s var(--ease-out), background 0.3s var(--ease-out), transform 0.3s var(--ease-spring);
+  position: relative;
+}
+
+.stepCard:hover {
+  border-color: var(--color-border-glow);
+  background: var(--color-surface-raised);
+  transform: translateY(-4px);
+}
+
+/* Step number — ornamental */
+.stepNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border-visible);
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-bottom: var(--space-lg);
+  transition: border-color 0.3s, box-shadow 0.3s;
+  background: var(--color-bg);
+}
+
+.stepCard:hover .stepNum {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+}
+
+/* Icon inside number */
+.stepIcon {
+  color: var(--color-accent);
+  display: flex;
+}
+
 .stepTitle {
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 600;
   color: var(--color-text);
   margin-bottom: var(--space-sm);
@@ -101,45 +95,12 @@
 }
 
 .stepDesc {
-  font-size: 15px;
+  font-size: 14.5px;
   color: var(--color-text-secondary);
   line-height: 1.7;
-  max-width: 460px;
 }
 
-/* Subtle hover indicator on the timeline dot */
-.stepDot {
-  position: absolute;
-  left: 18px;
-  top: 7px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--color-surface-raised);
-  border: 1.5px solid var(--color-border-visible);
-  transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
-}
-
-.step:hover .stepDot {
-  border-color: var(--color-accent);
-  background: var(--color-accent);
-  box-shadow: 0 0 12px rgba(139,92,246,0.3);
-}
-
-/* Progress line fill */
-.stepProgress {
-  position: absolute;
-  left: 21px;
-  top: 0;
-  width: 1px;
-  background: var(--color-accent);
-  opacity: 0.3;
-}
-
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .section { padding: var(--space-4xl) var(--space-lg); }
-  .step { grid-template-columns: 36px 1fr; gap: var(--space-lg); }
-  .stepDot { left: 14px; }
-  .timeline::before { left: 17px; }
-  .stepProgress { left: 17px; }
+  .steps { grid-template-columns: 1fr; gap: var(--space-lg); }
 }
