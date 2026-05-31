@@ -13,6 +13,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@babel/standalone": "^7.29.7",
     "@supabase/supabase-js": "^2.106.2",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@webcontainer/api": "^1.6.4",
