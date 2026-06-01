@@ -11,6 +11,7 @@ interface ProviderKey {
   provider_name: string
   api_key: string
   base_url: string
+  models: string
   enabled: boolean
   is_custom: boolean
 }
@@ -50,6 +51,7 @@ export default function ProvidersPage() {
   const [editingProvider, setEditingProvider] = useState<string | null>(null)
   const [formKey, setFormKey] = useState('')
   const [formUrl, setFormUrl] = useState('')
+  const [formModels, setFormModels] = useState('')
   const [formEnabled, setFormEnabled] = useState(false)
   const [toggleWarning, setToggleWarning] = useState(false)
   const [formName, setFormName] = useState('')
@@ -91,12 +93,14 @@ export default function ProvidersPage() {
     if (existing) {
       setFormKey(existing.api_key)
       setFormUrl(existing.base_url)
+      setFormModels(existing.models || '')
       setFormEnabled(existing.enabled)
       setFormName(existing.provider_name)
       setFormCustom(existing.is_custom)
     } else if (def) {
       setFormKey('')
       setFormUrl(def.baseUrl)
+      setFormModels('')
       setFormEnabled(false)
       setFormName(def.name)
       setFormCustom(false)
@@ -116,6 +120,7 @@ export default function ProvidersPage() {
       provider_name: formName || def?.name || 'Custom',
       api_key: formKey.trim(),
       base_url: formUrl.trim() || (def?.baseUrl ?? ''),
+      models: formModels.trim(),
       enabled: formEnabled,
       is_custom: formCustom,
       updated_at: new Date().toISOString(),
@@ -163,6 +168,7 @@ export default function ProvidersPage() {
     const id = `custom-${Date.now()}`
     setFormKey('')
     setFormUrl('')
+    setFormModels('')
     setFormEnabled(false)
     setFormName('')
     setFormCustom(true)
@@ -283,6 +289,18 @@ export default function ProvidersPage() {
                   <label className={styles.fieldLabel}>Base URL</label>
                   <input className={styles.urlInput} type="text" placeholder="https://api.example.com/v1" value={formUrl} onChange={(e) => setFormUrl(e.target.value)} />
                 </div>
+
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>Models</label>
+                  <input
+                    className={styles.urlInput}
+                    type="text"
+                    placeholder="gpt-4.1, gpt-4.1-mini, gpt-4.1-nano"
+                    value={formModels}
+                    onChange={(e) => setFormModels(e.target.value)}
+                  />
+                  <span className={styles.fieldHint}>Comma-separated model IDs. Change anytime — no restart needed.</span>
+                </div>
               </div>
 
               <div className={styles.editorActions}>
@@ -313,6 +331,9 @@ export default function ProvidersPage() {
                         <div>
                           <span className={styles.enabledName}>{key.provider_name}</span>
                           <span className={styles.enabledKey}>{key.api_key.slice(0, 6)}••••••••{key.api_key.slice(-4)}</span>
+                          {key.models && (
+                            <span className={styles.enabledModels}>{key.models.split(',').length} model{key.models.split(',').length !== 1 ? 's' : ''} configured</span>
+                          )}
                         </div>
                       </div>
                       <div className={styles.enabledRight}>
