@@ -22,7 +22,7 @@ const cardVariants = {
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: { duration: 0.25, ease: [0.34, 1.56, 0.64, 1] },
+    transition: { duration: 0.25, ease: [0.34, 1.56, 0.64, 1] as const },
   },
   exit: { opacity: 0, scale: 0.95, y: 4, transition: { duration: 0.15 } },
 }
