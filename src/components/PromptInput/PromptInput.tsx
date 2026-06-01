@@ -6,7 +6,7 @@ import styles from './PromptInput.module.css'
 
 interface PromptInputProps {
   size?: 'default' | 'small'
-  value?: string
+  defaultValue?: string
   onSubmit?: (prompt: string) => void
 }
 
@@ -77,21 +77,26 @@ function useTypingAnimation(active: boolean) {
   return displayText
 }
 
-export default function PromptInput({ size = 'default', value: controlledValue, onSubmit }: PromptInputProps) {
+export default function PromptInput({ size = 'default', defaultValue, onSubmit }: PromptInputProps) {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [internalValue, setInternalValue] = useState('')
+  const [internalValue, setInternalValue] = useState(defaultValue ?? '')
   const [isFocused, setIsFocused] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const value = controlledValue !== undefined ? controlledValue : internalValue
+  // Sync internal value when defaultValue changes (e.g. example chip click)
+  useEffect(() => {
+    if (defaultValue !== undefined) {
+      setInternalValue(defaultValue)
+    }
+  }, [defaultValue])
 
-  const showTyping = !isFocused && value.length === 0
+  const showTyping = !isFocused && internalValue.length === 0
   const activeTyping = useTypingAnimation(showTyping)
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    const prompt = value.trim() || activeTyping || undefined
+    const prompt = internalValue.trim() || activeTyping || undefined
 
     if (onSubmit && prompt) {
       onSubmit(prompt)
@@ -106,7 +111,6 @@ export default function PromptInput({ size = 'default', value: controlledValue, 
     }
   }
 
-  // Focus input when clicking the + button
   const handlePlusClick = () => {
     inputRef.current?.focus()
   }
@@ -117,7 +121,6 @@ export default function PromptInput({ size = 'default', value: controlledValue, 
       onSubmit={handleSubmit}
     >
       <div className={styles.card}>
-        {/* + icon on the left */}
         <button
           type="button"
           className={styles.plusIcon}
@@ -129,20 +132,19 @@ export default function PromptInput({ size = 'default', value: controlledValue, 
           </svg>
         </button>
 
-        {/* Input with typing animation overlay */}
         <div className={styles.inputWrapper}>
           <input
             ref={inputRef}
             className={styles.input}
             type="text"
-            value={value}
+            value={internalValue}
             onChange={(e) => setInternalValue(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             placeholder=""
             aria-label="Describe your website idea"
           />
-          {!value && !isFocused && (
+          {!internalValue && !isFocused && (
             <span className={styles.typingPlaceholder} aria-hidden="true">
               {activeTyping}
               <span className={styles.cursor} />
@@ -150,7 +152,6 @@ export default function PromptInput({ size = 'default', value: controlledValue, 
           )}
         </div>
 
-        {/* Build button with animated text */}
         <motion.button
           type="submit"
           className={styles.submitBtn}

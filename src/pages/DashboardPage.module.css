@@ -9,15 +9,27 @@
   margin-left: 240px;
   min-height: 100vh;
   display: flex;
+  align-items: center;
   justify-content: center;
-  padding: 80px var(--space-2xl) var(--space-4xl);
+  padding: 80px var(--space-2xl);
   position: relative;
   z-index: 1;
+}
+
+/* When projects exist, switch to normal scroll layout */
+.mainWithProjects {
+  align-items: flex-start;
+  padding-bottom: var(--space-4xl);
 }
 
 .content {
   width: 100%;
   max-width: 720px;
+}
+
+/* Hero area — vertically centered */
+.hero {
+  text-align: center;
 }
 
 /* Greeting */
@@ -29,7 +41,6 @@
   line-height: 1.2;
   letter-spacing: -0.02em;
   margin-bottom: var(--space-xl);
-  text-align: center;
 }
 
 .name {
@@ -179,6 +190,7 @@
   .main {
     margin-left: 0;
     padding: 24px var(--space-lg) var(--space-3xl);
+    align-items: flex-start;
   }
 
   .content {

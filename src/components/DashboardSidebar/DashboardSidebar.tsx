@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { useAuth } from '../../lib/AuthContext'
 import styles from './DashboardSidebar.module.css'
@@ -6,15 +7,19 @@ interface NavItem {
   label: string
   icon: ReactNode
   active?: boolean
-  onClick?: () => void
+  href?: string
 }
 
 export default function DashboardSidebar() {
   const { user, signOut } = useAuth()
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [activeNav, setActiveNav] = useState('Home')
 
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] ?? user?.email?.split('@')[0] ?? 'there'
 
-  const navItems: NavItem[] = [
+  const userInitial = firstName.charAt(0).toUpperCase()
+
+  const topNavItems: NavItem[] = [
     {
       label: 'Home',
       icon: (
@@ -23,7 +28,6 @@ export default function DashboardSidebar() {
           <polyline points="9 22 9 12 15 12 15 22"/>
         </svg>
       ),
-      active: true,
     },
     {
       label: 'Templates',
@@ -47,36 +51,79 @@ export default function DashboardSidebar() {
         </svg>
       ),
     },
+    {
+      label: 'Resources',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+      ),
+    },
+  ]
+
+  // Dummy notifications
+  const notifications = [
+    { text: 'Welcome to Bloom! Start building your first project.', time: 'Just now' },
+    { text: 'New templates are available in the Templates section.', time: '2h ago' },
+    { text: 'Community Apps feature coming soon.', time: '1d ago' },
   ]
 
   return (
     <aside className={styles.sidebar}>
-      <div className={styles.top}>
+      {/* Top: user area + logo */}
+      <div className={styles.topBar}>
+        <div className={styles.userArea}>
+          <div className={styles.avatar} title={user?.email}>
+            {userInitial}
+          </div>
+          <button
+            className={`${styles.bellBtn} ${notificationsOpen ? styles.bellBtnActive : ''}`}
+            onClick={() => setNotificationsOpen(!notificationsOpen)}
+            aria-label="Notifications"
+            type="button"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+          </button>
+        </div>
         <a href="/dashboard" className={styles.logo}>
           <img src="/assets/logo.png" alt="Bloom" className={styles.logoImg} />
         </a>
-
-        <nav className={styles.nav}>
-          {navItems.map((item) => (
-            <button
-              key={item.label}
-              className={`${styles.navItem} ${item.active ? styles.navItemActive : ''}`}
-              type="button"
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </nav>
       </div>
 
-      <div className={styles.bottom}>
-        <div className={styles.userInfo}>
-          <div className={styles.avatar}>
-            {firstName.charAt(0).toUpperCase()}
-          </div>
-          <span className={styles.userName}>{firstName}</span>
+      {/* Notifications dropdown */}
+      {notificationsOpen && (
+        <div className={styles.notifications}>
+          <h4 className={styles.notifTitle}>What's new</h4>
+          {notifications.map((n, i) => (
+            <div key={i} className={styles.notifItem}>
+              <p className={styles.notifText}>{n.text}</p>
+              <span className={styles.notifTime}>{n.time}</span>
+            </div>
+          ))}
         </div>
+      )}
+
+      {/* Navigation */}
+      <nav className={styles.nav}>
+        {topNavItems.map((item) => (
+          <button
+            key={item.label}
+            className={`${styles.navItem} ${activeNav === item.label ? styles.navItemActive : ''}`}
+            onClick={() => setActiveNav(item.label)}
+            type="button"
+          >
+            {item.icon}
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      {/* Bottom: sign out */}
+      <div className={styles.bottom}>
         <button className={styles.signOutBtn} onClick={signOut} type="button">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>

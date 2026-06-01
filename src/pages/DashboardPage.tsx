@@ -26,7 +26,7 @@ const examplePrompts = [
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth()
   const navigate = useNavigate()
-  const [promptValue, setPromptValue] = useState('')
+  const [promptDefault, setPromptDefault] = useState('')
   const [projects, setProjects] = useState<Project[]>([])
   const [projectsLoading, setProjectsLoading] = useState(true)
 
@@ -59,16 +59,17 @@ export default function DashboardPage() {
     fetchProjects()
   }, [user])
 
-  const handlePromptSubmit = useCallback((prompt: string) => {
-    // For now, just navigate or show a coming soon
-    console.log('Generate:', prompt)
+  const handlePromptSubmit = useCallback((_prompt: string) => {
+    // TODO: implement project generation
   }, [])
 
   const handleExampleClick = (prompt: string) => {
-    setPromptValue(prompt)
+    setPromptDefault(prompt)
   }
 
   if (authLoading) return null
+
+  const hasProjects = !projectsLoading && projects.length > 0
 
   return (
     <div className={styles.root}>
@@ -87,30 +88,30 @@ export default function DashboardPage() {
 
       <DashboardSidebar />
 
-      <main className={styles.main}>
+      <main className={`${styles.main} ${hasProjects ? styles.mainWithProjects : ''}`}>
         <div className={styles.content}>
-          {/* Greeting */}
-          <h1 className={styles.greeting}>
-            What do you want to build, <span className={styles.name}>{firstName}</span>?
-          </h1>
+          {/* Hero area — centered when no projects */}
+          <div className={styles.hero}>
+            <h1 className={styles.greeting}>
+              What do you want to build, <span className={styles.name}>{firstName}</span>?
+            </h1>
 
-          {/* Prompt input */}
-          <div className={styles.promptWrapper}>
-            <PromptInput value={promptValue} onSubmit={handlePromptSubmit} />
-          </div>
+            <div className={styles.promptWrapper}>
+              <PromptInput defaultValue={promptDefault} onSubmit={handlePromptSubmit} />
+            </div>
 
-          {/* Example prompts */}
-          <div className={styles.examples}>
-            {examplePrompts.map((prompt) => (
-              <button
-                key={prompt}
-                className={styles.exampleChip}
-                onClick={() => handleExampleClick(prompt)}
-                type="button"
-              >
-                {prompt}
-              </button>
-            ))}
+            <div className={styles.examples}>
+              {examplePrompts.map((prompt) => (
+                <button
+                  key={prompt}
+                  className={styles.exampleChip}
+                  onClick={() => handleExampleClick(prompt)}
+                  type="button"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Projects section */}
