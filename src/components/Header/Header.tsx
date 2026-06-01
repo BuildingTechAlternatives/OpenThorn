@@ -1,9 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../lib/AuthContext'
 import SlideInButton from '../SlideInButton/SlideInButton'
 import NeumorphButton from '../NeumorphButton/NeumorphButton'
 import MobileMenu from '../MobileMenu/MobileMenu'
 import styles from './Header.module.css'
+
+interface HeaderProps {
+  onSignIn: () => void
+  onSignUp: () => void
+}
 
 interface DropdownItem {
   label: string
@@ -12,30 +18,30 @@ interface DropdownItem {
 }
 
 const solutionsItems: DropdownItem[] = [
-  { label: 'Founders', description: 'Ship before you pitch', href: '#' },
-  { label: 'Sales', description: 'Build the demo live', href: '#' },
-  { label: 'Product managers', description: 'Prototype, don\'t spec', href: '#' },
-  { label: 'Designers', description: 'Your designs, built', href: '#' },
-  { label: 'Marketers', description: 'Launch pages in minutes', href: '#' },
-  { label: 'Ops', description: 'Tools that fit your flow', href: '#' },
-  { label: 'People', description: 'HR tools your team loves', href: '#' },
+  { label: 'Founders', description: 'Go from idea to working MVP in hours', href: '#' },
+  { label: 'Developers', description: 'Scaffold full-stack apps from a description', href: '#' },
+  { label: 'Product managers', description: 'Skip the handoff, build it directly', href: '#' },
+  { label: 'Designers', description: 'Turn mockups into real interfaces', href: '#' },
+  { label: 'Marketers', description: 'Landing pages, A/B tests, campaigns', href: '#' },
+  { label: 'Agencies', description: 'Deliver client projects in half the time', href: '#' },
+  { label: 'Ops', description: 'Internal tools that match your exact workflow', href: '#' },
 ]
 
 const useCasesItems: DropdownItem[] = [
   { label: 'Productivity', description: 'Dashboards, planners, and internal tools', href: '#' },
   { label: 'E-Commerce & Retail', description: 'Storefronts with payments and inventory', href: '#' },
   { label: 'Marketing & Sales', description: 'Landing pages, funnels, and CRM portals', href: '#' },
-  { label: 'Finance', description: 'Analytics dashboards and fintech apps', href: '#' },
+  { label: 'SaaS & Startups', description: 'Waitlists, onboarding flows, and product pages', href: '#' },
   { label: 'HR & Recruitment', description: 'Career pages, onboarding, and team tools', href: '#' },
   { label: 'Education', description: 'Course platforms and learning apps', href: '#' },
-  { label: 'Health & Wellness', description: 'Booking, patient portals, and wellness apps', href: '#' },
+  { label: 'Community platforms', description: 'Forums, directories, and member portals', href: '#' },
 ]
 
 const resourcesItems: DropdownItem[] = [
-  { label: 'Blog', description: 'Stories, updates, and product news', href: '#' },
-  { label: 'Templates', description: 'Start with pre-built designs', href: '#' },
-  { label: 'Guides', description: 'In-depth tutorials and walkthroughs', href: '#' },
-  { label: 'Docs & FAQs', description: 'Documentation and common questions', href: '#' },
+  { label: 'Blog', description: 'Changelog, product updates, and behind-the-scenes', href: '#' },
+  { label: 'Templates', description: 'Jump-start your next project', href: '#' },
+  { label: 'Guides', description: 'Step-by-step walkthroughs for every skill level', href: '#' },
+  { label: 'Docs & FAQs', description: 'How Bloom works, answered clearly', href: '#' },
 ]
 
 type DropdownKey = 'solutions' | 'useCases' | 'resources'
@@ -67,7 +73,8 @@ function DropdownMenu({ items, isOpen, cols = 2 }: { items: DropdownItem[]; isOp
   )
 }
 
-export default function Header() {
+export default function Header({ onSignIn, onSignUp }: HeaderProps) {
+  const { user, loading } = useAuth()
   const [scrolled, setScrolled] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<DropdownKey | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -184,8 +191,21 @@ export default function Header() {
         </nav>
 
         <div className={styles.actions}>
-          <NeumorphButton>Login</NeumorphButton>
-          <SlideInButton>Get Started</SlideInButton>
+          {loading ? null : user ? (
+            <>
+              <div className={styles.avatar} title={user.email}>
+                {user.user_metadata?.full_name
+                  ? user.user_metadata.full_name.charAt(0).toUpperCase()
+                  : user.email?.charAt(0).toUpperCase()}
+              </div>
+              <SlideInButton>Dashboard</SlideInButton>
+            </>
+          ) : (
+            <>
+              <NeumorphButton onClick={onSignIn}>Sign in</NeumorphButton>
+              <SlideInButton onClick={onSignUp}>Start free</SlideInButton>
+            </>
+          )}
           <button className={styles.mobileMenuBtn} aria-label="Menu" onClick={() => setMobileOpen(true)}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 12h18M3 6h18M3 18h18" />

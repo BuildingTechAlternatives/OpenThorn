@@ -191,6 +191,23 @@
   color: var(--color-text-secondary);
 }
 
+/* Avatar */
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: #08050C;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: default;
+  flex-shrink: 0;
+  user-select: none;
+}
+
 @media (max-width: 960px) {
   .nav { display: none; }
   .mobileMenuBtn { display: flex; align-items: center; justify-content: center; }
