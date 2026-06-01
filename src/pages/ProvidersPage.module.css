@@ -30,7 +30,9 @@
   border: 1px solid var(--color-border-visible);
   border-radius: var(--radius-xl);
   padding: 24px 28px 28px;
+  transition: border-color 0.3s ease;
 }
+.editorCardEnabled { border-color: rgba(52, 211, 153, 0.4); }
 .backArrow { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; color: var(--color-text-muted); background: transparent; border: none; cursor: pointer; transition: color 0.15s, background 0.15s; }
 .backArrow:hover { color: var(--color-text); background: rgba(255,255,255,0.05); }
 .editorHeader { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
@@ -133,7 +135,7 @@
   transition: border-color 0.2s, background 0.2s;
 }
 .pickerCard:hover { border-color: var(--color-border-visible); background: rgba(255,255,255,0.04); }
-.pickerCardActive { border-color: rgba(139,92,246,0.25); background: rgba(139,92,246,0.04); }
+.pickerCardActive { border-color: rgba(52, 211, 153, 0.4); background: rgba(52, 211, 153, 0.04); }
 .pickerCardInner { display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; background: none; border: none; padding: 0; width: 100%; }
 .pickerLogo { display: flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 14px; background: rgba(255,255,255,0.04); }
 .pickerLogoImg { width: 40px; height: 40px; object-fit: contain; }
