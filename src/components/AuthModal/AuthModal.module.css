@@ -152,6 +152,108 @@
   text-decoration: underline;
 }
 
+/* Forgot password heading */
+.forgotHeading {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text);
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+/* Forgot password link (signin only) */
+.forgotLink {
+  text-align: center;
+  margin-top: 12px;
+}
+
+.forgotLinkBtn {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s ease;
+}
+
+.forgotLinkBtn:hover {
+  color: var(--color-accent);
+}
+
+/* Switch link (forgot password back button) */
+.switchLink {
+  text-align: center;
+  margin-top: 4px;
+}
+
+.switchLinkBtn {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s ease;
+}
+
+.switchLinkBtn:hover {
+  color: var(--color-text);
+}
+
+/* Success state */
+.successState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16px 0 8px;
+}
+
+.successIcon {
+  margin-bottom: 16px;
+  opacity: 0.9;
+}
+
+.successTitle {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 10px;
+}
+
+.successText {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 22px;
+}
+
+.successText strong {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.backBtn {
+  padding: 10px 24px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border-visible);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.backBtn:hover {
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--color-border-glow);
+}
+
 @media (max-width: 480px) {
   .card {
     padding: 20px 16px 18px;

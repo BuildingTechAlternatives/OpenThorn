@@ -12,6 +12,9 @@ interface AuthModalProps {
   initialMode: 'signin' | 'signup'
 }
 
+type ViewMode = 'signin' | 'signup' | 'forgotPassword'
+type SuccessType = 'signup' | 'resetPassword' | null
+
 const overlayVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1 },
@@ -29,16 +32,19 @@ const cardVariants = {
 }
 
 export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalProps) {
-  const { signIn, signUp, signInWithGoogle, signInWithGitHub } = useAuth()
+  const { signIn, signUp, signInWithGoogle, signInWithGitHub, resetPassword } = useAuth()
   const navigate = useNavigate()
-  const [mode, setMode] = useState<'signin' | 'signup'>(initialMode)
+  const [viewMode, setViewMode] = useState<ViewMode>(initialMode)
+  const [success, setSuccess] = useState<SuccessType>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [socialLoading, setSocialLoading] = useState<'google' | 'github' | null>(null)
+  const [successEmail, setSuccessEmail] = useState('')
 
   useEffect(() => {
     if (isOpen) {
-      setMode(initialMode)
+      setViewMode(initialMode)
+      setSuccess(null)
       setError(null)
       setLoading(false)
     }
@@ -77,27 +83,179 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
     setLoading(true)
     setError(null)
 
-    let result: { error?: string }
-
-    if (mode === 'signup') {
-      result = await signUp(data.email, data.password, data.name ?? '')
+    if (viewMode === 'signup') {
+      const result = await signUp(data.email, data.password, data.name ?? '')
+      setLoading(false)
+      if (result.error) {
+        setError(result.error)
+      } else if (result.needsConfirmation) {
+        setSuccessEmail(data.email)
+        setSuccess('signup')
+      } else {
+        onClose()
+        navigate('/dashboard')
+      }
     } else {
-      result = await signIn(data.email, data.password)
+      const result = await signIn(data.email, data.password)
+      setLoading(false)
+      if (result.error) {
+        setError(result.error)
+      } else {
+        onClose()
+        navigate('/dashboard')
+      }
     }
+  }, [viewMode, signIn, signUp, onClose, navigate])
 
+  const handleForgotPassword = useCallback(async (email: string) => {
+    setLoading(true)
+    setError(null)
+    const result = await resetPassword(email)
     setLoading(false)
-
     if (result.error) {
       setError(result.error)
     } else {
-      onClose()
-      navigate('/dashboard')
+      setSuccessEmail(email)
+      setSuccess('resetPassword')
     }
-  }, [mode, signIn, signUp, onClose, navigate])
+  }, [resetPassword])
 
-  const switchMode = (newMode: 'signin' | 'signup') => {
-    setMode(newMode)
+  const switchView = (newMode: ViewMode) => {
+    setViewMode(newMode)
     setError(null)
+    setSuccess(null)
+  }
+
+  const renderContent = () => {
+    // Success states
+    if (success === 'signup') {
+      return (
+        <div className={styles.successState}>
+          <div className={styles.successIcon}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <h3 className={styles.successTitle}>Check your email</h3>
+          <p className={styles.successText}>
+            We sent a confirmation link to <strong>{successEmail}</strong>. Click the link to verify your account and get started.
+          </p>
+          <button className={styles.backBtn} onClick={() => { setSuccess(null); setViewMode('signin') }}>
+            Back to sign in
+          </button>
+        </div>
+      )
+    }
+
+    if (success === 'resetPassword') {
+      return (
+        <div className={styles.successState}>
+          <div className={styles.successIcon}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <h3 className={styles.successTitle}>Reset link sent</h3>
+          <p className={styles.successText}>
+            If an account exists for <strong>{successEmail}</strong>, you'll receive a password reset link shortly.
+          </p>
+          <button className={styles.backBtn} onClick={() => { setSuccess(null); setViewMode('signin') }}>
+            Back to sign in
+          </button>
+        </div>
+      )
+    }
+
+    // Normal form views
+    return (
+      <>
+        {/* Bloom logo */}
+        <div className={styles.brandIcon}>
+          <img src="/assets/logo.png" alt="Bloom" className={styles.brandLogo} />
+        </div>
+
+        {/* Tab switcher */}
+        {viewMode !== 'forgotPassword' && (
+          <div className={styles.tabs}>
+            <button
+              className={`${styles.tab} ${viewMode === 'signin' ? styles.tabActive : ''}`}
+              onClick={() => switchView('signin')}
+              type="button"
+            >
+              Sign in
+            </button>
+            <button
+              className={`${styles.tab} ${viewMode === 'signup' ? styles.tabActive : ''}`}
+              onClick={() => switchView('signup')}
+              type="button"
+            >
+              Sign up
+            </button>
+          </div>
+        )}
+
+        {/* Forgot password heading */}
+        {viewMode === 'forgotPassword' && (
+          <h3 className={styles.forgotHeading}>Reset your password</h3>
+        )}
+
+        {/* Social buttons */}
+        {viewMode !== 'forgotPassword' && (
+          <>
+            <div className={styles.socials}>
+              <SocialButton
+                provider="google"
+                onClick={() => handleSocialLogin('google')}
+                loading={socialLoading === 'google'}
+              />
+              <SocialButton
+                provider="github"
+                onClick={() => handleSocialLogin('github')}
+                loading={socialLoading === 'github'}
+              />
+            </div>
+
+            <div className={styles.divider}>
+              <span className={styles.dividerLine} />
+              <span className={styles.dividerText}>or continue with email</span>
+              <span className={styles.dividerLine} />
+            </div>
+          </>
+        )}
+
+        {/* Email form */}
+        <AuthForm
+          mode={viewMode}
+          onSubmit={handleSubmit}
+          onForgotPassword={handleForgotPassword}
+          onBackToSignIn={() => switchView('signin')}
+          loading={loading}
+          error={error}
+          onClearError={() => setError(null)}
+        />
+
+        {/* Terms (signup only) */}
+        {viewMode === 'signup' && (
+          <p className={styles.terms}>
+            By continuing, you agree to our{' '}
+            <a href="#" className={styles.termsLink}>Terms of Service</a>
+            {' '}and{' '}
+            <a href="#" className={styles.termsLink}>Privacy Policy</a>
+          </p>
+        )}
+
+        {/* Forgot password link (signin only) */}
+        {viewMode === 'signin' && (
+          <p className={styles.forgotLink}>
+            <button type="button" className={styles.forgotLinkBtn} onClick={() => switchView('forgotPassword')}>
+              Forgot your password?
+            </button>
+          </p>
+        )}
+      </>
+    )
   }
 
   return (
@@ -113,9 +271,12 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
           onClick={onClose}
           aria-modal="true"
           role="dialog"
-          aria-label={mode === 'signin' ? 'Sign in' : 'Sign up'}
+          aria-label={
+            success ? 'Check your email' :
+            viewMode === 'forgotPassword' ? 'Reset password' :
+            viewMode === 'signin' ? 'Sign in' : 'Sign up'
+          }
         >
-          {/* Close button — outside card, fixed to viewport */}
           <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"/>
@@ -131,68 +292,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
             exit="exit"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Bloom logo */}
-            <div className={styles.brandIcon}>
-              <img src="/assets/logo.png" alt="Bloom" className={styles.brandLogo} />
-            </div>
-
-            {/* Tab switcher */}
-            <div className={styles.tabs}>
-              <button
-                className={`${styles.tab} ${mode === 'signin' ? styles.tabActive : ''}`}
-                onClick={() => switchMode('signin')}
-                type="button"
-              >
-                Sign in
-              </button>
-              <button
-                className={`${styles.tab} ${mode === 'signup' ? styles.tabActive : ''}`}
-                onClick={() => switchMode('signup')}
-                type="button"
-              >
-                Sign up
-              </button>
-            </div>
-
-            {/* Social buttons */}
-            <div className={styles.socials}>
-              <SocialButton
-                provider="google"
-                onClick={() => handleSocialLogin('google')}
-                loading={socialLoading === 'google'}
-              />
-              <SocialButton
-                provider="github"
-                onClick={() => handleSocialLogin('github')}
-                loading={socialLoading === 'github'}
-              />
-            </div>
-
-            {/* Divider */}
-            <div className={styles.divider}>
-              <span className={styles.dividerLine} />
-              <span className={styles.dividerText}>or continue with email</span>
-              <span className={styles.dividerLine} />
-            </div>
-
-            {/* Email form */}
-            <AuthForm
-              mode={mode}
-              onSubmit={handleSubmit}
-              loading={loading}
-              error={error}
-              onClearError={() => setError(null)}
-            />
-
-            {/* Terms (signup only) */}
-            {mode === 'signup' && (
-              <p className={styles.terms}>
-                By continuing, you agree to our{' '}
-                <a href="#" className={styles.termsLink}>Terms of Service</a>
-                {' '}and{' '}
-                <a href="#" className={styles.termsLink}>Privacy Policy</a>
-              </p>
-            )}
+            {renderContent()}
           </motion.div>
         </motion.div>
       )}

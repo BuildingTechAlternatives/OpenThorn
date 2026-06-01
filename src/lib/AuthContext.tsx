@@ -7,9 +7,10 @@ interface AuthContextValue {
   session: Session | null
   loading: boolean
   signIn: (email: string, password: string) => Promise<{ error?: string }>
-  signUp: (email: string, password: string, name: string) => Promise<{ error?: string }>
+  signUp: (email: string, password: string, name: string) => Promise<{ error?: string; needsConfirmation?: boolean }>
   signInWithGoogle: () => Promise<void>
   signInWithGitHub: () => Promise<void>
+  resetPassword: (email: string) => Promise<{ error?: string }>
   signOut: () => Promise<void>
 }
 
@@ -44,11 +45,21 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
     return {}
   }
 
-  const signUp = async (email: string, password: string, name: string): Promise<{ error?: string }> => {
-    const { error } = await supabase.auth.signUp({
+  const signUp = async (email: string, password: string, name: string): Promise<{ error?: string; needsConfirmation?: boolean }> => {
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { full_name: name } },
+    })
+    if (error) return { error: error.message }
+    // If no session returned, email confirmation is required
+    if (!data.session) return { needsConfirmation: true }
+    return {}
+  }
+
+  const resetPassword = async (email: string): Promise<{ error?: string }> => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/dashboard`,
     })
     if (error) return { error: error.message }
     return {}
@@ -74,7 +85,7 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, session, loading, signIn, signUp, signInWithGoogle, signInWithGitHub, signOut }}
+      value={{ user, session, loading, signIn, signUp, signInWithGoogle, signInWithGitHub, resetPassword, signOut }}
     >
       {children}
     </AuthContext.Provider>

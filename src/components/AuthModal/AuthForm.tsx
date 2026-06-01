@@ -1,15 +1,22 @@
 import { useState, type FormEvent } from 'react'
 import styles from './AuthForm.module.css'
 
+type FormMode = 'signin' | 'signup' | 'forgotPassword'
+
 interface AuthFormProps {
-  mode: 'signin' | 'signup'
+  mode: FormMode
   onSubmit: (data: { email: string; password: string; name?: string }) => Promise<void>
+  onForgotPassword: (email: string) => Promise<void>
+  onBackToSignIn: () => void
   loading: boolean
   error: string | null
   onClearError: () => void
 }
 
-export default function AuthForm({ mode, onSubmit, loading, error, onClearError }: AuthFormProps) {
+export default function AuthForm({
+  mode, onSubmit, onForgotPassword, onBackToSignIn,
+  loading, error, onClearError,
+}: AuthFormProps) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -30,14 +37,16 @@ export default function AuthForm({ mode, onSubmit, loading, error, onClearError 
       errors.email = 'Please enter a valid email'
     }
 
-    if (!password) {
-      errors.password = 'Password is required'
-    } else if (password.length < 8) {
-      errors.password = 'Password must be at least 8 characters'
-    }
+    if (mode !== 'forgotPassword') {
+      if (!password) {
+        errors.password = 'Password is required'
+      } else if (password.length < 8) {
+        errors.password = 'Password must be at least 8 characters'
+      }
 
-    if (mode === 'signup' && password !== confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match'
+      if (mode === 'signup' && password !== confirmPassword) {
+        errors.confirmPassword = 'Passwords do not match'
+      }
     }
 
     setFieldErrors(errors)
@@ -48,7 +57,12 @@ export default function AuthForm({ mode, onSubmit, loading, error, onClearError 
     e.preventDefault()
     onClearError()
     if (!validate()) return
-    await onSubmit({ email, password, name: mode === 'signup' ? name : undefined })
+
+    if (mode === 'forgotPassword') {
+      await onForgotPassword(email)
+    } else {
+      await onSubmit({ email, password, name: mode === 'signup' ? name : undefined })
+    }
   }
 
   const handleInputChange = (field: string) => {
@@ -96,41 +110,43 @@ export default function AuthForm({ mode, onSubmit, loading, error, onClearError 
         {fieldErrors.email && <span className={styles.fieldError}>{fieldErrors.email}</span>}
       </div>
 
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="auth-password">Password</label>
-        <div className={styles.passwordWrapper}>
-          <input
-            id="auth-password"
-            className={`${styles.input} ${fieldErrors.password ? styles.inputError : ''}`}
-            type={showPassword ? 'text' : 'password'}
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => { setPassword(e.target.value); handleInputChange('password') }}
-            disabled={loading}
-            autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-          />
-          <button
-            type="button"
-            className={styles.passwordToggle}
-            onClick={() => setShowPassword(!showPassword)}
-            tabIndex={-1}
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
-          >
-            {showPassword ? (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                <line x1="1" y1="1" x2="23" y2="23"/>
-              </svg>
-            ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-            )}
-          </button>
+      {mode !== 'forgotPassword' && (
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="auth-password">Password</label>
+          <div className={styles.passwordWrapper}>
+            <input
+              id="auth-password"
+              className={`${styles.input} ${fieldErrors.password ? styles.inputError : ''}`}
+              type={showPassword ? 'text' : 'password'}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); handleInputChange('password') }}
+              disabled={loading}
+              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+            />
+            <button
+              type="button"
+              className={styles.passwordToggle}
+              onClick={() => setShowPassword(!showPassword)}
+              tabIndex={-1}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              )}
+            </button>
+          </div>
+          {fieldErrors.password && <span className={styles.fieldError}>{fieldErrors.password}</span>}
         </div>
-        {fieldErrors.password && <span className={styles.fieldError}>{fieldErrors.password}</span>}
-      </div>
+      )}
 
       {mode === 'signup' && (
         <div className={styles.field}>
@@ -162,10 +178,19 @@ export default function AuthForm({ mode, onSubmit, loading, error, onClearError 
 
       <button className={styles.submitBtn} type="submit" disabled={loading}>
         {loading
-          ? (mode === 'signup' ? 'Creating account…' : 'Signing in…')
-          : (mode === 'signup' ? 'Create account' : 'Sign in')
+          ? (mode === 'forgotPassword' ? 'Sending link…' : mode === 'signup' ? 'Creating account…' : 'Signing in…')
+          : (mode === 'forgotPassword' ? 'Send reset link' : mode === 'signup' ? 'Create account' : 'Sign in')
         }
       </button>
+
+      {/* Back link (forgot password only) */}
+      {mode === 'forgotPassword' && (
+        <p className={styles.switchLink}>
+          <button type="button" className={styles.switchLinkBtn} onClick={onBackToSignIn}>
+            ← Back to sign in
+          </button>
+        </p>
+      )}
     </form>
   )
 }
