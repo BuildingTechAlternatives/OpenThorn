@@ -7,23 +7,15 @@
 
 .main {
   margin-left: 240px;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 var(--space-2xl);
+  min-height: 100vh;
+  padding: 0 var(--space-2xl) var(--space-4xl);
   position: relative;
   z-index: 1;
-  overflow: hidden;
 }
 
 /* When projects exist, switch to normal scroll layout */
 .mainWithProjects {
-  height: auto;
-  min-height: 100vh;
-  align-items: flex-start;
-  padding: 80px var(--space-2xl) var(--space-4xl);
-  overflow: auto;
+  padding-top: 80px;
 }
 
 .content {
@@ -31,9 +23,11 @@
   max-width: 720px;
 }
 
-/* Hero area — vertically centered */
+/* Hero area — positioned down the page */
 .hero {
   text-align: center;
+  padding-top: 22vh;
+  padding-bottom: 10vh;
 }
 
 /* Greeting */
