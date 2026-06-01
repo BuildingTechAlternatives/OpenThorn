@@ -2,98 +2,125 @@
   width: 100%;
 }
 
+/* ===== Card ===== */
 .card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 6px 6px 18px;
   background: var(--color-surface-raised);
   border: 1px solid var(--color-border-visible);
-  border-radius: var(--radius-2xl);
-  transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out), background 0.25s;
-  height: 60px;
+  border-radius: 20px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
   outline: none;
 }
 
 .card:focus,
 .card:focus-within {
   outline: none;
-  border-color: var(--color-border-visible);
-  box-shadow: none;
 }
 
-/* + icon */
-.plusIcon {
+.cardFocused {
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+/* ===== Input area ===== */
+.inputArea {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  padding: 12px 12px 12px 8px;
+}
+
+/* ===== + button ===== */
+.plusBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  border: 1.5px solid var(--color-border-visible);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
   color: var(--color-text-muted);
   flex-shrink: 0;
-  transition: border-color 0.2s, color 0.2s;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
   cursor: pointer;
+  background: transparent;
+  margin-top: 2px;
   outline: none;
 }
 
-.plusIcon:focus,
-.plusIcon:focus-visible {
+.plusBtn:focus,
+.plusBtn:focus-visible {
   outline: none;
 }
 
-.plusIcon:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+.plusBtn:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.04);
 }
 
-.inputWrapper {
+/* ===== Textarea wrapper ===== */
+.textareaWrapper {
   flex: 1;
   position: relative;
   min-width: 0;
+  margin: 0 12px;
 }
 
-.input {
+/* ===== Textarea ===== */
+.textarea {
+  display: block;
   width: 100%;
   border: none;
   outline: none;
+  resize: none;
   font-size: 16px;
+  line-height: 1.55;
   color: var(--color-text);
   background: transparent;
-  min-width: 0;
-  padding: 16px 0;
   font-weight: 400;
   font-family: var(--font-body);
+  padding: 4px 0;
+  min-height: 30px;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
-.input:focus {
+.textarea:focus {
   outline: none;
   box-shadow: none;
 }
 
-.input:focus-visible {
+.textarea:focus-visible {
   outline: none;
   box-shadow: none;
 }
 
-.input::placeholder {
+.textarea::placeholder {
   color: var(--color-text-muted);
-  font-weight: 400;
 }
 
-/* Typing animation placeholder text */
+.textarea::-webkit-scrollbar {
+  width: 4px;
+}
+
+.textarea::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+/* ===== Typing placeholder ===== */
 .typingPlaceholder {
   position: absolute;
-  top: 50%;
+  top: 4px;
   left: 0;
-  transform: translateY(-50%);
   font-size: 16px;
+  line-height: 1.55;
   color: var(--color-text-muted);
   font-weight: 400;
   pointer-events: none;
   white-space: nowrap;
   overflow: hidden;
+  font-family: var(--font-body);
 }
 
 .cursor {
@@ -111,28 +138,28 @@
   50% { opacity: 0; }
 }
 
-/* Submit button */
+/* ===== Submit button ===== */
 .submitBtn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 0 28px;
-  height: 48px;
+  padding: 0 24px;
+  height: 42px;
   background: var(--color-accent);
   color: #08050C;
-  border-radius: var(--radius-full);
-  font-size: 15px;
+  border-radius: 14px;
+  font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
-  transition: transform 0.18s var(--ease-spring), box-shadow 0.25s var(--ease-out), filter 0.2s;
+  transition: transform 0.18s var(--ease-spring), box-shadow 0.25s ease, filter 0.2s;
   will-change: transform;
   letter-spacing: -0.01em;
   cursor: pointer;
   border: none;
   outline: none;
-  position: relative;
-  overflow: hidden;
+  flex-shrink: 0;
+  align-self: flex-end;
 }
 
 .submitBtn:focus,
@@ -141,33 +168,52 @@
 }
 
 .submitBtn:hover {
-  transform: scale(1.04);
-  box-shadow: 0 0 30px rgba(139, 92, 246, 0.35);
-  filter: brightness(1.1);
+  filter: brightness(1.08);
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
 }
 
 .submitBtn:active {
-  transform: scale(0.96);
+  transform: scale(0.95);
 }
 
-/* Small variant */
+/* ===== Small variant ===== */
 .small .card {
-  height: 52px;
-  padding: 4px 4px 4px 16px;
+  border-radius: 16px;
 }
-.small .input {
-  padding: 12px 0;
-  font-size: 15px;
+
+.small .inputArea {
+  padding: 9px 10px 9px 6px;
 }
-.small .typingPlaceholder {
-  font-size: 15px;
+
+.small .plusBtn {
+  width: 30px;
+  height: 30px;
+  margin-top: 1px;
 }
-.small .submitBtn {
-  padding: 0 22px;
-  height: 42px;
+
+.small .plusBtn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.small .textarea {
   font-size: 14px;
+  min-height: 24px;
+  padding: 3px 0;
 }
-.small .plusIcon {
-  width: 22px;
-  height: 22px;
+
+.small .textareaWrapper {
+  margin: 0 10px;
+}
+
+.small .typingPlaceholder {
+  font-size: 14px;
+  top: 3px;
+}
+
+.small .submitBtn {
+  padding: 0 20px;
+  height: 36px;
+  font-size: 13px;
+  border-radius: 12px;
 }

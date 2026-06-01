@@ -1,4 +1,4 @@
-import { type FormEvent, useState, useEffect, useRef } from 'react'
+import { type FormEvent, useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../lib/AuthContext'
@@ -10,7 +10,7 @@ interface PromptInputProps {
   onSubmit?: (prompt: string) => void
 }
 
-const prompts = [
+const typingPrompts = [
   'Design a portfolio with a dark, cinematic feel...',
   'Build a waitlist landing page for my SaaS idea...',
   'Create a custom dashboard for tracking team metrics...',
@@ -42,7 +42,7 @@ function useTypingAnimation(active: boolean) {
       if (!stateRef.current.active) return
 
       const s = stateRef.current
-      const currentPrompt = prompts[s.promptIndex]
+      const currentPrompt = typingPrompts[s.promptIndex]
 
       if (!s.isDeleting) {
         if (s.charIndex < currentPrompt.length) {
@@ -63,7 +63,7 @@ function useTypingAnimation(active: boolean) {
           timeout = setTimeout(tick, 20 + Math.random() * 15)
         } else {
           stateRef.current.isDeleting = false
-          stateRef.current.promptIndex = (s.promptIndex + 1) % prompts.length
+          stateRef.current.promptIndex = (s.promptIndex + 1) % typingPrompts.length
           stateRef.current.charIndex = 0
           timeout = setTimeout(tick, 300)
         }
@@ -82,17 +82,33 @@ export default function PromptInput({ size = 'default', defaultValue, onSubmit }
   const navigate = useNavigate()
   const [internalValue, setInternalValue] = useState(defaultValue ?? '')
   const [isFocused, setIsFocused] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  // Sync internal value when defaultValue changes (e.g. example chip click)
+  // Sync when defaultValue changes (example chip click)
   useEffect(() => {
     if (defaultValue !== undefined) {
       setInternalValue(defaultValue)
     }
   }, [defaultValue])
 
+  // Auto-resize textarea
+  const autoResize = useCallback(() => {
+    const el = textareaRef.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${el.scrollHeight}px`
+  }, [])
+
+  useEffect(() => {
+    autoResize()
+  }, [internalValue, autoResize])
+
   const showTyping = !isFocused && internalValue.length === 0
   const activeTyping = useTypingAnimation(showTyping)
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInternalValue(e.target.value)
+  }
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
@@ -103,7 +119,6 @@ export default function PromptInput({ size = 'default', defaultValue, onSubmit }
       return
     }
 
-    // Auth gate: if not logged in, open sign-in modal; otherwise go to dashboard
     if (!user) {
       window.dispatchEvent(new CustomEvent('bloom:require-auth'))
     } else {
@@ -111,8 +126,16 @@ export default function PromptInput({ size = 'default', defaultValue, onSubmit }
     }
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Submit on Enter (without Shift)
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSubmit(e)
+    }
+  }
+
   const handlePlusClick = () => {
-    inputRef.current?.focus()
+    textareaRef.current?.focus()
   }
 
   return (
@@ -120,55 +143,63 @@ export default function PromptInput({ size = 'default', defaultValue, onSubmit }
       className={`${styles.wrapper} ${size === 'small' ? styles.small : ''}`}
       onSubmit={handleSubmit}
     >
-      <div className={styles.card}>
-        <button
-          type="button"
-          className={styles.plusIcon}
-          onClick={handlePlusClick}
-          aria-label="Add attachment or focus input"
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <path d="M7 1v12M1 7h12" />
-          </svg>
-        </button>
+      <div className={`${styles.card} ${isFocused ? styles.cardFocused : ''}`}>
+        {/* Input area */}
+        <div className={styles.inputArea}>
+          {/* + button */}
+          <button
+            type="button"
+            className={styles.plusBtn}
+            onClick={handlePlusClick}
+            aria-label="Focus input"
+            tabIndex={-1}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M8 1v14M1 8h14" />
+            </svg>
+          </button>
 
-        <div className={styles.inputWrapper}>
-          <input
-            ref={inputRef}
-            className={styles.input}
-            type="text"
-            value={internalValue}
-            onChange={(e) => setInternalValue(e.target.value)}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            placeholder=""
-            aria-label="Describe your website idea"
-          />
-          {!internalValue && !isFocused && (
-            <span className={styles.typingPlaceholder} aria-hidden="true">
-              {activeTyping}
-              <span className={styles.cursor} />
-            </span>
-          )}
+          {/* Textarea with typing placeholder */}
+          <div className={styles.textareaWrapper}>
+            <textarea
+              ref={textareaRef}
+              className={styles.textarea}
+              value={internalValue}
+              onChange={handleChange}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              onKeyDown={handleKeyDown}
+              placeholder=""
+              rows={1}
+              aria-label="Describe your website idea"
+            />
+            {!internalValue && !isFocused && (
+              <span className={styles.typingPlaceholder} aria-hidden="true">
+                {activeTyping}
+                <span className={styles.cursor} />
+              </span>
+            )}
+          </div>
+
+          {/* Generate button */}
+          <motion.button
+            type="submit"
+            className={styles.submitBtn}
+            whileTap={{ scale: 0.95 }}
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span
+                key="generate"
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -10, opacity: 0 }}
+                transition={{ duration: 0.2, ease: [0.19, 1, 0.22, 1] }}
+              >
+                Generate
+              </motion.span>
+            </AnimatePresence>
+          </motion.button>
         </div>
-
-        <motion.button
-          type="submit"
-          className={styles.submitBtn}
-          whileTap={{ scale: 0.96 }}
-        >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.span
-              key="generate"
-              initial={{ y: 12, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -12, opacity: 0 }}
-              transition={{ duration: 0.25, ease: [0.19, 1, 0.22, 1] }}
-            >
-              Generate
-            </motion.span>
-          </AnimatePresence>
-        </motion.button>
       </div>
     </form>
   )
