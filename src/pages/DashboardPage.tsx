@@ -15,13 +15,17 @@ interface Project {
 }
 
 const examplePrompts = [
-  'A sleek portfolio for a photographer',
-  'Landing page for a SaaS startup',
-  'Restaurant menu with online ordering',
-  'Personal blog with a minimalist vibe',
-  'Task management dashboard',
-  'Online course platform',
+  { title: 'Portfolio', prompt: 'Design a sleek portfolio website for a photographer with a dark, cinematic feel and fullscreen image galleries' },
+  { title: 'SaaS Landing Page', prompt: 'Build a modern landing page for a SaaS startup with hero, features, pricing, and a waitlist signup form' },
+  { title: 'Restaurant Menu', prompt: 'Create a restaurant website with an interactive menu, online ordering, reservations, and location map' },
+  { title: 'Personal Blog', prompt: 'Build a personal blog with a clean minimalist design, article pages, tags, and a newsletter signup' },
+  { title: 'Task Dashboard', prompt: 'Create a task management dashboard with kanban boards, calendar view, team collaboration, and analytics' },
+  { title: 'Online Course', prompt: 'Build an online course platform with video lessons, progress tracking, quizzes, and student discussion forums' },
+  { title: 'Marketplace', prompt: 'Design a marketplace with product listings, search filters, shopping cart, checkout flow, and seller profiles' },
+  { title: 'Event Booking', prompt: 'Create an event booking platform with calendar scheduling, ticket types, payment processing, and attendee management' },
 ]
+
+const INITIAL_VISIBLE = 4
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth()
@@ -29,6 +33,9 @@ export default function DashboardPage() {
   const [promptDefault, setPromptDefault] = useState('')
   const [projects, setProjects] = useState<Project[]>([])
   const [projectsLoading, setProjectsLoading] = useState(true)
+  const [showAllPrompts, setShowAllPrompts] = useState(false)
+
+  const visiblePrompts = showAllPrompts ? examplePrompts : examplePrompts.slice(0, INITIAL_VISIBLE)
 
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] ?? user?.email?.split('@')[0] ?? 'there'
 
@@ -101,16 +108,25 @@ export default function DashboardPage() {
             </div>
 
             <div className={styles.examples}>
-              {examplePrompts.map((prompt) => (
+              {visiblePrompts.map((item) => (
                 <button
-                  key={prompt}
+                  key={item.title}
                   className={styles.exampleChip}
-                  onClick={() => handleExampleClick(prompt)}
+                  onClick={() => handleExampleClick(item.prompt)}
                   type="button"
                 >
-                  {prompt}
+                  {item.title}
                 </button>
               ))}
+              {!showAllPrompts && examplePrompts.length > INITIAL_VISIBLE && (
+                <button
+                  className={`${styles.exampleChip} ${styles.moreChip}`}
+                  onClick={() => setShowAllPrompts(true)}
+                  type="button"
+                >
+                  More…
+                </button>
+              )}
             </div>
           </div>
 
