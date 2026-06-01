@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
 import Header from './components/Header/Header'
 import HeroSection from './components/HeroSection/HeroSection'
 import MeetBloomSection from './components/MeetBloomSection/MeetBloomSection'
@@ -6,6 +8,8 @@ import BYOKSection from './components/BYOKSection/BYOKSection'
 import BottomCTA from './components/BottomCTA/BottomCTA'
 import Footer from './components/Footer/Footer'
 import PricingPage from './pages/PricingPage'
+import NotFoundPage from './pages/NotFoundPage'
+import AuthModal from './components/AuthModal/AuthModal'
 import styles from './App.module.css'
 
 function HomePage() {
@@ -19,17 +23,37 @@ function HomePage() {
   )
 }
 
+function Layout({ children }: { children: React.ReactNode }) {
+  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>('signin')
+
+  const openSignIn = () => { setAuthModalMode('signin'); setAuthModalOpen(true) }
+  const openSignUp = () => { setAuthModalMode('signup'); setAuthModalOpen(true) }
+
+  return (
+    <>
+      <Header onSignIn={openSignIn} onSignUp={openSignUp} />
+      <main>{children}</main>
+      <Footer />
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        initialMode={authModalMode}
+      />
+    </>
+  )
+}
+
 export default function App() {
   return (
-    <div className={styles.app}>
-      <Header />
-      <main>
+    <ErrorBoundary>
+      <div className={styles.app}>
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/" element={<Layout><HomePage /></Layout>} />
+          <Route path="/pricing" element={<Layout><PricingPage /></Layout>} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      </main>
-      <Footer />
-    </div>
+      </div>
+    </ErrorBoundary>
   )
 }
