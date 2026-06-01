@@ -1,10 +1,5 @@
-/* =============================================
-   PromptInput
-   ============================================= */
-
 .wrapper {
   width: 100%;
-  position: relative;
 }
 
 /* ===== Card ===== */
@@ -34,16 +29,8 @@
   padding: 12px 12px 12px 8px;
 }
 
-/* ===== Upload button ===== */
-.uploadWrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.uploadBtn {
+/* ===== + button ===== */
+.plusBtn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -56,192 +43,19 @@
   transition: border-color 0.2s, color 0.2s, background 0.2s;
   cursor: pointer;
   background: transparent;
-  outline: none;
-  position: relative;
-}
-
-.uploadBtn:focus,
-.uploadBtn:focus-visible {
-  outline: none;
-}
-
-.uploadBtn:hover {
-  border-color: rgba(255, 255, 255, 0.25);
-  color: var(--color-text-secondary);
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.uploadBtn::after {
-  content: 'Upload File';
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-  background: var(--color-surface-raised);
-  border: 1px solid var(--color-border-visible);
-  border-radius: 8px;
-  padding: 4px 10px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s;
-}
-
-.uploadBtn:hover::after {
-  opacity: 1;
-}
-
-.fileInput {
-  display: none;
-}
-
-/* ===== Model selector button ===== */
-.modelSelectorWrap {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
   margin-top: 2px;
-  margin-right: 0;
-}
-
-.modelBtn {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  height: 34px;
-  padding: 0 10px 0 12px;
-  border-radius: 10px;
-  border: 1.5px solid rgba(255, 255, 255, 0.10);
-  background: transparent;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
-  white-space: nowrap;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 500;
   outline: none;
-  max-width: 220px;
-  overflow: hidden;
 }
 
-.modelBtn:hover {
+.plusBtn:focus,
+.plusBtn:focus-visible {
+  outline: none;
+}
+
+.plusBtn:hover {
   border-color: rgba(255, 255, 255, 0.25);
   color: var(--color-text-secondary);
   background: rgba(255, 255, 255, 0.04);
-}
-
-.modelBtnOpen {
-  border-color: var(--color-accent);
-  color: var(--color-text);
-  background: rgba(167, 139, 250, 0.08);
-}
-
-.modelBtnDefault {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.modelBtnSelected {
-  display: flex;
-  align-items: center;
-}
-
-.modelTag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: rgba(167, 139, 250, 0.15);
-  color: var(--color-accent);
-  border-radius: 6px;
-  padding: 2px 4px 2px 8px;
-  font-size: 12px;
-  font-weight: 600;
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.modelTagRemove {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: none;
-  background: transparent;
-  color: var(--color-accent);
-  cursor: pointer;
-  padding: 0;
-  flex-shrink: 0;
-  opacity: 0.6;
-  transition: opacity 0.15s, background 0.15s;
-}
-
-.modelTagRemove:hover {
-  opacity: 1;
-  background: rgba(167, 139, 250, 0.2);
-}
-
-/* Provider icons row in model button (authenticated) */
-.modelBtnProviders {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  overflow: hidden;
-}
-
-.modelBtnProviderIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-}
-
-.modelBtnProviderLogo {
-  width: 16px;
-  height: 16px;
-  border-radius: 3px;
-  object-fit: contain;
-}
-
-.modelBtnProviderPlaceholder {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--color-text-muted);
-  font-size: 9px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modelBtnProviderNames {
-  font-size: 12px;
-  line-height: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.modelBtnArrow {
-  flex-shrink: 0;
-  transition: transform 0.2s ease;
-}
-
-.modelBtnArrowUp {
-  transform: rotate(180deg);
 }
 
 /* ===== Textarea wrapper ===== */
@@ -324,17 +138,23 @@
   50% { opacity: 0; }
 }
 
-/* ===== Submit (send) button ===== */
+/* ===== Submit button ===== */
 .submitBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
+  gap: 6px;
+  padding: 0 24px;
   height: 42px;
   background: var(--color-accent);
   color: #08050C;
   border-radius: 14px;
-  transition: box-shadow 0.25s ease, filter 0.2s;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: transform 0.18s var(--ease-spring), box-shadow 0.25s ease, filter 0.2s;
+  will-change: transform;
+  letter-spacing: -0.01em;
   cursor: pointer;
   border: none;
   outline: none;
@@ -356,196 +176,7 @@
   transform: scale(0.95);
 }
 
-/* ===== Overlay ===== */
-.overlayBackdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 49;
-}
-
-.overlay {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  z-index: 50;
-  background: var(--color-surface-raised);
-  border: 1px solid var(--color-border-visible);
-  border-radius: 16px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
-  max-height: 380px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.overlayHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px 10px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-text);
-  border-bottom: 1px solid var(--color-border-visible);
-  flex-shrink: 0;
-}
-
-.overlayClose {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  border: none;
-  background: transparent;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-  padding: 0;
-}
-
-.overlayClose:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--color-text);
-}
-
-.overlayBody {
-  flex: 1;
-  overflow-y: auto;
-  padding: 6px 0;
-}
-
-.overlayBody::-webkit-scrollbar {
-  width: 4px;
-}
-.overlayBody::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 2px;
-}
-
-/* Empty state inside overlay */
-.overlayEmpty {
-  padding: 32px 16px;
-  text-align: center;
-  color: var(--color-text-muted);
-  font-size: 14px;
-}
-
-/* Provider section */
-.overlayProvider {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-.overlayProvider:last-child {
-  border-bottom: none;
-}
-
-.overlayProviderHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 10px 16px;
-  border: none;
-  background: transparent;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: background 0.15s;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.overlayProviderHeader:hover {
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.overlayProviderHeaderActive {
-  color: var(--color-text);
-}
-
-.overlayProviderInfo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.overlayProviderLogo {
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  object-fit: contain;
-}
-
-.overlayProviderLogoPlaceholder {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--color-text-muted);
-}
-
-.overlayChevron {
-  flex-shrink: 0;
-  transition: transform 0.2s ease;
-  color: var(--color-text-muted);
-}
-
-.overlayChevronUp {
-  transform: rotate(180deg);
-}
-
-/* Models list */
-.overlayModels {
-  overflow: hidden;
-}
-
-.overlayModelItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 8px 16px 8px 44px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  transition: background 0.15s;
-  font-family: var(--font-body);
-  text-align: left;
-}
-
-.overlayModelItem:hover {
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.overlayModelItemActive {
-  background: rgba(167, 139, 250, 0.08);
-}
-
-.overlayModelName {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text);
-  line-height: 1.3;
-}
-
-.overlayModelId {
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--color-text-muted);
-  line-height: 1.3;
-  font-family: var(--font-mono, monospace);
-  flex: 1;
-}
-
-/* ===== Small variant overrides ===== */
+/* ===== Small variant ===== */
 .small .card {
   border-radius: 16px;
 }
@@ -554,40 +185,15 @@
   padding: 9px 10px 9px 6px;
 }
 
-.small .uploadBtn {
+.small .plusBtn {
   width: 30px;
   height: 30px;
   margin-top: 1px;
 }
 
-.small .uploadBtn svg {
+.small .plusBtn svg {
   width: 14px;
   height: 14px;
-}
-
-.small .modelBtn {
-  height: 30px;
-  padding: 0 8px 0 10px;
-  font-size: 12px;
-}
-
-.small .modelBtnProviderLogo {
-  width: 14px;
-  height: 14px;
-}
-
-.small .modelBtnProviderPlaceholder {
-  width: 14px;
-  height: 14px;
-  font-size: 8px;
-}
-
-.small .modelBtnProviderNames {
-  font-size: 11px;
-}
-
-.small .modelTag {
-  font-size: 11px;
 }
 
 .small .textarea {
@@ -606,12 +212,8 @@
 }
 
 .small .submitBtn {
-  width: 36px;
+  padding: 0 20px;
   height: 36px;
+  font-size: 13px;
   border-radius: 12px;
-}
-
-.small .submitBtn svg {
-  width: 15px;
-  height: 15px;
 }
