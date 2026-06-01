@@ -10,7 +10,7 @@
 
 /* ===== Empty state ===== */
 .emptyState { text-align: center; padding: var(--space-3xl) 0; }
-.emptyIcon { color: var(--color-text-muted); opacity: 0.3; margin-bottom: var(--space-lg); }
+.emptyIcon { margin-bottom: var(--space-lg); }
 .emptyTitle { font-family: var(--font-display); font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 10px; letter-spacing: -0.015em; }
 .emptyText { font-size: 14px; color: var(--color-text-muted); line-height: 1.5; max-width: 380px; margin: 0 auto var(--space-xl); }
 
@@ -35,7 +35,8 @@
 .backArrow { position: absolute; top: 20px; left: 20px; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; color: var(--color-text-muted); background: transparent; border: none; cursor: pointer; transition: color 0.15s, background 0.15s; }
 .backArrow:hover { color: var(--color-text); background: rgba(255,255,255,0.05); }
 .editorHeader { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; padding-left: 44px; }
-.editorLogo { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0; }
+.editorLogoImg { width: 48px; height: 48px; border-radius: 12px; object-fit: contain; flex-shrink: 0; }
+.editorLogoPlaceholder { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0; background: rgba(255,255,255,0.06); color: var(--color-text-muted); }
 .editorTitle { font-size: 20px; font-weight: 700; color: var(--color-text); letter-spacing: -0.01em; }
 .editorSubtitle { font-size: 13px; color: var(--color-text-muted); margin-top: 2px; }
 .nameInput { height: 38px; padding: 0 12px; border-radius: 8px; font-size: 18px; font-weight: 700; font-family: var(--font-body); color: var(--color-text); background: rgba(255,255,255,0.04); border: 1px solid var(--color-border-visible); outline: none; width: 220px; }
@@ -92,7 +93,8 @@
   border-radius: var(--radius-lg);
 }
 .enabledLeft { display: flex; align-items: center; gap: 14px; }
-.enabledLogo { display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0; }
+.enabledLogo { display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0; background: rgba(255,255,255,0.04); }
+.enabledLogoImg { width: 34px; height: 34px; object-fit: contain; }
 .enabledName { display: block; font-size: 14px; font-weight: 600; color: var(--color-text); }
 .enabledKey { display: block; font-size: 12px; font-family: 'JetBrains Mono', 'Fira Code', monospace; color: var(--color-text-muted); margin-top: 2px; }
 .enabledRight { display: flex; align-items: center; gap: 12px; }
@@ -133,10 +135,13 @@
 }
 .pickerCard:hover { border-color: var(--color-border-visible); background: rgba(255,255,255,0.04); transform: translateY(-1px); }
 .pickerCardActive { border-color: rgba(139,92,246,0.25); background: rgba(139,92,246,0.04); }
-.pickerLogo { display: flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 14px; }
+.pickerLogo { display: flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 14px; background: rgba(255,255,255,0.04); }
+.pickerLogoImg { width: 40px; height: 40px; object-fit: contain; }
 .pickerName { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); text-align: center; }
 .pickerCardCustom { border-style: dashed; }
 .configuredBadge { font-size: 10px; font-weight: 600; color: #34D399; text-transform: uppercase; letter-spacing: 0.04em; }
+
+.trademarkNote { text-align: center; font-size: 11px; color: var(--color-text-muted); opacity: 0.5; margin-top: var(--space-2xl); }
 
 @media (max-width: 768px) {
   .main { margin-left: 0; padding: 24px var(--space-lg); }

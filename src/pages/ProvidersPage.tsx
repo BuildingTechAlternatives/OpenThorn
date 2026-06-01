@@ -32,6 +32,16 @@ const PROVIDERS: ProviderDef[] = [
   { id: 'together', name: 'Together AI', baseUrl: 'https://api.together.xyz/v1', color: '#6366F1' },
 ]
 
+const LOGO_MAP: Record<string, string> = {
+  openai: '/assets/openai.png',
+  anthropic: '/assets/anthropic.png',
+  google: '/assets/google.png',
+  deepseek: '/assets/deepseek.webp',
+  mistral: '/assets/mistralai.png',
+  groq: '/assets/groq.png',
+  together: '/assets/togetherai.png',
+}
+
 export default function ProvidersPage() {
   const { user, loading: authLoading } = useAuth()
   const [savedKeys, setSavedKeys] = useState<ProviderKey[]>([])
@@ -173,7 +183,7 @@ export default function ProvidersPage() {
           {!loading && !editingProvider && enabledKeys.length === 0 && (
             <div className={styles.emptyState}>
               <div className={styles.emptyIcon}>
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" opacity="0.5">
                   <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
                 </svg>
               </div>
@@ -198,11 +208,9 @@ export default function ProvidersPage() {
 
               <div className={styles.editorHeader}>
                 {editingDef && !formCustom ? (
-                  <div className={styles.editorLogo} style={{ background: `${editingDef.color}18`, color: editingDef.color }}>
-                    <ProviderLogo id={editingDef.id} />
-                  </div>
+                  <img src={LOGO_MAP[editingDef.id]} alt={editingDef.name} className={styles.editorLogoImg} />
                 ) : (
-                  <div className={styles.editorLogo} style={{ background: 'rgba(255,255,255,0.08)' }}>
+                  <div className={styles.editorLogoPlaceholder}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                       <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4"/>
                     </svg>
@@ -259,8 +267,8 @@ export default function ProvidersPage() {
                   return (
                     <div key={key.id} className={styles.enabledCard}>
                       <div className={styles.enabledLeft}>
-                        <div className={styles.enabledLogo} style={{ background: def ? `${def.color}18` : 'rgba(255,255,255,0.06)', color: def?.color ?? 'var(--color-text-secondary)' }}>
-                          {def ? <ProviderLogo id={def.id} /> : (
+                        <div className={styles.enabledLogo}>
+                          {def ? <img src={LOGO_MAP[def.id]} alt={def.name} className={styles.enabledLogoImg} /> : (
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="2" width="20" height="20" rx="4"/></svg>
                           )}
                         </div>
@@ -306,8 +314,8 @@ export default function ProvidersPage() {
                 const isSet = savedKeys.some((k) => k.provider_id === p.id && k.enabled)
                 return (
                   <button key={p.id} className={`${styles.pickerCard} ${isSet ? styles.pickerCardActive : ''}`} onClick={() => openEditor(p.id)} type="button">
-                    <div className={styles.pickerLogo} style={{ background: `${p.color}15`, color: p.color }}>
-                      <ProviderLogo id={p.id} />
+                    <div className={styles.pickerLogo}>
+                      <img src={LOGO_MAP[p.id]} alt={p.name} className={styles.pickerLogoImg} />
                     </div>
                     <span className={styles.pickerName}>{p.name}</span>
                     {isSet && <span className={styles.configuredBadge}>Configured</span>}
@@ -328,62 +336,8 @@ export default function ProvidersPage() {
   )
 }
 
-function ProviderLogo({ id }: { id: string }) {
-  switch (id) {
-    case 'openai':
-      return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M20 12c0 3.3-2 6.2-5 7.6V17c0-1.5-.7-2.8-1.8-3.7 1.5-.3 2.6-1.6 2.6-3.2s-1-2.9-2.6-3.2c1.1-.8 1.8-2.1 1.8-3.6V2.5c3 1.4 5 4.3 5 7.6V12z" fill="currentColor" opacity="0.9"/>
-          <path d="M9 4c0 1.5.7 2.8 1.8 3.7C9.3 8 8.2 9.3 8.2 11s1 2.9 2.6 3.2C9.7 15 9 16.3 9 17.8v1.9C5.9 18.2 4 15.3 4 12V9.9C4 6.6 5.9 3.7 9 2.5V4z" fill="currentColor"/>
-        </svg>
-      )
-    case 'anthropic':
-      return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M18 10.5c0 2-1.6 3.5-3.5 3.5H8l2.5-2.5H9C7 11.5 5.5 10 5.5 8.5S7 5.5 9 5.5h5.5c2 0 3.5 1.6 3.5 3.5 0 1-.4 1.9-1.1 2.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M6 13.5c0-2 1.6-3.5 3.5-3.5H16l-2.5 2.5H15c2 0 3.5 1.6 3.5 3.5S17 19.5 15 19.5H9.5C7.5 19.5 6 17.9 6 16c0-1 .4-1.9 1.1-2.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      )
-    case 'google':
-      return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2L3 7l9 5 9-5-9-5z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
-          <path d="M3 7v10l9 5V12l-9-5z" fill="currentColor" opacity="0.3"/>
-          <path d="M21 7v10l-9 5V12l9-5z" fill="currentColor" opacity="0.6"/>
-        </svg>
-      )
-    case 'deepseek':
-      return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/>
-          <path d="M8 12h8M12 8v8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-          <circle cx="12" cy="12" r="2.5" fill="currentColor" opacity="0.5"/>
-        </svg>
-      )
-    case 'mistral':
-      return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <rect x="4" y="4" width="5" height="5" rx="1" fill="currentColor" opacity="0.9"/>
-          <rect x="4" y="15" width="5" height="5" rx="1" fill="currentColor" opacity="0.9"/>
-          <rect x="15" y="4" width="5" height="5" rx="1" fill="currentColor" opacity="0.6"/>
-          <rect x="15" y="15" width="5" height="5" rx="1" fill="currentColor" opacity="0.3"/>
-        </svg>
-      )
-    case 'groq':
-      return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M13 3L4 14h8l-1 7 9-11h-8l1-7z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
-        </svg>
-      )
-    case 'together':
-      return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <circle cx="7" cy="7" r="3" fill="currentColor" opacity="0.7"/>
-          <circle cx="17" cy="7" r="3" fill="currentColor" opacity="0.9"/>
-          <circle cx="12" cy="17" r="3" fill="currentColor" opacity="0.5"/>
-        </svg>
-      )
-    default:
-      return null
-  }
-}
+            {/* Trademark note */}
+            <p className={styles.trademarkNote}>
+              All product names, logos, and brands are property of their respective owners.
+              Use of these names does not imply endorsement.
+            </p>
