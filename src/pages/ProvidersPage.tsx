@@ -138,6 +138,22 @@ export default function ProvidersPage() {
     }
   }
 
+  const quickToggle = async (providerId: string) => {
+    if (!user) return
+    const existing = savedKeys.find((k) => k.provider_id === providerId)
+    if (!existing || !existing.api_key) {
+      // No key yet — open editor
+      openEditor(providerId)
+      return
+    }
+    // Toggle enabled
+    const updated = { ...existing, enabled: !existing.enabled, updated_at: new Date().toISOString() }
+    const { error } = await supabase.from('provider_keys').update(updated).eq('id', existing.id).eq('user_id', user.id)
+    if (!error) {
+      setSavedKeys((prev) => prev.map((k) => (k.id === existing.id ? updated : k)))
+    }
+  }
+
   const openCustomEditor = () => {
     const id = `custom-${Date.now()}`
     setFormKey('')
@@ -311,15 +327,25 @@ export default function ProvidersPage() {
             </div>
             <div className={styles.pickerGrid}>
               {PROVIDERS.map((p) => {
-                const isSet = savedKeys.some((k) => k.provider_id === p.id && k.enabled)
+                const saved = savedKeys.find((k) => k.provider_id === p.id)
+                const isEnabled = saved?.enabled ?? false
+                const hasKey = !!(saved?.api_key)
                 return (
-                  <button key={p.id} className={`${styles.pickerCard} ${isSet ? styles.pickerCardActive : ''}`} onClick={() => openEditor(p.id)} type="button">
-                    <div className={styles.pickerLogo}>
-                      <img src={LOGO_MAP[p.id]} alt={p.name} className={styles.pickerLogoImg} />
+                  <div key={p.id} className={`${styles.pickerCard} ${isEnabled ? styles.pickerCardActive : ''}`}>
+                    <button className={styles.pickerCardInner} onClick={() => openEditor(p.id)} type="button">
+                      <div className={styles.pickerLogo}>
+                        <img src={LOGO_MAP[p.id]} alt={p.name} className={styles.pickerLogoImg} />
+                      </div>
+                      <span className={styles.pickerName}>{p.name}</span>
+                    </button>
+                    <div className={styles.pickerToggleRow}>
+                      {hasKey && <span className={styles.configuredBadge}>Key set</span>}
+                      <label className={styles.toggle} onClick={(e) => e.stopPropagation()}>
+                        <input type="checkbox" checked={isEnabled} onChange={() => quickToggle(p.id)} />
+                        <span className={styles.toggleSlider} />
+                      </label>
                     </div>
-                    <span className={styles.pickerName}>{p.name}</span>
-                    {isSet && <span className={styles.configuredBadge}>Configured</span>}
-                  </button>
+                  </div>
                 )
               })}
               <button className={`${styles.pickerCard} ${styles.pickerCardCustom}`} onClick={openCustomEditor} type="button">
