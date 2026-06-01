@@ -212,6 +212,11 @@
 
 .successIcon {
   margin-bottom: 16px;
+}
+
+.successLogo {
+  height: 36px;
+  width: auto;
   opacity: 0.9;
 }
 

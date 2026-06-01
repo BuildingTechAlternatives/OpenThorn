@@ -132,10 +132,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
       return (
         <div className={styles.successState}>
           <div className={styles.successIcon}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-              <polyline points="22 4 12 14.01 9 11.01"/>
-            </svg>
+            <img src="/assets/logo.png" alt="Bloom" className={styles.successLogo} />
           </div>
           <h3 className={styles.successTitle}>Check your email</h3>
           <p className={styles.successText}>
@@ -152,10 +149,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
       return (
         <div className={styles.successState}>
           <div className={styles.successIcon}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
+            <img src="/assets/logo.png" alt="Bloom" className={styles.successLogo} />
           </div>
           <h3 className={styles.successTitle}>Reset link sent</h3>
           <p className={styles.successText}>
