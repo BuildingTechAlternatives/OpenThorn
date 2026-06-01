@@ -11,7 +11,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 80px var(--space-2xl);
+  padding: 0 var(--space-2xl);
   position: relative;
   z-index: 1;
 }
@@ -19,7 +19,7 @@
 /* When projects exist, switch to normal scroll layout */
 .mainWithProjects {
   align-items: flex-start;
-  padding-bottom: var(--space-4xl);
+  padding: 80px var(--space-2xl) var(--space-4xl);
 }
 
 .content {
