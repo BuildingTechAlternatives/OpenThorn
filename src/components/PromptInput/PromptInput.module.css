@@ -1,8 +1,77 @@
+/* ── Root ──────────────────────────────────────────── */
+
+.root {
+  width: 100%;
+}
+
+/* ── Hidden file input ─────────────────────────────── */
+
+.hiddenFileInput {
+  display: none;
+}
+
+/* ── File list (above card) ─────────────────────────── */
+
+.fileList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 4px 8px;
+  overflow: hidden;
+}
+
+.fileChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px 5px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.fileChip:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.fileChipName {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileChipRemove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.fileChipRemove:hover {
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ===== Wrapper / Card ===== */
+
 .wrapper {
   width: 100%;
 }
 
-/* ===== Card ===== */
 .card {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 100%),
@@ -11,6 +80,8 @@
   border-radius: 20px;
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
   outline: none;
+  display: flex;
+  flex-direction: column;
 }
 
 .card:focus,
@@ -24,51 +95,25 @@
 }
 
 /* ===== Input area ===== */
+
 .inputArea {
   display: flex;
-  align-items: flex-start;
-  gap: 0;
-  padding: 12px 12px 12px 8px;
-}
-
-/* ===== + button ===== */
-.plusBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.12);
-  color: var(--color-text-secondary);
-  flex-shrink: 0;
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
-  cursor: pointer;
-  background: transparent;
-  margin-top: 2px;
-  outline: none;
-}
-
-.plusBtn:focus,
-.plusBtn:focus-visible {
-  outline: none;
-}
-
-.plusBtn:hover {
-  border-color: rgba(255, 255, 255, 0.25);
-  color: var(--color-text-secondary);
-  background: rgba(255, 255, 255, 0.04);
+  flex-direction: column;
+  flex: 1;
+  padding: 16px 18px 0;
+  min-height: 80px;
 }
 
 /* ===== Textarea wrapper ===== */
+
 .textareaWrapper {
   flex: 1;
   position: relative;
   min-width: 0;
-  margin: 0 12px;
 }
 
 /* ===== Textarea ===== */
+
 .textarea {
   display: block;
   width: 100%;
@@ -82,7 +127,7 @@
   font-weight: 400;
   font-family: var(--font-body);
   padding: 4px 0;
-  min-height: 30px;
+  min-height: 54px;
   max-height: 200px;
   overflow-y: auto;
 }
@@ -111,13 +156,14 @@
 }
 
 /* ===== Typing placeholder ===== */
+
 .typingPlaceholder {
   position: absolute;
   top: 4px;
   left: 0;
   font-size: 16px;
   line-height: 1.55;
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
   font-weight: 400;
   pointer-events: none;
   white-space: nowrap;
@@ -140,17 +186,83 @@
   50% { opacity: 0; }
 }
 
+/* ===== Bottom action bar ===== */
+
+.actionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px 10px;
+}
+
+.actionLeft {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.actionRight {
+  display: flex;
+  align-items: center;
+}
+
+/* ===== Upload button (mini, in action bar) ===== */
+
+.uploadBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+  cursor: pointer;
+  background: transparent;
+  outline: none;
+}
+
+.uploadBtn:hover {
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.uploadBtn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.25);
+  outline-offset: 2px;
+}
+
+/* ===== File badge ────────────────────────────────── */
+
+.fileBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-accent);
+  background: rgba(139, 92, 246, 0.1);
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0;
+  flex-shrink: 0;
+}
+
 /* ===== Submit button ===== */
+
 .submitBtn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 0 24px;
-  height: 42px;
+  padding: 0 22px;
+  height: 38px;
   background: linear-gradient(135deg, var(--color-accent), var(--color-warm-accent));
   color: #08050C;
-  border-radius: 14px;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
@@ -161,7 +273,6 @@
   border: none;
   outline: none;
   flex-shrink: 0;
-  align-self: flex-end;
 }
 
 .submitBtn:focus,
@@ -179,33 +290,20 @@
 }
 
 /* ===== Small variant ===== */
+
 .small .card {
   border-radius: 16px;
 }
 
 .small .inputArea {
-  padding: 9px 10px 9px 6px;
-}
-
-.small .plusBtn {
-  width: 30px;
-  height: 30px;
-  margin-top: 1px;
-}
-
-.small .plusBtn svg {
-  width: 14px;
-  height: 14px;
+  padding: 12px 14px 0;
+  min-height: 64px;
 }
 
 .small .textarea {
   font-size: 14px;
-  min-height: 24px;
+  min-height: 40px;
   padding: 3px 0;
-}
-
-.small .textareaWrapper {
-  margin: 0 10px;
 }
 
 .small .typingPlaceholder {
@@ -213,9 +311,23 @@
   top: 3px;
 }
 
+.small .actionBar {
+  padding: 6px 8px 8px;
+}
+
 .small .submitBtn {
-  padding: 0 20px;
-  height: 36px;
+  padding: 0 18px;
+  height: 32px;
   font-size: 13px;
-  border-radius: 12px;
+  border-radius: 10px;
+}
+
+.small .uploadBtn {
+  width: 26px;
+  height: 26px;
+}
+
+.small .uploadBtn svg {
+  width: 13px;
+  height: 13px;
 }

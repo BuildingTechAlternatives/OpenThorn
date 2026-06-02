@@ -1,0 +1,296 @@
+/* ── Container ─────────────────────────────────────── */
+
+.container {
+  position: relative;
+  display: inline-flex;
+}
+
+/* ── Trigger button (icon-only) ────────────────────── */
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.trigger:hover {
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.trigger:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.25);
+  outline-offset: 2px;
+}
+
+.triggerIconFallback {
+  flex-shrink: 0;
+}
+
+/* When a model IS selected, show a mini provider indicator */
+.triggerHasSelection {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  padding: 0 10px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+  white-space: nowrap;
+  outline: none;
+  letter-spacing: 0;
+}
+
+.triggerHasSelection:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-text);
+}
+
+.triggerIcon {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.triggerLabel {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Dropdown ──────────────────────────────────────── */
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  background: var(--color-surface-raised);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 10px;
+  z-index: 1000;
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  backdrop-filter: blur(20px);
+}
+
+/* ── Provider list (vertical) ──────────────────────── */
+
+.providerList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ── Provider row ──────────────────────────────────── */
+
+.providerRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  outline: none;
+  letter-spacing: 0;
+  text-align: left;
+}
+
+.providerRow:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text);
+}
+
+.providerRowActive {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-text);
+}
+
+/* Left accent bar on active */
+.providerRowActive::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  border-radius: 0 2px 2px 0;
+  background: var(--provider-color, var(--color-accent));
+}
+
+.providerRowIcon {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.providerRowName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.providerRowChevron {
+  flex-shrink: 0;
+  opacity: 0.4;
+  transition: opacity 0.15s;
+  color: var(--color-text-muted);
+}
+
+.providerRow:hover .providerRowChevron,
+.providerRowActive .providerRowChevron {
+  opacity: 0.7;
+}
+
+/* ── Sub-overlay (slides out right) ────────────────── */
+
+.subOverlay {
+  position: absolute;
+  left: calc(100% + 6px);
+  top: 0;
+  width: 220px;
+  background: var(--color-surface-raised);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  backdrop-filter: blur(20px);
+}
+
+.subOverlayHeader {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  padding: 0 4px 10px;
+}
+
+.subOverlayHeaderDot {
+  display: inline-block;
+  margin-right: 4px;
+}
+
+/* ── Model list ────────────────────────────────────── */
+
+.modelList {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+}
+
+.modelList::-webkit-scrollbar {
+  width: 4px;
+}
+
+.modelList::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+}
+
+/* ── Model item ────────────────────────────────────── */
+
+.modelItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 12.5px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  text-align: left;
+  outline: none;
+  letter-spacing: 0;
+}
+
+.modelItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text);
+}
+
+.modelItemSelected {
+  background: rgba(139, 92, 246, 0.1);
+  color: var(--color-text);
+}
+
+.modelItemSelected:hover {
+  background: rgba(139, 92, 246, 0.15);
+}
+
+.modelItemName {
+  font-weight: 500;
+  flex: 1;
+}
+
+.modelItemId {
+  font-size: 10.5px;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.checkIcon {
+  flex-shrink: 0;
+  color: var(--color-accent);
+}
+
+/* ── Empty / loading state ─────────────────────────── */
+
+.emptyState {
+  padding: 20px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}

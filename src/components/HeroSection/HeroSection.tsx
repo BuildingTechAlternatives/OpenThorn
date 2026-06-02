@@ -4,9 +4,9 @@ import FloatingParticles from '../FloatingParticles/FloatingParticles'
 import styles from './HeroSection.module.css'
 
 const valueProps = [
-  { label: 'Bring your own API keys', detail: 'any provider' },
-  { label: 'Pay only for what you use', detail: 'zero platform fees' },
-  { label: 'Export your code', detail: 'own your infrastructure' },
+  { icon: 'key', label: 'Own your keys', detail: 'any provider' },
+  { icon: 'meter', label: 'No platform markup', detail: 'usage pricing only' },
+  { icon: 'code', label: 'Export real code', detail: 'your repo, your infra' },
 ]
 
 export default function HeroSection() {
@@ -66,10 +66,10 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.7, ease: [0.34, 1.56, 0.64, 1], delay: 0.55 }}
         >
-          <PromptInput />
+          <PromptInput page="landing" />
         </motion.div>
 
-        {/* Value props — clean editorial strip */}
+        {/* Value props */}
         <motion.div
           className={styles.valueProps}
           initial={{ opacity: 0, y: 12 }}
@@ -78,8 +78,11 @@ export default function HeroSection() {
         >
           {valueProps.map((prop) => (
             <span key={prop.label} className={styles.valueItem}>
-              <span className={styles.valueLabel}>{prop.label}</span>
+              <span className={styles.valueIcon} aria-hidden="true">
+                <ValueIcon name={prop.icon} />
+              </span>
               <span className={styles.valueDetail}>{prop.detail}</span>
+              <span className={styles.valueLabel}>{prop.label}</span>
             </span>
           ))}
         </motion.div>
@@ -96,5 +99,34 @@ export default function HeroSection() {
         <div className={styles.scrollHintLine} />
       </motion.div>
     </section>
+  )
+}
+
+function ValueIcon({ name }: { name: string }) {
+  if (name === 'key') {
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="7.5" cy="14.5" r="4.5" />
+        <path d="M11 11l8-8 2 2-2 2 2 2-2 2-2-2-4 4" />
+      </svg>
+    )
+  }
+
+  if (name === 'meter') {
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 19a8 8 0 1116 0" />
+        <path d="M12 19l4-7" />
+        <path d="M12 5v2M6.8 7.8l1.4 1.4M18.2 7.8l-1.4 1.4" />
+      </svg>
+    )
+  }
+
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 18l6-6-6-6" />
+      <path d="M8 6l-6 6 6 6" />
+      <path d="M14 4l-4 16" />
+    </svg>
   )
 }
