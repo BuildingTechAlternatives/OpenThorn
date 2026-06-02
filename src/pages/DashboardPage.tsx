@@ -184,7 +184,14 @@ export default function DashboardPage() {
             ) : (
               <div className={styles.projectGrid}>
                 {projects.map((project) => (
-                  <div key={project.id} className={styles.projectCard}>
+                  <div
+                    key={project.id}
+                    className={styles.projectCard}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => navigate(`/projects/${project.id}`, { state: { title: project.title } })}
+                    onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/projects/${project.id}`, { state: { title: project.title } }) }}
+                  >
                     <div className={styles.projectPreview}>
                       {project.preview_url ? (
                         <img src={project.preview_url} alt={project.title} />
