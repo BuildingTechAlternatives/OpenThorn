@@ -100,6 +100,11 @@
   backdrop-filter: blur(20px);
 }
 
+.dropdownTop {
+  top: auto;
+  bottom: calc(100% + 8px);
+}
+
 /* ── Provider list (vertical) ──────────────────────── */
 
 .providerList {
@@ -195,6 +200,12 @@
     0 16px 48px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(255, 255, 255, 0.04) inset;
   backdrop-filter: blur(20px);
+}
+
+.dropdownTop .subOverlay {
+  top: auto;
+  bottom: 0;
+  transform-origin: left bottom;
 }
 
 .subOverlayHeader {

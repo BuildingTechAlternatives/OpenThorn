@@ -4,6 +4,7 @@ import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabase'
 import DashboardSidebar from '../components/DashboardSidebar/DashboardSidebar'
 import PromptInput from '../components/PromptInput/PromptInput'
+import type { SelectedModel } from '../components/ModelSelector/ModelSelector'
 import styles from './DashboardPage.module.css'
 
 interface Project {
@@ -79,7 +80,7 @@ export default function DashboardPage() {
     return () => { supabase.removeChannel(channel) }
   }, [user])
 
-  const handlePromptSubmit = useCallback(async (prompt: string) => {
+  const handlePromptSubmit = useCallback(async (prompt: string, selectedModel: SelectedModel | null) => {
     const projectId = typeof crypto !== 'undefined' && 'randomUUID' in crypto
       ? crypto.randomUUID()
       : `draft-${Date.now()}`
@@ -108,7 +109,7 @@ export default function DashboardPage() {
     }
 
     navigate(`/projects/${projectId}`, {
-      state: { prompt, title },
+      state: { prompt, title, selectedModel },
     })
   }, [navigate, user])
 

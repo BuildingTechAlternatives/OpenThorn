@@ -5,41 +5,494 @@ import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabase'
 import { bundleProject, deployToStorage } from '../lib/deploy'
 import { pushFiles, createRepo, getGitHubUser } from '../lib/github'
+import { buildPreview, escapeHtml } from '../lib/preview-bundle'
+import { runBloomAgent, type AgentCodeFile, type SelectedAgentModel } from '../lib/agent'
 import PromptInput from '../components/PromptInput/PromptInput'
 import styles from './ProjectBuilderPage.module.css'
 
 interface ProjectRouteState {
   prompt?: string
   title?: string
+  selectedModel?: SelectedAgentModel | null
 }
 
-const codeFiles = [
+const codeFiles: AgentCodeFile[] = [
   {
     path: 'src/App.tsx',
     language: 'tsx',
-    code: `import PreviewShell from './components/PreviewShell'\nimport Hero from './components/Hero'\nimport './styles/theme.css'\n\nexport default function App() {\n  return (\n    <PreviewShell>\n      <Hero />\n    </PreviewShell>\n  )\n}`,
+    code: [
+      `import Navbar from './components/Navbar'`,
+      `import Hero from './components/Hero'`,
+      `import Features from './components/Features'`,
+      `import Testimonials from './components/Testimonials'`,
+      `import CTA from './components/CTA'`,
+      `import Footer from './components/Footer'`,
+      `import './styles/theme.css'`,
+      ``,
+      `export default function App() {`,
+      `  return (`,
+      `    <div className="app">`,
+      `      <Navbar />`,
+      `      <Hero />`,
+      `      <Features />`,
+      `      <Testimonials />`,
+      `      <CTA />`,
+      `      <Footer />`,
+      `    </div>`,
+      `  )`,
+      `}`,
+    ].join('\n'),
+  },
+  {
+    path: 'src/components/Navbar.tsx',
+    language: 'tsx',
+    code: [
+      `export default function Navbar() {`,
+      `  return (`,
+      `    <nav className="navbar">`,
+      `      <div className="navbar-inner">`,
+      `        <a href="#" className="logo">`,
+      `          <span className="logo-icon">◆</span>`,
+      `          Bloom`,
+      `        </a>`,
+      `        <div className="nav-links">`,
+      `          <a href="#features">Features</a>`,
+      `          <a href="#testimonials">Testimonials</a>`,
+      `          <a href="#pricing">Pricing</a>`,
+      `        </div>`,
+      `        <div className="nav-actions">`,
+      `          <button className="btn btn-ghost">Sign in</button>`,
+      `          <button className="btn btn-primary">Get started</button>`,
+      `        </div>`,
+      `      </div>`,
+      `    </nav>`,
+      `  )`,
+      `}`,
+    ].join('\n'),
   },
   {
     path: 'src/components/Hero.tsx',
     language: 'tsx',
-    code: `export default function Hero() {\n  return (\n    <section className="hero">\n      <p className="eyebrow">Generated with Bloom</p>\n      <h1>Your first page is ready for refinement.</h1>\n      <p className="lede">\n        The preview canvas will render the generated app once the build pipeline is connected.\n      </p>\n    </section>\n  )\n}`,
+    code: [
+      `export default function Hero() {`,
+      `  return (`,
+      `    <section className="hero">`,
+      `      <div className="hero-content">`,
+      `        <span className="badge">✨ Now in public beta</span>`,
+      `        <h1>`,
+      `          Build stunning websites`,
+      `          <span className="highlight"> with AI</span>`,
+      `        </h1>`,
+      `        <p className="hero-sub">`,
+      `          Describe your idea in plain English and watch Bloom generate a complete,`,
+      `          production-ready frontend in seconds. No coding required.`,
+      `        </p>`,
+      `        <div className="hero-actions">`,
+      `          <button className="btn btn-primary btn-lg">Try it free →</button>`,
+      `          <button className="btn btn-outline btn-lg">Watch demo</button>`,
+      `        </div>`,
+      `        <div className="hero-stats">`,
+      `          <div className="stat">`,
+      `            <strong>12k+</strong>`,
+      `            <span>Websites built</span>`,
+      `          </div>`,
+      `          <div className="stat">`,
+      `            <strong>4.9</strong>`,
+      `            <span>User rating</span>`,
+      `          </div>`,
+      `          <div className="stat">`,
+      `            <strong>2min</strong>`,
+      `            <span>Average build time</span>`,
+      `          </div>`,
+      `        </div>`,
+      `      </div>`,
+      `      <div className="hero-visual">`,
+      `        <div className="hero-mockup">`,
+      `          <div className="mockup-bar">`,
+      `            <span /><span /><span />`,
+      `          </div>`,
+      `          <div className="mockup-body">`,
+      `            <div className="mockup-sidebar" />`,
+      `            <div className="mockup-main">`,
+      `              <div className="mockup-line wide" />`,
+      `              <div className="mockup-line" />`,
+      `              <div className="mockup-line short" />`,
+      `              <div className="mockup-card" />`,
+      `            </div>`,
+      `          </div>`,
+      `        </div>`,
+      `      </div>`,
+      `    </section>`,
+      `  )`,
+      `}`,
+    ].join('\n'),
   },
   {
-    path: 'src/components/PreviewShell.tsx',
+    path: 'src/components/Features.tsx',
     language: 'tsx',
-    code: `import type { ReactNode } from 'react'\n\nexport default function PreviewShell({ children }: { children: ReactNode }) {\n  return <main className="preview-shell">{children}</main>\n}`,
+    code: [
+      `function FeatureCard({ icon, title, description }: { icon: string; title: string; description: string }) {`,
+      `  return (`,
+      `    <div className="feature-card">`,
+      `      <div className="feature-icon">{icon}</div>`,
+      `      <h3>{title}</h3>`,
+      `      <p>{description}</p>`,
+      `    </div>`,
+      `  )`,
+      `}`,
+      ``,
+      `const FEATURES = [`,
+      `  { icon: '⚡', title: 'Lightning fast', description: 'Generate complete websites in under two minutes with our optimized AI pipeline.' },`,
+      `  { icon: '🎨', title: 'Beautiful by default', description: 'Every generated site follows modern design principles with polished typography and spacing.' },`,
+      `  { icon: '📱', title: 'Fully responsive', description: 'Your site looks great on every device — desktop, tablet, and mobile right out of the box.' },`,
+      `  { icon: '🔌', title: 'Easy export', description: 'Download as ZIP, deploy to production, or push to GitHub with a single click.' },`,
+      `  { icon: '🧩', title: 'Component library', description: 'Access a growing library of pre-built components you can mix and match.' },`,
+      `  { icon: '🤖', title: 'AI refinement', description: 'Ask Bloom to tweak any part of your site — change colors, add sections, or restructure layouts.' },`,
+      `]`,
+      ``,
+      `export default function Features() {`,
+      `  return (`,
+      `    <section id="features" className="features">`,
+      `      <div className="section-header">`,
+      `        <span className="badge">Features</span>`,
+      `        <h2>Everything you need to ship fast</h2>`,
+      `        <p className="section-sub">No templates. No drag-and-drop. Just describe what you want.</p>`,
+      `      </div>`,
+      `      <div className="features-grid">`,
+      `        {FEATURES.map((f) => <FeatureCard key={f.title} {...f} />)}`,
+      `      </div>`,
+      `    </section>`,
+      `  )`,
+      `}`,
+    ].join('\n'),
+  },
+  {
+    path: 'src/components/Testimonials.tsx',
+    language: 'tsx',
+    code: [
+      `function Quote({ text, author, role }: { text: string; author: string; role: string }) {`,
+      `  return (`,
+      `    <div className="quote-card">`,
+      `      <p className="quote-text">&ldquo;{text}&rdquo;</p>`,
+      `      <div className="quote-author">`,
+      `        <div className="quote-avatar">{author[0]}</div>`,
+      `        <div>`,
+      `          <strong>{author}</strong>`,
+      `          <span>{role}</span>`,
+      `        </div>`,
+      `      </div>`,
+      `    </div>`,
+      `  )`,
+      `}`,
+      ``,
+      `export default function Testimonials() {`,
+      `  return (`,
+      `    <section id="testimonials" className="testimonials">`,
+      `      <div className="section-header">`,
+      `        <span className="badge">Testimonials</span>`,
+      `        <h2>Loved by founders and teams</h2>`,
+      `      </div>`,
+      `      <div className="quotes-grid">`,
+      `        <Quote text="Bloom cut our landing page build time from two weeks to ten minutes. Game changer." author="Sarah Chen" role="CTO, Duplo" />`,
+      `        <Quote text="I shipped my SaaS waitlist page before the coffee got cold. The design quality is unreal." author="Marcus Webb" role="Solo founder" />`,
+      `        <Quote text="We use Bloom for all our marketing pages now. Consistent quality, zero design debt." author="Priya Kapoor" role="Head of Growth, Nimble" />`,
+      `      </div>`,
+      `    </section>`,
+      `  )`,
+      `}`,
+    ].join('\n'),
+  },
+  {
+    path: 'src/components/CTA.tsx',
+    language: 'tsx',
+    code: [
+      `export default function CTA() {`,
+      `  return (`,
+      `    <section className="cta">`,
+      `      <div className="cta-card">`,
+      `        <h2>Ready to build your next website?</h2>`,
+      `        <p>Join thousands of developers and founders who ship faster with Bloom.</p>`,
+      `        <div className="cta-actions">`,
+      `          <button className="btn btn-primary btn-lg">Start building free →</button>`,
+      `          <button className="btn btn-ghost-light btn-lg">Talk to sales</button>`,
+      `        </div>`,
+      `      </div>`,
+      `    </section>`,
+      `  )`,
+      `}`,
+    ].join('\n'),
+  },
+  {
+    path: 'src/components/Footer.tsx',
+    language: 'tsx',
+    code: [
+      `export default function Footer() {`,
+      `  return (`,
+      `    <footer className="footer">`,
+      `      <div className="footer-inner">`,
+      `        <div className="footer-brand">`,
+      `          <a href="#" className="logo">`,
+      `            <span className="logo-icon">◆</span>`,
+      `            Bloom`,
+      `          </a>`,
+      `          <p>AI-powered website generation for modern teams.</p>`,
+      `        </div>`,
+      `        <div className="footer-links">`,
+      `          <div className="footer-col">`,
+      `            <strong>Product</strong>`,
+      `            <a href="#">Features</a>`,
+      `            <a href="#">Pricing</a>`,
+      `            <a href="#">Changelog</a>`,
+      `          </div>`,
+      `          <div className="footer-col">`,
+      `            <strong>Company</strong>`,
+      `            <a href="#">About</a>`,
+      `            <a href="#">Blog</a>`,
+      `            <a href="#">Careers</a>`,
+      `          </div>`,
+      `          <div className="footer-col">`,
+      `            <strong>Legal</strong>`,
+      `            <a href="#">Privacy</a>`,
+      `            <a href="#">Terms</a>`,
+      `          </div>`,
+      `        </div>`,
+      `      </div>`,
+      `      <div className="footer-bottom">`,
+      `        <span>© 2026 Bloom. All rights reserved.</span>`,
+      `      </div>`,
+      `    </footer>`,
+      `  )`,
+      `}`,
+    ].join('\n'),
   },
   {
     path: 'src/styles/theme.css',
     language: 'css',
-    code: `.preview-shell {\n  min-height: 100vh;\n  background: #fbfaf8;\n  color: #241f2a;\n}\n\n.hero {\n  max-width: 960px;\n  margin: 0 auto;\n  padding: 96px 32px;\n}\n\n.eyebrow {\n  color: #4f978e;\n  font-weight: 700;\n}`,
+    code: [
+      `/* === Reset & Base === */`,
+      `*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }`,
+      `html { scroll-behavior: smooth; }`,
+      `body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #1a1a2e; background: #faf9f7; line-height: 1.6; }`,
+      `.app { overflow: hidden; }`,
+      ``,
+      `/* === Navbar === */`,
+      `.navbar { position: sticky; top: 0; z-index: 100; background: rgba(250,249,247,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.06); }`,
+      `.navbar-inner { max-width: 1200px; margin: 0 auto; padding: 0 32px; height: 64px; display: flex; align-items: center; gap: 32px; }`,
+      `.logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 800; color: #1a1a2e; text-decoration: none; }`,
+      `.logo-icon { color: #7c3aed; font-size: 24px; }`,
+      `.nav-links { display: flex; gap: 24px; }`,
+      `.nav-links a { color: #4a4a5e; text-decoration: none; font-size: 14px; font-weight: 600; transition: color 0.15s; }`,
+      `.nav-links a:hover { color: #1a1a2e; }`,
+      `.nav-actions { margin-left: auto; display: flex; gap: 8px; }`,
+      ``,
+      `/* === Buttons === */`,
+      `.btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s; text-decoration: none; white-space: nowrap; }`,
+      `.btn-lg { padding: 14px 28px; font-size: 15px; border-radius: 12px; }`,
+      `.btn-primary { background: #7c3aed; color: #fff; }`,
+      `.btn-primary:hover { background: #6d28d9; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(124,58,237,0.3); }`,
+      `.btn-ghost { background: transparent; color: #4a4a5e; }`,
+      `.btn-ghost:hover { background: rgba(0,0,0,0.04); color: #1a1a2e; }`,
+      `.btn-ghost-light { background: rgba(255,255,255,0.15); color: #fff; }`,
+      `.btn-ghost-light:hover { background: rgba(255,255,255,0.25); }`,
+      `.btn-outline { background: transparent; color: #1a1a2e; border: 2px solid rgba(0,0,0,0.12); }`,
+      `.btn-outline:hover { border-color: rgba(0,0,0,0.25); background: rgba(0,0,0,0.02); }`,
+      ``,
+      `/* === Hero === */`,
+      `.hero { max-width: 1200px; margin: 0 auto; padding: 80px 32px 100px; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }`,
+      `.hero-content { display: flex; flex-direction: column; gap: 24px; }`,
+      `.hero-content h1 { font-size: clamp(40px, 5vw, 64px); font-weight: 900; line-height: 1.08; letter-spacing: -0.02em; }`,
+      `.hero-content h1 .highlight { color: #7c3aed; }`,
+      `.hero-sub { font-size: 18px; color: #5a5a72; line-height: 1.6; max-width: 480px; }`,
+      `.hero-actions { display: flex; gap: 12px; }`,
+      `.hero-stats { display: flex; gap: 40px; margin-top: 12px; }`,
+      `.stat strong { display: block; font-size: 28px; font-weight: 900; color: #1a1a2e; }`,
+      `.stat span { font-size: 13px; color: #6a6a7e; font-weight: 600; }`,
+      ``,
+      `/* === Hero mockup === */`,
+      `.hero-visual { display: flex; justify-content: center; }`,
+      `.hero-mockup { width: 100%; max-width: 520px; border-radius: 16px; background: #fff; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 24px 80px rgba(0,0,0,0.08); overflow: hidden; }`,
+      `.mockup-bar { height: 36px; display: flex; align-items: center; gap: 6px; padding: 0 14px; background: #f5f3f0; border-bottom: 1px solid rgba(0,0,0,0.05); }`,
+      `.mockup-bar span { width: 10px; height: 10px; border-radius: 50%; }`,
+      `.mockup-bar span:nth-child(1) { background: #ed6a5e; }`,
+      `.mockup-bar span:nth-child(2) { background: #f4bf4f; }`,
+      `.mockup-bar span:nth-child(3) { background: #61c454; }`,
+      `.mockup-body { display: flex; height: 280px; }`,
+      `.mockup-sidebar { width: 100px; background: #f9f8f6; border-right: 1px solid rgba(0,0,0,0.04); }`,
+      `.mockup-main { flex: 1; padding: 24px; display: flex; flex-direction: column; gap: 12px; }`,
+      `.mockup-line { height: 8px; border-radius: 4px; background: #e8e4de; }`,
+      `.mockup-line.wide { width: 100%; }`,
+      `.mockup-line.short { width: 60%; }`,
+      `.mockup-card { flex: 1; border-radius: 10px; background: linear-gradient(135deg, #f5f3f0, #ede8e2); border: 1px solid rgba(0,0,0,0.04); }`,
+      ``,
+      `/* === Badge === */`,
+      `.badge { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; background: rgba(124,58,237,0.08); color: #7c3aed; width: fit-content; }`,
+      ``,
+      `/* === Sections === */`,
+      `.section-header { text-align: center; margin-bottom: 56px; display: flex; flex-direction: column; align-items: center; gap: 12px; }`,
+      `.section-header h2 { font-size: clamp(28px, 3.5vw, 44px); font-weight: 900; letter-spacing: -0.02em; }`,
+      `.section-sub { font-size: 16px; color: #5a5a72; max-width: 520px; }`,
+      ``,
+      `/* === Features === */`,
+      `.features { max-width: 1200px; margin: 0 auto; padding: 100px 32px; }`,
+      `.features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }`,
+      `.feature-card { padding: 32px; border-radius: 16px; background: #fff; border: 1px solid rgba(0,0,0,0.06); transition: box-shadow 0.2s, transform 0.2s; }`,
+      `.feature-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.06); transform: translateY(-2px); }`,
+      `.feature-icon { font-size: 32px; margin-bottom: 16px; }`,
+      `.feature-card h3 { font-size: 18px; font-weight: 800; margin-bottom: 8px; }`,
+      `.feature-card p { font-size: 14px; color: #5a5a72; line-height: 1.6; }`,
+      ``,
+      `/* === Testimonials === */`,
+      `.testimonials { max-width: 1200px; margin: 0 auto; padding: 0 32px 100px; }`,
+      `.quotes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }`,
+      `.quote-card { padding: 28px; border-radius: 16px; background: #fff; border: 1px solid rgba(0,0,0,0.06); }`,
+      `.quote-text { font-size: 15px; color: #3a3a4e; line-height: 1.6; margin-bottom: 20px; font-style: italic; }`,
+      `.quote-author { display: flex; align-items: center; gap: 12px; }`,
+      `.quote-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #7c3aed, #a78bfa); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; }`,
+      `.quote-author strong { display: block; font-size: 14px; }`,
+      `.quote-author span { font-size: 12px; color: #6a6a7e; }`,
+      ``,
+      `/* === CTA === */`,
+      `.cta { max-width: 1200px; margin: 0 auto; padding: 0 32px 100px; }`,
+      `.cta-card { padding: 72px 48px; border-radius: 24px; background: linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%); color: #fff; text-align: center; }`,
+      `.cta-card h2 { font-size: clamp(28px, 3.5vw, 44px); font-weight: 900; margin-bottom: 12px; }`,
+      `.cta-card p { font-size: 18px; opacity: 0.75; margin-bottom: 32px; }`,
+      `.cta-actions { display: flex; justify-content: center; gap: 12px; }`,
+      ``,
+      `/* === Footer === */`,
+      `.footer { border-top: 1px solid rgba(0,0,0,0.06); background: #f5f3f0; }`,
+      `.footer-inner { max-width: 1200px; margin: 0 auto; padding: 56px 32px 40px; display: grid; grid-template-columns: 1fr 2fr; gap: 48px; }`,
+      `.footer-brand p { color: #5a5a72; font-size: 14px; margin-top: 8px; max-width: 280px; }`,
+      `.footer-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }`,
+      `.footer-col { display: flex; flex-direction: column; gap: 8px; }`,
+      `.footer-col strong { font-size: 13px; font-weight: 800; margin-bottom: 4px; color: #1a1a2e; }`,
+      `.footer-col a { font-size: 13px; color: #5a5a72; text-decoration: none; font-weight: 600; transition: color 0.15s; }`,
+      `.footer-col a:hover { color: #7c3aed; }`,
+      `.footer-bottom { max-width: 1200px; margin: 0 auto; padding: 20px 32px; border-top: 1px solid rgba(0,0,0,0.04); }`,
+      `.footer-bottom span { font-size: 12px; color: #8a8a9e; }`,
+      ``,
+      `/* === Responsive === */`,
+      `@media (max-width: 860px) {`,
+      `  .hero { grid-template-columns: 1fr; gap: 40px; padding: 48px 24px 64px; }`,
+      `  .hero-visual { order: -1; }`,
+      `  .features-grid, .quotes-grid { grid-template-columns: 1fr; }`,
+      `  .footer-inner { grid-template-columns: 1fr; }`,
+      `  .footer-links { grid-template-columns: repeat(2, 1fr); }`,
+      `  .nav-links { display: none; }`,
+      `}`,
+    ].join('\n'),
   },
 ]
 
-const suggestions = [
-  'Add authentication',
-  'Make it responsive',
-]
+const EMPTY_CODE_FILE: AgentCodeFile = {
+  path: 'No files yet',
+  language: 'txt',
+  code: 'Bloom will show the generated files after the first successful build.',
+}
+
+interface FileTreeNode {
+  name: string
+  path: string
+  type: 'folder' | 'file'
+  children: FileTreeNode[]
+  language?: string
+}
+
+function highlightCode(code: string, language: string): string {
+  // Simple but effective tokenizer for TSX/JSX/TS and CSS
+  const escaped = escapeHtml(code)
+
+  if (language === 'css') {
+    // CSS tokenizer
+    return escaped
+      .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="syn-comment">$1</span>')
+      .replace(/(@[a-z-]+)/g, '<span class="syn-keyword">$1</span>')
+      .replace(/([.#]?[a-zA-Z_-]+)(?=\s*\{)/g, '<span class="syn-selector">$1</span>')
+      .replace(/([a-z-]+)(?=\s*:)/g, '<span class="syn-property">$1</span>')
+      .replace(/(:\s*)([^;]+)/g, '$1<span class="syn-value">$2</span>')
+      .replace(/(&quot;(?:[^&]|&(?!quot;))*&quot;|&#39;(?:[^&]|&(?!#39;))*&#39;)/g, '<span class="syn-string">$1</span>')
+      .replace(/(\b[\d.]+(?:px|em|rem|%|vh|vw|s|ms|deg|fr)?\b)/g, '<span class="syn-number">$1</span>')
+  }
+
+  // TSX/JSX/TS/JS tokenizer
+  let result = escaped
+
+  // Strings (do first to avoid matching inside them)
+  result = result.replace(/(&quot;(?:[^&]|&(?!quot;))*&quot;|&#39;(?:[^&]|&(?!#39;))*&#39;|`(?:[^`\\]|\\.)*`)/g, '<span class="syn-string">$1</span>')
+  // Single-line comments
+  result = result.replace(/(\/\/.*$)/gm, '<span class="syn-comment">$1</span>')
+  // JSX tags — match escaped opening/closing tags (&lt; → < after escaping)
+  result = result.replace(/(&lt;\/?)([A-Z][a-zA-Z0-9]*)/g, '$1<span class="syn-tag">$2</span>')
+  result = result.replace(/(&lt;\/?)([a-z][a-zA-Z0-9]*)/g, '$1<span class="syn-tag-lower">$2</span>')
+  // JSX attributes
+  result = result.replace(/(\s)([a-zA-Z-]+)(=)/g, '$1<span class="syn-attr">$2</span>$3')
+  // JSX expression braces
+  result = result.replace(/(\{|\})/g, '<span class="syn-brace">$1</span>')
+  // Keywords
+  result = result.replace(/\b(export|default|function|return|const|let|var|import|from|if|else|for|while|class|new|this|async|await|typeof|instanceof|extends|implements|interface|type|enum|switch|case|break|continue|throw|try|catch|finally|void|null|undefined|true|false|as)\b/g, '<span class="syn-keyword">$1</span>')
+  // Numbers
+  result = result.replace(/\b(\d+\.?\d*)\b/g, '<span class="syn-number">$1</span>')
+  // Arrow functions and template literal expressions
+  result = result.replace(/(=&gt;)/g, '<span class="syn-keyword">$1</span>')
+
+  return result
+}
+
+function buildFileTree(files: AgentCodeFile[]): FileTreeNode[] {
+  const root: FileTreeNode[] = []
+  const folderMap = new Map<string, FileTreeNode>()
+
+  // Sort: folders first, then files, each alphabetically
+  const sorted = [...files].sort((a, b) => {
+    const aParts = a.path.split('/')
+    const bParts = b.path.split('/')
+    const minLen = Math.min(aParts.length, bParts.length)
+    for (let i = 0; i < minLen; i++) {
+      const aIsLast = i === aParts.length - 1
+      const bIsLast = i === bParts.length - 1
+      if (aIsLast && !bIsLast) return 1  // files after folders
+      if (!aIsLast && bIsLast) return -1
+      if (aParts[i] !== bParts[i]) return aParts[i].localeCompare(bParts[i])
+    }
+    return aParts.length - bParts.length
+  })
+
+  for (const file of sorted) {
+    const parts = file.path.split('/')
+    let current: FileTreeNode[] = root
+    let currentPath = ''
+
+    for (let i = 0; i < parts.length; i++) {
+      const name = parts[i]
+      const isLast = i === parts.length - 1
+      currentPath = currentPath ? `${currentPath}/${name}` : name
+
+      if (isLast) {
+        current.push({
+          name,
+          path: file.path,
+          type: 'file',
+          children: [],
+          language: file.language,
+        })
+      } else {
+        let folder = folderMap.get(currentPath)
+        if (!folder) {
+          folder = {
+            name,
+            path: currentPath,
+            type: 'folder',
+            children: [],
+          }
+          current.push(folder)
+          folderMap.set(currentPath, folder)
+        }
+        current = folder.children
+      }
+    }
+  }
+
+  return root
+}
 
 type ViewMode = 'preview' | 'code'
 type DeviceMode = 'desktop' | 'tablet' | 'phone'
@@ -55,7 +508,90 @@ interface Collaborator {
   accountVerified: boolean
 }
 
+/** A single event in the agent's chronological timeline. */
+interface TimelineEvent {
+  id: string
+  type: 'text' | 'thinking' | 'tool_call'
+  timestamp: number
+  // text
+  text?: string
+  // thinking
+  thought?: string
+  thinkingCollapsed?: boolean
+  // tool call
+  toolLabel?: string
+  toolStatus?: 'running' | 'done' | 'error'
+  toolDetail?: string
+  toolResult?: string
+}
+
+interface ChatMessage {
+  id: string
+  role: 'user' | 'assistant'
+  content?: string       // user messages
+  title?: string
+  files?: AgentCodeFile[]
+  error?: boolean
+  timeline: TimelineEvent[]  // assistant messages
+  turns?: number
+  providerName?: string
+  modelName?: string
+}
+
 const deviceOrder: DeviceMode[] = ['desktop', 'tablet', 'phone']
+
+function normalizeAgentSuggestions(items: string[]): string[] {
+  const seen = new Set<string>()
+  const normalized: string[] = []
+
+  for (const item of items) {
+    const value = item.trim()
+    const key = value.toLowerCase()
+    if (!value || seen.has(key)) continue
+    seen.add(key)
+    normalized.push(value)
+  }
+
+  return normalized.slice(0, 4)
+}
+
+function formatToolLabel(name: string, input?: Record<string, unknown>): string {
+  switch (name) {
+    case 'think':
+      return 'Thinking'
+    case 'list_files':
+      return 'List files'
+    case 'read_file':
+      return `Read ${input?.path || 'file'}`
+    case 'write_file':
+      return `Write ${input?.path || 'file'}`
+    case 'edit_file':
+      return `Edit ${input?.path || 'file'}`
+    case 'compile':
+      return 'Compile'
+    case 'done':
+      return 'Complete'
+    default:
+      return name.replace(/_/g, ' ')
+  }
+}
+
+function formatToolDetail(name: string, input?: Record<string, unknown>): string {
+  switch (name) {
+    case 'think':
+      return String(input?.thought ?? '').slice(0, 100)
+    case 'write_file':
+      return `${input?.language || 'tsx'} • ${String(input?.code ?? '').length} chars`
+    case 'edit_file':
+      return `replace ${String(input?.old_string ?? '').length} → ${String(input?.new_string ?? '').length} chars`
+    case 'compile':
+      return 'Checking for errors...'
+    case 'done':
+      return String(input?.summary ?? '').slice(0, 100)
+    default:
+      return ''
+  }
+}
 
 export default function ProjectBuilderPage() {
   const { user, loading } = useAuth()
@@ -63,9 +599,33 @@ export default function ProjectBuilderPage() {
   const { projectId } = useParams()
   const location = useLocation()
   const state = (location.state ?? {}) as ProjectRouteState
+  const prompt = state.prompt || 'Build a polished web app with a strong hero, product sections, and a deploy-ready layout.'
+  const title = state.title || 'Untitled project'
+  const [projectFiles, setProjectFiles] = useState<AgentCodeFile[]>([])
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [
+    { id: 'initial-user', role: 'user', content: prompt },
+  ])
+  const [agentRunning, setAgentRunning] = useState(false)
+  const [agentStatus, setAgentStatus] = useState('')
+  const [firstRunComplete, setFirstRunComplete] = useState(false)
+  const [agentSuggestions, setAgentSuggestions] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<ViewMode>('preview')
   const [deviceMode, setDeviceMode] = useState<DeviceMode>('desktop')
+  const [previewHtml, setPreviewHtml] = useState('')
+  const [previewStatus, setPreviewStatus] = useState<'idle' | 'building' | 'ready' | 'error'>('idle')
+  const [previewErrors, setPreviewErrors] = useState<string[]>([])
   const [activeFile, setActiveFile] = useState(codeFiles[0].path)
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(() => {
+    // All folders start expanded
+    const folders = new Set<string>()
+    for (const f of codeFiles) {
+      const parts = f.path.split('/')
+      for (let i = 0; i < parts.length - 1; i++) {
+        folders.add(parts.slice(0, i + 1).join('/'))
+      }
+    }
+    return folders
+  })
   const [fullscreen, setFullscreen] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
@@ -90,10 +650,10 @@ export default function ProjectBuilderPage() {
   const [githubPushing, setGithubPushing] = useState(false)
   const [githubPushSuccess, setGithubPushSuccess] = useState('')
   const githubInputRef = useRef<HTMLInputElement>(null)
+  const initialAgentStartedRef = useRef(false)
+  const agentAbortRef = useRef<AbortController | null>(null)
 
-  const prompt = state.prompt || 'Build a polished web app with a strong hero, product sections, and a deploy-ready layout.'
-  const title = state.title || 'Untitled project'
-  const activeCodeFile = codeFiles.find((file) => file.path === activeFile) ?? codeFiles[0]
+  const activeCodeFile = projectFiles.find((file) => file.path === activeFile) ?? projectFiles[0] ?? EMPTY_CODE_FILE
   const userInitial = user?.user_metadata?.full_name?.charAt(0).toUpperCase() ?? user?.email?.charAt(0).toUpperCase() ?? 'U'
   const userAvatar = user?.user_metadata?.avatar_url ?? user?.user_metadata?.picture
   const ownerName = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? 'You'
@@ -114,6 +674,31 @@ export default function ProjectBuilderPage() {
       navigate('/', { replace: true })
     }
   }, [loading, user, navigate])
+
+  useEffect(() => {
+    return () => {
+      agentAbortRef.current?.abort()
+    }
+  }, [])
+
+  useEffect(() => {
+    setActiveFile((current) => (
+      projectFiles.some((file) => file.path === current)
+        ? current
+        : projectFiles[0]?.path ?? codeFiles[0].path
+    ))
+
+    setExpandedFolders((current) => {
+      const next = new Set(current)
+      for (const file of projectFiles) {
+        const parts = file.path.split('/')
+        for (let i = 0; i < parts.length - 1; i += 1) {
+          next.add(parts.slice(0, i + 1).join('/'))
+        }
+      }
+      return next
+    })
+  }, [projectFiles])
 
   // Sync project to Supabase on mount
   useEffect(() => {
@@ -226,13 +811,50 @@ export default function ProjectBuilderPage() {
     loadGithubIntegration()
   }, [user])
 
+  // Build live preview whenever the agent updates files
+  useEffect(() => {
+    let cancelled = false
+
+    const build = async () => {
+      if (projectFiles.length === 0) {
+        setPreviewHtml('')
+        setPreviewErrors([])
+        setPreviewStatus('idle')
+        return
+      }
+
+      setPreviewStatus('building')
+      setPreviewErrors([])
+
+      try {
+        const result = await buildPreview(projectFiles.map((f) => ({ path: f.path, content: f.code })))
+        if (cancelled) return
+        if (result.errors.length > 0) {
+          setPreviewErrors(result.errors)
+          setPreviewStatus('error')
+        } else {
+          setPreviewHtml(result.html)
+          setPreviewStatus('ready')
+        }
+      } catch (err) {
+        if (cancelled) return
+        setPreviewErrors([err instanceof Error ? err.message : String(err)])
+        setPreviewStatus('error')
+      }
+    }
+
+    build()
+
+    return () => { cancelled = true }
+  }, [projectFiles])
+
   const handleDeploy = useCallback(async () => {
     setDeployState('deploying')
     setDeployError('')
     setDeployModalOpen(true)
 
     try {
-      const html = bundleProject(codeFiles, title)
+      const html = bundleProject(projectFiles, title)
       const url = await deployToStorage(projectId!, html)
       setDeployUrl(url)
       setDeployState('deployed')
@@ -240,7 +862,7 @@ export default function ProjectBuilderPage() {
       setDeployError(err instanceof Error ? err.message : 'Deploy failed')
       setDeployState('error')
     }
-  }, [projectId, title])
+  }, [projectFiles, projectId, title])
 
   const handleGithubConnect = useCallback(async () => {
     setGithubConnecting(true)
@@ -289,7 +911,7 @@ export default function ProjectBuilderPage() {
         githubToken,
         repo.owner.login,
         repo.name,
-        codeFiles.map((f) => ({ path: f.path, content: f.code })),
+        projectFiles.map((f) => ({ path: f.path, content: f.code })),
       )
 
       setGithubPushSuccess(repo.html_url)
@@ -298,11 +920,11 @@ export default function ProjectBuilderPage() {
     } finally {
       setGithubPushing(false)
     }
-  }, [githubToken, title])
+  }, [githubToken, projectFiles, title])
 
   const handleDownloadZip = useCallback(async () => {
     const zip = new JSZip()
-    codeFiles.forEach((file) => {
+    projectFiles.forEach((file) => {
       zip.file(file.path, file.code)
     })
     const blob = await zip.generateAsync({ type: 'blob' })
@@ -314,7 +936,7 @@ export default function ProjectBuilderPage() {
     anchor.click()
     document.body.removeChild(anchor)
     URL.revokeObjectURL(url)
-  }, [title])
+  }, [projectFiles, title])
 
   const buildInviteLink = useCallback(() => {
     if (typeof window === 'undefined' || !projectId) return ''
@@ -466,6 +1088,210 @@ export default function ProjectBuilderPage() {
     }
   }, [buildInviteLink, inviteLink, shareLink])
 
+  const updateAssistantMessage = useCallback((id: string, patch: Partial<ChatMessage>) => {
+    setMessages((current) => current.map((message) => (
+      message.id === id ? { ...message, ...patch } : message
+    )))
+  }, [])
+
+  const handleAgentRequest = useCallback(async (
+    request: string,
+    selectedModel: SelectedAgentModel | null,
+    options: { reuseInitialUser?: boolean; mode?: 'create' | 'refine' } = {},
+  ) => {
+    if (!user || agentRunning || isViewOnly) return
+
+    const runId = `${Date.now()}-${Math.random().toString(36).slice(2)}`
+    const assistantId = `assistant-${runId}`
+    const chosenModel = selectedModel ?? state.selectedModel ?? null
+    const timeline: TimelineEvent[] = []
+    let eventCounter = 0
+
+    setAgentSuggestions([])
+
+    setMessages((current) => {
+      const withUser = options.reuseInitialUser
+        ? current
+        : [...current, { id: `user-${runId}`, role: 'user' as const, content: request }]
+
+      return [
+        ...withUser,
+        {
+          id: assistantId,
+          role: 'assistant' as const,
+          title: 'Bloom',
+          timeline: [],
+        },
+      ]
+    })
+
+    const pushTimeline = (event: Omit<TimelineEvent, 'id' | 'timestamp'>) => {
+      const full: TimelineEvent = {
+        ...event,
+        id: `ev-${eventCounter++}`,
+        timestamp: Date.now(),
+      }
+      timeline.push(full)
+      updateAssistantMessage(assistantId, { timeline: [...timeline] })
+    }
+
+    // Find and update the last tool call event by label
+    const updateLastToolCall = (label: string, patch: Partial<TimelineEvent>) => {
+      for (let i = timeline.length - 1; i >= 0; i--) {
+        if (timeline[i].type === 'tool_call' && timeline[i].toolLabel === label) {
+          timeline[i] = { ...timeline[i], ...patch }
+          updateAssistantMessage(assistantId, { timeline: [...timeline] })
+          return
+        }
+      }
+    }
+
+    const controller = new AbortController()
+    agentAbortRef.current = controller
+    setAgentRunning(true)
+    setAgentStatus('Connecting...')
+
+    try {
+      const result = await runBloomAgent({
+        userId: user.id,
+        prompt: request,
+        title,
+        files: projectFiles.length > 0 ? projectFiles : codeFiles,
+        selectedModel: chosenModel,
+        mode: options.mode ?? 'refine',
+        signal: controller.signal,
+        onProgress: (event) => {
+          // Streaming text — append to last text event or create new one
+          if (event.type === 'text' && event.text) {
+            const last = timeline[timeline.length - 1]
+            if (last && last.type === 'text') {
+              last.text = (last.text || '') + event.text
+              updateAssistantMessage(assistantId, { timeline: [...timeline] })
+            } else {
+              pushTimeline({ type: 'text', text: event.text })
+            }
+          }
+
+          // Tool call started
+          if (event.type === 'tool_start' && event.toolName) {
+            const label = formatToolLabel(event.toolName, event.toolInput)
+            // Complete any running tool calls
+            for (let i = timeline.length - 1; i >= 0; i--) {
+              if (timeline[i].type === 'tool_call' && timeline[i].toolStatus === 'running') {
+                timeline[i] = { ...timeline[i], toolStatus: 'done' }
+              }
+            }
+            if (event.toolName === 'think') {
+              // Don't show as tool call — will show as thinking when result arrives
+            } else {
+              pushTimeline({
+                type: 'tool_call',
+                toolLabel: label,
+                toolStatus: 'running',
+                toolDetail: formatToolDetail(event.toolName, event.toolInput),
+              })
+            }
+            setAgentStatus(label)
+          }
+
+          // Tool result
+          if (event.type === 'tool_result' && event.toolName) {
+            if (event.toolName === 'think') {
+              // Show as thinking block in the timeline
+              pushTimeline({
+                type: 'thinking',
+                thought: event.toolResult || '',
+                thinkingCollapsed: true,
+              })
+            } else {
+              const label = formatToolLabel(event.toolName, event.toolInput)
+              updateLastToolCall(label, {
+                toolStatus: event.toolError ? 'error' : 'done',
+                toolDetail: event.toolResult?.slice(0, 120),
+              })
+            }
+
+            if (event.toolName === 'done' && event.toolResult) {
+              try {
+                const doneData = JSON.parse(event.toolResult)
+                if (doneData.nextSuggestions) {
+                  setAgentSuggestions(normalizeAgentSuggestions(doneData.nextSuggestions))
+                }
+              } catch { /* ok */ }
+            }
+          }
+
+          if (event.type === 'status' && event.message) {
+            setAgentStatus(event.message)
+          }
+          if ((event.type === 'files' || event.type === 'done') && event.files) {
+            setProjectFiles(event.files)
+            setFirstRunComplete(true)
+          }
+        },
+      })
+
+      setProjectFiles(result.files)
+      setFirstRunComplete(true)
+      setAgentStatus('')
+
+      // Complete any remaining running tool calls
+      for (let i = timeline.length - 1; i >= 0; i--) {
+        if (timeline[i].type === 'tool_call' && timeline[i].toolStatus === 'running') {
+          timeline[i] = { ...timeline[i], toolStatus: 'done' }
+        }
+      }
+
+      updateAssistantMessage(assistantId, {
+        title: 'Complete',
+        timeline: [...timeline],
+        files: result.files,
+        turns: result.turns,
+        providerName: result.providerName,
+        modelName: result.modelName,
+      })
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return
+      const message = err instanceof Error ? err.message : String(err)
+      setAgentStatus('')
+      for (let i = timeline.length - 1; i >= 0; i--) {
+        if (timeline[i].type === 'tool_call' && timeline[i].toolStatus === 'running') {
+          timeline[i] = { ...timeline[i], toolStatus: 'error' }
+        }
+      }
+      updateAssistantMessage(assistantId, {
+        title: 'Error',
+        timeline: [...timeline],
+        error: true,
+      })
+    } finally {
+      if (agentAbortRef.current === controller) {
+        agentAbortRef.current = null
+      }
+      setAgentRunning(false)
+    }
+  }, [agentRunning, isViewOnly, projectFiles, state.selectedModel, title, updateAssistantMessage, user])
+
+  useEffect(() => {
+    if (loading || !user || isViewOnly || initialAgentStartedRef.current) return
+    initialAgentStartedRef.current = true
+    void handleAgentRequest(prompt, state.selectedModel ?? null, { reuseInitialUser: true, mode: 'create' })
+  }, [handleAgentRequest, isViewOnly, loading, prompt, state.selectedModel, user])
+
+  const fileTree = useMemo(() => buildFileTree(projectFiles), [projectFiles])
+
+  const toggleFolder = useCallback((folderPath: string) => {
+    setExpandedFolders((prev) => {
+      const next = new Set(prev)
+      if (next.has(folderPath)) {
+        next.delete(folderPath)
+      } else {
+        next.add(folderPath)
+      }
+      return next
+    })
+  }, [])
+
   if (loading) return null
 
   return (
@@ -527,7 +1353,13 @@ export default function ProjectBuilderPage() {
           >
             <img src="/assets/github.png" alt="GitHub" className={styles.githubLogo} />
           </button>
-          <button className={styles.iconBtn} type="button" aria-label="Download project as ZIP" onClick={handleDownloadZip}>
+          <button
+            className={styles.iconBtn}
+            type="button"
+            aria-label="Download project as ZIP"
+            onClick={handleDownloadZip}
+            disabled={!firstRunComplete || agentRunning}
+          >
             <DownloadIcon />
           </button>
           <button className={styles.shareBtn} type="button" onClick={() => setShareOpen(true)}>
@@ -538,7 +1370,7 @@ export default function ProjectBuilderPage() {
             className={`${styles.deployBtn} ${deployState === 'deployed' ? styles.deployBtnDeployed : ''}`}
             type="button"
             onClick={deployState === 'deployed' ? () => window.open(deployUrl, '_blank') : handleDeploy}
-            disabled={deployState === 'deploying'}
+            disabled={deployState === 'deploying' || !firstRunComplete || agentRunning}
           >
             {deployState === 'deploying' ? (
               <><span className={styles.spinner} />Deploying…</>
@@ -858,39 +1690,124 @@ export default function ProjectBuilderPage() {
           </div>
 
           <div className={styles.thread}>
-            <article className={styles.userMessage}>
-              <div className={styles.avatar}>
-                {userAvatar ? <img src={userAvatar} alt="" /> : userInitial}
-              </div>
-              <div className={styles.userBubble}>
-                <p>{prompt}</p>
-              </div>
-            </article>
+            {messages.map((message) => (
+              message.role === 'user' ? (
+                <article className={styles.userMessage} key={message.id}>
+                  <div className={styles.avatar}>
+                    {userAvatar ? <img src={userAvatar} alt="" /> : userInitial}
+                  </div>
+                  <div className={styles.userBubble}>
+                    <p>{message.content}</p>
+                  </div>
+                </article>
+              ) : (
+                <article
+                  className={`${styles.assistantMessage} ${message.error ? styles.assistantMessageError : ''}`}
+                  key={message.id}
+                >
+                  <div className={styles.assistantTop}>
+                    <img src="/assets/logo.png" alt="" />
+                    <span>{message.title ?? 'Bloom'}</span>
+                  </div>
 
-            <article className={styles.assistantMessage}>
-              <div className={styles.assistantTop}>
-                <img src="/assets/logo.png" alt="" />
-                <span>Frontend scaffold prepared.</span>
-              </div>
-              <MarkdownBlock
-                markdown={`The editor shell is ready.\n\n- Preview is connected to the responsive device frame.\n- Code view includes the current frontend files.\n- Backend generation can plug into this route later.`}
-              />
-              <div className={styles.fileList}>
-                {codeFiles.map((file) => (
-                  <span key={file.path}>
-                    <FileIcon />
-                    {file.path}
-                  </span>
-                ))}
-              </div>
-            </article>
-          </div>
+                  {/* Chronological timeline: text, thinking, and tool calls in order */}
+                  <div className={styles.timeline}>
+                    {message.timeline.map((event) => {
+                      if (event.type === 'text') {
+                        return (
+                          <div key={event.id} className={styles.timelineText}>
+                            <MarkdownBlock markdown={event.text || ''} />
+                          </div>
+                        )
+                      }
 
-          <div className={styles.suggestionBlock}>
-            {suggestions.map((suggestion) => (
-              <button key={suggestion} type="button">{suggestion}</button>
+                      if (event.type === 'thinking') {
+                        return (
+                          <TimelineThinking
+                            key={event.id}
+                            thought={event.thought || ''}
+                            collapsed={event.thinkingCollapsed !== false}
+                            onToggle={() => {
+                              setMessages((current) => current.map((m) => {
+                                if (m.id !== message.id) return m
+                                return {
+                                  ...m,
+                                  timeline: m.timeline.map((e) =>
+                                    e.id === event.id ? { ...e, thinkingCollapsed: !e.thinkingCollapsed } : e
+                                  ),
+                                }
+                              }))
+                            }}
+                          />
+                        )
+                      }
+
+                      if (event.type === 'tool_call') {
+                        return (
+                          <div
+                            key={event.id}
+                            className={`${styles.toolCall} ${event.toolStatus === 'running' ? styles.toolCallRunning : ''} ${event.toolStatus === 'error' ? styles.toolCallError : ''}`}
+                          >
+                            <span className={styles.toolCallIcon}>
+                              {event.toolStatus === 'done' ? (
+                                <CheckIcon />
+                              ) : event.toolStatus === 'error' ? (
+                                <span className={styles.toolCallX}>×</span>
+                              ) : (
+                                <span className={styles.miniSpinner} />
+                              )}
+                            </span>
+                            <span className={styles.toolCallLabel}>{event.toolLabel}</span>
+                            {event.toolDetail && (
+                              <span className={styles.toolCallDetail}>{event.toolDetail}</span>
+                            )}
+                          </div>
+                        )
+                      }
+
+                      return null
+                    })}
+                  </div>
+
+                  {/* File list at completion */}
+                  {message.files && message.files.length > 0 && (
+                    <div className={styles.fileList}>
+                      {message.files.map((file) => (
+                        <span key={file.path}>
+                          <FileIcon />
+                          {file.path}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Completion badge */}
+                  {message.turns != null && message.turns > 0 && (
+                    <div className={styles.completionBadge}>
+                      Built {message.files?.length ?? 0} files in {message.turns} turn{message.turns === 1 ? '' : 's'}
+                      {message.providerName && ` • ${message.providerName}`}
+                      {message.modelName && ` / ${message.modelName}`}
+                    </div>
+                  )}
+                </article>
+              )
             ))}
           </div>
+
+          {firstRunComplete && agentSuggestions.length > 0 && (
+            <div className={styles.suggestionBlock}>
+              {agentSuggestions.map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  disabled={agentRunning}
+                  onClick={() => void handleAgentRequest(suggestion, state.selectedModel ?? null)}
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className={styles.composer}>
             {isViewOnly ? (
@@ -902,8 +1819,10 @@ export default function ProjectBuilderPage() {
                 size="small"
                 page="dashboard"
                 disableTyping
-                placeholder="Ask Bloom for a change..."
-                onSubmit={() => undefined}
+                disabled={agentRunning}
+                modelMenuPlacement="top"
+                placeholder={agentRunning ? agentStatus || 'Bloom is working...' : 'Ask Bloom for a change...'}
+                onSubmit={(nextPrompt, selectedModel) => handleAgentRequest(nextPrompt, selectedModel)}
               />
             )}
           </div>
@@ -959,28 +1878,88 @@ export default function ProjectBuilderPage() {
                       <span />
                     </div>
                     <span className={styles.previewPath}>/{title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'preview'}</span>
-                    <span className={styles.previewState}>Waiting for build</span>
+                    <span className={styles.previewState}>
+                      {!firstRunComplete ? (agentRunning ? 'Agent working' : 'Waiting for build') : previewStatus === 'building' ? 'Building...' : previewStatus === 'error' ? 'Build failed' : previewStatus === 'ready' ? 'Live preview' : 'Waiting for build'}
+                    </span>
                   </div>
 
-                  <div className={styles.previewEmpty}>
-                    <div className={styles.previewMark}>
-                      <img src="/assets/logo.png" alt="" />
+                  {!firstRunComplete && (
+                    <div className={`${styles.previewEmpty} ${styles.previewBlank}`}>
+                      <div className={styles.previewMark}>
+                        <img src="/assets/logo.png" alt="" />
+                      </div>
+                      <h2>{agentRunning ? 'Bloom is building...' : 'Ready when you are'}</h2>
+                      <p>{prompt}</p>
+                      {agentRunning && (
+                        <div className={styles.previewChecklist}>
+                          <span><CheckIcon /> Prompt captured</span>
+                          <span><span className={styles.spinnerSmall} /> {agentStatus || 'Generating project'}</span>
+                        </div>
+                      )}
                     </div>
-                    <h2>Preview will appear here</h2>
-                    <p>{prompt}</p>
-                    <div className={styles.previewChecklist}>
-                      <span><CheckIcon /> Layout shell</span>
-                      <span><CheckIcon /> Prompt captured</span>
-                      <span><ClockIcon /> Generation pipeline</span>
-                    </div>
-                  </div>
+                  )}
 
-                  <div className={styles.previewSkeleton} aria-hidden="true">
-                    <div className={styles.skeletonWide} />
-                    <div />
-                    <div />
-                    <div />
-                  </div>
+                  {firstRunComplete && previewStatus === 'building' && (
+                    <div className={styles.previewEmpty}>
+                      <div className={styles.previewMark}>
+                        <img src="/assets/logo.png" alt="" />
+                      </div>
+                      <h2>Building preview...</h2>
+                      <p>{prompt}</p>
+                      <div className={styles.previewChecklist}>
+                        <span><CheckIcon /> Files updated</span>
+                        <span><span className={styles.spinnerSmall} /> Compiling...</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {firstRunComplete && previewStatus === 'error' && (
+                    <div className={styles.previewEmpty}>
+                      <div className={styles.previewMark}>
+                        <img src="/assets/logo.png" alt="" />
+                      </div>
+                      <h2>Build error</h2>
+                      <p>The preview could not be compiled. Check the code for syntax issues.</p>
+                      <div className={styles.errorList}>
+                        {previewErrors.map((err, i) => (
+                          <pre key={i} className={styles.errorLine}>{escapeHtml(err)}</pre>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {firstRunComplete && previewStatus === 'idle' && (
+                    <div className={styles.previewEmpty}>
+                      <div className={styles.previewMark}>
+                        <img src="/assets/logo.png" alt="" />
+                      </div>
+                      <h2>Preview will appear here</h2>
+                      <p>{prompt}</p>
+                      <div className={styles.previewChecklist}>
+                        <span><CheckIcon /> Layout shell</span>
+                        <span><CheckIcon /> Prompt captured</span>
+                        <span><ClockIcon /> Generation pipeline</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {firstRunComplete && previewStatus === 'ready' && (
+                    <iframe
+                      className={styles.previewFrame}
+                      srcDoc={previewHtml}
+                      sandbox="allow-scripts"
+                      title="Live preview"
+                    />
+                  )}
+
+                  {firstRunComplete && previewStatus !== 'ready' && (
+                    <div className={styles.previewSkeleton} aria-hidden="true">
+                      <div className={styles.skeletonWide} />
+                      <div />
+                      <div />
+                      <div />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -988,27 +1967,26 @@ export default function ProjectBuilderPage() {
             <div className={styles.codeWorkspace}>
               <aside className={styles.codeSidebar}>
                 <div className={styles.codeSidebarTitle}>Explorer</div>
-                {codeFiles.map((file) => (
-                  <button
-                    key={file.path}
-                    className={file.path === activeFile ? styles.codeFileActive : styles.codeFile}
-                    type="button"
-                    onClick={() => setActiveFile(file.path)}
-                  >
-                    <span className={styles.fileIcon}>
-                      <FileIcon />
-                    </span>
-                    <span className={styles.fileName}>{file.path.split('/').pop()}</span>
-                    <span className={styles.filePath}>{file.path.split('/').slice(0, -1).join('/')}</span>
-                  </button>
-                ))}
+                <div className={styles.fileTree}>
+                  {fileTree.map((node) => (
+                    <TreeNodeRenderer
+                      key={node.path}
+                      node={node}
+                      depth={0}
+                      activeFile={activeFile}
+                      expandedFolders={expandedFolders}
+                      onSelectFile={setActiveFile}
+                      onToggleFolder={toggleFolder}
+                    />
+                  ))}
+                </div>
               </aside>
 
               <div className={styles.editorPane}>
                 <div className={styles.editorTabs}>
                   <div className={styles.editorTab}>
                     <span className={styles.tabIcon}>
-                      <FileIcon />
+                      <FileSvg />
                     </span>
                     {activeCodeFile.path.split('/').pop()}
                     <button className={styles.tabClose} type="button" aria-label="Close tab">
@@ -1022,7 +2000,7 @@ export default function ProjectBuilderPage() {
                       <span key={i}>{i + 1}</span>
                     ))}
                   </div>
-                  <pre className={styles.codeBlock}><code>{activeCodeFile.code}</code></pre>
+                  <pre className={styles.codeBlock}><code dangerouslySetInnerHTML={{ __html: highlightCode(activeCodeFile.code, activeCodeFile.language) }} /></pre>
                 </div>
                 <div className={styles.editorStatusBar}>
                   <span>{activeCodeFile.language.toUpperCase()}</span>
@@ -1076,6 +2054,45 @@ function MarkdownBlock({ markdown }: { markdown: string }) {
 
         return <p key={index}>{lines.join(' ')}</p>
       })}
+    </div>
+  )
+}
+
+/** A single thinking entry in the timeline. Collapsed by default. */
+function TimelineThinking({
+  thought,
+  collapsed,
+  onToggle,
+}: {
+  thought: string
+  collapsed: boolean
+  onToggle: () => void
+}) {
+  if (!thought) return null
+
+  return (
+    <div className={`${styles.thinkingBlock} ${collapsed ? styles.thinkingBlockCollapsed : ''}`}>
+      <button
+        type="button"
+        className={styles.thinkingToggle}
+        onClick={onToggle}
+      >
+        <span className={styles.thinkingIcon}>
+          <ChevronSvg expanded={!collapsed} />
+        </span>
+        <span className={styles.thinkingLabel}>
+          {collapsed ? 'Thinking — tap to expand' : 'Thinking'}
+        </span>
+      </button>
+      {!collapsed && (
+        <div className={styles.thinkingContent}>
+          <div className={styles.thinkingThought}>
+            {thought.split('\n').map((line, i) => (
+              <p key={i}>{line}</p>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -1159,4 +2176,103 @@ function FullscreenIcon() {
 
 function MinimizeIcon() {
   return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M8 3v5H3M16 3v5h5M8 21v-5H3M21 16h-5v5"/></svg>
+}
+
+function FolderSvg({ open }: { open?: boolean }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="0.9">
+      {open ? (
+        <path d="M12.5 12.5a1 1 0 001-1V5.5a1 1 0 00-1-1H7.7L6.5 3.5H3.5a1 1 0 00-1 1v8a1 1 0 001 1h9z"/>
+      ) : (
+        <path d="M12.5 12.5a1 1 0 001-1V5.5a1 1 0 00-1-1H7.7L6.5 3.5H3.5a1 1 0 00-1 1v8a1 1 0 001 1h9z"/>
+      )}
+    </svg>
+  )
+}
+
+function FileSvg() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="0.9">
+      <path d="M4.5 1.5h5.5l3.5 3.5v9.5a1 1 0 01-1 1h-8a1 1 0 01-1-1v-12a1 1 0 011-1z"/>
+      <path d="M10 1.5v3.5h3.5"/>
+    </svg>
+  )
+}
+
+function ChevronSvg({ expanded }: { expanded?: boolean }) {
+  return (
+    <svg
+      width="10" height="10" viewBox="0 0 10 10" fill="none"
+      style={{ transform: expanded ? 'rotate(90deg)' : undefined, transition: 'transform 0.12s ease' }}
+    >
+      <path d="M3.5 2L6.5 5L3.5 8" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+interface TreeNodeRendererProps {
+  node: FileTreeNode
+  depth: number
+  activeFile: string
+  expandedFolders: Set<string>
+  onSelectFile: (path: string) => void
+  onToggleFolder: (path: string) => void
+}
+
+function TreeNodeRenderer({ node, depth, activeFile, expandedFolders, onSelectFile, onToggleFolder }: TreeNodeRendererProps) {
+  const isExpanded = expandedFolders.has(node.path)
+  const indent = depth * 16
+
+  if (node.type === 'folder') {
+    return (
+      <div>
+        <button
+          className={styles.treeNode}
+          style={{ paddingLeft: 8 + indent }}
+          type="button"
+          onClick={() => onToggleFolder(node.path)}
+        >
+          <span className={styles.treeGuides}>
+            {Array.from({ length: depth }, (_, i) => (
+              <span key={i} className={styles.treeGuide} style={{ left: 8 + i * 16 + 5 }} />
+            ))}
+          </span>
+          <span className={styles.treeChevron}>
+            <ChevronSvg expanded={isExpanded} />
+          </span>
+          <span className={styles.treeIcon}><FolderSvg open={isExpanded} /></span>
+          <span className={styles.treeName}>{node.name}</span>
+        </button>
+        {isExpanded && node.children.map((child) => (
+          <TreeNodeRenderer
+            key={child.path}
+            node={child}
+            depth={depth + 1}
+            activeFile={activeFile}
+            expandedFolders={expandedFolders}
+            onSelectFile={onSelectFile}
+            onToggleFolder={onToggleFolder}
+          />
+        ))}
+      </div>
+    )
+  }
+
+  return (
+    <button
+      className={`${styles.treeNode} ${styles.treeFile} ${node.path === activeFile ? styles.treeFileActive : ''}`}
+      style={{ paddingLeft: 8 + indent }}
+      type="button"
+      onClick={() => onSelectFile(node.path)}
+    >
+      <span className={styles.treeGuides}>
+        {Array.from({ length: depth }, (_, i) => (
+          <span key={i} className={styles.treeGuide} style={{ left: 8 + i * 16 + 5 }} />
+        ))}
+      </span>
+      <span className={styles.treeChevron} />
+      <span className={styles.treeIcon}><FileSvg /></span>
+      <span className={styles.treeName}>{node.name}</span>
+    </button>
+  )
 }

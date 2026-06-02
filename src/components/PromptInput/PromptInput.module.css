@@ -155,6 +155,11 @@
   border-radius: 2px;
 }
 
+.textarea:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
 /* ===== Typing placeholder ===== */
 
 .typingPlaceholder {
@@ -235,6 +240,19 @@
   outline-offset: 2px;
 }
 
+.uploadBtn:disabled,
+.submitBtn:disabled {
+  cursor: wait;
+  opacity: 0.58;
+  filter: none;
+  box-shadow: none;
+}
+
+.uploadBtn:disabled:hover {
+  background: transparent;
+  border-color: transparent;
+}
+
 /* ===== File badge ────────────────────────────────── */
 
 .fileBadge {
@@ -287,6 +305,15 @@
 
 .submitBtn:active {
   transform: scale(0.95);
+}
+
+.submitBtn:disabled:hover {
+  filter: none;
+  box-shadow: none;
+}
+
+.submitBtn:disabled:active {
+  transform: none;
 }
 
 /* ===== Small variant ===== */

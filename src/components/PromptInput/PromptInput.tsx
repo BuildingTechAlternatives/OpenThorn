@@ -8,10 +8,12 @@ import styles from './PromptInput.module.css'
 interface PromptInputProps {
   size?: 'default' | 'small'
   defaultValue?: string
-  onSubmit?: (prompt: string) => void
+  onSubmit?: (prompt: string, selectedModel: SelectedModel | null) => void | Promise<void>
   page?: 'landing' | 'dashboard'
   disableTyping?: boolean
   placeholder?: string
+  disabled?: boolean
+  modelMenuPlacement?: 'bottom' | 'top'
 }
 
 const typingPrompts = [
@@ -88,6 +90,8 @@ export default function PromptInput({
   page = 'landing',
   disableTyping = false,
   placeholder = '',
+  disabled = false,
+  modelMenuPlacement = 'bottom',
 }: PromptInputProps) {
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -126,10 +130,13 @@ export default function PromptInput({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
+    if (disabled) return
+
     const prompt = internalValue.trim() || activeTyping || undefined
 
     if (onSubmit && prompt) {
-      onSubmit(prompt)
+      void onSubmit(prompt, selectedModel)
+      setInternalValue('')
       return
     }
 
@@ -233,6 +240,7 @@ export default function PromptInput({
                 placeholder={placeholder}
                 rows={1}
                 aria-label="Describe your website idea"
+                disabled={disabled}
               />
               {showTyping && (
                 <span className={styles.typingPlaceholder} aria-hidden="true">
@@ -252,6 +260,7 @@ export default function PromptInput({
                 className={styles.uploadBtn}
                 onClick={handleUploadClick}
                 aria-label="Upload files"
+                disabled={disabled}
               >
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <path d="M8 1v14M1 8h14" />
@@ -263,6 +272,7 @@ export default function PromptInput({
                 page={page}
                 selectedModel={selectedModel}
                 onModelSelect={handleModelSelect}
+                placement={modelMenuPlacement}
               />
 
               {/* Uploaded file count badge */}
@@ -287,6 +297,7 @@ export default function PromptInput({
                 type="submit"
                 className={styles.submitBtn}
                 whileTap={{ scale: 0.95 }}
+                disabled={disabled}
               >
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.span

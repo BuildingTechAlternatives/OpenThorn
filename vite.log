@@ -190,3 +190,775 @@
 [2m19:00:47[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
 [2m19:00:53[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
 [2m19:01:01[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:08:06[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:08:14[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:08:25[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:08:28[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32m✨ new dependencies optimized: [33mesbuild-wasm[32m[39m
+[2m19:08:28[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32m✨ optimized dependencies changed. reloading[39m
+[2m19:08:47[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:09:03[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:09:14[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:11:06[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:11:38[22m [36m[1m[vite][22m[39m [32mvite.config.ts changed, restarting server...[39m
+[2m19:11:38[22m [36m[1m[vite][22m[39m server restarted.
+[2m19:14:17[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:14:25[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:15:40[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:17:59[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:20:44[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:21:00[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:22:53[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:23:17[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:23:36[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:23:44[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:25:32[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:25:48[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:28:13[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:28:22[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:31:18[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:31:30[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:31:41[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:32:20[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:34:01[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:37:34[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:39:42[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:40:40[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:41:00[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:42:22[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:47:11[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:47:46[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:50:37[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:51:41[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:51:48[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:51:55[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:52:08[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:53:20[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:53:29[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:54:49[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:55:27[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:55:59[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:58:55[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m19:58:55[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\src\pages\ProjectBuilderPage.tsx: Unexpected token, expected "," (82:23)
+
+[0m [90m 80 |[31m       [32m`        <h1>`[31m[33m,[31m
+ [90m 81 |[31m       [32m`          Build stunning websites',[31m
+[31m[1m>[22m[31m[90m 82 |[31m [32m      `[31m          [33m<[31m[33mspan[31m className[33m=[31m[32m"highlight"[31m[33m>[31m [36mwith[31m [33mAI[31m[33m<[31m[33m/[31m[33mspan[31m[33m>[31m[32m`,[31m
+ [90m    |[31m                        [31m[1m^[22m[31m
+ [90m 83 |[31m [32m      `[31m        [33m<[31m[33m/[31m[33mh1[31m[33m>[31m[32m`,[31m
+ [90m 84 |[31m [32m      `[31m        [33m<[31m[33mp[31m className[33m=[31m[32m"hero-sub"[31m[33m>[31m[32m`,[31m
+ [90m 85 |[31m [32m      `[31m          [33mDescribe[31m your idea [36min[31m plain [33mEnglish[31m and watch [33mBloom[31m generate a complete[33m,[31m[32m`,[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Thoma/OneDrive/Dokumente/Informatik/Bloom/src/pages/ProjectBuilderPage.tsx[39m:82:23
+[33m  80 |        `        <h1>`,
+  81 |        `          Build stunning websites',
+  82 |        `          <span className="highlight"> with AI</span>`,
+     |                         ^
+  83 |        `        </h1>`,
+  84 |        `        <p className="hero-sub">`,[39m
+      at constructor (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:365:19)
+      at TypeScriptParserMixin.raise (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6616:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6636:16)
+      at TypeScriptParserMixin.expect (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6916:12)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12158:14)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseObjectProperty (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11967:83)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11995:100)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9761:18)
+      at TypeScriptParserMixin.parsePropertyDefinition (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11932:17)
+      at TypeScriptParserMixin.parseObjectLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11849:21)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11356:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseExprListItem (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12192:18)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12167:22)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+[2m19:58:55[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\src\pages\ProjectBuilderPage.tsx: Unexpected token, expected "," (82:23)
+
+[0m [90m 80 |[31m       [32m`        <h1>`[31m[33m,[31m
+ [90m 81 |[31m       [32m`          Build stunning websites',[31m
+[31m[1m>[22m[31m[90m 82 |[31m [32m      `[31m          [33m<[31m[33mspan[31m className[33m=[31m[32m"highlight"[31m[33m>[31m [36mwith[31m [33mAI[31m[33m<[31m[33m/[31m[33mspan[31m[33m>[31m[32m`,[31m
+ [90m    |[31m                        [31m[1m^[22m[31m
+ [90m 83 |[31m [32m      `[31m        [33m<[31m[33m/[31m[33mh1[31m[33m>[31m[32m`,[31m
+ [90m 84 |[31m [32m      `[31m        [33m<[31m[33mp[31m className[33m=[31m[32m"hero-sub"[31m[33m>[31m[32m`,[31m
+ [90m 85 |[31m [32m      `[31m          [33mDescribe[31m your idea [36min[31m plain [33mEnglish[31m and watch [33mBloom[31m generate a complete[33m,[31m[32m`,[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Thoma/OneDrive/Dokumente/Informatik/Bloom/src/pages/ProjectBuilderPage.tsx[39m:82:23
+[33m  80 |        `        <h1>`,
+  81 |        `          Build stunning websites',
+  82 |        `          <span className="highlight"> with AI</span>`,
+     |                         ^
+  83 |        `        </h1>`,
+  84 |        `        <p className="hero-sub">`,[39m
+      at constructor (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:365:19)
+      at TypeScriptParserMixin.raise (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6616:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6636:16)
+      at TypeScriptParserMixin.expect (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6916:12)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12158:14)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseObjectProperty (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11967:83)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11995:100)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9761:18)
+      at TypeScriptParserMixin.parsePropertyDefinition (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11932:17)
+      at TypeScriptParserMixin.parseObjectLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11849:21)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11356:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseExprListItem (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12192:18)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12167:22)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+[2m19:58:55[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\src\pages\ProjectBuilderPage.tsx: Unexpected token, expected "," (82:23)
+
+[0m [90m 80 |[31m       [32m`        <h1>`[31m[33m,[31m
+ [90m 81 |[31m       [32m`          Build stunning websites',[31m
+[31m[1m>[22m[31m[90m 82 |[31m [32m      `[31m          [33m<[31m[33mspan[31m className[33m=[31m[32m"highlight"[31m[33m>[31m [36mwith[31m [33mAI[31m[33m<[31m[33m/[31m[33mspan[31m[33m>[31m[32m`,[31m
+ [90m    |[31m                        [31m[1m^[22m[31m
+ [90m 83 |[31m [32m      `[31m        [33m<[31m[33m/[31m[33mh1[31m[33m>[31m[32m`,[31m
+ [90m 84 |[31m [32m      `[31m        [33m<[31m[33mp[31m className[33m=[31m[32m"hero-sub"[31m[33m>[31m[32m`,[31m
+ [90m 85 |[31m [32m      `[31m          [33mDescribe[31m your idea [36min[31m plain [33mEnglish[31m and watch [33mBloom[31m generate a complete[33m,[31m[32m`,[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Thoma/OneDrive/Dokumente/Informatik/Bloom/src/pages/ProjectBuilderPage.tsx[39m:82:23
+[33m  80 |        `        <h1>`,
+  81 |        `          Build stunning websites',
+  82 |        `          <span className="highlight"> with AI</span>`,
+     |                         ^
+  83 |        `        </h1>`,
+  84 |        `        <p className="hero-sub">`,[39m
+      at constructor (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:365:19)
+      at TypeScriptParserMixin.raise (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6616:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6636:16)
+      at TypeScriptParserMixin.expect (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6916:12)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12158:14)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseObjectProperty (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11967:83)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11995:100)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9761:18)
+      at TypeScriptParserMixin.parsePropertyDefinition (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11932:17)
+      at TypeScriptParserMixin.parseObjectLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11849:21)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11356:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseExprListItem (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12192:18)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12167:22)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+[2m19:59:03[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\src\pages\ProjectBuilderPage.tsx: Unexpected token, expected "," (82:23)
+
+[0m [90m 80 |[39m       [32m`        <h1>`[39m[33m,[39m
+ [90m 81 |[39m       [32m`          Build stunning websites',[39m
+[31m[1m>[22m[39m[90m 82 |[39m [32m      `[39m          [33m<[39m[33mspan[39m className[33m=[39m[32m"highlight"[39m[33m>[39m [36mwith[39m [33mAI[39m[33m<[39m[33m/[39m[33mspan[39m[33m>[39m[32m`,[39m
+ [90m    |[39m                        [31m[1m^[22m[39m
+ [90m 83 |[39m [32m      `[39m        [33m<[39m[33m/[39m[33mh1[39m[33m>[39m[32m`,[39m
+ [90m 84 |[39m [32m      `[39m        [33m<[39m[33mp[39m className[33m=[39m[32m"hero-sub"[39m[33m>[39m[32m`,[39m
+ [90m 85 |[39m [32m      `[39m          [33mDescribe[39m your idea [36min[39m plain [33mEnglish[39m and watch [33mBloom[39m generate a complete[33m,[39m[32m`,[39m[0m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Thoma/OneDrive/Dokumente/Informatik/Bloom/src/pages/ProjectBuilderPage.tsx[39m:82:23
+[33m  80 |        `        <h1>`,
+  81 |        `          Build stunning websites',
+  82 |        `          <span className="highlight"> with AI</span>`,
+     |                         ^
+  83 |        `        </h1>`,
+  84 |        `        <p className="hero-sub">`,[39m
+[2m19:59:03[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\src\pages\ProjectBuilderPage.tsx: Unexpected token, expected "," (82:23)
+
+[0m [90m 80 |[31m       [32m`        <h1>`[31m[33m,[31m
+ [90m 81 |[31m       [32m`          Build stunning websites',[31m
+[31m[1m>[22m[31m[90m 82 |[31m [32m      `[31m          [33m<[31m[33mspan[31m className[33m=[31m[32m"highlight"[31m[33m>[31m [36mwith[31m [33mAI[31m[33m<[31m[33m/[31m[33mspan[31m[33m>[31m[32m`,[31m
+ [90m    |[31m                        [31m[1m^[22m[31m
+ [90m 83 |[31m [32m      `[31m        [33m<[31m[33m/[31m[33mh1[31m[33m>[31m[32m`,[31m
+ [90m 84 |[31m [32m      `[31m        [33m<[31m[33mp[31m className[33m=[31m[32m"hero-sub"[31m[33m>[31m[32m`,[31m
+ [90m 85 |[31m [32m      `[31m          [33mDescribe[31m your idea [36min[31m plain [33mEnglish[31m and watch [33mBloom[31m generate a complete[33m,[31m[32m`,[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Thoma/OneDrive/Dokumente/Informatik/Bloom/src/pages/ProjectBuilderPage.tsx[39m:82:23
+[33m  80 |        `        <h1>`,
+  81 |        `          Build stunning websites',
+  82 |        `          <span className="highlight"> with AI</span>`,
+     |                         ^
+  83 |        `        </h1>`,
+  84 |        `        <p className="hero-sub">`,[39m
+      at constructor (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:365:19)
+      at TypeScriptParserMixin.raise (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6616:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6636:16)
+      at TypeScriptParserMixin.expect (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6916:12)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12158:14)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseObjectProperty (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11967:83)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11995:100)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9761:18)
+      at TypeScriptParserMixin.parsePropertyDefinition (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11932:17)
+      at TypeScriptParserMixin.parseObjectLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11849:21)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11356:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseExprListItem (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12192:18)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12167:22)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+[2m20:00:03[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\src\pages\ProjectBuilderPage.tsx: Unexpected token, expected "," (82:23)
+
+[0m [90m 80 |[31m       [32m`        <h1>`[31m[33m,[31m
+ [90m 81 |[31m       [32m`          Build stunning websites',[31m
+[31m[1m>[22m[31m[90m 82 |[31m [32m      `[31m          [33m<[31m[33mspan[31m className[33m=[31m[32m"highlight"[31m[33m>[31m [36mwith[31m [33mAI[31m[33m<[31m[33m/[31m[33mspan[31m[33m>[31m[32m`,[31m
+ [90m    |[31m                        [31m[1m^[22m[31m
+ [90m 83 |[31m [32m      `[31m        [33m<[31m[33m/[31m[33mh1[31m[33m>[31m[32m`,[31m
+ [90m 84 |[31m [32m      `[31m        [33m<[31m[33mp[31m className[33m=[31m[32m"hero-sub"[31m[33m>[31m[32m`,[31m
+ [90m 85 |[31m [32m      `[31m          [33mDescribe[31m your idea [36min[31m plain [33mEnglish[31m and watch [33mBloom[31m generate a complete[33m,[31m[32m`,[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Thoma/OneDrive/Dokumente/Informatik/Bloom/src/pages/ProjectBuilderPage.tsx[39m:82:23
+[33m  80 |        `        <h1>`,
+  81 |        `          Build stunning websites',
+  82 |        `          <span className="highlight"> with AI</span>`,
+     |                         ^
+  83 |        `        </h1>`,
+  84 |        `        <p className="hero-sub">`,[39m
+      at constructor (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:365:19)
+      at TypeScriptParserMixin.raise (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6616:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6636:16)
+      at TypeScriptParserMixin.expect (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6916:12)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12158:14)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseObjectProperty (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11967:83)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11995:100)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9761:18)
+      at TypeScriptParserMixin.parsePropertyDefinition (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11932:17)
+      at TypeScriptParserMixin.parseObjectLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11849:21)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11356:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseExprListItem (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12192:18)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12167:22)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+[2m20:00:03[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\src\pages\ProjectBuilderPage.tsx: Unexpected token, expected "," (82:23)
+
+[0m [90m 80 |[31m       [32m`        <h1>`[31m[33m,[31m
+ [90m 81 |[31m       [32m`          Build stunning websites',[31m
+[31m[1m>[22m[31m[90m 82 |[31m [32m      `[31m          [33m<[31m[33mspan[31m className[33m=[31m[32m"highlight"[31m[33m>[31m [36mwith[31m [33mAI[31m[33m<[31m[33m/[31m[33mspan[31m[33m>[31m[32m`,[31m
+ [90m    |[31m                        [31m[1m^[22m[31m
+ [90m 83 |[31m [32m      `[31m        [33m<[31m[33m/[31m[33mh1[31m[33m>[31m[32m`,[31m
+ [90m 84 |[31m [32m      `[31m        [33m<[31m[33mp[31m className[33m=[31m[32m"hero-sub"[31m[33m>[31m[32m`,[31m
+ [90m 85 |[31m [32m      `[31m          [33mDescribe[31m your idea [36min[31m plain [33mEnglish[31m and watch [33mBloom[31m generate a complete[33m,[31m[32m`,[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Thoma/OneDrive/Dokumente/Informatik/Bloom/src/pages/ProjectBuilderPage.tsx[39m:82:23
+[33m  80 |        `        <h1>`,
+  81 |        `          Build stunning websites',
+  82 |        `          <span className="highlight"> with AI</span>`,
+     |                         ^
+  83 |        `        </h1>`,
+  84 |        `        <p className="hero-sub">`,[39m
+      at constructor (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:365:19)
+      at TypeScriptParserMixin.raise (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6616:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6636:16)
+      at TypeScriptParserMixin.expect (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6916:12)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12158:14)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseObjectProperty (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11967:83)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11995:100)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9761:18)
+      at TypeScriptParserMixin.parsePropertyDefinition (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11932:17)
+      at TypeScriptParserMixin.parseObjectLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11849:21)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11356:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseExprListItem (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12192:18)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12167:22)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+[2m20:00:04[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\src\pages\ProjectBuilderPage.tsx: Unexpected token, expected "," (82:23)
+
+[0m [90m 80 |[31m       [32m`        <h1>`[31m[33m,[31m
+ [90m 81 |[31m       [32m`          Build stunning websites',[31m
+[31m[1m>[22m[31m[90m 82 |[31m [32m      `[31m          [33m<[31m[33mspan[31m className[33m=[31m[32m"highlight"[31m[33m>[31m [36mwith[31m [33mAI[31m[33m<[31m[33m/[31m[33mspan[31m[33m>[31m[32m`,[31m
+ [90m    |[31m                        [31m[1m^[22m[31m
+ [90m 83 |[31m [32m      `[31m        [33m<[31m[33m/[31m[33mh1[31m[33m>[31m[32m`,[31m
+ [90m 84 |[31m [32m      `[31m        [33m<[31m[33mp[31m className[33m=[31m[32m"hero-sub"[31m[33m>[31m[32m`,[31m
+ [90m 85 |[31m [32m      `[31m          [33mDescribe[31m your idea [36min[31m plain [33mEnglish[31m and watch [33mBloom[31m generate a complete[33m,[31m[32m`,[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Thoma/OneDrive/Dokumente/Informatik/Bloom/src/pages/ProjectBuilderPage.tsx[39m:82:23
+[33m  80 |        `        <h1>`,
+  81 |        `          Build stunning websites',
+  82 |        `          <span className="highlight"> with AI</span>`,
+     |                         ^
+  83 |        `        </h1>`,
+  84 |        `        <p className="hero-sub">`,[39m
+      at constructor (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:365:19)
+      at TypeScriptParserMixin.raise (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6616:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6636:16)
+      at TypeScriptParserMixin.expect (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6916:12)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12158:14)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseObjectProperty (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11967:83)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11995:100)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9761:18)
+      at TypeScriptParserMixin.parsePropertyDefinition (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11932:17)
+      at TypeScriptParserMixin.parseObjectLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11849:21)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11356:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseExprListItem (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12192:18)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12167:22)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+[2m20:00:04[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\src\pages\ProjectBuilderPage.tsx: Unexpected token, expected "," (82:23)
+
+[0m [90m 80 |[31m       [32m`        <h1>`[31m[33m,[31m
+ [90m 81 |[31m       [32m`          Build stunning websites',[31m
+[31m[1m>[22m[31m[90m 82 |[31m [32m      `[31m          [33m<[31m[33mspan[31m className[33m=[31m[32m"highlight"[31m[33m>[31m [36mwith[31m [33mAI[31m[33m<[31m[33m/[31m[33mspan[31m[33m>[31m[32m`,[31m
+ [90m    |[31m                        [31m[1m^[22m[31m
+ [90m 83 |[31m [32m      `[31m        [33m<[31m[33m/[31m[33mh1[31m[33m>[31m[32m`,[31m
+ [90m 84 |[31m [32m      `[31m        [33m<[31m[33mp[31m className[33m=[31m[32m"hero-sub"[31m[33m>[31m[32m`,[31m
+ [90m 85 |[31m [32m      `[31m          [33mDescribe[31m your idea [36min[31m plain [33mEnglish[31m and watch [33mBloom[31m generate a complete[33m,[31m[32m`,[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Thoma/OneDrive/Dokumente/Informatik/Bloom/src/pages/ProjectBuilderPage.tsx[39m:82:23
+[33m  80 |        `        <h1>`,
+  81 |        `          Build stunning websites',
+  82 |        `          <span className="highlight"> with AI</span>`,
+     |                         ^
+  83 |        `        </h1>`,
+  84 |        `        <p className="hero-sub">`,[39m
+      at constructor (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:365:19)
+      at TypeScriptParserMixin.raise (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6616:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6636:16)
+      at TypeScriptParserMixin.expect (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6916:12)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12158:14)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseObjectProperty (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11967:83)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11995:100)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9761:18)
+      at TypeScriptParserMixin.parsePropertyDefinition (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11932:17)
+      at TypeScriptParserMixin.parseObjectLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11849:21)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11356:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseExprListItem (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12192:18)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12167:22)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+[2m20:00:04[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\src\pages\ProjectBuilderPage.tsx: Unexpected token, expected "," (82:23)
+
+[0m [90m 80 |[31m       [32m`        <h1>`[31m[33m,[31m
+ [90m 81 |[31m       [32m`          Build stunning websites',[31m
+[31m[1m>[22m[31m[90m 82 |[31m [32m      `[31m          [33m<[31m[33mspan[31m className[33m=[31m[32m"highlight"[31m[33m>[31m [36mwith[31m [33mAI[31m[33m<[31m[33m/[31m[33mspan[31m[33m>[31m[32m`,[31m
+ [90m    |[31m                        [31m[1m^[22m[31m
+ [90m 83 |[31m [32m      `[31m        [33m<[31m[33m/[31m[33mh1[31m[33m>[31m[32m`,[31m
+ [90m 84 |[31m [32m      `[31m        [33m<[31m[33mp[31m className[33m=[31m[32m"hero-sub"[31m[33m>[31m[32m`,[31m
+ [90m 85 |[31m [32m      `[31m          [33mDescribe[31m your idea [36min[31m plain [33mEnglish[31m and watch [33mBloom[31m generate a complete[33m,[31m[32m`,[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Thoma/OneDrive/Dokumente/Informatik/Bloom/src/pages/ProjectBuilderPage.tsx[39m:82:23
+[33m  80 |        `        <h1>`,
+  81 |        `          Build stunning websites',
+  82 |        `          <span className="highlight"> with AI</span>`,
+     |                         ^
+  83 |        `        </h1>`,
+  84 |        `        <p className="hero-sub">`,[39m
+      at constructor (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:365:19)
+      at TypeScriptParserMixin.raise (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6616:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6636:16)
+      at TypeScriptParserMixin.expect (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:6916:12)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12158:14)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseObjectProperty (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11967:83)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11995:100)
+      at TypeScriptParserMixin.parseObjPropValue (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9761:18)
+      at TypeScriptParserMixin.parsePropertyDefinition (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11932:17)
+      at TypeScriptParserMixin.parseObjectLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11849:21)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11356:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11063:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9854:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10916:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10921:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10898:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10848:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9803:20)
+      at C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12443:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:10817:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12510:17)
+      at TypeScriptParserMixin.parseExprListItem (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12192:18)
+      at TypeScriptParserMixin.parseExprList (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12167:22)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:12074:26)
+      at TypeScriptParserMixin.parseArrayLike (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:9210:24)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11352:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11098:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Thoma\OneDrive\Dokumente\Informatik\Bloom\node_modules\@babel\parser\lib\index.js:11083:21)
+[2m20:00:46[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:08:16[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:08:46[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:09:12[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:09:22[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:09:50[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:10:10[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:10:34[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:41:46[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:42:01[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:42:08[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:42:43[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:42:52[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:43:24[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:43:35[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:43:42[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:44:35[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:46:52[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:47:10[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:50:24[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:50:31[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:50:36[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m20:56:13[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:07:33[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/PromptInput/PromptInput.tsx[22m
+[2m21:07:49[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/DashboardPage.tsx[22m
+[2m21:08:30[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:08:35[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:09:01[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:09:12[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:09:20[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:09:31[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:10:05[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:10:41[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:11:12[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:11:34[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/PromptInput/PromptInput.tsx[22m
+[2m21:12:16[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:12:22[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:13:48[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:15:49[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:22:06[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:22:17[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:22:28[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/ModelSelector/ModelSelector.tsx[22m
+[2m21:22:34[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/ModelSelector/ModelSelector.tsx[22m
+[2m21:22:41[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/PromptInput/PromptInput.tsx[22m
+[2m21:22:48[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:22:57[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:23:04[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:23:36[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:24:04[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:24:15[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:25:37[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:25:50[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:25:56[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:26:06[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:26:16[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:26:23[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:26:30[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:26:38[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:30:06[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/ModelSelector/ModelSelector.tsx[22m
+[2m21:36:54[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:38:54[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:39:39[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:40:02[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:40:15[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:40:33[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:40:54[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:43:50[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:44:02[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:44:45[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:44:59[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:45:12[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:46:01[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:46:16[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:46:24[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:46:32[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:54:47[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:56:22[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:57:26[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m21:57:38[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:00:14[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:00:40[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:01:03[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:01:12[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:02:35[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:04:07[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:04:15[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:04:40[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:05:03[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:05:36[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:05:54[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:06:13[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:07:36[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:07:49[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:08:15[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:08:37[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:08:57[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:09:11[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:09:27[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:14:22[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:21:16[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:21:33[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:21:43[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:22:10[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m
+[2m22:22:10[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectBuilderPage.tsx[22m

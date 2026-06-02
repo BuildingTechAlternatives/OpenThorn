@@ -30,6 +30,7 @@ interface ModelSelectorProps {
   page: 'landing' | 'dashboard'
   selectedModel: SelectedModel | null
   onModelSelect: (model: SelectedModel) => void
+  placement?: 'bottom' | 'top'
 }
 
 // ── Constants ──────────────────────────────────────────
@@ -70,7 +71,7 @@ function parseModels(raw: string): ModelInfo[] {
 
 // ── Component ──────────────────────────────────────────
 
-export default function ModelSelector({ page, selectedModel, onModelSelect }: ModelSelectorProps) {
+export default function ModelSelector({ page, selectedModel, onModelSelect, placement = 'bottom' }: ModelSelectorProps) {
   const { user } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const [hoveredProvider, setHoveredProvider] = useState<string | null>(null)
@@ -281,10 +282,10 @@ export default function ModelSelector({ page, selectedModel, onModelSelect }: Mo
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className={styles.dropdown}
-            initial={{ opacity: 0, y: -6, scale: 0.97 }}
+            className={`${styles.dropdown} ${placement === 'top' ? styles.dropdownTop : ''}`}
+            initial={{ opacity: 0, y: placement === 'top' ? 6 : -6, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.97 }}
+            exit={{ opacity: 0, y: placement === 'top' ? 6 : -6, scale: 0.97 }}
             transition={{ duration: 0.18, ease: [0.19, 1, 0.22, 1] }}
           >
             {showPlaceholder ? (
