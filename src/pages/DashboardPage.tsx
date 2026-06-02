@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -34,10 +34,26 @@ export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [projectsLoading, setProjectsLoading] = useState(true)
   const [showAllPrompts, setShowAllPrompts] = useState(false)
+  const [modelError, setModelError] = useState(false)
+  const [contextMenu, setContextMenu] = useState<{ projectId: string; x: number; y: number } | null>(null)
+  const [renamingProject, setRenamingProject] = useState<{ id: string; title: string } | null>(null)
+  const contextMenuRef = useRef<HTMLDivElement>(null)
 
   const visiblePrompts = showAllPrompts ? examplePrompts : examplePrompts.slice(0, INITIAL_VISIBLE)
 
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] ?? user?.email?.split('@')[0] ?? 'there'
+
+  // Close context menu on outside click
+  useEffect(() => {
+    if (!contextMenu) return
+    const handler = (e: MouseEvent) => {
+      if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
+        setContextMenu(null)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [contextMenu])
 
   // Redirect if not logged in
   useEffect(() => {
@@ -81,6 +97,13 @@ export default function DashboardPage() {
   }, [user])
 
   const handlePromptSubmit = useCallback(async (prompt: string, selectedModel: SelectedModel | null) => {
+    if (!selectedModel) {
+      setModelError(true)
+      setTimeout(() => setModelError(false), 3000)
+      return
+    }
+    setModelError(false)
+
     const projectId = typeof crypto !== 'undefined' && 'randomUUID' in crypto
       ? crypto.randomUUID()
       : `draft-${Date.now()}`
@@ -113,6 +136,43 @@ export default function DashboardPage() {
     })
   }, [navigate, user])
 
+  const handleDeleteProject = useCallback(async (projectId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setContextMenu(null)
+    if (!user) return
+    const { error } = await supabase.from('projects').delete().eq('id', projectId).eq('user_id', user.id)
+    if (error) console.error('Failed to delete project:', error.message)
+    setProjects((prev) => prev.filter((p) => p.id !== projectId))
+  }, [user])
+
+  const handleRenameStart = useCallback((project: Project, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setContextMenu(null)
+    setRenamingProject({ id: project.id, title: project.title })
+  }, [])
+
+  const handleRenameSubmit = useCallback(async () => {
+    if (!renamingProject || !user) return
+    const newTitle = renamingProject.title.trim() || 'Untitled project'
+    const { error } = await supabase
+      .from('projects')
+      .update({ title: newTitle })
+      .eq('id', renamingProject.id)
+      .eq('user_id', user.id)
+    if (error) {
+      console.error('Failed to rename project:', error.message)
+    } else {
+      setProjects((prev) => prev.map((p) => p.id === renamingProject.id ? { ...p, title: newTitle } : p))
+    }
+    setRenamingProject(null)
+  }, [renamingProject, user])
+
+  const handleOpenInNewTab = useCallback((projectId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setContextMenu(null)
+    window.open(`/projects/${projectId}`, '_blank')
+  }, [])
+
   const handleExampleClick = (prompt: string) => {
     setPromptDefault(prompt)
   }
@@ -135,6 +195,9 @@ export default function DashboardPage() {
 
             <div className={styles.promptWrapper}>
               <PromptInput defaultValue={promptDefault} onSubmit={handlePromptSubmit} page="dashboard" />
+              {modelError && (
+                <p className={styles.modelError}>Please select a model first.</p>
+              )}
             </div>
 
             <div className={styles.examples}>
@@ -195,7 +258,13 @@ export default function DashboardPage() {
                   >
                     <div className={styles.projectPreview}>
                       {project.preview_url ? (
-                        <img src={project.preview_url} alt={project.title} />
+                        <iframe
+                          src={project.preview_url}
+                          title={project.title}
+                          className={styles.projectPreviewFrame}
+                          sandbox="allow-scripts"
+                          scrolling="no"
+                        />
                       ) : (
                         <div className={styles.projectPlaceholder}>
                           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -207,7 +276,22 @@ export default function DashboardPage() {
                       )}
                     </div>
                     <div className={styles.projectMeta}>
-                      <h3 className={styles.projectTitle}>{project.title}</h3>
+                      {renamingProject?.id === project.id ? (
+                        <input
+                          className={styles.renameInput}
+                          value={renamingProject.title}
+                          onChange={(e) => setRenamingProject({ ...renamingProject, title: e.target.value })}
+                          onBlur={() => handleRenameSubmit()}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleRenameSubmit()
+                            if (e.key === 'Escape') setRenamingProject(null)
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          autoFocus
+                        />
+                      ) : (
+                        <h3 className={styles.projectTitle}>{project.title}</h3>
+                      )}
                       <span className={styles.projectDate}>
                         {new Date(project.created_at).toLocaleDateString('en-US', {
                           month: 'short',
@@ -216,11 +300,65 @@ export default function DashboardPage() {
                         })}
                       </span>
                     </div>
+                    <button
+                      className={styles.contextMenuBtn}
+                      type="button"
+                      aria-label="Project actions"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setContextMenu(contextMenu?.projectId === project.id ? null : { projectId: project.id, x: e.clientX, y: e.clientY })
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <circle cx="8" cy="3" r="1.5" />
+                        <circle cx="8" cy="8" r="1.5" />
+                        <circle cx="8" cy="13" r="1.5" />
+                      </svg>
+                    </button>
                   </div>
                 ))}
               </div>
             )}
           </section>
+
+          {/* Context menu */}
+          {contextMenu && (
+            <div
+              ref={contextMenuRef}
+              className={styles.contextMenu}
+              style={{ top: contextMenu.y, left: contextMenu.x }}
+            >
+              <button
+                type="button"
+                onClick={(e) => {
+                  const project = projects.find((p) => p.id === contextMenu.projectId)
+                  if (project) handleRenameStart(project, e)
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Rename
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  const project = projects.find((p) => p.id === contextMenu.projectId)
+                  if (project) handleOpenInNewTab(project.id, e)
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
+                Open in new tab
+              </button>
+              <hr className={styles.contextMenuDivider} />
+              <button
+                type="button"
+                className={styles.contextMenuDanger}
+                onClick={(e) => handleDeleteProject(contextMenu.projectId, e)}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                Delete
+              </button>
+            </div>
+          )}
         </div>
       </main>
     </div>

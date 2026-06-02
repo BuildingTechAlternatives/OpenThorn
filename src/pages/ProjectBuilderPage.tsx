@@ -599,12 +599,20 @@ export default function ProjectBuilderPage() {
   const { projectId } = useParams()
   const location = useLocation()
   const state = (location.state ?? {}) as ProjectRouteState
-  const prompt = state.prompt || 'Build a polished web app with a strong hero, product sections, and a deploy-ready layout.'
-  const title = state.title || 'Untitled project'
+  const hasInitialPrompt = Boolean(state.prompt)
+  const prompt = state.prompt || ''
+  const [title, setTitle] = useState(state.title || 'Untitled project')
   const [projectFiles, setProjectFiles] = useState<AgentCodeFile[]>([])
-  const [messages, setMessages] = useState<ChatMessage[]>(() => [
-    { id: 'initial-user', role: 'user', content: prompt },
-  ])
+  const [activeModel, setActiveModel] = useState<SelectedAgentModel | null>(state.selectedModel ?? null)
+  const [chatHistoryLoaded, setChatHistoryLoaded] = useState(false)
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    // Only create initial user message if we have a fresh prompt from dashboard
+    // Otherwise wait for chat history to load from Supabase
+    if (state.prompt) {
+      return [{ id: 'initial-user', role: 'user', content: state.prompt }]
+    }
+    return []
+  })
   const [agentRunning, setAgentRunning] = useState(false)
   const [agentStatus, setAgentStatus] = useState('')
   const [firstRunComplete, setFirstRunComplete] = useState(false)
@@ -652,6 +660,9 @@ export default function ProjectBuilderPage() {
   const githubInputRef = useRef<HTMLInputElement>(null)
   const initialAgentStartedRef = useRef(false)
   const agentAbortRef = useRef<AbortController | null>(null)
+  const [filesLoaded, setFilesLoaded] = useState(false)
+  const promptRef = useRef(prompt)
+  const selectedModelRef = useRef(state.selectedModel)
 
   const activeCodeFile = projectFiles.find((file) => file.path === activeFile) ?? projectFiles[0] ?? EMPTY_CODE_FILE
   const userInitial = user?.user_metadata?.full_name?.charAt(0).toUpperCase() ?? user?.email?.charAt(0).toUpperCase() ?? 'U'
@@ -700,15 +711,15 @@ export default function ProjectBuilderPage() {
     })
   }, [projectFiles])
 
-  // Sync project to Supabase on mount
+  // Sync project to Supabase on mount + load persisted files
   useEffect(() => {
     if (!user || !projectId) return
 
-    const saveProject = async () => {
+    const loadProject = async () => {
       // Verify ownership before upserting to prevent IDOR
       const { data: existing } = await supabase
         .from('projects')
-        .select('user_id')
+        .select('user_id, title, files, chat_history')
         .eq('id', projectId)
         .single()
 
@@ -727,11 +738,34 @@ export default function ProjectBuilderPage() {
         }
 
         setProjectAccess(collaboration.permission === 'view' ? 'view' : 'edit')
+        setFilesLoaded(true)
         return
       }
 
       setProjectAccess('owner')
 
+      // Load persisted files if they exist
+      if (existing && Array.isArray(existing.files) && (existing.files as AgentCodeFile[]).length > 0) {
+        const savedFiles = existing.files as AgentCodeFile[]
+        setProjectFiles(savedFiles)
+        setFirstRunComplete(true)
+        // Don't auto-start agent on existing projects — user can refine
+        initialAgentStartedRef.current = true
+      }
+
+      // Load persisted chat history if it exists
+      if (existing && Array.isArray(existing.chat_history) && (existing.chat_history as ChatMessage[]).length > 0) {
+        const savedChat = existing.chat_history as ChatMessage[]
+        setMessages(savedChat)
+      }
+      setChatHistoryLoaded(true)
+
+      // Use the stored title if it's better than the route state title
+      if (existing?.title && existing.title !== 'Untitled project') {
+        setTitle(existing.title)
+      }
+
+      // Upsert project metadata (don't overwrite files)
       const { error } = await supabase
         .from('projects')
         .upsert({
@@ -745,9 +779,11 @@ export default function ProjectBuilderPage() {
       if (error) {
         console.error('Failed to sync project:', error.message)
       }
+
+      setFilesLoaded(true)
     }
 
-    saveProject()
+    loadProject()
   }, [user, projectId, title, navigate])
 
   useEffect(() => {
@@ -847,6 +883,89 @@ export default function ProjectBuilderPage() {
 
     return () => { cancelled = true }
   }, [projectFiles])
+
+  // Persist files to Supabase when they change (after agent has started)
+  useEffect(() => {
+    if (!user || !projectId || !firstRunComplete || isViewOnly) return
+
+    const saveFiles = async () => {
+      const { error } = await supabase
+        .from('projects')
+        .update({ files: projectFiles as unknown as Record<string, unknown>[] })
+        .eq('id', projectId)
+        .eq('user_id', user.id)
+
+      if (error) {
+        console.error('Failed to save project files:', error.message)
+      }
+    }
+
+    saveFiles()
+  }, [projectFiles, user, projectId, firstRunComplete, isViewOnly])
+
+  // Persist chat history to Supabase when messages change
+  useEffect(() => {
+    if (!user || !projectId || !chatHistoryLoaded || isViewOnly) return
+
+    // Only save if there's actual conversation content beyond the initial user message
+    const hasAssistantMessages = messages.some((m) => m.role === 'assistant')
+    if (!hasAssistantMessages) return
+
+    const saveChat = async () => {
+      const { error } = await supabase
+        .from('projects')
+        .update({ chat_history: messages as unknown as Record<string, unknown>[] })
+        .eq('id', projectId)
+        .eq('user_id', user.id)
+
+      if (error) {
+        console.error('Failed to save chat history:', error.message)
+      }
+    }
+
+    saveChat()
+  }, [messages, user, projectId, chatHistoryLoaded, isViewOnly])
+
+  // Save preview HTML to Supabase Storage when preview is ready
+  useEffect(() => {
+    if (!user || !projectId || previewStatus !== 'ready' || !previewHtml || isViewOnly) return
+
+    const savePreview = async () => {
+      const html = bundleProject(projectFiles, title)
+      const blob = new Blob([html], { type: 'text/html; charset=utf-8' })
+
+      const { error: uploadError } = await supabase.storage
+        .from('deployments')
+        .upload(`previews/${projectId}/index.html`, blob, {
+          contentType: 'text/html',
+          upsert: true,
+          cacheControl: '3600',
+        })
+
+      if (uploadError) {
+        console.error('Failed to save preview:', uploadError.message)
+        return
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('deployments')
+        .getPublicUrl(`previews/${projectId}/index.html`)
+
+      if (urlData?.publicUrl) {
+        const { error: updateError } = await supabase
+          .from('projects')
+          .update({ preview_url: urlData.publicUrl })
+          .eq('id', projectId)
+          .eq('user_id', user.id)
+
+        if (updateError) {
+          console.error('Failed to save preview URL:', updateError.message)
+        }
+      }
+    }
+
+    savePreview()
+  }, [previewStatus, previewHtml, user, projectId, isViewOnly, projectFiles, title])
 
   const handleDeploy = useCallback(async () => {
     setDeployState('deploying')
@@ -1104,6 +1223,7 @@ export default function ProjectBuilderPage() {
     const runId = `${Date.now()}-${Math.random().toString(36).slice(2)}`
     const assistantId = `assistant-${runId}`
     const chosenModel = selectedModel ?? state.selectedModel ?? null
+    setActiveModel(chosenModel)
     const timeline: TimelineEvent[] = []
     let eventCounter = 0
 
@@ -1217,6 +1337,15 @@ export default function ProjectBuilderPage() {
                 if (doneData.nextSuggestions) {
                   setAgentSuggestions(normalizeAgentSuggestions(doneData.nextSuggestions))
                 }
+                if (doneData.title && typeof doneData.title === 'string' && doneData.title.trim()) {
+                  setTitle(doneData.title.trim())
+                  // Also save the title to Supabase
+                  if (user && projectId) {
+                    supabase.from('projects').update({ title: doneData.title.trim() }).eq('id', projectId).eq('user_id', user.id).then(({ error }) => {
+                      if (error) console.error('Failed to save project title:', error.message)
+                    })
+                  }
+                }
               } catch { /* ok */ }
             }
           }
@@ -1272,11 +1401,26 @@ export default function ProjectBuilderPage() {
     }
   }, [agentRunning, isViewOnly, projectFiles, state.selectedModel, title, updateAssistantMessage, user])
 
+  // Auto-start agent on fresh project (no persisted files)
   useEffect(() => {
-    if (loading || !user || isViewOnly || initialAgentStartedRef.current) return
+    if (!filesLoaded || !chatHistoryLoaded || !user || isViewOnly || initialAgentStartedRef.current) return
+    // Only auto-start if this is a brand-new project from the dashboard (has prompt, no persisted files)
+    if (!hasInitialPrompt) return
     initialAgentStartedRef.current = true
-    void handleAgentRequest(prompt, state.selectedModel ?? null, { reuseInitialUser: true, mode: 'create' })
-  }, [handleAgentRequest, isViewOnly, loading, prompt, state.selectedModel, user])
+
+    // Use refs to avoid stale closure issues
+    const currentPrompt = promptRef.current
+    const currentModel = selectedModelRef.current
+
+    // Small delay to ensure all state is settled before invoking the agent
+    const timer = setTimeout(() => {
+      void handleAgentRequest(currentPrompt, currentModel ?? null, { reuseInitialUser: true, mode: 'create' })
+    }, 100)
+
+    return () => clearTimeout(timer)
+    // Only fire once when files are loaded — intentionally exclude handleAgentRequest
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filesLoaded, chatHistoryLoaded, user, isViewOnly, hasInitialPrompt])
 
   const fileTree = useMemo(() => buildFileTree(projectFiles), [projectFiles])
 
@@ -1309,7 +1453,14 @@ export default function ProjectBuilderPage() {
             <img src="/assets/logo.png" alt="Bloom" className={styles.logo} />
             <div>
               <div className={styles.projectName}>{title}</div>
-              <div className={styles.projectMeta}>Draft project - {projectId?.slice(0, 8)} - {accessLabel}</div>
+              <div className={styles.projectMeta}>
+                Draft project - {projectId?.slice(0, 8)} - {accessLabel}
+                {activeModel && (
+                  <span className={styles.modelBadge}>
+                    {activeModel.provider_name} / {activeModel.model_name}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -138,13 +138,17 @@ export const AGENT_TOOLS: ToolDefinition[] = [
     description:
       'Mark the project as complete. Only call this when the project compiles ' +
       'successfully and all requested features are implemented. Include a brief ' +
-      'summary of what was built.',
+      'summary of what was built and a short descriptive title (3-6 words).',
     input_schema: {
       type: 'object',
       properties: {
         summary: {
           type: 'string',
           description: 'A brief summary of what the completed project includes.',
+        },
+        title: {
+          type: 'string',
+          description: 'A short, descriptive title for the project (3-6 words). Make it specific to what was built — not generic like "Website" or "Project".',
         },
         nextSuggestions: {
           type: 'array',
@@ -167,11 +171,37 @@ export const AGENT_SYSTEM_PROMPT = `You are Bloom, an expert website-builder age
 - **Stack:** React 18+, TypeScript, CSS
 - **Entry point:** src/App.tsx renders into #root
 - **JSX transform:** automatic — do not import React just for JSX
-- **Available packages:** react and react-dom only
-- **CSS:** One src/styles/theme.css file with CSS custom properties
-- **Components:** One default-exported component per file under src/components/
+- **Available packages:** react, react-dom, and react-router-dom (v6)
+- **Routing:** You can build multi-page apps with react-router-dom. Import from "react-router-dom" as usual.
+- **CSS:** One src/styles/theme.css file with CSS custom properties (create additional CSS files under src/styles/ if needed)
+- **Components:** One default-exported component per file under src/components/ or src/pages/
 - **Assets:** No external images, CDNs, or icon libraries. Use CSS gradients, inline SVG, semantic markup, and system typography.
 - **Responsive:** Always support 390px phone, 768px tablet, and 1200px+ desktop.
+
+## Routing with react-router-dom
+
+When the user asks for multiple pages (e.g. Home, About, Contact, Products), use react-router-dom to create proper routes:
+
+- Import \`BrowserRouter\`, \`Routes\`, \`Route\`, \`Link\`, \`NavLink\`, \`useNavigate\`, \`useParams\` from \`"react-router-dom"\`
+- Wrap your app in \`<BrowserRouter>\` at the top level (in App.tsx)
+- Define routes with \`<Routes>\` and \`<Route path="..." element={...} />\`
+- Use \`<Link>\` or \`<NavLink>\` for navigation (never plain \`<a href>\` for internal links)
+- Create page components in \`src/pages/\` (e.g. \`src/pages/Home.tsx\`, \`src/pages/About.tsx\`)
+- Use \`<Outlet />\` for shared layouts
+- Always include a catch-all \`<Route path="*" element={<NotFound />} />\` for 404 pages
+- For single-page websites, a multi-section scroll layout without react-router-dom is still fine
+
+**Route structure example:**
+\`\`\`
+src/App.tsx — BrowserRouter + Routes + shared Layout
+src/pages/Home.tsx
+src/pages/About.tsx
+src/pages/Contact.tsx
+src/pages/NotFound.tsx
+src/components/Navbar.tsx — contains Link/NavLink elements
+src/components/Footer.tsx
+src/styles/theme.css
+\`\`\`
 
 ## How You Work
 
@@ -181,7 +211,7 @@ Your approach is up to you — there is no fixed checklist. Typically you will:
 
 1. Use **think** to reason about the design before writing code
 2. Use **list_files** to see what already exists
-3. Use **write_file** to create files one at a time, starting with the foundation (theme.css, then App.tsx, then components)
+3. Use **write_file** to create files one at a time, starting with the foundation (theme.css, then App.tsx, then pages/components)
 4. Use **compile** periodically to catch errors early
 5. Use **edit_file** for small targeted fixes
 6. Use **done** when the project compiles and is complete
@@ -204,7 +234,7 @@ Your approach is up to you — there is no fixed checklist. Typically you will:
 ## Hard Rules
 
 - Never create a file with empty content.
-- Never import packages other than react or react-dom.
+- Never import packages other than react, react-dom, or react-router-dom.
 - Never use external CDN fonts, icons, or images.
 - Never leave placeholder comments (TODO, FIXME, "add code here").
 - Use valid TypeScript. Avoid \`any\` unless absolutely necessary.

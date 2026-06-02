@@ -136,12 +136,22 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  position: relative;
 }
 
 .projectPreview img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.projectPreviewFrame {
+  width: 300%;
+  height: 300%;
+  border: none;
+  pointer-events: none;
+  transform: scale(0.3333);
+  transform-origin: 0 0;
 }
 
 .projectPlaceholder {
@@ -204,6 +214,117 @@
   line-height: 1.5;
   max-width: 360px;
   margin: 0 auto;
+}
+
+/* Model error */
+.modelError {
+  color: #f87171;
+  font-size: 13px;
+  margin-top: 8px;
+  text-align: center;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Context menu button (three dots) */
+.contextMenuBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  color: rgba(255, 255, 255, 0.7);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+  z-index: 2;
+}
+
+.projectCard:hover .contextMenuBtn,
+.contextMenuBtn:focus-visible {
+  opacity: 1;
+}
+
+.contextMenuBtn:hover {
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+}
+
+/* Context menu dropdown */
+.contextMenu {
+  position: fixed;
+  min-width: 180px;
+  background: #1e1e2e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  padding: 6px;
+  z-index: 1000;
+  animation: fadeIn 0.12s ease;
+}
+
+.contextMenu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: #e0e0e0;
+  font-size: 13px;
+  font-family: var(--font-body);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+  text-align: left;
+}
+
+.contextMenu button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.contextMenuDanger {
+  color: #f87171 !important;
+}
+
+.contextMenuDanger:hover {
+  background: rgba(248, 113, 113, 0.1) !important;
+}
+
+.contextMenuDivider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 4px 8px;
+}
+
+/* Rename input */
+.renameInput {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 4px 8px;
+  width: 100%;
+  font-family: var(--font-body);
+  outline: none;
+  line-height: 1.35;
+}
+
+.renameInput:focus {
+  border-color: var(--color-secondary);
 }
 
 @media (max-width: 768px) {

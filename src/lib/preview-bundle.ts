@@ -36,6 +36,7 @@ function getImportMap(): Record<string, string> {
     'react-dom/client': 'https://esm.sh/react-dom@18/client',
     'react/jsx-runtime': 'https://esm.sh/react@18/jsx-runtime',
     'react/jsx-dev-runtime': 'https://esm.sh/react@18/jsx-dev-runtime',
+    'react-router-dom': 'https://esm.sh/react-router-dom@6',
   }
 }
 

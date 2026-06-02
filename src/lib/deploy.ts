@@ -27,6 +27,9 @@ export function bundleProject(files: CodeFile[], title: string): string {
         .replace(/^\s*import\s+.*$/gm, '')
         .replace(/^\s*export\s+default\s+/gm, 'const Default_')
         .replace(/^\s*export\s+/gm, '')
+        // Remove react-router-dom imports since Router globals are available via UMD
+        .replace(/import\s+\{([^}]*)\}\s+from\s+['"]react-router-dom['"]\s*;?/gm, '')
+        .replace(/import\s+\*\s+as\s+(\w+)\s+from\s+['"]react-router-dom['"]\s*;?/gm, '')
       components += `// ${file.path}\n${cleaned}\n`
     } else {
       components += `// ${file.path}\n${file.code}\n`
@@ -45,10 +48,27 @@ export function bundleProject(files: CodeFile[], title: string): string {
   <div id="root"></div>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-router-dom@6/umd/react-router-dom.production.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
   <script type="text/babel">
 const { useState, useEffect, useCallback, useMemo, useRef, createContext, useContext } = React;
+const {
+  BrowserRouter,
+  HashRouter,
+  Routes,
+  Route,
+  Link,
+  NavLink,
+  Navigate,
+  Outlet,
+  useNavigate,
+  useParams,
+  useLocation,
+  useSearchParams,
+  useRoutes,
+} = ReactRouterDOM;
 ${components}
+
 
 // Find and render the root component
 var rootComponent = typeof App !== 'undefined' ? App
