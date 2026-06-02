@@ -178,7 +178,7 @@ export default function DashboardPage() {
                 </div>
                 <h3 className={styles.emptyTitle}>No projects yet</h3>
                 <p className={styles.emptyText}>
-                  Describe what you want to build above and hit Generate to create your first project.
+                  Describe what you want to build above and hit Send to create your first project.
                 </p>
               </div>
             ) : (

@@ -282,7 +282,7 @@ export default function PromptInput({
             </div>
 
             <div className={styles.actionRight}>
-              {/* Generate button */}
+              {/* Send button */}
               <motion.button
                 type="submit"
                 className={styles.submitBtn}
@@ -290,13 +290,13 @@ export default function PromptInput({
               >
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.span
-                    key="generate"
+                    key="send"
                     initial={{ y: 10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: -10, opacity: 0 }}
                     transition={{ duration: 0.2, ease: [0.19, 1, 0.22, 1] }}
                   >
-                    Generate
+                    Send
                   </motion.span>
                 </AnimatePresence>
               </motion.button>
