@@ -629,6 +629,10 @@ export default function ProjectBuilderPage() {
     return []
   })
   const [agentRunning, setAgentRunning] = useState(false)
+  const [remoteGenerating, setRemoteGenerating] = useState(false)
+  const [remoteGeneratingBy, setRemoteGeneratingBy] = useState<string | null>(null)
+  const remoteGeneratingPrevRef = useRef(false)
+  const handleAgentRequestRef = useRef<((prompt: string, model: unknown, options?: { reuseInitialUser?: boolean; mode?: 'create' | 'refine' }) => Promise<void>) | null>(null)
   const [agentStatus, setAgentStatus] = useState('')
   const [firstRunComplete, setFirstRunComplete] = useState(false)
   const [agentSuggestions, setAgentSuggestions] = useState<string[]>([])
@@ -1260,8 +1264,8 @@ export default function ProjectBuilderPage() {
   ) => {
     if (!user || isViewOnly) return
 
-    // Queue if agent is already running
-    if (agentAbortRef.current) {
+    // Queue if agent is running locally or on another collaborator's client
+    if (agentAbortRef.current || remoteGenerating) {
       pendingRequestRef.current = { prompt: request, model: selectedModel }
       setMessages((current) => [
         ...current,
@@ -1320,6 +1324,13 @@ export default function ProjectBuilderPage() {
     agentAbortRef.current = controller
     setAgentRunning(true)
     setAgentStatus('Connecting...')
+
+    if (projectId) {
+      void supabase
+        .from('projects')
+        .update({ generating: true, generating_by: user.id })
+        .eq('id', projectId)
+    }
 
     try {
       const result = await runFlorviaAgent({
@@ -1455,6 +1466,12 @@ export default function ProjectBuilderPage() {
     } finally {
       if (agentAbortRef.current === controller) {
         agentAbortRef.current = null
+      }
+      if (projectId) {
+        void supabase
+          .from('projects')
+          .update({ generating: false, generating_by: null })
+          .eq('id', projectId)
       }
       setAgentRunning(false)
 
