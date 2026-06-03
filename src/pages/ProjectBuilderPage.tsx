@@ -912,7 +912,6 @@ export default function ProjectBuilderPage() {
         .from('projects')
         .update({ files: projectFiles as unknown as Record<string, unknown>[] })
         .eq('id', projectId)
-        .eq('user_id', user.id)
 
       if (error) {
         console.error('Failed to save project files:', error.message)
@@ -935,7 +934,6 @@ export default function ProjectBuilderPage() {
         .from('projects')
         .update({ chat_history: messages as unknown as Record<string, unknown>[] })
         .eq('id', projectId)
-        .eq('user_id', user.id)
 
       if (error) {
         console.error('Failed to save chat history:', error.message)
@@ -1348,7 +1346,7 @@ export default function ProjectBuilderPage() {
           if (event.type === 'title' && event.text) {
             setTitle(event.text)
             if (user && projectId) {
-              supabase.from('projects').update({ title: event.text }).eq('id', projectId).eq('user_id', user.id).then(({ error }) => {
+              supabase.from('projects').update({ title: event.text }).eq('id', projectId).then(({ error }) => {
                 if (error) console.error('Failed to save project title:', error.message)
               })
             }
@@ -1403,7 +1401,7 @@ export default function ProjectBuilderPage() {
                   setTitle(doneData.title.trim())
                   // Also save the title to Supabase
                   if (user && projectId) {
-                    supabase.from('projects').update({ title: doneData.title.trim() }).eq('id', projectId).eq('user_id', user.id).then(({ error }) => {
+                    supabase.from('projects').update({ title: doneData.title.trim() }).eq('id', projectId).then(({ error }) => {
                       if (error) console.error('Failed to save project title:', error.message)
                     })
                   }
