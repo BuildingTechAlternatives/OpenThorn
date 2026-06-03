@@ -117,6 +117,23 @@ export async function buildPreview(
   const storagePolyfill = `<script>
 (function(){
   if (typeof window === 'undefined') return;
+
+  // ── URL constructor fix for srcdoc iframes ──────────────────
+  // react-router-dom's internal history library calls
+  //   new URL(path, window.location.href)
+  // but window.location.href is "about:srcdoc" in sandboxed iframes,
+  // which is an invalid URL base. Monkey-patch to substitute a
+  // valid fallback base so HashRouter / BrowserRouter don't crash.
+  var _OriginalURL = window.URL;
+  window.URL = function(url, base) {
+    if (base === 'about:srcdoc' || base === 'about:blank' || (typeof base === 'string' && base.startsWith('about:'))) {
+      base = 'http://localhost/';
+    }
+    return new _OriginalURL(url, base);
+  };
+  window.URL.prototype = _OriginalURL.prototype;
+
+  // ── Storage polyfill ────────────────────────────────────────
   function makeStorage() {
     var s = {};
     return {
