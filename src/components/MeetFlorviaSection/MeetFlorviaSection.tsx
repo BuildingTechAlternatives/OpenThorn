@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion'
 import ReelCarousel from '../ReelCarousel/ReelCarousel'
-import styles from './MeetBloomSection.module.css'
+import styles from './MeetFlorviaSection.module.css'
 
-export default function MeetBloomSection() {
+export default function MeetFlorviaSection() {
   return (
     <section className={styles.section}>
       <motion.div

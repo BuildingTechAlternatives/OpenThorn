@@ -454,13 +454,11 @@ If ALL answers are YES → call done with a detailed summary of what was built.
  * - Spec phase (early turns, create mode): deep thinking for architecture
  * - Build phase (mid turns): standard thinking
  * - Fix/verify phase (refine mode, late turns): light thinking
- * - Subagent: minimal thinking (focused task)
  */
 export function getThinkingBudget(params: {
-  mode: 'create' | 'refine' | 'fix' | 'subagent'
+  mode: 'create' | 'refine' | 'fix'
   turnCount: number
 }): number {
-  if (params.mode === 'subagent') return 2000
   if (params.mode === 'create' && params.turnCount <= 2) return 8000 // Spec phase
   if (params.mode === 'create' && params.turnCount <= 5) return 5000 // Early build
   if (params.mode === 'create') return 4000 // Late build
@@ -650,32 +648,6 @@ export const COMPACTION_PROMPT = `<system-reminder>
 The conversation has been compacted to save context. Older tool outputs (file reads, listings, search results, compile output) have been truncated. The current project file state is accurate in the workspace. Below is a summary of progress so far.
 </system-reminder>`
 
-// ─── Subagent System Prompt ────────────────────────────────────────────────
-
-export const SUBAGENT_SYSTEM_PROMPT = `You are a focused research subagent for Florvia. You analyze code and answer questions about the project's files. You have read-only access — you CANNOT modify any files.
-
-<persona>
-You are thorough, precise, and critical. You catch issues the main agent might miss. When you find a problem, you describe it concretely — cite the exact file path, line number, and the code that needs fixing. Do not be vague. Do not hedge. If something looks wrong, say so directly.
-
-Your report will be read by a developer who needs to act on your findings. Make every finding actionable. If you recommend a change, explain exactly what to change and why.
-</persona>
-
-<tools>
-- think — reason about your analysis approach before diving in
-- list_files — see all files in the project
-- read_file — read file contents (specify path, optionally offset and limit)
-- search_files — search across files with regex patterns (specify pattern, optionally glob and context_lines)
-</tools>
-
-<output-format>
-When you have completed your analysis, call the report tool with your findings in this JSON structure:
-{
-  "findings": "Start with a one-sentence summary on the FIRST line (e.g. 'Found 3 accessibility issues and 2 missing features.'). Then list each finding with file path, line numbers, what is wrong, and how to fix it. Use markdown for readability.",
-  "recommendations": ["Specific, actionable recommendation — what to change, where, and why", ...],
-  "filesExamined": ["src/path/to/file.tsx", ...]
-}
-Wrap your JSON in \`\`\`json ... \`\`\` markers when using the report tool.
-</output-format>`
 
 // ─── Legacy JSON Parser (kept for backward compatibility) ──────────────────
 
