@@ -1484,6 +1484,24 @@ export default function ProjectBuilderPage() {
     }
   }, [isViewOnly, projectFiles, state.selectedModel, title, updateAssistantMessage, user])
 
+  // Keep ref current so the queue effect can call it without stale-closure issues
+  useEffect(() => {
+    handleAgentRequestRef.current = handleAgentRequest
+  }, [handleAgentRequest])
+
+  // When a remote collaborator's generation ends, fire our queued prompt if any
+  useEffect(() => {
+    const prev = remoteGeneratingPrevRef.current
+    remoteGeneratingPrevRef.current = remoteGenerating
+    if (prev && !remoteGenerating && !agentRunning) {
+      const pending = pendingRequestRef.current
+      if (pending) {
+        pendingRequestRef.current = null
+        void handleAgentRequestRef.current?.(pending.prompt, pending.model)
+      }
+    }
+  }, [remoteGenerating, agentRunning])
+
   // Auto-start agent on fresh project (no persisted files)
   useEffect(() => {
     if (!filesLoaded || !chatHistoryLoaded || !user || isViewOnly || initialAgentStartedRef.current) return
@@ -1592,7 +1610,7 @@ export default function ProjectBuilderPage() {
             type="button"
             aria-label="Download project as ZIP"
             onClick={handleDownloadZip}
-            disabled={!firstRunComplete || agentRunning}
+            disabled={!firstRunComplete || agentRunning || remoteGenerating}
           >
             <DownloadIcon />
           </button>
@@ -1604,7 +1622,7 @@ export default function ProjectBuilderPage() {
             className={`${styles.deployBtn} ${deployState === 'deployed' ? styles.deployBtnDeployed : ''}`}
             type="button"
             onClick={deployState === 'deployed' ? () => window.open(deployUrl, '_blank') : handleDeploy}
-            disabled={deployState === 'deploying' || !firstRunComplete || agentRunning}
+            disabled={deployState === 'deploying' || !firstRunComplete || agentRunning || remoteGenerating}
           >
             {deployState === 'deploying' ? (
               <><span className={styles.spinner} />Deploying…</>
@@ -2055,7 +2073,13 @@ export default function ProjectBuilderPage() {
                 disableTyping
                 initialModel={activeModel}
                 modelMenuPlacement="top"
-                placeholder={agentRunning ? agentStatus || 'Florvia is working...' : 'Ask Florvia for a change...'}
+                placeholder={
+                  agentRunning
+                    ? agentStatus || 'Florvia is working...'
+                    : remoteGenerating
+                      ? 'A collaborator is generating…'
+                      : 'Ask Florvia for a change...'
+                }
                 onSubmit={(nextPrompt, selectedModel) => handleAgentRequest(nextPrompt, selectedModel)}
               />
             )}
