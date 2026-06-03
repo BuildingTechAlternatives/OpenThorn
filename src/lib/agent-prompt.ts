@@ -266,6 +266,11 @@ Packages: react, react-dom, react-router-dom (v6). Nothing else.
 Components: One default export per file. src/components/ or src/pages/.
 CSS: src/styles/theme.css. No external CDNs, fonts, icons, or images.
 Responsive: 390px phone, 768px tablet, 1200px+ desktop.
+
+**IMPORTANT — React imports:** Always use NAMED imports from React:
+  \`import { useState, useEffect, useRef, useCallback, useMemo } from 'react'\`
+  Never use \`import React from 'react'\` — it does NOT work with ESM builds.
+  JSX is automatic (no React import needed for JSX, only for hooks).
 </environment>
 
 <examples>

@@ -1,5 +1,7 @@
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import JSZip from 'jszip'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -2186,25 +2188,29 @@ function CheckIconLarge() {
 }
 
 function MarkdownBlock({ markdown }: { markdown: string }) {
-  const blocks = markdown.trim().split(/\n{2,}/)
+  if (!markdown?.trim()) return null
 
   return (
     <div className={styles.markdown}>
-      {blocks.map((block, index) => {
-        const lines = block.split('\n').filter(Boolean)
-
-        if (lines.every((line) => line.startsWith('- '))) {
-          return (
-            <ul key={index}>
-              {lines.map((line, lineIndex) => (
-                <li key={`${line}-${lineIndex}`}>{line.slice(2)}</li>
-              ))}
-            </ul>
-          )
-        }
-
-        return <p key={index}>{lines.join(' ')}</p>
-      })}
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          // Open links in new tab
+          a: ({ href, children, ...props }) => (
+            <a href={href} target="_blank" rel="noopener noreferrer" {...props}>
+              {children}
+            </a>
+          ),
+          // Wrap tables for horizontal scroll on mobile
+          table: ({ children, ...props }) => (
+            <div className={styles.tableWrapper}>
+              <table {...props}>{children}</table>
+            </div>
+          ),
+        }}
+      >
+        {markdown}
+      </ReactMarkdown>
     </div>
   )
 }

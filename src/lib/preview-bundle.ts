@@ -30,13 +30,21 @@ export function buildFilesMap(files: VirtualFile[]): Record<string, string> {
 }
 
 function getImportMap(): Record<string, string> {
+  // Pin exact versions with esm.sh for reliable ESM builds.
+  // Using ?external ensures all packages share a single React instance
+  // via the import map rather than each bundling their own copy.
+  // This prevents "Cannot read properties of null (reading 'useRef')"
+  // which happens when react-router-dom gets a different (or null) React.
+  const reactUrl = 'https://esm.sh/react@18.2.0'
+  const reactDomUrl = 'https://esm.sh/react-dom@18.2.0'
+
   return {
-    'react': 'https://esm.sh/react@18',
-    'react-dom': 'https://esm.sh/react-dom@18',
-    'react-dom/client': 'https://esm.sh/react-dom@18/client',
-    'react/jsx-runtime': 'https://esm.sh/react@18/jsx-runtime',
-    'react/jsx-dev-runtime': 'https://esm.sh/react@18/jsx-dev-runtime',
-    'react-router-dom': 'https://esm.sh/react-router-dom@6',
+    'react': reactUrl,
+    'react-dom': reactDomUrl,
+    'react-dom/client': `${reactDomUrl}/client`,
+    'react/jsx-runtime': `${reactUrl}/jsx-runtime`,
+    'react/jsx-dev-runtime': `${reactUrl}/jsx-dev-runtime`,
+    'react-router-dom': `https://esm.sh/react-router-dom@6.28.0?external=react,react-dom`,
   }
 }
 
