@@ -1114,36 +1114,23 @@ export default function ProjectBuilderPage() {
 
   const buildInviteLink = useCallback(() => {
     if (typeof window === 'undefined' || !projectId) return ''
-    const token = typeof crypto !== 'undefined' && 'randomUUID' in crypto
-      ? crypto.randomUUID()
-      : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`
-    return new URL(`/projects/${projectId}?invite=${token}`, window.location.origin).toString()
+    return new URL(`/projects/${projectId}`, window.location.origin).toString()
   }, [projectId])
 
   const findFlorviaAccount = useCallback(async (email: string) => {
     const normalizedEmail = email.trim().toLowerCase()
-    const tables = ['profiles', 'users']
+    const { data } = await supabase
+      .from('profiles')
+      .select('id, full_name')
+      .ilike('email', normalizedEmail)
+      .maybeSingle()
 
-    for (const table of tables) {
-      const { data, error } = await supabase
-        .from(table)
-        .select('*')
-        .ilike('email', normalizedEmail)
-        .maybeSingle()
+    if (!data) return null
 
-      if (!error && data) {
-        return {
-          id: String(data.id ?? normalizedEmail),
-          name: String(data.full_name ?? data.name ?? normalizedEmail.split('@')[0]),
-        }
-      }
-
-      if (error && !/does not exist|schema cache|permission denied/i.test(error.message)) {
-        break
-      }
+    return {
+      id: String(data.id),
+      name: String(data.full_name ?? normalizedEmail.split('@')[0]),
     }
-
-    return null
   }, [])
 
   const handleInviteCollaborator = useCallback(async (event: FormEvent<HTMLFormElement>) => {
