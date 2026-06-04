@@ -1633,6 +1633,19 @@ export default function ProjectBuilderPage() {
           >
             <DownloadIcon />
           </button>
+          {onlineCollaborators.length > 0 && (
+            <div className={styles.presenceAvatars} aria-label="Online collaborators">
+              {onlineCollaborators.slice(0, 4).map((c) => (
+                <div
+                  key={c.userId}
+                  className={styles.presenceAvatar}
+                  title={c.name}
+                >
+                  {c.initials}
+                </div>
+              ))}
+            </div>
+          )}
           <button className={styles.shareBtn} type="button" onClick={() => setShareOpen(true)}>
             <ShareIcon />
             Share
