@@ -491,7 +491,7 @@ export default function DashboardPage() {
                     : 'Describe what you want to build above and hit Send to create your first project.'}
                 </p>
               </div>
-            ) : (
+            ) : viewMode === 'grid' ? (
               <div className={styles.projectGrid}>
                 {filteredProjects.map((project) => (
                   <div
@@ -579,6 +579,79 @@ export default function DashboardPage() {
                         <circle cx="8" cy="13" r="1.5" />
                       </svg>
                     </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.projectList}>
+                {filteredProjects.map((project) => (
+                  <div
+                    key={project.id}
+                    className={styles.projectListRow}
+                    role="button"
+                    tabIndex={0}
+                    style={{ '--accent': projectAccentColor(project.title) } as React.CSSProperties}
+                    onClick={() => navigate(`/projects/${project.id}`, { state: { title: project.title } })}
+                    onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/projects/${project.id}`, { state: { title: project.title } }) }}
+                  >
+                    <div className={styles.listRowAccent} />
+                    <div className={styles.listRowMain}>
+                      {renamingProject?.id === project.id ? (
+                        <input
+                          className={styles.renameInput}
+                          value={renamingProject.title}
+                          onChange={(e) => setRenamingProject({ ...renamingProject, title: e.target.value })}
+                          onBlur={() => handleRenameSubmit()}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleRenameSubmit()
+                            if (e.key === 'Escape') setRenamingProject(null)
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          autoFocus
+                        />
+                      ) : (
+                        <span className={styles.listRowTitle}>{project.title}</span>
+                      )}
+                    </div>
+                    <div className={styles.listRowMeta}>
+                      {project.isShared && (
+                        <span className={styles.sharedBadge}>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                          </svg>
+                          Shared
+                        </span>
+                      )}
+                      <span className={styles.listRowDate}>{formatRelativeTime(project.updated_at)}</span>
+                    </div>
+                    <div className={styles.listRowActions}>
+                      <button
+                        className={`${styles.starBtn} ${project.starred ? styles.starBtnActive : ''}`}
+                        type="button"
+                        aria-label={project.starred ? 'Unstar project' : 'Star project'}
+                        onClick={(e) => handleStarToggle(project.id, e)}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill={project.starred ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                      </button>
+                      <button
+                        className={styles.contextMenuBtn}
+                        type="button"
+                        aria-label="Project actions"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setContextMenu(contextMenu?.projectId === project.id ? null : { projectId: project.id, x: e.clientX, y: e.clientY })
+                        }}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                          <circle cx="8" cy="3" r="1.5" />
+                          <circle cx="8" cy="8" r="1.5" />
+                          <circle cx="8" cy="13" r="1.5" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
