@@ -11,10 +11,19 @@ interface Project {
 
 export type ProjectFilter = 'all' | 'starred' | 'mine' | 'shared'
 
+export interface SidebarNotification {
+  id: string
+  text: string
+  time: string
+  unread?: boolean
+}
+
 interface DashboardSidebarProps {
   projects?: Project[]
   activeFilter?: ProjectFilter
   onProjectFilterChange?: (filter: ProjectFilter) => void
+  notifications?: SidebarNotification[]
+  onNotificationsRead?: () => void
 }
 
 interface NavItem {
@@ -127,7 +136,7 @@ const filterMap: Record<string, ProjectFilter> = {
   'Shared with me': 'shared',
 }
 
-export default function DashboardSidebar({ projects = [], activeFilter = 'all', onProjectFilterChange }: DashboardSidebarProps) {
+export default function DashboardSidebar({ projects = [], activeFilter = 'all', onProjectFilterChange, notifications: externalNotifications, onNotificationsRead }: DashboardSidebarProps) {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -161,11 +170,15 @@ export default function DashboardSidebar({ projects = [], activeFilter = 'all', 
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] ?? user?.email?.split('@')[0] ?? 'there'
   const userInitial = firstName.charAt(0).toUpperCase()
 
-  const notifications = [
-    { text: 'Welcome to Florvia! Start building your first project.', time: 'Just now' },
-    { text: 'New templates are available in the Templates section.', time: '2h ago' },
-    { text: 'Community Apps feature coming soon.', time: '1d ago' },
+  const staticNotifications = [
+    { id: 'welcome', text: 'Welcome to Florvia! Start building your first project.', time: 'Just now' },
+    { id: 'templates', text: 'New templates are available in the Templates section.', time: '2h ago' },
+    { id: 'community', text: 'Community Apps feature coming soon.', time: '1d ago' },
   ]
+  const notifications = externalNotifications && externalNotifications.length > 0
+    ? [...externalNotifications, ...staticNotifications]
+    : staticNotifications
+  const unreadCount = (externalNotifications ?? []).filter((n) => n.unread).length
 
   const renderNavItem = (item: NavItem, isActive: boolean, isSub = false) => (
     <button
@@ -188,14 +201,19 @@ export default function DashboardSidebar({ projects = [], activeFilter = 'all', 
         </a>
         <button
           className={`${styles.bellBtn} ${notificationsOpen ? styles.bellBtnActive : ''}`}
-          onClick={() => setNotificationsOpen(!notificationsOpen)}
-          aria-label="Notifications"
+          onClick={() => {
+            const opening = !notificationsOpen
+            setNotificationsOpen(opening)
+            if (opening && unreadCount > 0) onNotificationsRead?.()
+          }}
+          aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
           type="button"
         >
           <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
           </svg>
+          {unreadCount > 0 && <span className={styles.bellBadge}>{unreadCount}</span>}
         </button>
       </div>
 
@@ -207,8 +225,8 @@ export default function DashboardSidebar({ projects = [], activeFilter = 'all', 
             <div className={styles.notifHeader}>
               <h4 className={styles.notifTitle}>What's new</h4>
             </div>
-            {notifications.map((n, i) => (
-              <div key={i} className={styles.notifItem}>
+            {notifications.map((n) => (
+              <div key={n.id} className={`${styles.notifItem} ${'unread' in n && n.unread ? styles.notifItemUnread : ''}`}>
                 <p className={styles.notifText}>{n.text}</p>
                 <span className={styles.notifTime}>{n.time}</span>
               </div>

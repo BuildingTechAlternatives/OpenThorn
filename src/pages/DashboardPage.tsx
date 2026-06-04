@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabase'
-import DashboardSidebar, { type ProjectFilter } from '../components/DashboardSidebar/DashboardSidebar'
+import DashboardSidebar, { type ProjectFilter, type SidebarNotification } from '../components/DashboardSidebar/DashboardSidebar'
 import PromptInput from '../components/PromptInput/PromptInput'
 import FloatingParticles from '../components/FloatingParticles/FloatingParticles'
 import type { SelectedModel } from '../components/ModelSelector/ModelSelector'
@@ -45,6 +45,7 @@ export default function DashboardPage() {
   const [modelError, setModelError] = useState(false)
   const [contextMenu, setContextMenu] = useState<{ projectId: string; x: number; y: number } | null>(null)
   const [renamingProject, setRenamingProject] = useState<{ id: string; title: string } | null>(null)
+  const [sidebarNotifications, setSidebarNotifications] = useState<SidebarNotification[]>([])
   const contextMenuRef = useRef<HTMLDivElement>(null)
 
   const visiblePrompts = showAllPrompts ? examplePrompts : examplePrompts.slice(0, INITIAL_VISIBLE)
@@ -143,7 +144,19 @@ export default function DashboardPage() {
         schema: 'public',
         table: 'project_collaborators',
         filter: `user_id=eq.${user.id}`,
-      }, () => { fetchProjects() })
+      }, (payload) => {
+        fetchProjects()
+        const row = payload.new as { email?: string; permission?: string }
+        setSidebarNotifications((prev) => [
+          {
+            id: `share-${Date.now()}`,
+            text: `A project was shared with you (${row.permission === 'edit' ? 'edit access' : 'view-only'}).`,
+            time: 'Just now',
+            unread: true,
+          },
+          ...prev,
+        ])
+      })
       .subscribe()
 
     return () => {
@@ -286,6 +299,10 @@ export default function DashboardPage() {
         projects={projects}
         activeFilter={activeFilter}
         onProjectFilterChange={setActiveFilter}
+        notifications={sidebarNotifications}
+        onNotificationsRead={() =>
+          setSidebarNotifications((prev) => prev.map((n) => ({ ...n, unread: false })))
+        }
       />
 
       <main className={`${styles.main} ${hasProjects ? styles.mainWithProjects : ''}`}>
