@@ -2336,6 +2336,7 @@
 .presenceAvatars {
   display: flex;
   align-items: center;
+  position: relative;
 }
 
 .presenceAvatar {
@@ -2351,10 +2352,64 @@
   align-items: center;
   justify-content: center;
   margin-left: -6px;
-  cursor: default;
+  cursor: pointer;
   user-select: none;
+  padding: 0;
+  outline: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.presenceAvatar:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.35);
+  z-index: 1;
 }
 
 .presenceAvatar:first-child {
   margin-left: 0;
+}
+
+.presencePopover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: #1e1e2e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 160px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+}
+
+.presencePopoverAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #7c3aed;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.presencePopoverName {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f0f0f5;
+  text-align: center;
+}
+
+.presencePopoverEmail {
+  font-size: 11px;
+  color: #8888a8;
+  text-align: center;
+  word-break: break-all;
 }

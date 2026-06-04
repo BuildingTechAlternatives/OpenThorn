@@ -11,7 +11,7 @@ import { buildPreview, escapeHtml } from '../lib/preview-bundle'
 import { capturePreviewThumbnail } from '../lib/preview-screenshot'
 import { runFlorviaAgent, type AgentCodeFile, type SelectedAgentModel } from '../lib/agent'
 import PromptInput from '../components/PromptInput/PromptInput'
-import { useCollaboration } from '../lib/useCollaboration'
+import { useCollaboration, type CollaboratorPresence } from '../lib/useCollaboration'
 import styles from './ProjectBuilderPage.module.css'
 
 interface ProjectRouteState {
@@ -664,6 +664,7 @@ export default function ProjectBuilderPage() {
   const [inviteError, setInviteError] = useState('')
   const [inviteLoading, setInviteLoading] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
+  const [activePresenceUser, setActivePresenceUser] = useState<CollaboratorPresence | null>(null)
   const [projectAccess, setProjectAccess] = useState<ProjectAccess>('owner')
   const [deployState, setDeployState] = useState<'idle' | 'deploying' | 'deployed' | 'error'>('idle')
   const [deployUrl, setDeployUrl] = useState('')
@@ -905,6 +906,18 @@ export default function ProjectBuilderPage() {
 
     loadGithubIntegration()
   }, [user])
+
+  useEffect(() => {
+    if (!activePresenceUser) return
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Element
+      if (!target.closest(`.${styles.presenceAvatars}`)) {
+        setActivePresenceUser(null)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [activePresenceUser])
 
   // Build live preview whenever the agent updates files
   useEffect(() => {
@@ -1653,14 +1666,23 @@ export default function ProjectBuilderPage() {
           {onlineCollaborators.length > 0 && (
             <div className={styles.presenceAvatars} aria-label="Online collaborators">
               {onlineCollaborators.slice(0, 4).map((c) => (
-                <div
+                <button
                   key={c.userId}
+                  type="button"
                   className={styles.presenceAvatar}
-                  title={c.name}
+                  aria-label={`${c.name} — click for info`}
+                  onClick={() => setActivePresenceUser((v) => v?.userId === c.userId ? null : c)}
                 >
                   {c.initials}
-                </div>
+                </button>
               ))}
+              {activePresenceUser && (
+                <div className={styles.presencePopover}>
+                  <div className={styles.presencePopoverAvatar}>{activePresenceUser.initials}</div>
+                  <div className={styles.presencePopoverName}>{activePresenceUser.name}</div>
+                  <div className={styles.presencePopoverEmail}>{activePresenceUser.email}</div>
+                </div>
+              )}
             </div>
           )}
           <button className={styles.shareBtn} type="button" onClick={() => setShareOpen(true)}>
