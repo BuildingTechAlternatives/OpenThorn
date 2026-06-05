@@ -162,7 +162,8 @@ export default function CommunityPage() {
   if (loading) return null
 
   return (
-    <div className={styles.root}>
+    <>
+      <div className={styles.root}>
       <DashboardSidebar />
 
       <main className={styles.main}>
@@ -342,6 +343,8 @@ export default function CommunityPage() {
       </main>
 
       {/* Detail overlay — same pattern as TemplatesPage */}
+      </div>
+
       {selected && (
         <div
           className={styles.overlayBackdrop}
@@ -436,6 +439,6 @@ export default function CommunityPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
