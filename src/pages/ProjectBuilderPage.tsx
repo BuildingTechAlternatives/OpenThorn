@@ -1006,7 +1006,7 @@ export default function ProjectBuilderPage() {
 
     loadProject()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, projectId, navigate])
+  }, [user?.id, projectId, navigate])
 
   useEffect(() => {
     if (!user || !projectId) return
@@ -1047,7 +1047,7 @@ export default function ProjectBuilderPage() {
     loadCollaborators()
 
     return () => { cancelled = true }
-  }, [projectId, user])
+  }, [projectId, user?.id])
 
   const userName = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? 'Unknown'
 
@@ -1096,7 +1096,7 @@ export default function ProjectBuilderPage() {
     }
 
     loadGithubIntegration()
-  }, [user])
+  }, [user?.id])
 
   useEffect(() => {
     if (!activePresenceUser) return
