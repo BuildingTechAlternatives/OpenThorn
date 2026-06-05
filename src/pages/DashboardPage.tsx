@@ -85,6 +85,10 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<'recent' | 'name' | 'starred'>('recent')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [publishingProject, setPublishingProject] = useState<{ id: string; title: string; previewUrl: string | null } | null>(null)
+  const [publishDescription, setPublishDescription] = useState('')
+  const [publishing, setPublishing] = useState(false)
+  const [publishSuccess, setPublishSuccess] = useState<string | null>(null)
 
   const visiblePrompts = showAllPrompts ? examplePrompts : examplePrompts.slice(0, INITIAL_VISIBLE)
 
@@ -297,6 +301,54 @@ export default function DashboardPage() {
     setContextMenu(null)
     window.open(`/projects/${projectId}`, '_blank')
   }, [])
+
+  const handlePublishStart = useCallback((project: Project, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setContextMenu(null)
+    setPublishDescription('')
+    setPublishingProject({ id: project.id, title: project.title, previewUrl: project.preview_url })
+  }, [])
+
+  const handlePublishSubmit = useCallback(async () => {
+    if (!publishingProject || !user || publishing) return
+    setPublishing(true)
+
+    const { data: projectData, error: fetchError } = await supabase
+      .from('projects')
+      .select('files')
+      .eq('id', publishingProject.id)
+      .single()
+
+    if (fetchError) {
+      console.error('Failed to fetch project files:', fetchError.message)
+      setPublishing(false)
+      return
+    }
+
+    const authorName =
+      user.user_metadata?.full_name ??
+      user.email?.split('@')[0] ??
+      'Anonymous'
+
+    const { error } = await supabase.from('community_posts').insert({
+      project_id: publishingProject.id,
+      user_id: user.id,
+      title: publishingProject.title,
+      description: publishDescription.trim() || null,
+      preview_url: publishingProject.previewUrl,
+      author_name: authorName,
+      files_snapshot: (projectData?.files ?? []) as unknown as Record<string, unknown>[],
+    })
+
+    setPublishing(false)
+    if (error) {
+      console.error('Failed to publish:', error.message)
+      return
+    }
+    setPublishingProject(null)
+    setPublishSuccess(publishingProject.title)
+    setTimeout(() => setPublishSuccess(null), 3000)
+  }, [publishingProject, publishDescription, user, publishing])
 
   const handleStarToggle = useCallback(async (projectId: string, e: React.MouseEvent) => {
     e.stopPropagation()
@@ -702,6 +754,19 @@ export default function DashboardPage() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
                 Open in new tab
               </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  const project = projects.find((p) => p.id === contextMenu.projectId)
+                  if (project) handlePublishStart(project, e)
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+                Publish to Community
+              </button>
               <hr className={styles.contextMenuDivider} />
               <button
                 type="button"
@@ -715,6 +780,48 @@ export default function DashboardPage() {
           )}
         </div>
       </main>
+
+      {/* Publish to Community modal */}
+      {publishingProject && (
+        <div className={styles.publishBackdrop} onClick={(e) => { if (e.target === e.currentTarget) setPublishingProject(null) }}>
+          <div className={styles.publishModal}>
+            <button className={styles.publishClose} type="button" onClick={() => setPublishingProject(null)} aria-label="Close">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <h2 className={styles.publishTitle}>Publish to Community</h2>
+            <p className={styles.publishSubtitle}>
+              Share <strong>{publishingProject.title}</strong> with the OpenThorn community.
+            </p>
+            <label className={styles.publishLabel}>
+              Description <span className={styles.publishOptional}>(optional)</span>
+            </label>
+            <textarea
+              className={styles.publishTextarea}
+              placeholder="What did you build? Add a short description…"
+              value={publishDescription}
+              onChange={(e) => setPublishDescription(e.target.value)}
+              rows={3}
+              maxLength={280}
+            />
+            <button
+              className={styles.publishBtn}
+              type="button"
+              onClick={handlePublishSubmit}
+              disabled={publishing}
+            >
+              {publishing ? 'Publishing…' : 'Publish →'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Success toast */}
+      {publishSuccess && (
+        <div className={styles.publishToast}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          "{publishSuccess}" published to Community
+        </div>
+      )}
     </div>
   )
 }
