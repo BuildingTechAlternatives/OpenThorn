@@ -66,15 +66,6 @@ const mainNavItems: NavItem[] = [
     ),
   },
   {
-    label: 'Resources',
-    icon: (
-      <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-      </svg>
-    ),
-  },
-  {
     label: 'Providers',
     icon: (
       <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -141,8 +132,9 @@ export default function DashboardSidebar({ projects = [], activeFilter = 'all', 
   const navigate = useNavigate()
   const location = useLocation()
   const [activeNav, setActiveNav] = useState(() => {
-    // Derive initial active item from the current route
     if (location.pathname === '/providers') return 'Providers'
+    if (location.pathname === '/templates') return 'Templates'
+    if (location.pathname === '/community') return 'Community'
     return 'Home'
   })
   const [notificationsOpen, setNotificationsOpen] = useState(false)
@@ -152,6 +144,7 @@ export default function DashboardSidebar({ projects = [], activeFilter = 'all', 
     if (location.pathname === '/providers') setActiveNav('Providers')
     else if (location.pathname === '/dashboard') setActiveNav('Home')
     else if (location.pathname === '/templates') setActiveNav('Templates')
+    else if (location.pathname === '/community') setActiveNav('Community')
   }, [location.pathname])
 
   const handleNavClick = (label: string) => {
@@ -159,6 +152,7 @@ export default function DashboardSidebar({ projects = [], activeFilter = 'all', 
     if (label === 'Providers') navigate('/providers')
     if (label === 'Home') navigate('/dashboard')
     if (label === 'Templates') navigate('/templates')
+    if (label === 'Community') navigate('/community')
   }
 
   const handleProjectFilterClick = (label: string) => {
