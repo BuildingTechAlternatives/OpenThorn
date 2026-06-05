@@ -11,7 +11,6 @@ import { buildPreview, escapeHtml } from '../lib/preview-bundle'
 import { capturePreviewThumbnail } from '../lib/preview-screenshot'
 import { runFlorviaAgent, type AgentCodeFile, type SelectedAgentModel } from '../lib/agent'
 import {
-  DEFAULT_THINKING_LEVEL,
   normalizeThinkingLevel,
   type AgentThinkingLevel,
 } from '../lib/agent-thinking'
@@ -552,7 +551,6 @@ interface ChatMessage {
   modelName?: string
 }
 
-const deviceOrder: DeviceMode[] = ['desktop', 'tablet', 'phone']
 
 const AVATAR_COLORS = [
   '#7c3aed', // violet
@@ -2747,17 +2745,6 @@ function ClockIcon() {
   return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
 }
 
-function DeviceIcon({ mode }: { mode: DeviceMode }) {
-  if (mode === 'tablet') {
-    return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/></svg>
-  }
-
-  if (mode === 'phone') {
-    return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
-  }
-
-  return <DesktopIcon />
-}
 
 function TabletIcon() {
   return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/></svg>
