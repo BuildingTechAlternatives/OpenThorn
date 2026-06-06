@@ -2,8 +2,10 @@ import {
   AbsoluteFill,
   Audio,
   Easing,
+  Img,
   Sequence,
   interpolate,
+  spring,
   staticFile,
   useCurrentFrame,
   useVideoConfig,
@@ -128,17 +130,44 @@ function AudioLayer() {
   );
 }
 
-// Stubs — replaced in subsequent tasks
 function LogoRevealScene() {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  const scale = spring({
+    frame,
+    fps,
+    config: { damping: 18, stiffness: 100, mass: 0.9 },
+  });
+
+  const glow = interpolate(frame, [0, 40, 68], [0, 0.72, 0.52], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
   return (
     <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
+      {/* Radial purple glow behind logo */}
       <div
         style={{
-          width: 60,
-          height: 60,
+          position: "absolute",
+          width: 560,
+          height: 560,
           borderRadius: "50%",
-          background: palette.purple,
-          opacity: 0.3,
+          background: `radial-gradient(circle, ${palette.purple}55 0%, transparent 70%)`,
+          opacity: glow,
+          filter: "blur(60px)",
+        }}
+      />
+      {/* Logo mark */}
+      <Img
+        src={staticFile("logo.png")}
+        style={{
+          width: 128,
+          height: 128,
+          objectFit: "contain",
+          transform: `scale(${0.6 + scale * 0.4})`,
+          position: "relative",
         }}
       />
     </AbsoluteFill>
