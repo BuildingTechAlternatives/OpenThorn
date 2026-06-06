@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import styles from './Footer.module.css'
 
 const solutionsLinks = [
@@ -27,9 +28,9 @@ const resourcesLinks = [
 ]
 
 const legalLinks = [
-  { label: 'Privacy Policy', href: '#' },
-  { label: 'Terms of Service', href: '#' },
-  { label: 'Cookie Policy', href: '#' },
+  { label: 'Privacy Policy', to: '/privacy' },
+  { label: 'Terms of Service', to: '/terms' },
+  { label: 'Cookie Policy', to: '/cookies' },
 ]
 
 export default function Footer() {
@@ -44,7 +45,8 @@ export default function Footer() {
               <span className={styles.logoText}>OpenThorn</span>
             </a>
             <p className={styles.tagline}>
-              Turn a description into a deployed website — with your own API keys and your own infrastructure.
+              Turn a description into a deployed website — with your own API keys and your
+              own infrastructure.
             </p>
           </div>
 
@@ -83,7 +85,7 @@ export default function Footer() {
             <div className={styles.colTitle}>Legal</div>
             <div className={styles.colLinks}>
               {legalLinks.map((l) => (
-                <a key={l.label} href={l.href}>{l.label}</a>
+                <Link key={l.label} to={l.to}>{l.label}</Link>
               ))}
             </div>
           </div>

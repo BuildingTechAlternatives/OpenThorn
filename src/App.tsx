@@ -9,6 +9,9 @@ import BYOKSection from './components/BYOKSection/BYOKSection'
 import BottomCTA from './components/BottomCTA/BottomCTA'
 import Footer from './components/Footer/Footer'
 import PricingPage from './pages/PricingPage'
+import PrivacyPage from './pages/PrivacyPage'
+import TermsPage from './pages/TermsPage'
+import CookiesPage from './pages/CookiesPage'
 import DashboardPage from './pages/DashboardPage'
 import ProjectBuilderPage from './pages/ProjectBuilderPage'
 import ProvidersPage from './pages/ProvidersPage'
@@ -18,6 +21,7 @@ import BlogPage from './pages/BlogPage'
 import BlogPostPage from './pages/BlogPostPage'
 import NotFoundPage from './pages/NotFoundPage'
 import AuthModal from './components/AuthModal/AuthModal'
+import CookieBanner from './components/CookieBanner/CookieBanner'
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
 import { useAnalytics } from './lib/useAnalytics'
 import styles from './App.module.css'
@@ -56,6 +60,7 @@ function Layout({ children }: { children: React.ReactNode }) {
       <Header onSignIn={openSignIn} onSignUp={openSignUp} />
       <main>{children}</main>
       <Footer />
+      <CookieBanner />
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
@@ -74,6 +79,9 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Layout><HomePage /></Layout>} />
           <Route path="/pricing" element={<Layout><PricingPage /></Layout>} />
+          <Route path="/privacy" element={<Layout><PrivacyPage /></Layout>} />
+          <Route path="/terms" element={<Layout><TermsPage /></Layout>} />
+          <Route path="/cookies" element={<Layout><CookiesPage /></Layout>} />
           <Route path="/blog" element={<Layout><BlogPage /></Layout>} />
           <Route path="/blog/:slug" element={<Layout><BlogPostPage /></Layout>} />
           <Route path="/dashboard" element={<ProtectedRoute pageName="the Dashboard"><DashboardPage /></ProtectedRoute>} />
