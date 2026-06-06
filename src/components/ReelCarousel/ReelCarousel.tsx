@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, startTransition } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import styles from './ReelCarousel.module.css'
 
 const FALLBACK_IMAGE = 'data:image/svg+xml,' + encodeURIComponent(
@@ -45,13 +45,13 @@ const bloomSlides: CarouselSlide[] = [
   },
 ]
 
-const textVariants = {
+const textVariants: Variants = {
   initial: { opacity: 0, y: 16 },
   animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] } },
   exit:    { opacity: 0, y: -10, transition: { duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] } },
 }
 
-const imageVariants = {
+const imageVariants: Variants = {
   initial: { opacity: 0, scale: 1.015 },
   animate: { opacity: 1, scale: 1, transition: { duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] } },
   exit:    { opacity: 0, transition: { duration: 0.25 } },
