@@ -57,28 +57,15 @@
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
-}
-
-.reject {
   background: rgba(255, 255, 255, 0.06);
-  color: #9090b8;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.reject:hover {
-  background: rgba(255, 255, 255, 0.1);
   color: #c8c8e0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.accept {
-  background: rgba(157, 137, 251, 0.15);
-  color: #9d89fb;
-  border: 1px solid rgba(157, 137, 251, 0.3);
-}
-
+.reject:hover,
 .accept:hover {
-  background: rgba(157, 137, 251, 0.25);
-  color: #b8a9fd;
+  background: rgba(255, 255, 255, 0.11);
+  color: #e0e0f0;
 }
 
 .dismiss {

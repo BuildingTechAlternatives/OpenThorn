@@ -4,7 +4,7 @@ import { usePageTitle } from '../lib/usePageTitle'
 export default function CookiesPage() {
   usePageTitle('Cookie Policy')
   return (
-    <LegalPage title="Cookie Policy" lastUpdated="June 6, 2025">
+    <LegalPage title="Cookie Policy" lastUpdated="June 6, 2026">
       <h2>1. What Are Cookies and Local Storage</h2>
       <p>
         Cookies are small text files stored in your browser by a website. Many modern web

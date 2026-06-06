@@ -4,7 +4,7 @@ import { usePageTitle } from '../lib/usePageTitle'
 export default function PrivacyPage() {
   usePageTitle('Privacy Policy')
   return (
-    <LegalPage title="Privacy Policy" lastUpdated="June 6, 2025">
+    <LegalPage title="Privacy Policy" lastUpdated="June 6, 2026">
       <h2>1. Who We Are</h2>
       <p>
         OpenThorn is operated by <strong>Thomas T.</strong>, located in{' '}

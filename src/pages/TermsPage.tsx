@@ -4,7 +4,7 @@ import { usePageTitle } from '../lib/usePageTitle'
 export default function TermsPage() {
   usePageTitle('Terms of Service')
   return (
-    <LegalPage title="Terms of Service" lastUpdated="June 6, 2025">
+    <LegalPage title="Terms of Service" lastUpdated="June 6, 2026">
       <h2>1. About OpenThorn</h2>
       <p>
         OpenThorn is a free AI web builder. You describe what you want; OpenThorn generates
