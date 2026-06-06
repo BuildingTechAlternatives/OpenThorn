@@ -64,10 +64,6 @@ export default function CommunityPage() {
   const [launching, setLaunching] = useState(false)
 
   useEffect(() => {
-    if (!loading && !user) navigate('/', { replace: true })
-  }, [loading, user, navigate])
-
-  useEffect(() => {
     if (!user) return
     supabase
       .from('community_posts')

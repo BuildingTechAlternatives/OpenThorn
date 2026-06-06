@@ -119,13 +119,6 @@ export default function DashboardPage() {
     return () => document.removeEventListener('mousedown', handler)
   }, [contextMenu])
 
-  // Redirect if not logged in
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/', { replace: true })
-    }
-  }, [user, authLoading, navigate])
-
   // Fetch owned + shared projects with real-time sync
   useEffect(() => {
     if (!user) return

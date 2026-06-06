@@ -33,10 +33,6 @@ export default function TemplatesPage() {
   const [selectedModel, setSelectedModel] = useState<SelectedModel | null>(null)
   const [launching, setLaunching] = useState(false)
 
-  useEffect(() => {
-    if (!loading && !user) navigate('/', { replace: true })
-  }, [loading, user, navigate])
-
   // Build live previews for all templates
   useEffect(() => {
     for (const template of TEMPLATES) {

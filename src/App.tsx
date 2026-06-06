@@ -18,6 +18,7 @@ import BlogPage from './pages/BlogPage'
 import BlogPostPage from './pages/BlogPostPage'
 import NotFoundPage from './pages/NotFoundPage'
 import AuthModal from './components/AuthModal/AuthModal'
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
 import { useAnalytics } from './lib/useAnalytics'
 import styles from './App.module.css'
 
@@ -75,11 +76,11 @@ export default function App() {
           <Route path="/pricing" element={<Layout><PricingPage /></Layout>} />
           <Route path="/blog" element={<Layout><BlogPage /></Layout>} />
           <Route path="/blog/:slug" element={<Layout><BlogPostPage /></Layout>} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/projects/:projectId" element={<ProjectBuilderPage />} />
-          <Route path="/templates" element={<TemplatesPage />} />
-          <Route path="/community" element={<CommunityPage />} />
-          <Route path="/providers" element={<ProvidersPage />} />
+          <Route path="/dashboard" element={<ProtectedRoute pageName="the Dashboard"><DashboardPage /></ProtectedRoute>} />
+          <Route path="/projects/:projectId" element={<ProtectedRoute pageName="your project"><ProjectBuilderPage /></ProtectedRoute>} />
+          <Route path="/templates" element={<ProtectedRoute pageName="Templates"><TemplatesPage /></ProtectedRoute>} />
+          <Route path="/community" element={<ProtectedRoute pageName="Community"><CommunityPage /></ProtectedRoute>} />
+          <Route path="/providers" element={<ProtectedRoute pageName="Providers"><ProvidersPage /></ProtectedRoute>} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
