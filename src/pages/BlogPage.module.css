@@ -1,0 +1,118 @@
+.page {
+  min-height: calc(100vh - 64px);
+  padding: 80px 24px 120px;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 56px;
+  text-align: center;
+}
+
+.title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: 700;
+  color: #ededf5;
+  margin: 0 0 12px;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #7474a0;
+  margin: 0;
+}
+
+/* Featured card */
+.featured {
+  display: block;
+  border: 1px solid rgba(148, 137, 251, 0.2);
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  text-decoration: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  margin-bottom: 48px;
+}
+
+.featured:hover {
+  border-color: rgba(148, 137, 251, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.featuredVideo {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+  background: #0d0d1a;
+}
+
+.featuredBody {
+  padding: 32px;
+}
+
+.featuredTitle {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 600;
+  color: #ededf5;
+  margin: 8px 0 12px;
+  line-height: 1.3;
+}
+
+/* Shared */
+.date {
+  font-size: 0.8rem;
+  color: #7474a0;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.excerpt {
+  font-size: 1rem;
+  color: #9090b8;
+  line-height: 1.65;
+  margin: 0 0 16px;
+}
+
+.readMore {
+  font-size: 0.9rem;
+  color: #9d89fb;
+  font-weight: 500;
+}
+
+/* Grid for additional posts */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.card {
+  display: block;
+  border: 1px solid rgba(148, 137, 251, 0.15);
+  border-radius: 12px;
+  padding: 28px;
+  background: rgba(255, 255, 255, 0.02);
+  text-decoration: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.card:hover {
+  border-color: rgba(148, 137, 251, 0.4);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.cardTitle {
+  font-family: 'Fraunces', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #ededf5;
+  margin: 8px 0 10px;
+  line-height: 1.35;
+}
