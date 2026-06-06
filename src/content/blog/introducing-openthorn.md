@@ -1,47 +1,47 @@
-## The Problem with Building Web Apps
+## The problem with AI builders
 
-Most web apps still take weeks to build. You need a designer, a frontend developer, a backend developer, and someone to stitch it all together — before a single user ever clicks a button. Even with modern frameworks, the gap between "I have an idea" and "this is live" is enormous.
+Every AI website builder follows the same playbook: bundle the AI cost, mark it up, lock you into a subscription, and make exporting your own code an afterthought — or a paid upgrade.
 
-We built OpenThorn to close that gap.
+You describe an app. They generate it. Then they charge you monthly to keep accessing it, as if the code belongs to them.
 
-## What Is OpenThorn?
+OpenThorn doesn't do that.
 
-OpenThorn is an AI-powered web app builder. You describe what you want in plain language, and OpenThorn generates a full-stack application — complete UI, logic, and database — ready to deploy.
+## What OpenThorn is
 
-No design handoffs. No boilerplate. No waiting.
+OpenThorn is an AI web builder built around one idea: the code you generate should belong to you, and the AI cost should go directly to the provider — not through us.
 
-You interact with it through a conversational builder: describe your app, iterate on it in real time, and publish when you're ready. Think of it as a senior full-stack engineer that never sleeps and never needs a Jira ticket.
+Describe what you want in plain language. OpenThorn generates real, production-grade code, ready for you to customize and deploy anywhere. No drag-and-drop approximations. No locked editor. No wall between you and your work.
 
-## Current Features
+## Bring your own keys — pay nothing to us
 
-### AI Project Builder
+This is the core of how OpenThorn works.
 
-The core of OpenThorn. Describe your app in a prompt — "a CRM with a kanban board and CSV export" or "a landing page for my coffee brand with a waitlist form" — and the builder generates it. You can continue the conversation to refine, extend, or fix anything.
+You connect your own API keys — OpenAI, Anthropic, Gemini, or any provider you already use. OpenThorn passes your requests directly through. You pay the provider at their published rates, with zero markup on top.
 
-Built on top of leading AI providers, with support for switching models mid-project so you can match capability to cost.
+No platform fee. No per-request cut. No subscription. What the model costs is what you pay — nothing more.
 
-### Template Gallery
+If you already have API credits, you can start building right now.
 
-Not sure where to start? The template gallery gives you working starting points across categories: SaaS, e-commerce, marketing, HR, and more. Select a template, preview it across device sizes, and open it in the builder to make it yours.
+## Your code lives in your infrastructure
 
-### Bring Your Own Key (BYOK)
+When OpenThorn generates your app, the output is yours from the first line. Push it to your GitHub repo, deploy it to your own Vercel account, or host it anywhere you like. There is no OpenThorn lock-in — no proprietary format, no hosted-only runtime, no export paywall.
 
-You control which AI provider powers your projects. Connect your own API keys for OpenAI, Anthropic, Gemini, and others. Your keys, your costs, your data.
+Watch the code appear in real time as the model writes it. It's production-grade output, not a template wrapper.
 
-### Community Showcase
+## Start from a template
 
-See what others are building. The community page surfaces public projects from OpenThorn users — sorted by newest or most liked. Fork anything that inspires you and make it your own.
+Not sure where to start? The template gallery has production-quality starting points for the most common project types — portfolios, SaaS apps, e-commerce storefronts. Pick one, preview it across desktop, tablet, and phone, then open it in the builder and take it from there.
 
-### Flexible Pricing
+These are real codebases you can ship, not demos locked behind a sign-up.
 
-OpenThorn offers a free tier to get started, with paid plans for heavier usage and team features. No credit card required to try it.
+## See what the community is building
 
-## What's Next
+The community page surfaces apps shared by other OpenThorn users. Browse by newest or most liked, search by project or author, and fork anything worth building on.
 
-We're just getting started. On the roadmap: one-click deployment, custom domains, team workspaces, and deeper integrations with databases and third-party APIs.
+It's a useful way to see what's actually possible before you write your first prompt.
 
-If you've ever had an app idea you didn't build because it felt too complex — OpenThorn is for you.
+## Try it
 
-## Try It
+Bring your model keys and start building.
 
-[Open the dashboard and start building →](/dashboard)
+[Open the dashboard →](/dashboard)
