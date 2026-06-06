@@ -1,9 +1,7 @@
 import {
   AbsoluteFill,
-  Audio,
   Easing,
   Img,
-  Sequence,
   interpolate,
   spring,
   staticFile,
@@ -72,13 +70,11 @@ function sceneOpacity(
   return fadeIn * fadeOut;
 }
 
-export const OpenThornAd = ({ includeAudio = true }: { includeAudio?: boolean }) => {
+export const OpenThornAd = () => {
   const frame = useCurrentFrame();
 
   return (
     <AbsoluteFill style={{ background: palette.bg, overflow: "hidden" }}>
-      {includeAudio && <AudioLayer />}
-
       {/* Scene 1 — Logo reveal (0–68f) */}
       <AbsoluteFill style={{ opacity: sceneOpacity(frame, SCENE.logo, SCENE_END.logo) }}>
         <LogoRevealScene />
@@ -107,39 +103,6 @@ export const OpenThornAd = ({ includeAudio = true }: { includeAudio?: boolean })
   );
 };
 
-function AudioLayer() {
-  const { durationInFrames } = useVideoConfig();
-  return (
-    <>
-      {/* Ambient pad — full duration, fades in/out */}
-      <Audio
-        src={staticFile("audio/openthorn-ad-ambient.wav")}
-        volume={(f) =>
-          interpolate(
-            f,
-            [0, 20, durationInFrames - 30, durationInFrames],
-            [0, 0.25, 0.25, 0],
-            { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-          )
-        }
-      />
-      {/* Whoosh SFX fires at each statement scene entry */}
-      <Sequence from={SCENE.keys}>
-        <Audio src={staticFile("audio/openthorn-ad-whoosh.wav")} volume={0.65} />
-      </Sequence>
-      <Sequence from={SCENE.provider}>
-        <Audio src={staticFile("audio/openthorn-ad-whoosh.wav")} volume={0.65} />
-      </Sequence>
-      <Sequence from={SCENE.tax}>
-        <Audio src={staticFile("audio/openthorn-ad-whoosh.wav")} volume={0.65} />
-      </Sequence>
-      {/* Chord fires on final scene entry */}
-      <Sequence from={SCENE.final}>
-        <Audio src={staticFile("audio/openthorn-ad-chord.wav")} volume={0.8} />
-      </Sequence>
-    </>
-  );
-}
 
 function LogoRevealScene() {
   const frame = useCurrentFrame();
