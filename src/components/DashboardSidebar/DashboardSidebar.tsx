@@ -282,7 +282,7 @@ export default function DashboardSidebar({ projects = [], activeFilter = 'all', 
             <span className={styles.userEmail}>{user?.email}</span>
           </div>
         </div>
-        <button className={styles.signOutBtn} onClick={signOut} type="button" title="Sign out">
+        <button className={styles.signOutBtn} onClick={async () => { await signOut(); navigate('/') }} type="button" title="Sign out">
           <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
             <polyline points="16 17 21 12 16 7"/>

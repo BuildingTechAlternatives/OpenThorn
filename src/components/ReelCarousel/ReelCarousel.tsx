@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, useCallback, startTransition } from 'react'
+import { useState, useEffect, useCallback, startTransition } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import styles from './ReelCarousel.module.css'
 
 const FALLBACK_IMAGE = 'data:image/svg+xml,' + encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450"><rect width="800" height="450" fill="#14101C"/><text x="400" y="225" text-anchor="middle" dominant-baseline="central" fill="#5F5968" font-family="sans-serif" font-size="16">Image unavailable</text></svg>'
 )
-import styles from './ReelCarousel.module.css'
 
 export interface CarouselSlide {
   image: string
@@ -23,21 +23,21 @@ interface ReelCarouselProps {
 
 const bloomSlides: CarouselSlide[] = [
   {
-    image: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=1200&h=675&fit=crop&q=80',
+    image: '/assets/input_box.png',
     tag: 'Step 01',
     title: 'Describe what you need',
     description:
       'Tell OpenThorn what you\'re building — a storefront, a dashboard, a blog. Plain English is all it takes.',
   },
   {
-    image: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=1200&h=675&fit=crop&q=80',
+    image: '/assets/project_page.png',
     tag: 'Step 02',
     title: 'See it take shape',
     description:
       'OpenThorn generates real components and styles live — every file visible as it\'s written.',
   },
   {
-    image: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=1200&h=675&fit=crop&q=80',
+    image: '/assets/deployed.png',
     tag: 'Step 03',
     title: 'Edit and publish',
     description:
@@ -45,38 +45,27 @@ const bloomSlides: CarouselSlide[] = [
   },
 ]
 
-const animPreset = {
-  duration: 0.8,
-  ease: [0.25, 0.46, 0.45, 0.94] as const,
+const textVariants = {
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] } },
+  exit:    { opacity: 0, y: -10, transition: { duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] } },
+}
+
+const imageVariants = {
+  initial: { opacity: 0, scale: 1.015 },
+  animate: { opacity: 1, scale: 1, transition: { duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] } },
+  exit:    { opacity: 0, transition: { duration: 0.25 } },
 }
 
 export default function ReelCarousel({
   slides = bloomSlides,
   autoPlaySpeed = 5000,
   pauseOnHover = true,
-  showArrows = true,
-  showDots = false,
 }: ReelCarouselProps) {
   const [current, setCurrent] = useState(0)
   const [progress, setProgress] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
-  const progressRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const total = slides.length
-
-  // Autoplay
-  const nextSlide = useCallback(() => {
-    startTransition(() => {
-      setCurrent((prev) => (prev + 1) % total)
-      setProgress(0)
-    })
-  }, [total])
-
-  const prevSlide = useCallback(() => {
-    startTransition(() => {
-      setCurrent((prev) => (prev - 1 + total) % total)
-      setProgress(0)
-    })
-  }, [total])
 
   const jumpTo = useCallback((index: number) => {
     startTransition(() => {
@@ -85,24 +74,23 @@ export default function ReelCarousel({
     })
   }, [])
 
-  // Progress timer
   useEffect(() => {
     if (isPaused) return
-    const interval = 16
-    const increment = 100 / (autoPlaySpeed / interval)
-    progressRef.current = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          nextSlide()
-          return 0
-        }
-        return prev + increment
-      })
-    }, interval)
-    return () => {
-      if (progressRef.current) clearInterval(progressRef.current)
+    setProgress(0)
+    const start = performance.now()
+    let rafId: number
+    const tick = (now: number) => {
+      const p = Math.min(((now - start) / autoPlaySpeed) * 100, 100)
+      setProgress(p)
+      if (p < 100) {
+        rafId = requestAnimationFrame(tick)
+      } else {
+        startTransition(() => setCurrent((prev) => (prev + 1) % total))
+      }
     }
-  }, [isPaused, autoPlaySpeed, nextSlide])
+    rafId = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafId)
+  }, [isPaused, autoPlaySpeed, current, total])
 
   const slide = slides[current]
   if (!slide) return null
@@ -113,119 +101,75 @@ export default function ReelCarousel({
       onMouseEnter={() => pauseOnHover && setIsPaused(true)}
       onMouseLeave={() => pauseOnHover && setIsPaused(false)}
     >
-      {/* Slide image */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={current}
-          className={styles.slideWrapper}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={animPreset}
-        >
-          <img
-            className={styles.slideImage}
-            src={slide.image}
-            alt={slide.title}
-            loading="lazy"
-            onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMAGE }}
-          />
-          <div className={styles.overlay} />
-        </motion.div>
-      </AnimatePresence>
+      {/* Left: text + step nav */}
+      <div className={styles.left}>
+        <div className={styles.textArea}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={current}
+              variants={textVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              {slide.tag && <span className={styles.stepTag}>{slide.tag}</span>}
+              <h3 className={styles.title}>{slide.title}</h3>
+              <p className={styles.desc}>{slide.description}</p>
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
-      {/* Progress bar */}
-      <div className={styles.progressBar}>
-        {slides.map((_, i) => (
-          <button
-            key={i}
-            className={styles.progressSegment}
-            onClick={() => jumpTo(i)}
-            aria-label={`Go to slide ${i + 1}`}
-          >
-            <div
-              className={`${styles.progressFill} ${i === current ? styles.progressFillActive : ''}`}
-              style={{
-                width: i === current ? `${progress}%` : i < current ? '100%' : '0%',
-              }}
-            />
-          </button>
-        ))}
-      </div>
-
-      {/* Content */}
-      <div className={styles.contentOverlay}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={current}
-            className={styles.contentInner}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ ...animPreset, delay: 0.1 }}
-          >
-            {slide.tag && <span className={styles.dateText}>{slide.tag}</span>}
-            <div className={styles.contentElementGroup}>
-              <motion.h3
-                className={styles.titleText}
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                transition={{ ...animPreset, delay: 0.2 }}
-              >
-                {slide.title}
-              </motion.h3>
-              <motion.p
-                className={styles.descText}
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ ...animPreset, delay: 0.3 }}
-              >
-                {slide.description}
-              </motion.p>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* Arrow buttons */}
-      {showArrows && total > 1 && (
-        <>
-          <button
-            className={`${styles.arrowBtn} ${styles.arrowLeft}`}
-            onClick={prevSlide}
-            aria-label="Previous slide"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15,18 9,12 15,6" />
-            </svg>
-          </button>
-          <button
-            className={`${styles.arrowBtn} ${styles.arrowRight}`}
-            onClick={nextSlide}
-            aria-label="Next slide"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="9,18 15,12 9,6" />
-            </svg>
-          </button>
-        </>
-      )}
-
-      {/* Dot navigation */}
-      {showDots && total > 1 && (
-        <div className={styles.dots}>
-          {slides.map((_, i) => (
+        <nav className={styles.stepNav}>
+          {slides.map((s, i) => (
             <button
               key={i}
-              className={`${styles.dot} ${i === current ? styles.dotActive : ''}`}
+              className={`${styles.stepBtn} ${i === current ? styles.stepBtnActive : ''}`}
               onClick={() => jumpTo(i)}
-              aria-label={`Go to slide ${i + 1}`}
-            />
+              aria-label={`Go to ${s.tag || `step ${i + 1}`}`}
+            >
+              <div className={styles.stepTrack}>
+                <div
+                  className={styles.stepFill}
+                  style={{
+                    width: i === current ? `${progress}%` : i < current ? '100%' : '0%',
+                  }}
+                />
+              </div>
+              <span className={styles.stepName}>{s.tag || `Step ${i + 1}`}</span>
+            </button>
           ))}
+        </nav>
+      </div>
+
+      {/* Right: browser frame + screenshot */}
+      <div className={styles.right}>
+        <div className={styles.browserFrame}>
+          <div className={styles.browserChrome}>
+            <div className={styles.chromeDots}>
+              <span className={styles.chromeDot} />
+              <span className={styles.chromeDot} />
+              <span className={styles.chromeDot} />
+            </div>
+            <div className={styles.chromeBar} />
+          </div>
+          <div className={styles.imageWrap}>
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={current}
+                className={styles.slideImage}
+                src={slide.image}
+                alt={slide.title}
+                loading="lazy"
+                variants={imageVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMAGE }}
+              />
+            </AnimatePresence>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }

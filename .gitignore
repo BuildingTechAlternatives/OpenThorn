@@ -6,4 +6,9 @@ dist
 .env.local
 dev.out.log
 dev.err.log
-remotion/
+remotion/node_modules/
+remotion/build/
+remotion/out/
+remotion/studio*.log
+remotion/.*/
+remotion/skills/

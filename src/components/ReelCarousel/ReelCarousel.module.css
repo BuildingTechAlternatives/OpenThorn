@@ -1,222 +1,262 @@
 .root {
-  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+  min-height: 420px;
+  border-radius: 20px;
   overflow: hidden;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  max-height: 600px;
+  border: 1px solid var(--color-border-visible);
+  background: var(--color-surface);
 }
 
-/* Image slide */
-.slideWrapper {
-  position: absolute;
-  inset: 0;
-}
-
-.slideImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.7) 0%,
-    rgba(0, 0, 0, 0.3) 40%,
-    rgba(0, 0, 0, 0.05) 70%,
-    rgba(0, 0, 0, 0) 100%
-  );
-}
-
-/* Content */
-.contentOverlay {
-  position: absolute;
-  inset: 0;
+/* ── Left column ── */
+.left {
+  flex: 0 0 42%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: space-between;
+  padding: 48px 44px;
+  background: var(--color-surface);
+  position: relative;
+  z-index: 1;
+}
+
+.left::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 24px;
+  bottom: 24px;
+  width: 1px;
+  background: var(--color-border-visible);
+}
+
+.textArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  min-height: 180px;
+  width: 100%;
+}
+
+.textArea > * {
+  width: 100%;
+}
+
+.stepTag {
+  display: inline-flex;
   align-items: center;
-  padding: 40px;
-  z-index: 10;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-warm-accent);
+}
+
+.stepTag::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 1px;
+  background: var(--color-warm-accent);
+  opacity: 0.6;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.desc {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--color-text-muted);
+  margin: 0;
+  width: 100%;
+}
+
+/* ── Step navigation ── */
+.stepNav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 36px;
+}
+
+.stepBtn {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+  opacity: 0.45;
+  transition: opacity 0.2s;
+}
+
+.stepBtn:last-child {
+  border-bottom: none;
+}
+
+.stepBtn:hover {
+  opacity: 0.75;
+}
+
+.stepBtnActive {
+  opacity: 1 !important;
+}
+
+.stepTrack {
+  width: 100%;
+  height: 2px;
+  background: var(--color-border-visible);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.stepFill {
+  height: 100%;
+  border-radius: 1px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-secondary));
+  transition: width 0.08s linear;
+}
+
+.stepName {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.stepBtnActive .stepName {
+  color: var(--color-text);
+}
+
+/* ── Right column ── */
+.right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: var(--color-bg-soft);
+  position: relative;
+  overflow: hidden;
+}
+
+.right::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 60% at 60% 50%, rgba(139, 92, 246, 0.06) 0%, transparent 70%);
   pointer-events: none;
 }
 
-.contentInner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 12px;
-}
-
-.contentElementGroup {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 6px;
-}
-
-.dateText {
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-warm-accent);
-  opacity: 1;
-  text-align: center;
-}
-
-.titleText {
-  font-family: var(--font-display);
-  font-size: 40px;
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: 0;
-  color: #fff;
-  text-align: center;
-}
-
-.descText {
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.84);
-  max-width: 500px;
-  text-align: center;
-}
-
-/* Progress bar */
-.progressBar {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  right: 20px;
-  display: flex;
-  gap: 6px;
-  z-index: 20;
-}
-
-.progressSegment {
-  flex: 1;
-  height: 4px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.2);
-  cursor: pointer;
+/* ── Browser frame ── */
+.browserFrame {
+  width: 100%;
+  border-radius: 10px;
   overflow: hidden;
+  border: 1px solid var(--color-border-visible);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03),
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 4px 16px rgba(0, 0, 0, 0.4);
+  position: relative;
+  z-index: 1;
 }
 
-.progressFill {
+.browserChrome {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  height: 32px;
+  background: #1a1520;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.chromeDots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.chromeDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.chromeDot:nth-child(1) { background: #FF5F57; }
+.chromeDot:nth-child(2) { background: #FEBC2E; }
+.chromeDot:nth-child(3) { background: #28C840; }
+
+.chromeBar {
+  flex: 1;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  max-width: 260px;
+  margin: 0 auto;
+}
+
+.imageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.slideImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
   height: 100%;
-  border-radius: 2px;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-secondary));
-  transition: width 0.3s ease;
+  object-fit: contain;
+  object-position: top center;
+  display: block;
 }
 
-.progressFillActive {
-  transition: none;
-}
-
-/* Controls */
-.controls {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 20;
-  display: flex;
-  gap: 8px;
-}
-
-.controlBtn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(6px);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255, 255, 255, 0.85);
-  transition: opacity 0.2s, background 0.2s;
-  opacity: 0.7;
-}
-
-.controlBtn:hover {
-  opacity: 1;
-  background: rgba(0, 0, 0, 0.5);
-}
-
-/* Arrows */
-.arrowBtn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 20;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(6px);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255, 255, 255, 0.85);
-  transition: opacity 0.2s, background 0.2s;
-  opacity: 0.7;
-}
-
-.arrowBtn:hover {
-  opacity: 1;
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.arrowLeft { left: 16px; }
-.arrowRight { right: 16px; }
-
-/* Slide dots (alternate nav) */
-.dots {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 20;
-  display: flex;
-  gap: 8px;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  border: none;
-  cursor: pointer;
-  transition: background 0.3s, transform 0.3s;
-  padding: 0;
-}
-
-.dotActive {
-  background: var(--color-secondary);
-  transform: scale(1.25);
-}
-
-@media (max-width: 640px) {
-  .contentOverlay {
-    padding: 24px;
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .root {
+    flex-direction: column;
+    min-height: unset;
   }
-  .arrowBtn {
+
+  .left {
+    flex: none;
+    padding: 32px 28px;
+  }
+
+  .left::after {
     display: none;
   }
-  .root {
-    aspect-ratio: 4 / 3;
+
+  .right {
+    padding: 20px;
   }
-  .titleText {
-    font-size: 30px;
+
+  .title {
+    font-size: 26px;
+  }
+
+  .stepNav {
+    margin-top: 24px;
   }
 }

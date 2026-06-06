@@ -32,19 +32,19 @@ const palette = {
 // Scene start frames (30fps)
 const SCENE = {
   logo: 0,       // 0s
-  keys: 60,      // 2s
-  provider: 150, // 5s
-  tax: 240,      // 8s
-  final: 330,    // 11s
+  keys: 112,     // 3.7s
+  provider: 202, // 6.7s
+  tax: 292,      // 9.7s
+  final: 382,    // 12.7s
 } as const;
 
 // Scene end frames (with 8-frame crossfade overlap into next)
 const SCENE_END = {
-  logo: 68,
-  keys: 158,
-  provider: 248,
-  tax: 338,
-  final: 450, // total duration
+  logo: 120,  // 4s — long enough to read "Meet OpenThorn. / AI Website Builder"
+  keys: 210,
+  provider: 300,
+  tax: 390,
+  final: 510, // total duration = 17s
 } as const;
 
 /** Smooth 0→1 with expo-out easing */
@@ -75,27 +75,27 @@ export const OpenThornAd = () => {
 
   return (
     <AbsoluteFill style={{ background: palette.bg, overflow: "hidden" }}>
-      {/* Scene 1 — Logo reveal (0–68f) */}
+      {/* Scene 1 — Logo reveal (0–120f) */}
       <AbsoluteFill style={{ opacity: sceneOpacity(frame, SCENE.logo, SCENE_END.logo) }}>
         <LogoRevealScene />
       </AbsoluteFill>
 
-      {/* Scene 2 — "Your keys." (60–158f) */}
+      {/* Scene 2 — "Your keys." (112–210f) */}
       <AbsoluteFill style={{ opacity: sceneOpacity(frame, SCENE.keys, SCENE_END.keys) }}>
         <StatementScene text="Your keys." accent={palette.purple} startFrame={SCENE.keys} />
       </AbsoluteFill>
 
-      {/* Scene 3 — "Any provider." (150–248f) */}
+      {/* Scene 3 — "Any provider." (202–300f) */}
       <AbsoluteFill style={{ opacity: sceneOpacity(frame, SCENE.provider, SCENE_END.provider) }}>
         <ProviderScene startFrame={SCENE.provider} />
       </AbsoluteFill>
 
-      {/* Scene 4 — "No platform tax." (240–338f) */}
+      {/* Scene 4 — "No platform tax." (292–390f) */}
       <AbsoluteFill style={{ opacity: sceneOpacity(frame, SCENE.tax, SCENE_END.tax) }}>
         <StatementScene text="No platform tax." accent={palette.amber} startFrame={SCENE.tax} />
       </AbsoluteFill>
 
-      {/* Scene 5 — Final (330–450f) */}
+      {/* Scene 5 — Final (382–510f) */}
       <AbsoluteFill style={{ opacity: sceneOpacity(frame, SCENE.final, SCENE_END.final, true) }}>
         <FinalScene startFrame={SCENE.final} />
       </AbsoluteFill>
@@ -114,7 +114,7 @@ function LogoRevealScene() {
     config: { damping: 18, stiffness: 100, mass: 0.9 },
   });
 
-  const glow = interpolate(frame, [0, 40, 68], [0, 0.72, 0.52], {
+  const glow = interpolate(frame, [0, 40, 120], [0, 0.72, 0.52], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
