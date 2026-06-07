@@ -1,12 +1,15 @@
+import type { ReactNode } from "react";
 import {
   AbsoluteFill,
   Easing,
   Img,
   interpolate,
+  Sequence,
   spring,
   staticFile,
   useCurrentFrame,
   useVideoConfig,
+  Video,
 } from "remotion";
 import { loadFont as loadFraunces } from "@remotion/google-fonts/Fraunces";
 import { loadFont as loadRoboto } from "@remotion/google-fonts/Roboto";
@@ -29,22 +32,20 @@ const palette = {
   amber: "#F6C177",
 };
 
-// Scene start frames (30fps)
 const SCENE = {
-  logo: 0,       // 0s
-  keys: 112,     // 3.7s
-  provider: 202, // 6.7s
-  tax: 292,      // 9.7s
-  final: 382,    // 12.7s
+  logo: 0,
+  keys: 112,
+  provider: 202,
+  tax: 292,
+  final: 382,
 } as const;
 
-// Scene end frames (with 8-frame crossfade overlap into next)
 const SCENE_END = {
-  logo: 120,  // 4s — long enough to read "Meet OpenThorn. / AI Website Builder"
+  logo: 120,
   keys: 210,
   provider: 300,
   tax: 390,
-  final: 510, // total duration = 17s
+  final: 510,
 } as const;
 
 /** Smooth 0→1 with expo-out easing */
@@ -56,13 +57,8 @@ function p(frame: number, start: number, dur: number): number {
   });
 }
 
-/** Scene opacity: fades in at start, fades out near end. Pass isLast=true to skip fade-out. */
-function sceneOpacity(
-  frame: number,
-  start: number,
-  end: number,
-  isLast = false,
-): number {
+/** Scene opacity: fades in at start, fades out near end */
+function sceneOpacity(frame: number, start: number, end: number, isLast = false): number {
   if (frame < start) return 0;
   if (!isLast && frame >= end) return 0;
   const fadeIn = p(frame, start, 10);
@@ -82,27 +78,36 @@ export const OpenThornAd = () => {
 
       {/* Scene 2 — "Your keys." (112–210f) */}
       <AbsoluteFill style={{ opacity: sceneOpacity(frame, SCENE.keys, SCENE_END.keys) }}>
-        <StatementScene text="Your keys." accent={palette.purple} startFrame={SCENE.keys} />
+        <KeysScene startFrame={SCENE.keys} />
       </AbsoluteFill>
 
       {/* Scene 3 — "Any provider." (202–300f) */}
       <AbsoluteFill style={{ opacity: sceneOpacity(frame, SCENE.provider, SCENE_END.provider) }}>
-        <ProviderScene startFrame={SCENE.provider} />
+        <ProviderSplitScene startFrame={SCENE.provider} />
       </AbsoluteFill>
 
       {/* Scene 4 — "No platform tax." (292–390f) */}
       <AbsoluteFill style={{ opacity: sceneOpacity(frame, SCENE.tax, SCENE_END.tax) }}>
-        <StatementScene text="No platform tax." accent={palette.amber} startFrame={SCENE.tax} />
+        <TaxScene startFrame={SCENE.tax} />
       </AbsoluteFill>
 
       {/* Scene 5 — Final (382–510f) */}
       <AbsoluteFill style={{ opacity: sceneOpacity(frame, SCENE.final, SCENE_END.final, true) }}>
         <FinalScene startFrame={SCENE.final} />
       </AbsoluteFill>
+
+      {/* Hairline separators for split scenes — rendered above scene layers */}
+      <HairlineSeparator startFrame={SCENE.keys} endFrame={SCENE_END.keys} />
+      <HairlineSeparator startFrame={SCENE.provider} endFrame={SCENE_END.provider} />
+      <HairlineSeparator startFrame={SCENE.tax} endFrame={SCENE_END.tax} />
+
+      {/* Film grain — topmost layer */}
+      <GrainOverlay />
     </AbsoluteFill>
   );
 };
 
+// ─── Scene Components ──────────────────────────────────────────────────────────
 
 function LogoRevealScene() {
   const frame = useCurrentFrame();
@@ -111,10 +116,10 @@ function LogoRevealScene() {
   const scale = spring({
     frame,
     fps,
-    config: { damping: 18, stiffness: 100, mass: 0.9 },
+    config: { damping: 16, stiffness: 140, mass: 0.8 },
   });
 
-  const glow = interpolate(frame, [0, 40, 120], [0, 0.72, 0.52], {
+  const glow = interpolate(frame, [0, 36, 120], [0, 0.85, 0.6], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -124,34 +129,31 @@ function LogoRevealScene() {
 
   return (
     <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
-      {/* Radial purple glow behind logo */}
       <div
         style={{
           position: "absolute",
-          width: 560,
-          height: 560,
+          width: 720,
+          height: 720,
           borderRadius: "50%",
           background: `radial-gradient(circle, ${palette.purple}55 0%, transparent 70%)`,
           opacity: glow,
-          filter: "blur(60px)",
+          filter: "blur(80px)",
         }}
       />
-      {/* Logo mark */}
       <Img
         src={staticFile("logo.png")}
         style={{
           width: 128,
           height: 128,
           objectFit: "contain",
-          transform: `scale(${0.6 + scale * 0.4})`,
+          transform: `scale(${0.5 + scale * 0.5})`,
           position: "relative",
         }}
       />
-      {/* "Meet OpenThorn." */}
       <div
         style={{
           fontFamily: fraunces,
-          fontSize: 96,
+          fontSize: 112,
           fontWeight: 300,
           color: palette.text,
           letterSpacing: "-0.02em",
@@ -164,7 +166,6 @@ function LogoRevealScene() {
       >
         Meet OpenThorn.
       </div>
-      {/* "AI Website Builder" */}
       <div
         style={{
           fontFamily: roboto,
@@ -186,56 +187,26 @@ function LogoRevealScene() {
   );
 }
 
-function StatementScene({
-  text,
-  accent,
-  startFrame,
-}: {
-  text: string;
-  accent: string;
-  startFrame: number;
-}) {
-  const frame = useCurrentFrame();
-  const local = frame - startFrame;
-
-  const textIn = p(local, 0, 18);
-  const underlineIn = p(local, 14, 18);
-
+function KeysScene({ startFrame }: { startFrame: number }) {
   return (
-    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
-      <div style={{ position: "relative", display: "inline-block" }}>
-        {/* Statement text */}
-        <div
-          style={{
-            fontFamily: fraunces,
-            fontSize: 180,
-            fontWeight: 300,
-            color: palette.text,
-            lineHeight: 1,
-            letterSpacing: "-0.02em",
-            opacity: textIn,
-            transform: `translateY(${(1 - textIn) * 24}px)`,
-            userSelect: "none",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {text}
-        </div>
-        {/* Underline draws left-to-right */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: -14,
-            left: 0,
-            height: 3,
-            width: `${underlineIn * 100}%`,
-            background: accent,
-            borderRadius: 99,
-            boxShadow: `0 0 20px ${accent}`,
-          }}
+    <>
+      <SplitHalf side="left">
+        <VideoPanel
+          src="scene2.mp4"
+          startFrame={startFrame}
+          durationInFrames={SCENE_END.keys - startFrame + 20}
+          slideFrom="left"
         />
-      </div>
-    </AbsoluteFill>
+      </SplitHalf>
+      <SplitHalf side="right">
+        <SplitTextBlock
+          headline="Your keys."
+          support="Your data. Your control."
+          accent={palette.purple}
+          startFrame={startFrame}
+        />
+      </SplitHalf>
+    </>
   );
 }
 
@@ -248,82 +219,125 @@ const PROVIDERS = [
   { src: "deepseek.webp", name: "DeepSeek" },
 ] as const;
 
-function ProviderScene({ startFrame }: { startFrame: number }) {
+function ProviderSplitScene({ startFrame }: { startFrame: number }) {
   const frame = useCurrentFrame();
   const local = frame - startFrame;
-
-  const textIn = p(local, 0, 18);
+  const textIn = p(local, 0, 22);
   const underlineIn = p(local, 14, 18);
 
   return (
-    <AbsoluteFill
-      style={{
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column",
-        gap: 64,
-      }}
-    >
-      {/* Statement text + teal underline */}
-      <div style={{ position: "relative", display: "inline-block" }}>
+    <>
+      <SplitHalf side="left">
         <div
           style={{
-            fontFamily: fraunces,
-            fontSize: 180,
-            fontWeight: 300,
-            color: palette.text,
-            lineHeight: 1,
-            letterSpacing: "-0.02em",
-            opacity: textIn,
-            transform: `translateY(${(1 - textIn) * 24}px)`,
-            userSelect: "none",
-            whiteSpace: "nowrap",
+            padding: "0 72px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            justifyContent: "center",
+            height: "100%",
+            width: "100%",
           }}
         >
-          Any provider.
-        </div>
-        <div
-          style={{
-            position: "absolute",
-            bottom: -14,
-            left: 0,
-            height: 3,
-            width: `${underlineIn * 100}%`,
-            background: palette.teal,
-            borderRadius: 99,
-            boxShadow: `0 0 20px ${palette.teal}`,
-          }}
-        />
-      </div>
-
-      {/* Provider logos — staggered fade-in, grayscale */}
-      <div style={{ display: "flex", gap: 48, alignItems: "center" }}>
-        {PROVIDERS.map(({ src, name }, i) => {
-          const logoIn = p(local, 28 + i * 7, 16);
-          return (
+          <div style={{ position: "relative", display: "inline-block" }}>
             <div
-              key={name}
               style={{
-                opacity: logoIn * 0.5,
-                transform: `translateY(${(1 - logoIn) * 14}px)`,
+                fontFamily: fraunces,
+                fontSize: 150,
+                fontWeight: 300,
+                color: palette.text,
+                lineHeight: 1,
+                letterSpacing: "-0.02em",
+                whiteSpace: "nowrap",
+                opacity: textIn,
+                transform: `translateY(${(1 - textIn) * 24}px)`,
+                userSelect: "none",
               }}
             >
-              <Img
-                src={staticFile(src)}
-                alt={name}
-                style={{
-                  height: 44,
-                  width: "auto",
-                  maxWidth: 100,
-                  objectFit: "contain",
-                  filter: "grayscale(1) brightness(1.4)",
-                }}
-              />
+              Any provider.
             </div>
-          );
-        })}
-      </div>
-    </AbsoluteFill>
+            <div
+              style={{
+                position: "absolute",
+                bottom: -14,
+                left: 0,
+                height: 3,
+                width: `${underlineIn * 100}%`,
+                background: palette.teal,
+                borderRadius: 99,
+                boxShadow: `0 0 20px ${palette.teal}`,
+              }}
+            />
+          </div>
+          <div
+            style={{
+              display: "flex",
+              gap: 36,
+              alignItems: "center",
+              marginTop: 52,
+              flexWrap: "wrap",
+            }}
+          >
+            {PROVIDERS.map(({ src, name }, i) => {
+              const logoIn = p(local, 28 + i * 7, 16);
+              return (
+                <div
+                  key={name}
+                  style={{
+                    opacity: logoIn * 0.55,
+                    transform: `translateY(${(1 - logoIn) * 14}px)`,
+                  }}
+                >
+                  <Img
+                    src={staticFile(src)}
+                    alt={name}
+                    style={{
+                      height: 44,
+                      width: "auto",
+                      maxWidth: 100,
+                      objectFit: "contain",
+                      filter: "grayscale(1) brightness(1.4)",
+                    }}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </SplitHalf>
+      <SplitHalf side="right">
+        <VideoPanel
+          src="scene3.mp4"
+          startFrame={startFrame}
+          durationInFrames={SCENE_END.provider - startFrame + 20}
+          slideFrom="right"
+        />
+      </SplitHalf>
+    </>
+  );
+}
+
+function TaxScene({ startFrame }: { startFrame: number }) {
+  return (
+    <>
+      <SplitHalf side="left">
+        <VideoPanel
+          src="scene4.mp4"
+          startFrame={startFrame}
+          durationInFrames={SCENE_END.tax - startFrame + 20}
+          slideFrom="left"
+        />
+      </SplitHalf>
+      <SplitHalf side="right">
+        <SplitTextBlock
+          headline="No platform tax."
+          support="No markup. No lock-in."
+          accent={palette.amber}
+          startFrame={startFrame}
+          fontSize={110}
+        />
+      </SplitHalf>
+    </>
   );
 }
 
@@ -335,14 +349,14 @@ function FinalScene({ startFrame }: { startFrame: number }) {
   const logoScale = spring({
     frame: local,
     fps,
-    config: { damping: 18, stiffness: 100, mass: 0.9 },
+    config: { damping: 16, stiffness: 140, mass: 0.8 },
   });
 
   const nameIn = p(local, 18, 22);
   const taglineIn = p(local, 36, 22);
   const urlIn = p(local, 54, 22);
 
-  const glow = interpolate(local, [0, 60, 100], [0, 0.6, 0.42], {
+  const glow = interpolate(local, [0, 60, 100], [0, 0.65, 0.45], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -353,9 +367,24 @@ function FinalScene({ startFrame }: { startFrame: number }) {
   });
 
   return (
-    <AbsoluteFill
-      style={{ alignItems: "center", justifyContent: "center", flexDirection: "column" }}
-    >
+    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
+      {/* Low-opacity background footage */}
+      <Sequence from={startFrame} durationInFrames={SCENE_END.final - startFrame + 20}>
+        <Video
+          src={staticFile("scene5.mp4")}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            opacity: 0.28,
+          }}
+          muted
+        />
+      </Sequence>
+      <div style={{ position: "absolute", inset: 0, background: "rgba(9,7,11,0.6)" }} />
+
       {/* Rotating tri-color glow */}
       <div
         style={{
@@ -370,20 +399,17 @@ function FinalScene({ startFrame }: { startFrame: number }) {
         }}
       />
 
-      {/* Logo mark */}
       <Img
         src={staticFile("logo.png")}
         style={{
           width: 128,
           height: 128,
           objectFit: "contain",
-          transform: `scale(${0.6 + logoScale * 0.4})`,
+          transform: `scale(${0.5 + logoScale * 0.5})`,
           position: "relative",
           zIndex: 1,
         }}
       />
-
-      {/* Wordmark */}
       <div
         style={{
           fontFamily: fraunces,
@@ -401,8 +427,6 @@ function FinalScene({ startFrame }: { startFrame: number }) {
       >
         OpenThorn
       </div>
-
-      {/* Tagline */}
       <div
         style={{
           fontFamily: roboto,
@@ -419,8 +443,6 @@ function FinalScene({ startFrame }: { startFrame: number }) {
       >
         Build for free.
       </div>
-
-      {/* URL */}
       <div
         style={{
           fontFamily: roboto,
@@ -438,7 +460,7 @@ function FinalScene({ startFrame }: { startFrame: number }) {
         openthorn.app
       </div>
 
-      {/* Black fade overlay */}
+      {/* Fade to black */}
       <div
         style={{
           position: "absolute",
@@ -450,5 +472,184 @@ function FinalScene({ startFrame }: { startFrame: number }) {
         }}
       />
     </AbsoluteFill>
+  );
+}
+
+// ─── Helper Components ─────────────────────────────────────────────────────────
+
+function SplitHalf({ side, children }: { side: "left" | "right"; children: ReactNode }) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        bottom: 0,
+        [side]: 0,
+        width: "50%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function VideoPanel({
+  src,
+  startFrame,
+  durationInFrames,
+  slideFrom,
+}: {
+  src: string;
+  startFrame: number;
+  durationInFrames: number;
+  slideFrom: "left" | "right";
+}) {
+  const frame = useCurrentFrame();
+  const local = frame - startFrame;
+  const slideIn = p(local, 0, 22);
+  const dir = slideFrom === "left" ? -1 : 1;
+
+  return (
+    <div
+      style={{
+        width: 820,
+        height: 560,
+        borderRadius: 14,
+        border: "1px solid rgba(255,255,255,0.1)",
+        boxShadow: "0 32px 120px rgba(0,0,0,0.6)",
+        overflow: "hidden",
+        opacity: slideIn,
+        transform: `translateX(${(1 - slideIn) * dir * 60}px)`,
+        flexShrink: 0,
+      }}
+    >
+      <Sequence from={startFrame} durationInFrames={durationInFrames}>
+        <Video
+          src={staticFile(src)}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          muted
+        />
+      </Sequence>
+    </div>
+  );
+}
+
+function SplitTextBlock({
+  headline,
+  support,
+  accent,
+  startFrame,
+  fontSize = 150,
+}: {
+  headline: string;
+  support: string;
+  accent: string;
+  startFrame: number;
+  fontSize?: number;
+}) {
+  const frame = useCurrentFrame();
+  const local = frame - startFrame;
+  const textIn = p(local, 0, 22);
+  const supportIn = p(local, 12, 18);
+  const underlineIn = p(local, 14, 18);
+
+  return (
+    <div
+      style={{
+        padding: "0 72px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        height: "100%",
+        width: "100%",
+      }}
+    >
+      <div style={{ position: "relative", display: "inline-block" }}>
+        <div
+          style={{
+            fontFamily: fraunces,
+            fontSize,
+            fontWeight: 300,
+            color: palette.text,
+            lineHeight: 1,
+            letterSpacing: "-0.02em",
+            whiteSpace: "nowrap",
+            opacity: textIn,
+            transform: `translateY(${(1 - textIn) * 24}px)`,
+            userSelect: "none",
+          }}
+        >
+          {headline}
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            bottom: -14,
+            left: 0,
+            height: 3,
+            width: `${underlineIn * 100}%`,
+            background: accent,
+            borderRadius: 99,
+            boxShadow: `0 0 20px ${accent}`,
+          }}
+        />
+      </div>
+      <div
+        style={{
+          fontFamily: roboto,
+          fontSize: 28,
+          fontWeight: 400,
+          color: palette.muted,
+          marginTop: 36,
+          opacity: supportIn,
+          transform: `translateY(${(1 - supportIn) * 16}px)`,
+          userSelect: "none",
+        }}
+      >
+        {support}
+      </div>
+    </div>
+  );
+}
+
+function HairlineSeparator({ startFrame, endFrame }: { startFrame: number; endFrame: number }) {
+  const frame = useCurrentFrame();
+  const fadeIn = p(frame, startFrame, 12);
+  const fadeOut = 1 - p(frame, endFrame - 12, 12);
+  const opacity = fadeIn * fadeOut;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: "50%",
+        top: 60,
+        bottom: 60,
+        width: 1,
+        transform: "translateX(-0.5px)",
+        background: "rgba(255,255,255,0.14)",
+        opacity,
+        pointerEvents: "none",
+      }}
+    />
+  );
+}
+
+function GrainOverlay() {
+  return (
+    <AbsoluteFill
+      style={{
+        pointerEvents: "none",
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E")`,
+        backgroundRepeat: "repeat",
+        backgroundSize: "256px 256px",
+        opacity: 0.45,
+        mixBlendMode: "overlay",
+      }}
+    />
   );
 }
