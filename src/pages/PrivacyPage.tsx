@@ -35,8 +35,14 @@ export default function PrivacyPage() {
       </ul>
 
       <h2>4. Third-Party Service Providers</h2>
-      <p>We use the following processor who handles personal data on our behalf:</p>
+      <p>We use the following processors who handle personal data on our behalf:</p>
       <ul>
+        <li>
+          <strong>Vercel Inc.</strong> (hosting and infrastructure) — the service is hosted
+          on Vercel's platform. Request data including IP addresses may be processed by
+          Vercel. Data may be processed in the United States under Standard Contractual
+          Clauses.
+        </li>
         <li>
           <strong>Supabase, Inc.</strong> (authentication and database) — your account
           credentials and project data are stored on Supabase infrastructure. Data may be
@@ -55,9 +61,9 @@ export default function PrivacyPage() {
 
       <h2>6. International Data Transfers</h2>
       <p>
-        Supabase is a US-based company. Transfers of personal data from the EU/EEA are
-        covered by Standard Contractual Clauses (SCCs) approved by the European Commission
-        under Art. 46 GDPR.
+        Vercel and Supabase are US-based companies. Transfers of personal data from the
+        EU/EEA are covered by Standard Contractual Clauses (SCCs) approved by the European
+        Commission under Art. 46 GDPR.
       </p>
 
       <h2>7. Your Rights</h2>
