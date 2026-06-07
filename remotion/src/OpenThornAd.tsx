@@ -104,6 +104,9 @@ export const OpenThornAd = () => {
       <HairlineSeparator startFrame={SCENE.provider} endFrame={SCENE_END.provider} />
       <HairlineSeparator startFrame={SCENE.tax} endFrame={SCENE_END.tax} />
 
+      {/* Subtitles */}
+      <CaptionLayer />
+
       {/* Film grain — topmost layer */}
       <GrainOverlay />
     </AbsoluteFill>
@@ -131,12 +134,12 @@ function AudioLayer() {
         }
       />
 
-      {/* Voiceover */}
+      {/* Voiceover — fades in over 8 frames, plays to natural end */}
       <Sequence from={8}>
         <Audio
           src={staticFile("audio/openthorn-ad-voice.mp3")}
           volume={(f) =>
-            interpolate(f, [0, 8, durationInFrames - 20, durationInFrames], [0, 0.95, 0.95, 0], {
+            interpolate(f, [0, 8], [0, 0.95], {
               extrapolateLeft: "clamp",
               extrapolateRight: "clamp",
             })
@@ -695,6 +698,68 @@ function HairlineSeparator({ startFrame, endFrame }: { startFrame: number; endFr
         pointerEvents: "none",
       }}
     />
+  );
+}
+
+const CAPTIONS = [
+  { text: "Meet OpenThorn.", start: 14, end: 72 },
+  { text: "An AI website builder that works the way you do.", start: 72, end: 128 },
+  { text: "Your keys.", start: 128, end: 172 },
+  { text: "Your data. Your control.", start: 172, end: 218 },
+  { text: "Connect OpenAI, Anthropic, Gemini.", start: 218, end: 274 },
+  { text: "Any provider you already trust.", start: 274, end: 322 },
+  { text: "No subscriptions. No markup. No lock-in.", start: 322, end: 400 },
+  { text: "OpenThorn.", start: 408, end: 458 },
+  { text: "Build for free.", start: 458, end: 530 },
+] as const;
+
+function CaptionLayer() {
+  const frame = useCurrentFrame();
+  const caption = CAPTIONS.find(({ start, end }) => frame >= start && frame < end);
+
+  if (!caption) return null;
+
+  const fadeIn = p(frame, caption.start, 8);
+  const fadeOut = 1 - p(frame, caption.end - 8, 8);
+  const amount = fadeIn * fadeOut;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: 64,
+        left: 0,
+        right: 0,
+        display: "flex",
+        justifyContent: "center",
+        pointerEvents: "none",
+      }}
+    >
+      <div
+        style={{
+          background: "rgba(0,0,0,0.62)",
+          backdropFilter: "blur(8px)",
+          borderRadius: 8,
+          padding: "10px 28px",
+          maxWidth: 1200,
+          opacity: amount,
+          transform: `translateY(${(1 - amount) * 10}px)`,
+        }}
+      >
+        <span
+          style={{
+            fontFamily: roboto,
+            fontSize: 32,
+            fontWeight: 400,
+            color: palette.text,
+            letterSpacing: "0.01em",
+            userSelect: "none",
+          }}
+        >
+          {caption.text}
+        </span>
+      </div>
+    </div>
   );
 }
 

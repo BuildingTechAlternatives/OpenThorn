@@ -16,7 +16,7 @@ export const RemotionRoot = () => {
       <Composition
         id="OpenThornAd"
         component={OpenThornAd}
-        durationInFrames={510}
+        durationInFrames={660}
         fps={30}
         width={1920}
         height={1080}
