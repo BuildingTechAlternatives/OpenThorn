@@ -166,15 +166,8 @@ export default function DashboardSidebar({ projects = [], activeFilter = 'all', 
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] ?? user?.email?.split('@')[0] ?? 'there'
   const userInitial = firstName.charAt(0).toUpperCase()
 
-  const staticNotifications = [
-    { id: 'welcome', text: 'Welcome to OpenThorn! Start building your first project.', time: 'Just now' },
-    { id: 'templates', text: 'New templates are available in the Templates section.', time: '2h ago' },
-    { id: 'community', text: 'Community Apps feature coming soon.', time: '1d ago' },
-  ]
-  const notifications = externalNotifications && externalNotifications.length > 0
-    ? [...externalNotifications, ...staticNotifications]
-    : staticNotifications
-  const unreadCount = (externalNotifications ?? []).filter((n) => n.unread).length
+  const notifications = externalNotifications ?? []
+  const unreadCount = notifications.filter((n) => n.unread).length
 
   const renderNavItem = (item: NavItem, isActive: boolean, isSub = false) => (
     <button
@@ -221,12 +214,16 @@ export default function DashboardSidebar({ projects = [], activeFilter = 'all', 
             <div className={styles.notifHeader}>
               <h4 className={styles.notifTitle}>What's new</h4>
             </div>
-            {notifications.map((n) => (
-              <div key={n.id} className={`${styles.notifItem} ${'unread' in n && n.unread ? styles.notifItemUnread : ''}`}>
-                <p className={styles.notifText}>{n.text}</p>
-                <span className={styles.notifTime}>{n.time}</span>
-              </div>
-            ))}
+            {notifications.length === 0 ? (
+              <p className={styles.notifEmpty}>No notifications</p>
+            ) : (
+              notifications.map((n) => (
+                <div key={n.id} className={`${styles.notifItem} ${n.unread ? styles.notifItemUnread : ''}`}>
+                  <p className={styles.notifText}>{n.text}</p>
+                  <span className={styles.notifTime}>{n.time}</span>
+                </div>
+              ))
+            )}
           </div>
         </>
       )}

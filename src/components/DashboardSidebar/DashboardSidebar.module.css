@@ -85,6 +85,13 @@
   color: var(--color-text);
 }
 
+.notifEmpty {
+  padding: 20px 16px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
 .notifItem {
   padding: 10px 16px;
   border-bottom: 1px solid var(--color-border);

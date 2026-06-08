@@ -215,6 +215,25 @@ export default function DashboardPage() {
     }
   }, [user])
 
+  // Fetch global notifications from Supabase (controlled in production via dashboard)
+  useEffect(() => {
+    if (!user) return
+    supabase
+      .from('notifications')
+      .select('id, text, time_label, created_at')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (!data || data.length === 0) return
+        setSidebarNotifications((prev) => {
+          const existingIds = new Set(prev.map((n) => n.id))
+          const incoming = data
+            .map((n) => ({ id: n.id as string, text: n.text as string, time: n.time_label as string }))
+            .filter((n) => !existingIds.has(n.id))
+          return incoming.length > 0 ? [...prev, ...incoming] : prev
+        })
+      })
+  }, [user])
+
   const handlePromptSubmit = useCallback(async (
     prompt: string,
     selectedModel: SelectedModel | null,
