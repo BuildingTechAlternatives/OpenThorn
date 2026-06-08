@@ -87,12 +87,12 @@ const FAQ_DATA: FaqCategory[] = [
       {
         question: 'Are my API keys safe?',
         answer:
-          'Yes. API keys are encrypted with AES-256-GCM before being stored in our database. They are never logged, never shared with third parties, and are only decrypted at the moment your request is sent to the provider.',
+          'Saved API keys are encrypted before database storage, are not used for OpenThorn billing, and are decrypted only when needed to send your request to the AI provider you selected. You should still set provider-side spend limits, rotate keys, and revoke any key you suspect has been exposed.',
       },
       {
         question: 'What data does OpenThorn store?',
         answer:
-          'We store your email address, your encrypted API keys, your project names, and the prompts and generated code within your projects. We do not collect payment information, browsing behaviour, or any data beyond what is needed to provide the service.',
+          'We store the data needed to provide the service, including account/profile data, encrypted API keys, project names, prompts, generated code, collaboration records, community likes, deployment metadata, and optional GitHub integration data. Browser-local storage may also keep app preferences and local user memory.',
       },
       {
         question: 'Where is my data hosted?',

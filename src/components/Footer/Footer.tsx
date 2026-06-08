@@ -33,6 +33,7 @@ const legalLinks = [
   { label: 'Privacy Policy', to: '/privacy' },
   { label: 'Terms of Service', to: '/terms' },
   { label: 'Cookie Policy', to: '/cookies' },
+  { label: 'Moderation & DSA', to: '/moderation' },
   { label: 'Imprint', to: '/imprint' },
 ]
 

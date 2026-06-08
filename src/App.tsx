@@ -21,6 +21,7 @@ import CommunityPage from './pages/CommunityPage'
 import BlogPage from './pages/BlogPage'
 import BlogPostPage from './pages/BlogPostPage'
 import FaqPage from './pages/FaqPage'
+import ModerationPage from './pages/ModerationPage'
 import NotFoundPage from './pages/NotFoundPage'
 import AuthModal from './components/AuthModal/AuthModal'
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
@@ -80,6 +81,7 @@ export default function App() {
           <Route path="/terms" element={<Layout><TermsPage /></Layout>} />
           <Route path="/cookies" element={<Layout><CookiesPage /></Layout>} />
           <Route path="/imprint" element={<Layout><ImprintPage /></Layout>} />
+          <Route path="/moderation" element={<Layout><ModerationPage /></Layout>} />
           <Route path="/blog" element={<Layout><BlogPage /></Layout>} />
           <Route path="/blog/:slug" element={<Layout><BlogPostPage /></Layout>} />
           <Route path="/faq" element={<Layout><FaqPage /></Layout>} />

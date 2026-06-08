@@ -4,7 +4,7 @@ import { usePageTitle } from '../lib/usePageTitle'
 export default function TermsPage() {
   usePageTitle('Terms of Service')
   return (
-    <LegalPage title="Terms of Service" lastUpdated="June 6, 2026">
+    <LegalPage title="Terms of Service" lastUpdated="June 8, 2026">
       <h2>1. About OpenThorn</h2>
       <p>
         OpenThorn is a free AI web builder. You describe what you want; OpenThorn generates
@@ -39,8 +39,16 @@ export default function TermsPage() {
       </p>
       <ul>
         <li>
-          Your API keys are used to make requests directly to the AI provider. OpenThorn
-          does not store, log, or charge for your API usage.
+          Your API keys are encrypted before database storage and used to make requests
+          to the AI provider you select. OpenThorn does not charge for your provider
+          usage. You should still treat saved API keys as sensitive credentials and
+          revoke them with your provider if you suspect compromise.
+        </li>
+        <li>
+          To fulfil your request, OpenThorn may send your API key or authorization
+          credentials, prompts, project context, generated files, and technical error
+          details to the selected AI provider. The provider processes that data under its
+          own terms and privacy policy.
         </li>
         <li>
           You are solely responsible for the security of your API keys. If a key is
@@ -91,6 +99,11 @@ export default function TermsPage() {
         We reserve the right to remove publicly shared content that violates these Terms or
         applicable law.
       </p>
+      <p>
+        Reports about illegal content, intellectual-property infringement, harmful
+        projects, or moderation decisions should be sent through the process described in
+        our <a href="/moderation">Moderation and DSA Notice</a>.
+      </p>
 
       <h2>8. Intellectual Property</h2>
       <p>
@@ -121,14 +134,17 @@ export default function TermsPage() {
         <li>
           <strong>Bring Your Own Keys.</strong> OpenThorn does not operate AI models.
           You connect your own API keys from third-party AI providers (e.g. OpenAI,
-          Anthropic, Google). Those providers are responsible for their models' compliance
-          with applicable AI regulations.
+          Anthropic, Google). Those providers are responsible for obligations that apply
+          to their models, while OpenThorn remains responsible for the transparency,
+          configuration, and use obligations that apply to OpenThorn as a service.
         </li>
         <li>
-          <strong>Minimal-risk use case.</strong> OpenThorn is used exclusively for code
-          and website generation. It is not used for any high-risk purpose as defined in
-          Annex III of the EU AI Act (including but not limited to biometric
-          identification, employment decisions, credit scoring, or law enforcement).
+          <strong>Intended use.</strong> OpenThorn is designed for code and website
+          generation. You must not use it for prohibited AI practices or for high-risk
+          purposes such as biometric identification, employment decisions, credit scoring,
+          education access decisions, law enforcement, migration control, or other regulated
+          uses unless you independently ensure that all applicable legal requirements are
+          met.
         </li>
         <li>
           <strong>Human review recommended.</strong> AI-generated code may contain errors,
@@ -143,14 +159,32 @@ export default function TermsPage() {
         </li>
       </ul>
 
-      <h2>11. Limitation of Liability</h2>
+      <h2>11. Digital Services Act and Content Moderation</h2>
+      <p>
+        OpenThorn may host public user content, including Community projects and related
+        metadata. Users must not upload, publish, or share illegal content, malware,
+        phishing pages, stolen credentials, private personal data, infringing material, or
+        content that violates the rights or safety of others.
+      </p>
+      <p>
+        We may remove, restrict, suspend, or preserve content where necessary to comply
+        with law, enforce these Terms, protect users, or investigate abuse. We may also
+        suspend or terminate accounts that repeatedly publish illegal content or submit
+        manifestly unfounded reports.
+      </p>
+      <p>
+        Our single point of contact and reporting process are set out in the{' '}
+        <a href="/moderation">Moderation and DSA Notice</a>.
+      </p>
+
+      <h2>12. Limitation of Liability</h2>
       <p>
         To the maximum extent permitted by applicable law, OpenThorn and its operators
         shall not be liable for any indirect, incidental, special, consequential, or
         punitive damages arising out of or related to your use of the service. Because the
         service is provided free of charge, our aggregate liability to you for direct
         damages shall not exceed the greater of the fees you paid us in the twelve months
-        preceding the claim or €0.
+        preceding the claim or EUR 0.
       </p>
       <p>
         Nothing in these Terms limits or excludes liability for fraud, gross negligence,
@@ -161,14 +195,14 @@ export default function TermsPage() {
         these Terms.
       </p>
 
-      <h2>12. Termination</h2>
+      <h2>13. Termination</h2>
       <p>
         We may suspend or terminate your account if you breach these Terms. You may delete
         your account at any time by contacting us at <strong><a href="mailto:mys.thomas00@gmail.com">mys.thomas00@gmail.com</a></strong>.
         Termination does not affect any accrued rights or obligations.
       </p>
 
-      <h2>13. Changes to Terms</h2>
+      <h2>14. Changes to Terms</h2>
       <p>
         We may update these Terms at any time by posting the revised version on this page
         with an updated date. Continued use of the service after the update constitutes
@@ -176,7 +210,7 @@ export default function TermsPage() {
         account.
       </p>
 
-      <h2>14. Governing Law</h2>
+      <h2>15. Governing Law</h2>
       <p>
         These Terms are governed by Italian law. For users who are consumers under the
         Italian Consumer Code (D.Lgs. 206/2005), the mandatory consumer protection
@@ -185,7 +219,7 @@ export default function TermsPage() {
         except where mandatory consumer law provides otherwise.
       </p>
 
-      <h2>15. Contact</h2>
+      <h2>16. Contact</h2>
       <p>
         For any questions about these Terms, contact us at <strong><a href="mailto:mys.thomas00@gmail.com">mys.thomas00@gmail.com</a></strong>.
       </p>

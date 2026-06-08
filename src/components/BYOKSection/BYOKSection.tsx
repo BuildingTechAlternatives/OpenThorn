@@ -7,7 +7,7 @@ const featureCards: Carousel3DCard[] = [
   {
     icon: <KeyIcon />,
     title: 'Bring your own keys',
-    description: 'Hook up OpenAI, Anthropic, Gemini — whatever you use. OpenThorn never touches your API keys.',
+    description: 'Hook up OpenAI, Anthropic, Gemini - whatever you use. OpenThorn uses your keys only for requests you make.',
   },
   {
     icon: <DollarIcon />,
@@ -22,7 +22,7 @@ const featureCards: Carousel3DCard[] = [
   {
     icon: <SparkIcon />,
     title: 'Real code, real time',
-    description: 'OpenThorn writes production-grade code — not a drag-and-drop approximation. Watch every file appear.',
+    description: 'OpenThorn writes production-grade code - not a drag-and-drop approximation. Watch every file appear.',
   },
   {
     icon: <GlobeIcon />,
