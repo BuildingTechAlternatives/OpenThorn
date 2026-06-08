@@ -7,7 +7,6 @@ import JSZip from 'jszip'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabase'
 import { deployToNetlify } from '../lib/deploy'
-import { syncFiles, createRepo } from '../lib/github'
 import { buildPreview, escapeHtml } from '../lib/preview-bundle'
 import { capturePreviewThumbnail } from '../lib/preview-screenshot'
 import { runOpenThornAgent, type AgentCodeFile, type SelectedAgentModel } from '../lib/agent'
@@ -800,23 +799,6 @@ export default function ProjectBuilderPage() {
   const [publishing, setPublishing] = useState(false)
   const [publishSuccess, setPublishSuccess] = useState(false)
   const [netlifySiteId, setNetlifySiteId] = useState<string | null>(null)
-  const [githubToken, setGithubToken] = useState('')
-  const [githubUsername, setGithubUsername] = useState('')
-  const [githubDialogOpen, setGithubDialogOpen] = useState(false)
-  const [githubConnecting, setGithubConnecting] = useState(false)
-  const [githubError, setGithubError] = useState('')
-  const [githubPushing, setGithubPushing] = useState(false)
-  const [githubPushSuccess, setGithubPushSuccess] = useState('')
-  const [githubRepoName, setGithubRepoName] = useState('')
-  const [githubRepoOwner, setGithubRepoOwner] = useState('')
-  const [githubRepoInput, setGithubRepoInput] = useState('')
-  const [githubRepoDescInput, setGithubRepoDescInput] = useState('')
-  const [githubAutoSync, setGithubAutoSync] = useState(false)
-  const githubTokenRef = useRef('')
-  const githubRepoNameRef = useRef('')
-  const githubRepoOwnerRef = useRef('')
-  const githubAutoSyncRef = useRef(false)
-  const pendingGithubCallbackRef = useRef(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
   const titleShouldSaveRef = useRef(true)
   const initialAgentStartedRef = useRef(false)
@@ -1092,93 +1074,6 @@ export default function ProjectBuilderPage() {
     },
   })
 
-  useEffect(() => {
-    if (!user) return
-
-    const loadGithubIntegration = async () => {
-      const { data, error } = await supabase
-        .from('user_integrations')
-        .select('access_token, provider_username')
-        .eq('user_id', user.id)
-        .eq('provider', 'github')
-        .maybeSingle()
-
-      if (error || !data) return
-
-      setGithubToken(data.access_token)
-      githubTokenRef.current = data.access_token
-      setGithubUsername(data.provider_username || '')
-    }
-
-    loadGithubIntegration()
-  }, [user?.id])
-
-  // Detect OAuth callback for GitHub repo access
-  useEffect(() => {
-    const url = new URL(window.location.href)
-    if (url.searchParams.get('github_callback') === '1') {
-      pendingGithubCallbackRef.current = true
-      url.searchParams.delete('github_callback')
-      window.history.replaceState({}, '', url.toString())
-    }
-  }, [])
-
-  // Handle GitHub OAuth callback once user is loaded
-  useEffect(() => {
-    if (!user || !pendingGithubCallbackRef.current) return
-    pendingGithubCallbackRef.current = false
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session?.provider_token) return
-      const username =
-        (session.user.user_metadata?.user_name as string) ||
-        (session.user.user_metadata?.preferred_username as string) ||
-        ''
-      supabase
-        .from('user_integrations')
-        .upsert(
-          {
-            user_id: user.id,
-            provider: 'github',
-            access_token: session.provider_token,
-            provider_username: username,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: 'user_id,provider' },
-        )
-        .then(() => {
-          setGithubToken(session.provider_token!)
-          githubTokenRef.current = session.provider_token!
-          setGithubUsername(username)
-          setGithubDialogOpen(true)
-        })
-    })
-  }, [user])
-
-  // Load per-project GitHub repo info from localStorage
-  useEffect(() => {
-    if (!projectId) return
-    const stored = localStorage.getItem(`github_repo_${projectId}`)
-    if (!stored) return
-    try {
-      const { owner, name, autoSync } = JSON.parse(stored)
-      setGithubRepoOwner(owner || '')
-      setGithubRepoName(name || '')
-      setGithubAutoSync(Boolean(autoSync))
-      githubRepoOwnerRef.current = owner || ''
-      githubRepoNameRef.current = name || ''
-      githubAutoSyncRef.current = Boolean(autoSync)
-    } catch { /* ok */ }
-  }, [projectId])
-
-  // Pre-fill repo name input from project title when dialog opens
-  useEffect(() => {
-    if (githubDialogOpen && !githubRepoName && title) {
-      setGithubRepoInput(
-        title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'my-project',
-      )
-    }
-  }, [githubDialogOpen, githubRepoName, title])
 
   useEffect(() => {
     if (!activePresenceUser) return
@@ -1411,103 +1306,6 @@ export default function ProjectBuilderPage() {
     }
   }, [netlifySiteId, projectFiles, projectId, user])
 
-  const handleOAuthConnect = useCallback(async () => {
-    const redirectUrl = new URL(window.location.href)
-    redirectUrl.searchParams.set('github_callback', '1')
-    await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: {
-        scopes: 'repo',
-        redirectTo: redirectUrl.toString(),
-      },
-    })
-  }, [])
-
-  const handleGithubSetupRepo = useCallback(async () => {
-    if (!githubToken || !githubRepoInput.trim()) return
-    setGithubConnecting(true)
-    setGithubError('')
-
-    try {
-      const sanitizedName = githubRepoInput
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9-]+/g, '-')
-        .replace(/^-|-$/g, '')
-      const repo = await createRepo(githubToken, sanitizedName, githubRepoDescInput.trim(), true)
-      await syncFiles(
-        githubToken,
-        repo.owner.login,
-        repo.name,
-        projectFiles.map((f) => ({ path: f.path, content: f.code })),
-        'Initial commit from OpenThorn',
-      )
-
-      setGithubRepoOwner(repo.owner.login)
-      setGithubRepoName(repo.name)
-      setGithubAutoSync(true)
-      githubRepoOwnerRef.current = repo.owner.login
-      githubRepoNameRef.current = repo.name
-      githubAutoSyncRef.current = true
-      setGithubPushSuccess(repo.html_url)
-
-      if (projectId) {
-        localStorage.setItem(
-          `github_repo_${projectId}`,
-          JSON.stringify({ owner: repo.owner.login, name: repo.name, autoSync: true }),
-        )
-      }
-    } catch (err) {
-      setGithubError(err instanceof Error ? err.message : 'Setup failed')
-    } finally {
-      setGithubConnecting(false)
-    }
-  }, [githubToken, githubRepoInput, githubRepoDescInput, projectFiles, projectId])
-
-  const handleGithubPush = useCallback(async () => {
-    if (!githubToken || !githubRepoName || !githubRepoOwner) return
-    setGithubPushing(true)
-    setGithubPushSuccess('')
-    setGithubError('')
-
-    try {
-      await syncFiles(
-        githubToken,
-        githubRepoOwner,
-        githubRepoName,
-        projectFiles.map((f) => ({ path: f.path, content: f.code })),
-        'Manual push from OpenThorn',
-      )
-      setGithubPushSuccess(`https://github.com/${githubRepoOwner}/${githubRepoName}`)
-    } catch (err) {
-      setGithubError(err instanceof Error ? err.message : 'Push failed')
-    } finally {
-      setGithubPushing(false)
-    }
-  }, [githubToken, githubRepoOwner, githubRepoName, projectFiles])
-
-  const handleGithubDisconnect = useCallback(async () => {
-    await supabase.from('user_integrations').delete().eq('user_id', user!.id).eq('provider', 'github')
-    setGithubToken('')
-    setGithubUsername('')
-    setGithubRepoName('')
-    setGithubRepoOwner('')
-    setGithubAutoSync(false)
-    githubTokenRef.current = ''
-    githubRepoNameRef.current = ''
-    githubRepoOwnerRef.current = ''
-    githubAutoSyncRef.current = false
-    if (projectId) localStorage.removeItem(`github_repo_${projectId}`)
-  }, [user, projectId])
-
-  const handleToggleAutoSync = useCallback((checked: boolean) => {
-    setGithubAutoSync(checked)
-    githubAutoSyncRef.current = checked
-    if (projectId) {
-      const stored = JSON.parse(localStorage.getItem(`github_repo_${projectId}`) || '{}')
-      localStorage.setItem(`github_repo_${projectId}`, JSON.stringify({ ...stored, autoSync: checked }))
-    }
-  }, [projectId])
 
   const handleDownloadZip = useCallback(async () => {
     const zip = new JSZip()
@@ -1864,23 +1662,6 @@ export default function ProjectBuilderPage() {
                     })
                   }
                 }
-                // Auto-push to GitHub if configured
-                const tok = githubTokenRef.current
-                const repoOwner = githubRepoOwnerRef.current
-                const repoName = githubRepoNameRef.current
-                const autoSync = githubAutoSyncRef.current
-                if (tok && repoOwner && repoName && autoSync) {
-                  const files = (event.files || []).map((f: { path: string; code: string }) => ({
-                    path: f.path,
-                    content: f.code,
-                  }))
-                  const summary = typeof doneData.summary === 'string' && doneData.summary.trim()
-                    ? doneData.summary.trim()
-                    : 'Agent update'
-                  syncFiles(tok, repoOwner, repoName, files, summary).catch((err) =>
-                    console.error('GitHub auto-push failed:', err),
-                  )
-                }
               } catch { /* ok */ }
             }
           }
@@ -2092,18 +1873,6 @@ export default function ProjectBuilderPage() {
         </div>
 
         <div className={styles.topActions}>
-          <button
-            className={styles.iconBtn}
-            type="button"
-            aria-label={githubToken ? (githubRepoName ? 'GitHub connected' : 'Set up GitHub repo') : 'Connect GitHub'}
-            onClick={() => {
-              setGithubDialogOpen(true)
-              setGithubError('')
-              setGithubPushSuccess('')
-            }}
-          >
-            <img src="/assets/github.png" alt="GitHub" className={styles.githubLogo} />
-          </button>
           <button
             className={styles.iconBtn}
             type="button"
@@ -2379,130 +2148,6 @@ export default function ProjectBuilderPage() {
         </div>
       )}
 
-      {githubDialogOpen && (
-        <div
-          className={styles.shareOverlay}
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget && !githubConnecting && !githubPushing) {
-              setGithubDialogOpen(false)
-            }
-          }}
-        >
-          <section className={styles.deployModal} role="dialog" aria-modal="true" aria-labelledby="github-dialog-title">
-            <div className={styles.shareHeader}>
-              <div>
-                <h2 id="github-dialog-title">
-                  {!githubToken ? 'Connect GitHub' : !githubRepoName ? 'Set up repository' : 'GitHub'}
-                </h2>
-              </div>
-              <button className={styles.closeBtn} type="button" aria-label="Close" onClick={() => setGithubDialogOpen(false)}>
-                <CloseIcon />
-              </button>
-            </div>
-
-            <div className={styles.deployBody}>
-              {githubPushSuccess ? (
-                <div className={styles.deployStatus}>
-                  <div className={styles.deploySuccessIcon}>
-                    <CheckIconLarge />
-                  </div>
-                  <p>Pushed to GitHub!</p>
-                  <a href={githubPushSuccess} target="_blank" rel="noopener noreferrer" className={styles.deployUrl}>
-                    {githubPushSuccess}
-                  </a>
-                </div>
-              ) : !githubToken ? (
-                <div className={styles.deployBodyInner}>
-                  <p className={styles.githubInstructions}>
-                    Connect your GitHub account to push your project code and sync changes automatically.
-                  </p>
-                  <button
-                    className={styles.deployBtn}
-                    type="button"
-                    onClick={handleOAuthConnect}
-                    style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}
-                  >
-                    <img src="/assets/github.png" alt="" style={{ width: 18, height: 18, filter: 'invert(1)' }} />
-                    Connect with GitHub
-                  </button>
-                </div>
-              ) : !githubRepoName ? (
-                <div className={styles.deployBodyInner}>
-                  <p className={styles.githubInstructions}>
-                    Connected as <strong>{githubUsername}</strong>. Choose a name for your repository.
-                  </p>
-                  <div className={styles.emailInputWrap} style={{ cursor: 'text' }}>
-                    <input
-                      type="text"
-                      value={githubRepoInput}
-                      onChange={(e) => { setGithubRepoInput(e.target.value); setGithubError('') }}
-                      placeholder="repository-name"
-                      autoComplete="off"
-                      autoFocus
-                    />
-                  </div>
-                  <div className={styles.emailInputWrap} style={{ cursor: 'text', marginTop: 8 }}>
-                    <input
-                      type="text"
-                      value={githubRepoDescInput}
-                      onChange={(e) => setGithubRepoDescInput(e.target.value)}
-                      placeholder="Description (optional)"
-                      autoComplete="off"
-                    />
-                  </div>
-                  <button
-                    className={styles.deployBtn}
-                    type="button"
-                    onClick={handleGithubSetupRepo}
-                    disabled={!githubRepoInput.trim() || githubConnecting}
-                  >
-                    {githubConnecting ? <><span className={styles.spinner} />Creating…</> : 'Create & push'}
-                  </button>
-                  {githubError && <p className={styles.deployError}>{githubError}</p>}
-                </div>
-              ) : (
-                <div className={styles.deployBodyInner}>
-                  <p className={styles.githubInstructions}>
-                    Connected to{' '}
-                    <a
-                      href={`https://github.com/${githubRepoOwner}/${githubRepoName}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {githubRepoOwner}/{githubRepoName}
-                    </a>
-                  </p>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, cursor: 'pointer', marginBottom: 12 }}>
-                    <input
-                      type="checkbox"
-                      checked={githubAutoSync}
-                      onChange={(e) => handleToggleAutoSync(e.target.checked)}
-                    />
-                    Auto-push after every AI change
-                  </label>
-                  <button
-                    className={styles.deployBtn}
-                    type="button"
-                    onClick={handleGithubPush}
-                    disabled={githubPushing}
-                  >
-                    {githubPushing ? <><span className={styles.spinner} />Pushing…</> : 'Push now'}
-                  </button>
-                  {githubError && <p className={styles.deployError}>{githubError}</p>}
-                  <button
-                    type="button"
-                    onClick={handleGithubDisconnect}
-                    style={{ marginTop: 12, background: 'none', border: 'none', color: 'var(--text-muted, #888)', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
-                  >
-                    Disconnect GitHub
-                  </button>
-                </div>
-              )}
-            </div>
-          </section>
-        </div>
-      )}
 
       <main className={styles.shell}>
         <aside className={styles.chatPanel}>
