@@ -889,7 +889,7 @@ export default function ProjectBuilderPage() {
       // Verify ownership before upserting to prevent IDOR
       const { data: existing } = await supabase
         .from('projects')
-        .select('user_id, title, files, chat_history, netlify_site_id, generating, generating_by')
+        .select('user_id, title, files, chat_history, netlify_site_id, generating, generating_by, selected_model')
         .eq('id', projectId)
         .single()
 
@@ -984,6 +984,11 @@ export default function ProjectBuilderPage() {
       }
 
       setNetlifySiteId(typeof existing?.netlify_site_id === 'string' ? existing.netlify_site_id : null)
+
+      // Restore persisted model selection (navigation state takes priority)
+      if (!state.selectedModel && existing?.selected_model) {
+        setActiveModel(existing.selected_model as SelectedAgentModel)
+      }
 
       // Upsert project metadata (preserve existing title; files are not included so they're never overwritten)
       const { error } = await supabase
@@ -2314,6 +2319,12 @@ export default function ProjectBuilderPage() {
                         ? 'A collaborator is generating…'
                         : 'Ask OpenThorn for a change...'
                 }
+                onModelChange={(model) => {
+                  setActiveModel(model)
+                  if (projectId && model) {
+                    void supabase.from('projects').update({ selected_model: model }).eq('id', projectId)
+                  }
+                }}
                 onSubmit={(nextPrompt, selectedModel, thinkingLevel) => handleAgentRequest(nextPrompt, selectedModel, thinkingLevel)}
               />
             )}
