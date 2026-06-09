@@ -9,6 +9,7 @@ import {
   getThinkingBudget,
   getReasoningParams,
   loopBreakPrompt,
+  turnBudgetPrompt,
   type ToolDefinition,
 } from './agent-prompt'
 import { decryptApiKey } from './crypto'
@@ -20,6 +21,7 @@ import {
 import { buildPreview } from './preview-bundle'
 import {
   runtimeSmokeTest,
+  interactiveSmokeTest,
   formatRuntimeReport,
 } from './preview-runtime-check'
 import {
@@ -848,7 +850,17 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   const loopDetector = new LoopDetector()
   // Per-run state for tool execution: tracks reads (to short-circuit redundant
   // re-reads of unchanged files) and the mode (to ignore set_title on refine).
-  const runCtx: RunContext = { mode, turn: 0, reads: new Map() }
+  const runCtx: RunContext = {
+    mode,
+    turn: 0,
+    reads: new Map(),
+    // done requires at least one passing compile per run, even on refine runs
+    // where the agent makes no file changes — verification before completion.
+    dirtySinceCompile: true,
+    lastCompileOk: false,
+    doneRejections: 0,
+    planGateFired: false,
+  }
 
   // Track session details for changelog
   const sessionFilesCreated: string[] = []
@@ -942,13 +954,19 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
       const result = toolResults[i]
       if (result.files) currentFiles = result.files
 
-      // done is accepted as soon as the agent calls it — the agent is
-      // responsible for compiling (build + runtime) before finishing. The
-      // final done result is pushed once, after this loop.
-      if (tc.name === 'done') {
+      // done only finishes the run when it passed the verification gate.
+      // A rejected done (isError) falls through and is pushed as a normal
+      // tool result so the agent sees the rejection reason and keeps working.
+      if (tc.name === 'done' && !result.isError) {
         hasDone = true
         doneResult = result
         continue
+      }
+      if (tc.name === 'done' && result.isError) {
+        input.onProgress?.({
+          type: 'status',
+          message: 'Verification gate rejected done — continuing until the app is verified.',
+        })
       }
 
       messages.push({
@@ -985,6 +1003,15 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     if (nudge) {
       input.onProgress?.({ type: 'status', message: 'Detected a stuck loop — nudging a new approach.' })
       messages.push({ role: 'user', content: loopBreakPrompt(nudge) })
+    }
+
+    // ── Turn-budget warning ─────────────────────────────────────
+    // Warn as the cap approaches so the agent lands the build (compile + done)
+    // instead of dying mid-task when turns run out.
+    const turnsLeft =
+      (input.maxTurns ?? thinkingProfile.maxTurns ?? MAX_TOOL_TURNS) - turnCount
+    if (!hasDone && (turnsLeft === 6 || turnsLeft === 3)) {
+      messages.push({ role: 'user', content: turnBudgetPrompt(turnsLeft) })
     }
 
     if (hasDone && doneResult) {
@@ -1147,6 +1174,14 @@ interface RunContext {
   turn: number
   /** path|offset|limit → snapshot + turn it was last served, to skip re-reads. */
   reads: Map<string, { snap: string; turn: number }>
+  /** True when project files changed since the last passing compile. */
+  dirtySinceCompile: boolean
+  /** Whether any compile this run passed build + runtime. */
+  lastCompileOk: boolean
+  /** How many times the done verification gate has rejected done this run. */
+  doneRejections: number
+  /** The PLAN.md gate fires at most once per run (heuristic checklists can be noisy). */
+  planGateFired: boolean
 }
 
 async function executeToolsParallel(
@@ -1201,7 +1236,14 @@ async function executeToolsParallel(
     const result = await executeTool(call, currentFiles, signal, provider, onProgress, runCtx)
     onProgress?.({ type: 'tool_result', toolName: call.name, toolResult: result.content, toolError: result.isError, files: result.files })
     results[index] = result
-    if (result.files) currentFiles = result.files
+    if (result.files) {
+      currentFiles = result.files
+      // Source changed → the last compile no longer vouches for the project.
+      // PLAN.md updates don't affect the build, so they don't dirty it.
+      if (!result.isError && call.name !== 'update_plan') {
+        runCtx.dirtySinceCompile = true
+      }
+    }
   }
 
   // Phase 3: Compile
@@ -1695,10 +1737,15 @@ async function executeTool(
           const runtime = await runtimeSmokeTest(preview.html)
           const report = formatRuntimeReport(runtime)
           if (!runtime.ok) {
+            if (runCtx) runCtx.lastCompileOk = false
             return {
               content: `Build succeeded, but the app crashes at runtime.\n\n${report}`,
               isError: true,
             }
+          }
+          if (runCtx) {
+            runCtx.lastCompileOk = true
+            runCtx.dirtySinceCompile = false
           }
           if (report) {
             // Non-fatal console warnings — surface but don't block.
@@ -1712,6 +1759,7 @@ async function executeTool(
             isError: false,
           }
         }
+        if (runCtx) runCtx.lastCompileOk = false
 
         const uniqueErrors = [...new Set(preview.errors)]
         const shown = uniqueErrors.slice(0, COMPILE_MAX_ERRORS)
@@ -1725,6 +1773,7 @@ async function executeTool(
           isError: true,
         }
       } catch (err) {
+        if (runCtx) runCtx.lastCompileOk = false
         return {
           content: formatStructuredError({
             code: 'COMPILE_CRASH',
@@ -1758,6 +1807,17 @@ async function executeTool(
 
     // ── done ────────────────────────────────────────────────────
     case 'done': {
+      // Verification gate (Claude Code: evidence before completion claims).
+      // Deterministic checks first, then an interactive smoke test that
+      // actually clicks buttons and types into inputs. Capped at 3 rejections
+      // so a flaky check can never deadlock a run.
+      if (runCtx && runCtx.doneRejections < 3) {
+        const rejection = await runDoneVerificationGate(runCtx, currentFiles)
+        if (rejection) {
+          runCtx.doneRejections++
+          return { content: rejection, isError: true }
+        }
+      }
       const summary = String(toolCall.input.summary ?? 'Project complete.')
       // Only carry a title for new projects — refine runs keep the existing name.
       const title =
@@ -1786,6 +1846,79 @@ async function executeTool(
         }), isError: true,
       }
   }
+}
+
+// ─── Done Verification Gate ─────────────────────────────────────────────────
+
+/**
+ * Returns a rejection message when the project is not verifiably finished,
+ * or null to accept done. Checks, cheapest first:
+ *
+ * 1. Files changed since the last passing compile (or no passing compile yet).
+ * 2. PLAN.md has unchecked requirements (create mode, fires at most once —
+ *    the seeded checklist is heuristic and may contain noise).
+ * 3. Interactive smoke test: build the app and actually exercise its buttons,
+ *    inputs, and hash links; reject when a handler throws.
+ */
+async function runDoneVerificationGate(
+  runCtx: RunContext,
+  currentFiles: AgentCodeFile[],
+): Promise<string | null> {
+  // 1. Stale-compile gate
+  if (runCtx.dirtySinceCompile || !runCtx.lastCompileOk) {
+    return formatStructuredError({
+      code: 'DONE_REJECTED',
+      message: runCtx.lastCompileOk
+        ? 'Files changed since the last passing compile — the current code is unverified.'
+        : 'No compile has passed (build + runtime) in this run yet.',
+      suggestion: 'Run compile now. When it passes for the current files, call done again.',
+      retryable: true,
+    })
+  }
+
+  // 2. Plan-coverage gate (create mode only, once per run)
+  if (runCtx.mode === 'create' && !runCtx.planGateFired) {
+    const planFile = currentFiles.find((f) => f.path === PLAN_PATH)
+    if (planFile) {
+      const unmet = unmetRequirements(parsePlan(planFile.code))
+      if (unmet.length > 0) {
+        runCtx.planGateFired = true
+        return formatStructuredError({
+          code: 'DONE_REJECTED',
+          message: `PLAN.md still has ${unmet.length} unchecked requirement(s): ${unmet
+            .map((i) => `${i.id}. ${i.text}`)
+            .join('; ')}`,
+          suggestion:
+            'Either finish these requirements, or — if one is already done or no longer applies — update the checklist with update_plan (check it off or rewrite the list), then call done again.',
+          retryable: true,
+        })
+      }
+    }
+  }
+
+  // 3. Interactive smoke test — the buttons must actually work.
+  try {
+    const preview = await buildPreview(
+      currentFiles.map((f) => ({ path: f.path, content: f.code })),
+    )
+    if (preview.errors.length === 0) {
+      const runtime = await interactiveSmokeTest(preview.html)
+      if (runtime.ran && !runtime.ok) {
+        const report = formatRuntimeReport(runtime)
+        return formatStructuredError({
+          code: 'DONE_REJECTED',
+          message: `The app breaks when its UI is actually used.\n${report ?? ''}`,
+          suggestion:
+            'Fix the failing handler(s), compile, then call done again.',
+          retryable: true,
+        })
+      }
+    }
+  } catch {
+    // Inconclusive (no DOM / bundler hiccup) — never block done on a flaky check.
+  }
+
+  return null
 }
 
 // ─── Model Calling ──────────────────────────────────────────────────────────
@@ -1993,6 +2126,29 @@ async function callAnthropicWithTools({
   thinkingBudget?: number
 }): Promise<ModelCallResult> {
   const anthropicMessages = messages.map(convertToAnthropicMessage)
+
+  // Cache the conversation prefix, not just the system prompt ("prompt caching
+  // is everything"): a marker on the final message's last block lets each turn
+  // reuse the previous turn's cached prefix — tools + system + all prior
+  // messages — instead of re-billing the whole conversation at full price.
+  // convertToAnthropicMessage returns fresh objects, so this never leaks
+  // cache_control back into the loop's message state (markers must not
+  // accumulate across turns — the API allows at most 4 breakpoints).
+  const lastMsg = anthropicMessages[anthropicMessages.length - 1]
+  if (lastMsg) {
+    if (typeof lastMsg.content === 'string' && lastMsg.content.length > 0) {
+      lastMsg.content = [
+        { type: 'text', text: lastMsg.content, cache_control: { type: 'ephemeral' } },
+      ]
+    } else if (Array.isArray(lastMsg.content) && lastMsg.content.length > 0) {
+      const blocks = lastMsg.content as Record<string, unknown>[]
+      const lastBlock = blocks[blocks.length - 1]
+      const t = lastBlock?.type
+      if (t === 'text' || t === 'tool_result' || t === 'image' || t === 'tool_use') {
+        blocks[blocks.length - 1] = { ...lastBlock, cache_control: { type: 'ephemeral' } }
+      }
+    }
+  }
 
   const body: Record<string, unknown> = {
     model: modelId, max_tokens: MAX_OUTPUT_TOKENS, temperature: 0.22,

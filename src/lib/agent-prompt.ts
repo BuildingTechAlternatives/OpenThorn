@@ -84,6 +84,10 @@ export const AGENT_TOOLS: ToolDefinition[] = [
       'renders) and every requested feature is implemented and working. There is ' +
       'no separate reviewer after this — you are responsible for the result, so ' +
       'compile right before finishing and self-check each requirement in PLAN.md. ' +
+      'done is VERIFIED: it is rejected if files changed since the last passing ' +
+      'compile, if PLAN.md requirements are still unchecked, or if the app\'s ' +
+      'buttons/inputs throw errors when actually exercised. If rejected, fix the ' +
+      'reported issue and call done again. ' +
       'Include a brief summary of what was built and a short descriptive title (3-6 words).',
     input_schema: {
       type: 'object',
@@ -581,6 +585,23 @@ Repeating the same action will not work. Change strategy now:
 ${readLoopGuidance}- If an edit keeps failing to match → re-read the file with read_file, or use write_file to replace the whole file.
 - If the same compile/runtime error keeps returning → read the actual file around the error line and fix the real cause; do not re-apply the same change.
 - If you are unsure → use think to reconsider the approach before acting.
+</system-reminder>`
+}
+
+// ─── Turn-budget warning ────────────────────────────────────────────────────
+
+/**
+ * Injected when the turn budget runs low so the agent lands the build instead
+ * of dying mid-task at the cap (mirrors Claude Code's low-context warning).
+ */
+export function turnBudgetPrompt(turnsLeft: number): string {
+  return `<system-reminder>
+## Turn budget low: ${turnsLeft} turn(s) remain
+
+The run ends automatically when turns run out — unfinished work is what the user gets. Prioritize landing the build:
+1. Finish only what is essential to the core request; skip optional polish.
+2. Reserve the final 2 turns: one for compile (build + runtime), one for done.
+3. If not every PLAN.md requirement can be finished, complete the most important ones, check them off with update_plan, and call done with an honest summary of what is and isn't included.
 </system-reminder>`
 }
 
