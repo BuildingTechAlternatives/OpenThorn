@@ -681,13 +681,19 @@ class LoopDetector {
    * Record this turn's tool calls and error results. Returns a nudge string if
    * the agent appears stuck, else null. `turn` guards against nudging twice in
    * quick succession.
+   *
+   * Only FAILING calls count toward the repeated-action check: a healthy
+   * edit → compile → edit → compile rhythm repeats `compile` (whose input is
+   * always `{}`) many times legitimately, and that must never read as a loop.
    */
   record(
     turn: number,
-    calls: { name: string; input: Record<string, unknown> }[],
+    calls: { name: string; input: Record<string, unknown>; isError: boolean }[],
     errorMessages: string[],
   ): string | null {
-    for (const c of calls) this.actions.push(this.fingerprint(c.name, c.input))
+    for (const c of calls) {
+      if (c.isError) this.actions.push(this.fingerprint(c.name, c.input))
+    }
     for (const e of errorMessages) this.errors.push(e.slice(0, 120))
     this.actions = this.actions.slice(-8)
     this.errors = this.errors.slice(-6)
@@ -700,7 +706,7 @@ class LoopDetector {
     const repeatedAction = [...counts.entries()].find(([, n]) => n >= 3)
     if (repeatedAction) {
       this.lastNudgeTurn = turn
-      return `You have repeated the same action (${repeatedAction[0].split(':')[0]}) ${repeatedAction[1]} times without progress.`
+      return `You have repeated the same failing action (${repeatedAction[0].split(':')[0]}) ${repeatedAction[1]} times without progress.`
     }
 
     // Same error message 3+ times.
@@ -765,7 +771,7 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   if (activeSkills.length > 0) {
     input.onProgress?.({
       type: 'status',
-      message: `Activated skills: ${activeSkills.length}`,
+      message: `Activated skills: ${activeSkills.map((s) => s.id).join(', ')}`,
     })
   }
 
@@ -779,8 +785,8 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   const messages: LlmMessage[] = []
 
   // Inject skill blocks (preserves cache)
-  for (const skillBody of activeSkills) {
-    messages.push({ role: 'user', content: skillBody })
+  for (const skill of activeSkills) {
+    messages.push({ role: 'user', content: skill.body })
   }
 
   // Inject memory context (lessons + failed approaches)
@@ -997,7 +1003,11 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     const turnErrors = toolResults.filter((r) => r.isError).map((r) => r.content)
     const nudge = loopDetector.record(
       turnCount,
-      toolCalls.map((tc) => ({ name: tc.name, input: tc.input })),
+      toolCalls.map((tc, i) => ({
+        name: tc.name,
+        input: tc.input,
+        isError: toolResults[i]?.isError ?? false,
+      })),
       turnErrors,
     )
     if (nudge) {
@@ -1313,9 +1323,13 @@ async function executeTool(
         code: formatPlan(nextPlan),
       })
       const remaining = unmetRequirements(nextPlan).length
+      const emptyHint =
+        nextPlan.items.length === 0
+          ? '\nThe checklist is EMPTY. Call update_plan again with set_requirements listing the concrete, checkable features you are building — done is verified against this list.'
+          : ''
       return {
         content:
-          `Plan updated. ${nextPlan.items.length} requirement(s), ${remaining} still unchecked.\n` +
+          `Plan updated. ${nextPlan.items.length} requirement(s), ${remaining} still unchecked.${emptyHint}\n` +
           nextPlan.items
             .map((it) => `  [${it.done ? 'x' : ' '}] ${it.id}. ${it.text}`)
             .join('\n'),

@@ -439,6 +439,7 @@ Work like a senior engineer, scaled to the task. A small tweak needs no ceremony
 - **Read each file at most once per turn.** Do not re-read to "check" or "verify" after edits. If you need a specific section, use search_files with context_lines, not another read_file.
 - **Only read files you will actually edit.** Do not read App.tsx and theme.css before editing Game.tsx — read only the file(s) you are about to change.
 - **For any numeric parameter (speeds, gaps, timers, animation rates), calculate the real-world value before picking a number.** State the math explicitly: "At speed 6px/frame × 60fps, gap=300px → 0.83s between obstacles — is that enough?" Doubling a number without calculating is guessing.
+- **For games/animations/simulations, trace every trigger condition once before done** (spawn, collision, score, win/lose). Walk through 2-3 concrete frames on paper: "frame 0: nextSpawnAt=120; frame 1: ...; does \`frameCount >= nextSpawnAt\` ever become true?" A condition whose threshold is recomputed every frame can never fire — this class of bug compiles and renders cleanly, so the compile tool will NOT catch it. Only this trace will.
 - **When a visual behavior is wrong, use think to trace the full pipeline before touching code.** What value drives this behavior? What does that value produce at runtime? What should it produce? Only after answering all three should you edit.
 - **Batch file operations — don't spend one turn per file.** When clearing starter/boilerplate, issue all the delete_file calls together in a single turn and overwrite App.tsx/theme.css with write_file; you do not need to read a file you are going to fully replace or delete. Compile once after the batch, not after every file.
 - **Stop when it works.** Once compile passes build + runtime and every requirement is met, call done. Do not re-read files, re-compile unchanged code, or add unrequested "polish" loops — that wastes turns and risks breaking a working build.
@@ -762,22 +763,13 @@ The "forms" skill has been activated because this project involves form handling
 
 /**
  * Determine which skill blocks should be activated based on the user's prompt.
- * Returns the skill bodies to inject (only those whose triggers match).
+ * Returns the matched skill blocks (id for UI display, body for injection).
  */
-export function resolveActiveSkills(prompt: string): string[] {
+export function resolveActiveSkills(prompt: string): SkillBlock[] {
   const lower = prompt.toLowerCase()
-  const active: string[] = []
-
-  for (const skill of SKILL_BLOCKS) {
-    const triggered = skill.triggers.some((trigger) =>
-      lower.includes(trigger.toLowerCase()),
-    )
-    if (triggered) {
-      active.push(skill.body)
-    }
-  }
-
-  return active
+  return SKILL_BLOCKS.filter((skill) =>
+    skill.triggers.some((trigger) => lower.includes(trigger.toLowerCase())),
+  )
 }
 
 // ─── Compaction Prompt ─────────────────────────────────────────────────────

@@ -631,7 +631,9 @@ function formatToolDetail(name: string, input?: Record<string, unknown>): string
     case 'compile':
       return 'Building and running preview'
     case 'done':
-      return String(input?.summary ?? '').slice(0, 140)
+      // The full summary renders as the completion paragraph below the
+      // timeline — repeating a truncated copy here reads as a glitch.
+      return ''
     case 'set_title':
       return String(input?.title ?? '')
     default:
@@ -668,10 +670,9 @@ function formatToolResultDetail(name: string, result?: string, error?: boolean):
     }
     case 'update_plan':
       return formatPlanResultDetail(text)
-    case 'done': {
-      const summary = parseJsonStringField(text, 'summary')
-      return summary ? summary.slice(0, 180) : firstLine(text).slice(0, 180)
-    }
+    case 'done':
+      // Full summary renders separately as the completion paragraph.
+      return ''
     default:
       return firstLine(text).slice(0, 160)
   }
@@ -698,6 +699,17 @@ function formatPlanResultDetail(text: string): string {
   const remaining = Number(match[2])
   const complete = Math.max(0, total - remaining)
   return `${complete}/${total} requirements complete`
+}
+
+/** Agent bookkeeping files — real project files, but not user deliverables. */
+const INTERNAL_AGENT_FILES = new Set([
+  'src/lib/PLAN.md',
+  'src/lib/CHANGELOG.md',
+  'src/lib/lessons.md',
+])
+
+function visibleProjectFiles(files: AgentCodeFile[]): AgentCodeFile[] {
+  return files.filter((f) => !INTERNAL_AGENT_FILES.has(f.path))
 }
 
 /** True when the chat's last assistant turn is mid-run (a tool call left spinning). */
@@ -2258,9 +2270,9 @@ export default function ProjectBuilderPage() {
                   )}
 
                   {/* File list at completion */}
-                  {message.files && message.files.length > 0 && (
+                  {message.files && visibleProjectFiles(message.files).length > 0 && (
                     <div className={styles.fileList}>
-                      {message.files.map((file) => (
+                      {visibleProjectFiles(message.files).map((file) => (
                         <span key={file.path}>
                           <FileIcon />
                           {file.path}
@@ -2272,7 +2284,7 @@ export default function ProjectBuilderPage() {
                   {/* Completion badge */}
                   {message.turns != null && message.turns > 0 && (
                     <div className={styles.completionBadge}>
-                      Built {message.files?.length ?? 0} files in {message.turns} turn{message.turns === 1 ? '' : 's'}
+                      Built {message.files ? visibleProjectFiles(message.files).length : 0} files in {message.turns} turn{message.turns === 1 ? '' : 's'}
                       {message.providerName && ` - ${message.providerName}`}
                       {message.modelName && ` / ${message.modelName}`}
                     </div>

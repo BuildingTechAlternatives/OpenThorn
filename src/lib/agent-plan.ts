@@ -168,11 +168,17 @@ export function applyPlanUpdate(plan: AgentPlan, update: PlanUpdate): AgentPlan 
   }
 
   if (update.setRequirements) {
-    next.items = update.setRequirements.map((text, i) => ({
-      id: i + 1,
-      text: text.trim(),
-      done: false,
-    }))
+    // An empty or all-blank set_requirements would silently wipe the checklist
+    // (weak models send `set_requirements: []` alongside other fields), which
+    // also neuters the done gate's plan check. Only replace with real items.
+    const cleaned = update.setRequirements.map((t) => t.trim()).filter(Boolean)
+    if (cleaned.length > 0) {
+      next.items = cleaned.map((text, i) => ({
+        id: i + 1,
+        text,
+        done: false,
+      }))
+    }
   }
 
   if (update.addRequirements) {
