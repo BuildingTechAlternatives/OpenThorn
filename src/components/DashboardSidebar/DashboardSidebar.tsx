@@ -24,6 +24,8 @@ interface DashboardSidebarProps {
   onProjectFilterChange?: (filter: ProjectFilter) => void
   notifications?: SidebarNotification[]
   onNotificationsRead?: () => void
+  isOpen?: boolean
+  onClose?: () => void
 }
 
 interface NavItem {
@@ -127,7 +129,7 @@ const filterMap: Record<string, ProjectFilter> = {
   'Shared with me': 'shared',
 }
 
-export default function DashboardSidebar({ projects = [], activeFilter = 'all', onProjectFilterChange, notifications: externalNotifications, onNotificationsRead }: DashboardSidebarProps) {
+export default function DashboardSidebar({ projects = [], activeFilter = 'all', onProjectFilterChange, notifications: externalNotifications, onNotificationsRead, isOpen = false, onClose }: DashboardSidebarProps) {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -160,6 +162,7 @@ export default function DashboardSidebar({ projects = [], activeFilter = 'all', 
   }, [profileMenuOpen])
 
   const handleNavClick = (label: string) => {
+    onClose?.()
     setActiveNav(label)
     if (label === 'Providers') navigate('/providers')
     if (label === 'Home') navigate('/dashboard')
@@ -168,6 +171,7 @@ export default function DashboardSidebar({ projects = [], activeFilter = 'all', 
   }
 
   const handleProjectFilterClick = (label: string) => {
+    onClose?.()
     const filter = filterMap[label]
     if (!filter) return
     if (onProjectFilterChange) onProjectFilterChange(filter)
@@ -194,7 +198,9 @@ export default function DashboardSidebar({ projects = [], activeFilter = 'all', 
   )
 
   return (
-    <aside className={styles.sidebar}>
+    <>
+      {isOpen && <div className={styles.overlay} onClick={onClose} aria-hidden="true" />}
+      <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
       {/* Logo */}
       <div className={styles.logoRow}>
         <a href="/dashboard" className={styles.logo}>
@@ -393,5 +399,6 @@ export default function DashboardSidebar({ projects = [], activeFilter = 'all', 
         </button>
       </div>
     </aside>
+    </>
   )
 }
