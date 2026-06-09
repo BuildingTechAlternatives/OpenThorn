@@ -127,6 +127,13 @@ export default function PromptInput({
     }
   }, [defaultValue])
 
+  // Sync when initialModel changes (e.g. loaded async from DB after mount)
+  useEffect(() => {
+    if (initialModel !== undefined) {
+      setSelectedModel(initialModel ?? null)
+    }
+  }, [initialModel])
+
   // Auto-resize textarea
   const autoResize = useCallback(() => {
     const el = textareaRef.current

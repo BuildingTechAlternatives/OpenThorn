@@ -95,7 +95,14 @@ export default function DashboardPage() {
   const [publishing, setPublishing] = useState(false)
   const [publishSuccess, setPublishSuccess] = useState<string | null>(null)
   const [hasEnabledProvider, setHasEnabledProvider] = useState(false)
-  const [checklistModel, setChecklistModel] = useState<SelectedModel | null>(null)
+  const [checklistModel, setChecklistModel] = useState<SelectedModel | null>(() => {
+    try {
+      const stored = localStorage.getItem('dashboard:selectedModel')
+      return stored ? (JSON.parse(stored) as SelectedModel) : null
+    } catch {
+      return null
+    }
+  })
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const visiblePrompts = showAllPrompts ? examplePrompts : examplePrompts.slice(0, INITIAL_VISIBLE)
@@ -542,7 +549,19 @@ export default function DashboardPage() {
             </h1>
 
             <div className={styles.promptWrapper}>
-              <PromptInput defaultValue={promptDefault} onSubmit={handlePromptSubmit} onModelChange={setChecklistModel} page="dashboard" />
+              <PromptInput
+                defaultValue={promptDefault}
+                onSubmit={handlePromptSubmit}
+                initialModel={checklistModel}
+                onModelChange={(model) => {
+                  setChecklistModel(model)
+                  try {
+                    if (model) localStorage.setItem('dashboard:selectedModel', JSON.stringify(model))
+                    else localStorage.removeItem('dashboard:selectedModel')
+                  } catch { /* ignore */ }
+                }}
+                page="dashboard"
+              />
               {modelError && (
                 <p className={styles.modelError}>Please select a model first.</p>
               )}
