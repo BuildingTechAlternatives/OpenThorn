@@ -51,6 +51,27 @@
   margin-bottom: var(--space-md);
 }
 
+/* Byline — "by BTA" to the right of the headline */
+.byline {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 18px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--color-text-secondary);
+}
+
+.bylineMark {
+  height: 22px;
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+}
+
 /* Subtitle */
 .subtitle {
   font-family: var(--font-body);
@@ -210,5 +231,13 @@
 @media (min-width: 769px) and (max-width: 1100px) {
   .headline {
     font-size: 64px;
+  }
+}
+
+/* Wide screens: keep headline + byline on a single line (overflows the
+   800px content column slightly; section is centered so it stays balanced) */
+@media (min-width: 1101px) {
+  .headline {
+    white-space: nowrap;
   }
 }

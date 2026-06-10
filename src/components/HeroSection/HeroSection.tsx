@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import PromptInput from '../PromptInput/PromptInput'
+import BtaMark from '../BtaMark/BtaMark'
 import FloatingParticles from '../FloatingParticles/FloatingParticles'
 import styles from './HeroSection.module.css'
 
@@ -46,6 +47,10 @@ export default function HeroSection() {
           transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1], delay: 0.15 }}
         >
           Build with OpenThorn
+          <span className={styles.byline}>
+            by
+            <BtaMark className={styles.bylineMark} />
+          </span>
         </motion.h1>
 
         {/* Subtitle */}

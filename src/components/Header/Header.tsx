@@ -4,6 +4,7 @@ import { useAuth } from '../../lib/AuthContext'
 import SlideInButton from '../SlideInButton/SlideInButton'
 import NeumorphButton from '../NeumorphButton/NeumorphButton'
 import MobileMenu from '../MobileMenu/MobileMenu'
+import BtaMark from '../BtaMark/BtaMark'
 import styles from './Header.module.css'
 
 interface HeaderProps {
@@ -122,7 +123,13 @@ export default function Header({ onSignIn, onSignUp }: HeaderProps) {
       <div className={styles.inner}>
         <a href="/" className={styles.logo}>
           <img src="/assets/logo.png" alt="" className={styles.logoImg} />
-          <span className={styles.logoText}>OpenThorn</span>
+          <span className={styles.logoStack}>
+            <span className={styles.logoText}>OpenThorn</span>
+            <span className={styles.logoByline}>
+              by
+              <BtaMark className={styles.btaMark} />
+            </span>
+          </span>
         </a>
 
         <nav className={styles.nav}>
