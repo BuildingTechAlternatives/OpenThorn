@@ -81,6 +81,7 @@ export interface AgentProgressEvent {
     | 'status'
     | 'compaction'
     | 'title'
+    | 'usage'
   text?: string
   toolName?: string
   toolInput?: Record<string, unknown>
@@ -88,6 +89,16 @@ export interface AgentProgressEvent {
   toolError?: boolean
   files?: AgentCodeFile[]
   message?: string
+  /** Cumulative token usage for the run (type 'usage'). */
+  usage?: RunUsage
+}
+
+/** Token usage accumulated across a run — cache fields verify hit rates. */
+export interface RunUsage {
+  inputTokens: number
+  outputTokens: number
+  cacheReadTokens: number
+  cacheWriteTokens: number
 }
 
 export interface AgentRunInput {
@@ -108,6 +119,7 @@ export interface AgentRunResult {
   turns: number
   providerName: string
   modelName: string
+  usage: RunUsage
 }
 
 // ─── Internal Types ─────────────────────────────────────────────────────────
@@ -245,6 +257,10 @@ const CB_COOLDOWN_MS = 30_000
 const BACKOFF_BASE_MS = 1000
 /** Maximum backoff delay (ms). */
 const BACKOFF_MAX_MS = 30_000
+/** Attempts per model call for transient failures (network, 429, 5xx). */
+const MODEL_CALL_RETRIES = 3
+/** Max mid-run provider switches before the run fails for real. */
+const MAX_PROVIDER_FAILOVERS = 2
 
 // ─── Anthropic Settings ─────────────────────────────────────────────────────
 
@@ -321,6 +337,44 @@ function backoffDelay(attempt: number): number {
 /** Sleep for a given duration in ms. */
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/**
+ * HTTP statuses worth retrying: timeout, rate limit, and server errors
+ * (including Anthropic's 529 "overloaded"). Auth and validation errors are not.
+ */
+export function isRetryableStatus(status: number): boolean {
+  return status === 408 || status === 429 || (status >= 500 && status < 600)
+}
+
+/** Parse a Retry-After header (delta-seconds or HTTP date) into ms, capped. */
+export function parseRetryAfter(header: string | null): number | null {
+  if (!header) return null
+  const secs = Number(header)
+  if (Number.isFinite(secs) && secs >= 0) {
+    return Math.min(secs * 1000, BACKOFF_MAX_MS)
+  }
+  const date = Date.parse(header)
+  if (!Number.isNaN(date)) {
+    return Math.min(Math.max(date - Date.now(), 0), BACKOFF_MAX_MS)
+  }
+  return null
+}
+
+// ─── Run Usage Accounting ───────────────────────────────────────────────────
+
+export function emptyUsage(): RunUsage {
+  return { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 }
+}
+
+export function addUsage(total: RunUsage, delta?: RunUsage): RunUsage {
+  if (!delta) return total
+  return {
+    inputTokens: total.inputTokens + delta.inputTokens,
+    outputTokens: total.outputTokens + delta.outputTokens,
+    cacheReadTokens: total.cacheReadTokens + delta.cacheReadTokens,
+    cacheWriteTokens: total.cacheWriteTokens + delta.cacheWriteTokens,
+  }
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -728,15 +782,15 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   const sessionId = generateSessionId()
 
   // ── Resolve provider with fallback ────────────────────────────
-  const provider = await resolveProviderWithFallback(
+  let provider = await resolveProviderWithFallback(
     input.userId,
     input.selectedModel ?? null,
   )
-  const providerName =
+  let providerName =
     provider.key.provider_name ||
     input.selectedModel?.provider_name ||
     provider.key.provider_id
-  const modelName =
+  let modelName =
     input.selectedModel?.model_name || provider.model.name || provider.model.id
 
   input.onProgress?.({
@@ -852,6 +906,12 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
 
   let turnCount = 0
   let lastSummaryTurn = 0
+  let totalUsage = emptyUsage()
+  // Mid-run failover state: providers that already failed this run are never
+  // retried, and the run only switches providers a bounded number of times.
+  const failedProviderIds = new Set<string>()
+  let failovers = 0
+  let consecutiveEmptyTurns = 0
 
   const loopDetector = new LoopDetector()
   // Per-run state for tool execution: tracks reads (to short-circuit redundant
@@ -891,21 +951,54 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     // ── Adaptive thinking budget ────────────────────────────────
     const thinkingBudget = getThinkingBudget({ mode, turnCount, thinkingLevel })
 
-    // ── Call the model ──────────────────────────────────────────
-    const { text, toolCalls, thinkingBlocks } = await callModelWithTools({
-      providerId: provider.key.provider_id,
-      baseUrl: provider.baseUrl,
-      apiKey: provider.key.api_key,
-      modelId: provider.model.id,
-      system: AGENT_SYSTEM_PROMPT,
-      tools: AGENT_TOOLS,
-      messages,
-      signal: input.signal,
-      onText: (chunk) => {
-        input.onProgress?.({ type: 'text', text: chunk })
-      },
-      thinkingBudget,
-    })
+    // ── Call the model (with mid-run provider failover) ─────────
+    // Each call already retries transient failures internally. If a provider
+    // still fails, switch to the next healthy one instead of killing the run.
+    let modelResult: ModelCallResult
+    try {
+      modelResult = await callModelWithTools({
+        providerId: provider.key.provider_id,
+        baseUrl: provider.baseUrl,
+        apiKey: provider.key.api_key,
+        modelId: provider.model.id,
+        system: AGENT_SYSTEM_PROMPT,
+        tools: AGENT_TOOLS,
+        messages,
+        signal: input.signal,
+        onText: (chunk) => {
+          input.onProgress?.({ type: 'text', text: chunk })
+        },
+        thinkingBudget,
+      })
+      circuitBreaker.recordSuccess(provider.key.provider_id)
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') throw err
+      circuitBreaker.recordFailure(provider.key.provider_id)
+      failedProviderIds.add(provider.key.provider_id)
+      if (failovers >= MAX_PROVIDER_FAILOVERS) throw err
+      let next: ResolvedProvider
+      try {
+        next = await resolveProviderWithFallback(input.userId, null, failedProviderIds)
+      } catch {
+        throw err // no fallback available — surface the original failure
+      }
+      failovers++
+      provider = next
+      providerName = next.key.provider_name || next.key.provider_id
+      modelName = next.model.name || next.model.id
+      input.onProgress?.({
+        type: 'status',
+        message: `Provider failed mid-run — switched to ${providerName} / ${modelName}.`,
+      })
+      turnCount-- // the failed call did not consume a turn
+      continue
+    }
+    const { text, toolCalls, thinkingBlocks, usage, invalidCalls } = modelResult
+
+    if (usage) {
+      totalUsage = addUsage(totalUsage, usage)
+      input.onProgress?.({ type: 'usage', usage: totalUsage })
+    }
 
     // ── Build assistant message ─────────────────────────────────
     const assistantBlocks: LlmContentBlock[] = []
@@ -923,10 +1016,25 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
       })
     }
 
+    // Malformed tool calls still need their tool_use block in the transcript
+    // so the error result we push below has something to reference.
+    for (const inv of invalidCalls ?? []) {
+      assistantBlocks.push({ type: 'tool_use', id: inv.id, name: inv.name, input: {} })
+    }
+
     if (assistantBlocks.length > 0) {
       messages.push({ role: 'assistant', content: assistantBlocks })
-    } else if (!text && toolCalls.length === 0) {
-      break
+      consecutiveEmptyTurns = 0
+    } else {
+      // Empty response — nudge once (providers hiccup), stop on a repeat.
+      consecutiveEmptyTurns++
+      if (consecutiveEmptyTurns >= 2) break
+      messages.push({
+        role: 'user',
+        content:
+          'Your last response was empty — no text and no tool calls. Continue the task with the next tool call, or call done if the project is compiled, verified, and complete.',
+      })
+      continue
     }
 
     // ── Execute tools with parallelism ──────────────────────────
@@ -983,6 +1091,27 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
             tool_use_id: tc.id,
             content: result.content,
             is_error: result.isError,
+          },
+        ],
+      })
+    }
+
+    // Malformed tool calls get an explicit error result so the model re-issues
+    // them with valid JSON instead of wondering why nothing happened.
+    for (const inv of invalidCalls ?? []) {
+      messages.push({
+        role: 'user',
+        content: [
+          {
+            type: 'tool_result',
+            tool_use_id: inv.id,
+            content: formatStructuredError({
+              code: 'MALFORMED_TOOL_ARGS',
+              message: `The arguments for your ${inv.name} call were not valid JSON and could not be parsed.`,
+              suggestion: `Re-issue the ${inv.name} call with well-formed JSON arguments. The raw arguments started with: ${inv.raw.slice(0, 200)}`,
+              retryable: true,
+            }),
+            is_error: true,
           },
         ],
       })
@@ -1056,7 +1185,7 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
       // Record success on the circuit breaker
       circuitBreaker.recordSuccess(provider.key.provider_id)
       input.onProgress?.({ type: 'done', files: currentFiles })
-      return { files: currentFiles, turns: turnCount, providerName, modelName }
+      return { files: currentFiles, turns: turnCount, providerName, modelName, usage: totalUsage }
     }
   }
 
@@ -1072,7 +1201,7 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
 
   circuitBreaker.recordSuccess(provider.key.provider_id)
   input.onProgress?.({ type: 'done', files: currentFiles })
-  return { files: currentFiles, turns: turnCount, providerName, modelName }
+  return { files: currentFiles, turns: turnCount, providerName, modelName, usage: totalUsage }
 }
 
 // ─── Memory Management ──────────────────────────────────────────────────────
@@ -1942,6 +2071,16 @@ interface ModelCallResult {
   toolCalls: ToolCall[]
   /** Anthropic thinking blocks from this turn — replayed on the next turn. */
   thinkingBlocks?: { thinking: string; signature: string }[]
+  /** Token usage for this single call, when the provider reports it. */
+  usage?: RunUsage
+  /** Tool calls whose arguments were not valid JSON — surfaced as errors. */
+  invalidCalls?: InvalidToolCall[]
+}
+
+interface InvalidToolCall {
+  id: string
+  name: string
+  raw: string
 }
 
 async function callModelWithTools({
@@ -2001,46 +2140,60 @@ async function callOpenAIWithTools({
 
   let lastError = ''
 
-  for (let attemptIdx = 0; attemptIdx < attempts.length; attemptIdx++) {
+  // Outer loop walks the request-shape ladder (tools/stream variants for
+  // strict OpenAI-compatible providers). The inner loop retries the SAME shape
+  // on transient failures (429/5xx/network) with exponential backoff.
+  outer: for (let attemptIdx = 0; attemptIdx < attempts.length; attemptIdx++) {
     const attempt = attempts[attemptIdx]
-    try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 60_000)
-      const combinedSignal = signal ? anyAbort(signal, controller.signal) : controller.signal
+    for (let retry = 0; retry < MODEL_CALL_RETRIES; retry++) {
+      throwIfAborted(signal)
+      try {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 60_000)
+        const combinedSignal = signal ? anyAbort(signal, controller.signal) : controller.signal
 
-      const response = await fetch(url, {
-        method: 'POST', redirect: 'manual',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model: modelId, messages: openaiMessages,
-          temperature: 0.22, max_tokens: MAX_OUTPUT_TOKENS, ...attempt,
-        }),
-        signal: combinedSignal,
-      })
+        const response = await fetch(url, {
+          method: 'POST', redirect: 'manual',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify({
+            model: modelId, messages: openaiMessages,
+            temperature: 0.22, max_tokens: MAX_OUTPUT_TOKENS, ...attempt,
+          }),
+          signal: combinedSignal,
+        })
 
-      clearTimeout(timeoutId)
+        clearTimeout(timeoutId)
 
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => '')
-        let errorPayload: unknown = ''
-        try { errorPayload = JSON.parse(errorText) } catch { errorPayload = errorText }
-        lastError = `${response.status}: ${typeof errorPayload === 'string' ? errorPayload.slice(0, 300) : JSON.stringify(errorPayload).slice(0, 300)}`
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => '')
+          let errorPayload: unknown = ''
+          try { errorPayload = JSON.parse(errorText) } catch { errorPayload = errorText }
+          lastError = `${response.status}: ${typeof errorPayload === 'string' ? errorPayload.slice(0, 300) : JSON.stringify(errorPayload).slice(0, 300)}`
 
-        if (response.status === 401 || response.status === 403) break
-        if (response.status === 429) {
-          await sleep(backoffDelay(attemptIdx))
+          if (response.status === 401 || response.status === 403) break outer
+          if (isRetryableStatus(response.status)) {
+            await sleep(parseRetryAfter(response.headers.get('retry-after')) ?? backoffDelay(retry))
+            continue // retry the same request shape
+          }
+          if (response.status === 400 || response.status === 422) continue outer // try the next shape
+          break outer
         }
-        if (response.status !== 400 && response.status !== 422) break
-        continue
-      }
 
-      const result = attempt.stream === true
-        ? await parseOpenAIToolStream(response, onText)
-        : await parseOpenAINonStream(response, onText)
-      if (result) return result
-    } catch (err) {
-      if (err instanceof DOMException && err.name === 'AbortError') throw err
-      lastError = err instanceof Error ? err.message : String(err)
+        const result = attempt.stream === true
+          ? await parseOpenAIToolStream(response, onText)
+          : await parseOpenAINonStream(response, onText)
+        if (result) return result
+        continue outer // unparseable response — try the next shape
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') {
+          if (signal?.aborted) throw err
+          lastError = 'Request timed out after 60s.'
+        } else {
+          lastError = err instanceof Error ? err.message : String(err)
+        }
+        // Network error or timeout — transient, retry with backoff.
+        await sleep(backoffDelay(retry))
+      }
     }
   }
 
@@ -2065,6 +2218,7 @@ async function parseOpenAINonStream(response: Response, onText: (chunk: string) 
   const text = typeof message.content === 'string' ? message.content : ''
   if (text) onText(text)
   const toolCalls: ToolCall[] = []
+  const invalidCalls: InvalidToolCall[] = []
   if (Array.isArray(message.tool_calls)) {
     for (const tc of message.tool_calls) {
       if (tc.type === 'function' && tc.function) {
@@ -2074,11 +2228,30 @@ async function parseOpenAINonStream(response: Response, onText: (chunk: string) 
             name: tc.function.name,
             input: typeof tc.function.arguments === 'string' ? JSON.parse(tc.function.arguments) : (tc.function.arguments ?? {}),
           })
-        } catch { /* skip invalid */ }
+        } catch {
+          invalidCalls.push({
+            id: tc.id || `call_${toolCalls.length + invalidCalls.length}`,
+            name: tc.function.name ?? 'unknown',
+            raw: typeof tc.function.arguments === 'string' ? tc.function.arguments : '',
+          })
+        }
       }
     }
   }
-  return { text, toolCalls }
+  return { text, toolCalls, invalidCalls, usage: parseOpenAIUsage(payload?.usage) }
+}
+
+/** Best-effort usage extraction from an OpenAI-compatible usage object. */
+function parseOpenAIUsage(u: unknown): RunUsage | undefined {
+  if (!u || typeof u !== 'object') return undefined
+  const usage = u as Record<string, unknown>
+  const details = (usage.prompt_tokens_details ?? {}) as Record<string, unknown>
+  return {
+    inputTokens: Number(usage.prompt_tokens) || 0,
+    outputTokens: Number(usage.completion_tokens) || 0,
+    cacheReadTokens: Number(details.cached_tokens) || 0,
+    cacheWriteTokens: 0,
+  }
 }
 
 async function parseOpenAIToolStream(response: Response, onText: (chunk: string) => void): Promise<ModelCallResult | null> {
@@ -2086,6 +2259,7 @@ async function parseOpenAIToolStream(response: Response, onText: (chunk: string)
   if (!reader) return null
   const decoder = new TextDecoder()
   let buffer = '', fullText = ''
+  let usage: RunUsage | undefined
   const toolCalls: Map<number, { id: string; name: string; arguments: string }> = new Map()
 
   try {
@@ -2103,6 +2277,7 @@ async function parseOpenAIToolStream(response: Response, onText: (chunk: string)
         if (data === '[DONE]') continue
         try {
           const parsed = JSON.parse(data)
+          if (parsed?.usage) usage = parseOpenAIUsage(parsed.usage) ?? usage
           const delta = parsed?.choices?.[0]?.delta
           if (delta?.content) { fullText += delta.content; onText(delta.content) }
           if (delta?.tool_calls) {
@@ -2121,12 +2296,15 @@ async function parseOpenAIToolStream(response: Response, onText: (chunk: string)
   } finally { reader.releaseLock() }
 
   const parsedToolCalls: ToolCall[] = []
+  const invalidCalls: InvalidToolCall[] = []
   for (const tc of toolCalls.values()) {
     if (tc.name) {
-      try { parsedToolCalls.push({ id: tc.id, name: tc.name, input: JSON.parse(tc.arguments || '{}') }) } catch { /* skip */ }
+      try { parsedToolCalls.push({ id: tc.id, name: tc.name, input: JSON.parse(tc.arguments || '{}') }) } catch {
+        invalidCalls.push({ id: tc.id, name: tc.name, raw: tc.arguments })
+      }
     }
   }
-  return { text: fullText, toolCalls: parsedToolCalls }
+  return { text: fullText, toolCalls: parsedToolCalls, invalidCalls, usage }
 }
 
 // ─── Anthropic (with caching + thinking) ────────────────────────────────────
@@ -2184,33 +2362,47 @@ async function callAnthropicWithTools({
     body.max_tokens = budget + MAX_OUTPUT_TOKENS
   }
 
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 120_000)
-  const combinedSignal = signal ? anyAbort(signal, controller.signal) : controller.signal
+  // Retry transient failures (429, 5xx incl. 529 overloaded, network errors,
+  // timeouts) with backoff — a single hiccup must not kill a 20-turn run.
+  for (let attempt = 0; ; attempt++) {
+    throwIfAborted(signal)
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 120_000)
+    const combinedSignal = signal ? anyAbort(signal, controller.signal) : controller.signal
 
-  try {
-    const response = await fetch(`${baseUrl}/messages`, {
-      method: 'POST', redirect: 'manual',
-      headers: {
-        'Content-Type': 'application/json', 'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
-      body: JSON.stringify(body), signal: combinedSignal,
-    })
+    let response: Response
+    try {
+      response = await fetch(`${baseUrl}/messages`, {
+        method: 'POST', redirect: 'manual',
+        headers: {
+          'Content-Type': 'application/json', 'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify(body), signal: combinedSignal,
+      })
+    } catch (err) {
+      clearTimeout(timeoutId)
+      if (signal?.aborted) throw err // user cancelled — never retry
+      if (attempt >= MODEL_CALL_RETRIES - 1) throw err
+      await sleep(backoffDelay(attempt)) // network failure or timeout
+      continue
+    }
     clearTimeout(timeoutId)
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => '')
       let ep: unknown = ''
       try { ep = JSON.parse(errorText) } catch { ep = errorText }
-      throw new Error(`Anthropic ${response.status}: ${typeof ep === 'string' ? ep.slice(0, 400) : JSON.stringify(ep).slice(0, 400)}`)
+      const message = `Anthropic ${response.status}: ${typeof ep === 'string' ? ep.slice(0, 400) : JSON.stringify(ep).slice(0, 400)}`
+      if (isRetryableStatus(response.status) && attempt < MODEL_CALL_RETRIES - 1) {
+        await sleep(parseRetryAfter(response.headers.get('retry-after')) ?? backoffDelay(attempt))
+        continue
+      }
+      throw new Error(message)
     }
 
     return parseAnthropicToolStream(response, onText)
-  } catch (err) {
-    clearTimeout(timeoutId)
-    throw err
   }
 }
 
@@ -2219,6 +2411,7 @@ async function parseAnthropicToolStream(response: Response, onText: (chunk: stri
   if (!reader) throw new Error('Response body not readable')
   const decoder = new TextDecoder()
   let buffer = '', fullText = ''
+  const usage = emptyUsage()
   const toolCalls: Map<number, { id: string; name: string; input: string }> = new Map()
   const thinking: Map<number, { thinking: string; signature: string }> = new Map()
 
@@ -2236,6 +2429,17 @@ async function parseAnthropicToolStream(response: Response, onText: (chunk: stri
           const parsed = JSON.parse(trimmed.slice(5).trim())
           if (parsed.type === 'content_block_delta' && parsed.delta?.type === 'text_delta') {
             fullText += parsed.delta.text; onText(parsed.delta.text)
+          }
+          // Usage accounting — message_start carries input + cache counters,
+          // message_delta carries the running output total.
+          if (parsed.type === 'message_start' && parsed.message?.usage) {
+            const u = parsed.message.usage
+            usage.inputTokens = u.input_tokens ?? 0
+            usage.cacheReadTokens = u.cache_read_input_tokens ?? 0
+            usage.cacheWriteTokens = u.cache_creation_input_tokens ?? 0
+          }
+          if (parsed.type === 'message_delta' && parsed.usage?.output_tokens != null) {
+            usage.outputTokens = parsed.usage.output_tokens
           }
           // Extended thinking blocks — captured so they can be replayed on the
           // next turn (Anthropic 400s if a thinking turn's blocks are dropped
@@ -2267,11 +2471,14 @@ async function parseAnthropicToolStream(response: Response, onText: (chunk: stri
   } finally { reader.releaseLock() }
 
   const parsedToolCalls: ToolCall[] = []
+  const invalidCalls: InvalidToolCall[] = []
   for (const tc of toolCalls.values()) {
-    try { parsedToolCalls.push({ id: tc.id, name: tc.name, input: tc.input ? JSON.parse(tc.input) : {} }) } catch { /* skip */ }
+    try { parsedToolCalls.push({ id: tc.id, name: tc.name, input: tc.input ? JSON.parse(tc.input) : {} }) } catch {
+      invalidCalls.push({ id: tc.id, name: tc.name, raw: tc.input })
+    }
   }
   const thinkingBlocks = [...thinking.values()].filter((t) => t.signature)
-  return { text: fullText, toolCalls: parsedToolCalls, thinkingBlocks }
+  return { text: fullText, toolCalls: parsedToolCalls, thinkingBlocks, invalidCalls, usage }
 }
 
 // ─── Gemini ─────────────────────────────────────────────────────────────────
@@ -2313,37 +2520,51 @@ async function callGeminiWithTools({
     return { role, parts: parts.length > 0 ? parts : [{ text: '' }] }
   })
 
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 60_000)
-  const combinedSignal = signal ? anyAbort(signal, controller.signal) : controller.signal
+  const requestBody = JSON.stringify({
+    systemInstruction: systemParts.length > 0 ? { parts: systemParts } : undefined,
+    contents,
+    tools: functionDeclarations.length > 0 ? [{ functionDeclarations }] : undefined,
+    generationConfig: {
+      temperature: 0.22,
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
+      ...getReasoningParams('google', modelId, thinkingBudget ?? 0),
+    },
+  })
 
-  try {
-    const response = await fetch(url, {
-      method: 'POST', redirect: 'manual',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-      body: JSON.stringify({
-        systemInstruction: systemParts.length > 0 ? { parts: systemParts } : undefined,
-        contents,
-        tools: functionDeclarations.length > 0 ? [{ functionDeclarations }] : undefined,
-        generationConfig: {
-          temperature: 0.22,
-          maxOutputTokens: MAX_OUTPUT_TOKENS,
-          ...getReasoningParams('google', modelId, thinkingBudget ?? 0),
-        },
-      }),
-      signal: combinedSignal,
-    })
+  // Retry transient failures (429/5xx/network/timeout) with backoff.
+  for (let attempt = 0; ; attempt++) {
+    throwIfAborted(signal)
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 60_000)
+    const combinedSignal = signal ? anyAbort(signal, controller.signal) : controller.signal
+
+    let response: Response
+    try {
+      response = await fetch(url, {
+        method: 'POST', redirect: 'manual',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+        body: requestBody,
+        signal: combinedSignal,
+      })
+    } catch (err) {
+      clearTimeout(timeoutId)
+      if (signal?.aborted) throw err // user cancelled — never retry
+      if (attempt >= MODEL_CALL_RETRIES - 1) throw err
+      await sleep(backoffDelay(attempt)) // network failure or timeout
+      continue
+    }
     clearTimeout(timeoutId)
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => '')
+      if (isRetryableStatus(response.status) && attempt < MODEL_CALL_RETRIES - 1) {
+        await sleep(parseRetryAfter(response.headers.get('retry-after')) ?? backoffDelay(attempt))
+        continue
+      }
       throw new Error(`Gemini ${response.status}: ${errorText.slice(0, 400)}`)
     }
 
     return parseGeminiToolStream(response, onText)
-  } catch (err) {
-    clearTimeout(timeoutId)
-    throw err
   }
 }
 
@@ -2352,6 +2573,7 @@ async function parseGeminiToolStream(response: Response, onText: (chunk: string)
   if (!reader) throw new Error('Response body not readable')
   const decoder = new TextDecoder()
   let buffer = '', fullText = ''
+  const usage = emptyUsage()
   const toolCalls: ToolCall[] = []
   let toolIdCounter = 0
 
@@ -2367,6 +2589,12 @@ async function parseGeminiToolStream(response: Response, onText: (chunk: string)
         if (!trimmed || !trimmed.startsWith('data:')) continue
         try {
           const parsed = JSON.parse(trimmed.slice(5).trim())
+          // usageMetadata is cumulative across the stream — assign, don't add.
+          if (parsed?.usageMetadata) {
+            usage.inputTokens = parsed.usageMetadata.promptTokenCount ?? usage.inputTokens
+            usage.outputTokens = parsed.usageMetadata.candidatesTokenCount ?? usage.outputTokens
+            usage.cacheReadTokens = parsed.usageMetadata.cachedContentTokenCount ?? usage.cacheReadTokens
+          }
           const parts = parsed?.candidates?.[0]?.content?.parts
           if (parts) {
             for (const part of parts) {
@@ -2382,7 +2610,7 @@ async function parseGeminiToolStream(response: Response, onText: (chunk: string)
     }
   } finally { reader.releaseLock() }
 
-  return { text: fullText, toolCalls }
+  return { text: fullText, toolCalls, usage }
 }
 
 // ─── Message Conversion ─────────────────────────────────────────────────────
@@ -2542,6 +2770,7 @@ function getRecordString(value: unknown, key: string): string {
 async function resolveProviderWithFallback(
   userId: string,
   selectedModel: SelectedAgentModel | null,
+  exclude?: Set<string>,
 ): Promise<ResolvedProvider> {
   // Load all enabled provider keys
   const { data: allKeys, error } = await supabase
@@ -2575,9 +2804,9 @@ async function resolveProviderWithFallback(
     }
   }
 
-  // Filter out providers with open circuits
+  // Filter out providers with open circuits or that already failed this run
   const healthyKeys = sortedKeys.filter(
-    (k) => !circuitBreaker.isOpen(k.provider_id),
+    (k) => !circuitBreaker.isOpen(k.provider_id) && !exclude?.has(k.provider_id),
   )
 
   if (healthyKeys.length === 0) {
