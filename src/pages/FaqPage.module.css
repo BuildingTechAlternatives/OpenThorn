@@ -77,6 +77,13 @@
   text-decoration: underline;
 }
 
+.lastUpdated {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin: var(--space-md) 0 0;
+  animation: pageRise 0.6s var(--ease-out-expo) 0.16s both;
+}
+
 /* ===== Category group ===== */
 .group {
   margin-bottom: var(--space-3xl);

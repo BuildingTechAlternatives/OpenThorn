@@ -43,7 +43,21 @@ export default function BlogPostPage() {
               url: 'https://www.openthorn.app/logo.png',
             },
           },
-          image: post.ogImage ?? 'https://www.openthorn.app/logo.png',
+          image: post.ogImage ?? 'https://www.openthorn.app/og-card.png',
+        }
+      : {}
+  )
+
+  useJsonLd(
+    post
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.openthorn.app/' },
+            { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://www.openthorn.app/blog' },
+            { '@type': 'ListItem', position: 3, name: post.title },
+          ],
         }
       : {}
   )

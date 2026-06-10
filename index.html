@@ -13,14 +13,35 @@
     <meta property="og:url" content="https://www.openthorn.app/" />
     <meta property="og:title" content="OpenThorn — The BYOK AI Website Builder" />
     <meta property="og:description" content="Describe what you want, get a complete, deployable website. Bring your own API key — no subscription, no lock-in." />
-    <meta property="og:image" content="https://www.openthorn.app/logo.png" />
+    <meta property="og:image" content="https://www.openthorn.app/og-card.png" />
     <meta property="og:site_name" content="OpenThorn" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="OpenThorn — The BYOK AI Website Builder" />
     <meta name="twitter:description" content="Describe what you want, get a complete, deployable website. Bring your own API key — no subscription, no lock-in." />
-    <meta name="twitter:image" content="https://www.openthorn.app/logo.png" />
+    <meta name="twitter:image" content="https://www.openthorn.app/og-card.png" />
+
+    <!-- Sitewide structured data: Organization + WebSite (per-page schemas are
+         injected at runtime via useJsonLd and at build time via scripts/prerender.mjs) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "OpenThorn",
+        "url": "https://www.openthorn.app",
+        "logo": "https://www.openthorn.app/logo.png",
+        "sameAs": ["https://github.com/BuildingTechAlternatives/OpenThorn"]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "OpenThorn",
+        "url": "https://www.openthorn.app"
+      }
+    </script>
 
     <!-- Fonts are self-hosted via Fontsource (imported in src/main.tsx) — no external font requests -->
   </head>

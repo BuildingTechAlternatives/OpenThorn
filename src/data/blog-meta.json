@@ -1,0 +1,15 @@
+[
+  {
+    "slug": "introducing-openthorn",
+    "title": "Introducing OpenThorn — Build Full-Stack Apps from a Single Prompt",
+    "date": "2026-06-06",
+    "excerpt": "Most web apps still take weeks to build. We built OpenThorn to close that gap — describe your app in plain language and ship the same day.",
+    "coverVideo": "/videos/openthorn-ad.mp4"
+  },
+  {
+    "slug": "what-is-a-byok-ai-website-builder",
+    "title": "What Is a BYOK AI Website Builder?",
+    "date": "2026-06-11",
+    "excerpt": "A BYOK (bring-your-own-key) AI website builder is a tool that generates websites with AI while you connect your own API key from a provider like OpenAI or Anthropic — so you pay the provider directly, with no platform markup or subscription."
+  }
+]

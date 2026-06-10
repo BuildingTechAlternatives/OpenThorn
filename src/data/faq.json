@@ -1,0 +1,86 @@
+[
+  {
+    "label": "Getting Started",
+    "items": [
+      {
+        "question": "What is OpenThorn?",
+        "answer": "OpenThorn is an AI-powered app builder. You describe what you want to build in plain language, and OpenThorn generates the code and deploys a working website — no coding skills required."
+      },
+      {
+        "question": "Do I need to know how to code?",
+        "answer": "No. OpenThorn handles the technical side entirely. You write in plain English and the AI takes care of the rest. If you do know how to code, you can still inspect and modify the generated output."
+      },
+      {
+        "question": "How do I get started?",
+        "answer": "Sign up for a free account, add an API key for at least one AI provider (such as OpenAI or Anthropic), create a project, and start describing your app. The Providers page shows all supported providers."
+      },
+      {
+        "question": "Can I export the generated code?",
+        "answer": "Yes. The code OpenThorn generates is yours from the first line. You can download it, push it to your own GitHub repository, and deploy or host it anywhere — there is no proprietary format and no export paywall."
+      }
+    ]
+  },
+  {
+    "label": "BYOK & API Keys",
+    "items": [
+      {
+        "question": "What does BYOK mean?",
+        "answer": "BYOK stands for Bring Your Own Key. Rather than routing all AI usage through a shared account, you supply your own API key directly from an AI provider. This means you pay your provider directly and OpenThorn never controls your billing."
+      },
+      {
+        "question": "Where do I get an API key?",
+        "answer": "From your chosen provider's developer portal — for example, platform.openai.com for OpenAI or console.anthropic.com for Anthropic. Create an account there, generate an API key, and paste it into OpenThorn's Providers page."
+      },
+      {
+        "question": "Which AI providers are supported?",
+        "answer": "OpenThorn supports 17 AI providers: OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral AI, Groq, Together AI, xAI, Cohere, Perplexity, OpenRouter, Ollama, Fireworks AI, Cerebras, Azure OpenAI, Amazon Bedrock, and NVIDIA NIM. See the Providers page inside the app for the current list and per-model pricing data."
+      },
+      {
+        "question": "Can I use multiple providers?",
+        "answer": "Yes. You can add keys for several providers and choose which model to use on a per-project basis. This lets you balance cost and quality for different types of work."
+      }
+    ]
+  },
+  {
+    "label": "Security & Privacy",
+    "items": [
+      {
+        "question": "Are my API keys safe?",
+        "answer": "Saved API keys are encrypted before database storage, are not used for OpenThorn billing, and are decrypted only when needed to send your request to the AI provider you selected. You should still set provider-side spend limits, rotate keys, and revoke any key you suspect has been exposed."
+      },
+      {
+        "question": "What data does OpenThorn store?",
+        "answer": "We store the data needed to provide the service, including account/profile data, encrypted API keys, project names, prompts, generated code, collaboration records, community likes, deployment metadata, and optional GitHub integration data. Browser-local storage may also keep app preferences and local user memory."
+      },
+      {
+        "question": "Where is my data hosted?",
+        "answer": "Your data is hosted on Vercel's infrastructure. Request data including IP addresses may be processed by Vercel, and data may be transferred to the United States under Standard Contractual Clauses (SCCs) in compliance with GDPR."
+      },
+      {
+        "question": "Can I delete my data?",
+        "answer": "Yes. Email mys.thomas00@gmail.com to request full account and data deletion. We will process your request within 30 days."
+      }
+    ]
+  },
+  {
+    "label": "Pricing",
+    "items": [
+      {
+        "question": "Is OpenThorn free to use?",
+        "answer": "The OpenThorn platform itself is free. You only pay for the AI usage billed directly by your provider — OpenThorn adds no markup. Your provider charges you based on the model you choose and the number of tokens generated."
+      },
+      {
+        "question": "Does OpenThorn charge per generation?",
+        "answer": "No. OpenThorn does not take a cut of your AI usage. All generation costs go directly to your provider account, billed according to their standard rates."
+      },
+      {
+        "question": "How much does building a website cost?",
+        "answer": "It depends on the model you choose: generating a typical website costs cents to a few dollars in provider API usage. OpenThorn itself charges nothing — there is no subscription and no platform fee."
+      },
+      {
+        "question": "Where can I see model pricing?",
+        "answer": "On the Pricing page, which shows live cost and quality data for all supported flagship models so you can choose the best model for your budget."
+      }
+    ]
+  }
+]

@@ -62,6 +62,20 @@
   font-weight: 500;
 }
 
+.lastUpdated {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin: var(--space-md) auto 0;
+}
+
+.lastUpdated a {
+  color: var(--color-accent);
+}
+
+.lastUpdated a:hover {
+  text-decoration: underline;
+}
+
 .chartSection {
   margin-bottom: var(--space-5xl);
 }

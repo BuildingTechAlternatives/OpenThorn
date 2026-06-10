@@ -130,3 +130,18 @@
     padding: var(--space-md);
   }
 }
+
+.learnMore {
+  margin: var(--space-md) 0 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.learnMore a {
+  color: var(--color-accent);
+}
+
+.learnMore a:hover {
+  text-decoration: underline;
+}

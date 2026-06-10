@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import PromptInput from '../PromptInput/PromptInput'
 import styles from './BottomCTA.module.css'
@@ -26,6 +27,12 @@ export default function BottomCTA() {
             <span>GitHub export</span>
             <span>No subscription wall</span>
           </div>
+          <p className={styles.learnMore}>
+            New here? Learn{' '}
+            <Link to="/blog/what-is-a-byok-ai-website-builder">what a BYOK AI website builder is</Link>,
+            compare <Link to="/pricing">AI model pricing</Link>, or browse the{' '}
+            <Link to="/faq">FAQ</Link>.
+          </p>
         </div>
 
         <div className={styles.actionPanel}>

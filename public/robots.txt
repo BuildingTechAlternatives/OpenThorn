@@ -1,4 +1,36 @@
+# OpenThorn — https://www.openthorn.app
+# All public pages are crawlable. AI/answer-engine crawlers are explicitly
+# welcome: being readable by them is how OpenThorn gets cited in AI answers.
+
 User-agent: *
+Allow: /
+
+# AI assistant / answer engine crawlers (explicitly allowed)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
 Allow: /
 
 Sitemap: https://www.openthorn.app/sitemap.xml

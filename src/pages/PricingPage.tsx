@@ -1,4 +1,5 @@
 import { useEffect, useState, type CSSProperties } from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { fetchModels, getFlagshipModels, type ModelEntry } from '../lib/pricing'
 import { usePageTitle } from '../lib/usePageTitle'
@@ -67,6 +68,11 @@ export default function PricingPage() {
         </h1>
         <p className={styles.subtitle}>
           BYOK means you pay providers directly — no markup, no subscription, no hidden fees.
+        </p>
+        <p className={styles.lastUpdated}>
+          Pricing data syncs from live provider rates. New to BYOK?{' '}
+          <Link to="/blog/what-is-a-byok-ai-website-builder">Read how it works</Link> or check the{' '}
+          <Link to="/faq">FAQ</Link>.
         </p>
       </motion.div>
 
