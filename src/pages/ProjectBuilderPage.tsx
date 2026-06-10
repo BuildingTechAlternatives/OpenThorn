@@ -2479,7 +2479,22 @@ export default function ProjectBuilderPage() {
                   {firstRunComplete && (previewStatus === 'ready' || (previewStatus === 'building' && lastReadyHtml)) && (
                     <div
                       className={styles.previewRebuild}
-                      onMouseDown={() => previewFrameRef.current?.contentWindow?.focus()}
+                      onPointerDown={() => {
+                        // Route keyboard input (space, arrow keys, etc.) into the game.
+                        // Focus the iframe element itself — contentWindow.focus() alone is
+                        // unreliable for a sandboxed (opaque-origin) iframe.
+                        previewFrameRef.current?.focus()
+                        previewFrameRef.current?.contentWindow?.focus()
+                      }}
+                      onMouseEnter={() => {
+                        // Hover-to-play: let keys reach the game without an explicit click,
+                        // but never yank focus away while the user is typing in the chat/inputs.
+                        const el = document.activeElement
+                        const tag = el?.tagName
+                        if (tag === 'INPUT' || tag === 'TEXTAREA' || (el as HTMLElement | null)?.isContentEditable) return
+                        previewFrameRef.current?.focus()
+                        previewFrameRef.current?.contentWindow?.focus()
+                      }}
                     >
                       {previewStatus === 'building' && <div className={styles.rebuildOverlay} />}
                       <iframe
@@ -2488,6 +2503,16 @@ export default function ProjectBuilderPage() {
                         srcDoc={previewStatus === 'ready' ? previewHtml : lastReadyHtml}
                         sandbox="allow-scripts"
                         title="Live preview"
+                        onLoad={() => {
+                          // A rebuild swaps srcDoc and resets focus to the document body.
+                          // If the user was playing (focus was on the preview/body, not an
+                          // input), restore focus so the game stays keyboard-controllable.
+                          const el = document.activeElement
+                          if (el === previewFrameRef.current || el === document.body || el === null) {
+                            previewFrameRef.current?.focus()
+                            previewFrameRef.current?.contentWindow?.focus()
+                          }
+                        }}
                       />
                     </div>
                   )}
