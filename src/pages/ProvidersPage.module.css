@@ -2,7 +2,7 @@
 
 .main { margin-left: 248px; min-height: 100vh; padding: 80px var(--space-2xl) var(--space-4xl); position: relative; z-index: 1; display: flex; justify-content: center; }
 
-.content { width: 100%; max-width: 620px; }
+.content { width: 100%; max-width: 620px; animation: pageRise 0.55s var(--ease-out-expo) both; }
 
 /* Brand */
 .brandRow { display: flex; justify-content: center; margin-bottom: var(--space-2xl); }

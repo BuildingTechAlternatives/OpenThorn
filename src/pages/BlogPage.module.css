@@ -1,4 +1,4 @@
-/* ─── Page shell ─────────────────────────────────────────────── */
+﻿/* â”€â”€â”€ Page shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .page {
   min-height: calc(100vh - 64px);
   padding: 80px 24px 140px;
@@ -25,9 +25,10 @@
   z-index: 1;
 }
 
-/* ─── Header ─────────────────────────────────────────────────── */
+/* â”€â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .header {
   margin-bottom: 64px;
+  animation: pageRise 0.6s var(--ease-out-expo) both;
 }
 
 .eyebrow {
@@ -36,16 +37,16 @@
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #9d89fb;
+  color: var(--color-accent);
   margin-bottom: 16px;
 }
 
 .title {
-  font-family: 'Fraunces', serif;
+  font-family: 'Fraunces Variable', serif;
   font-size: clamp(4rem, 10vw, 7rem);
   font-weight: 900;
   font-style: italic;
-  color: #ededf5;
+  color: var(--color-text);
   line-height: 0.9;
   margin: 0 0 28px;
   letter-spacing: -0.03em;
@@ -56,7 +57,7 @@
   background: linear-gradient(to right, rgba(157, 137, 251, 0.5), rgba(157, 137, 251, 0.08), transparent);
 }
 
-/* ─── Featured post ──────────────────────────────────────────── */
+/* â”€â”€â”€ Featured post â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .featured {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -68,9 +69,10 @@
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.025);
   margin-bottom: 80px;
-  transition: border-color 0.25s ease, background 0.25s ease;
+  transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.3s ease;
   position: relative;
   overflow: hidden;
+  animation: pageRise 0.6s var(--ease-out-expo) 0.1s both;
 }
 
 .featured::before {
@@ -84,6 +86,7 @@
 .featured:hover {
   border-color: rgba(157, 137, 251, 0.35);
   background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 16px 48px rgba(139, 92, 246, 0.1);
 }
 
 .featured:hover .featuredVideo {
@@ -112,23 +115,23 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #0a0a12;
-  background: #9d89fb;
+  color: var(--color-bg);
+  background: var(--color-accent);
   padding: 3px 10px;
   border-radius: 99px;
 }
 
 .date {
   font-size: 0.8rem;
-  color: #7474a0;
+  color: var(--color-text-muted);
   letter-spacing: 0.04em;
 }
 
 .featuredTitle {
-  font-family: 'Fraunces', serif;
+  font-family: 'Fraunces Variable', serif;
   font-size: clamp(1.5rem, 2.8vw, 2.1rem);
   font-weight: 700;
-  color: #ededf5;
+  color: var(--color-text);
   line-height: 1.25;
   margin: 0;
   letter-spacing: -0.01em;
@@ -136,7 +139,7 @@
 
 .excerpt {
   font-size: 0.975rem;
-  color: #8a8ab0;
+  color: var(--color-text-secondary);
   line-height: 1.7;
   margin: 0;
 }
@@ -147,7 +150,7 @@
   gap: 8px;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #9d89fb;
+  color: var(--color-accent);
   margin-top: 4px;
 }
 
@@ -185,9 +188,10 @@
   pointer-events: none;
 }
 
-/* ─── More articles section ──────────────────────────────────── */
+/* â”€â”€â”€ More articles section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .more {
   margin-top: 0;
+  animation: pageRise 0.6s var(--ease-out-expo) 0.2s both;
 }
 
 .moreLabel {
@@ -195,7 +199,7 @@
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #55556a;
+  color: var(--color-text-muted);
   margin: 0 0 24px;
 }
 
@@ -205,7 +209,7 @@
   gap: 20px;
 }
 
-/* ─── Grid card ──────────────────────────────────────────────── */
+/* â”€â”€â”€ Grid card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .card {
   display: flex;
   flex-direction: column;
@@ -225,10 +229,10 @@
 }
 
 .cardTitle {
-  font-family: 'Fraunces', serif;
+  font-family: 'Fraunces Variable', serif;
   font-size: 1.15rem;
   font-weight: 600;
-  color: #ededf5;
+  color: var(--color-text);
   line-height: 1.35;
   margin: 0;
 }
@@ -236,11 +240,11 @@
 .readMore {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #9d89fb;
+  color: var(--color-accent);
   margin-top: 4px;
 }
 
-/* ─── Responsive ─────────────────────────────────────────────── */
+/* â”€â”€â”€ Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 760px) {
   .featured {
     grid-template-columns: 1fr;

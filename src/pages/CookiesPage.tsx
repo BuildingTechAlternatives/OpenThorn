@@ -60,8 +60,10 @@ export default function CookiesPage() {
 
       <h2>5. External Resource Requests</h2>
       <p>
-        OpenThorn may load fonts, generated-preview runtime packages, type definitions,
-        or WebAssembly resources from third-party CDNs. These requests are not used by
+        OpenThorn's fonts are self-hosted and served from our own infrastructure — no
+        font requests are made to Google or other third parties. Generated project
+        previews may load runtime packages, type definitions, or WebAssembly resources
+        from third-party CDNs. These requests are not used by
         OpenThorn for advertising or behavioural tracking, but the third-party provider
         may receive technical request data such as your IP address, browser information,
         requested URL, referrer, and request time.

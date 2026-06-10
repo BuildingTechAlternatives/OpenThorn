@@ -2,8 +2,8 @@
 .root {
   display: flex;
   min-height: 100vh;
-  background: #0d0d1a;
-  color: #e8e8f0;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .main {
@@ -17,19 +17,21 @@
 /* Header */
 .header {
   margin-bottom: 32px;
+  animation: pageRise 0.55s var(--ease-out-expo) both;
 }
 
 .heading {
-  font-size: 28px;
-  font-weight: 800;
-  color: #fff;
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-text);
   margin: 0 0 6px;
   letter-spacing: -0.02em;
 }
 
 .subheading {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--color-text-muted);
   margin: 0;
 }
 

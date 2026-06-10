@@ -116,14 +116,11 @@ export default function PrivacyPage() {
           metadata are sent to Netlify to create or update a site.
         </li>
         <li>
-          <strong>Google Fonts / Google LLC</strong> - OpenThorn loads fonts from Google
-          Fonts. When your browser requests those font resources, Google may receive your
-          IP address, browser data, referrer, and request timing information.
-        </li>
-        <li>
           <strong>CDN and package providers</strong> - generated previews may load runtime
           resources such as JavaScript packages, type definitions, or WebAssembly files
           from public CDNs when needed to build, preview, or typecheck generated code.
+          OpenThorn's own fonts are self-hosted and do not involve requests to Google
+          Fonts or other third-party font services.
         </li>
         <li>
           <strong>OAuth providers</strong> (Google and GitHub) - if you sign in with an

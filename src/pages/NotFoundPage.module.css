@@ -4,45 +4,62 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-lg);
+  position: relative;
+  overflow: hidden;
   background: var(--color-bg);
 }
 
-.card {
+/* drifting ambient glow behind the numeral */
+.root::before {
+  content: '';
+  position: absolute;
+  width: 720px;
+  height: 720px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(139, 92, 246, 0.16), rgba(94, 234, 212, 0.05) 45%, transparent 70%);
+  filter: blur(40px);
+  animation: glowDrift 14s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
   text-align: center;
-  max-width: 420px;
-  padding: var(--space-3xl) var(--space-xl);
-  background: var(--color-surface-raised);
-  border: 1px solid var(--color-border-visible);
-  border-radius: var(--radius-xl);
+  max-width: 480px;
 }
 
 .logo {
   display: block;
-  height: 32px;
+  height: 30px;
   width: auto;
-  margin: 0 auto var(--space-lg);
-  opacity: 0.85;
+  margin: 0 auto var(--space-xl);
+  opacity: 0.8;
+  animation: pageFade 0.9s var(--ease-out) both;
 }
 
 .code {
   display: block;
   font-family: var(--font-display);
-  font-size: 72px;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-glow));
+  font-size: clamp(120px, 28vw, 200px);
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -0.05em;
+  line-height: 0.85;
+  background: linear-gradient(160deg, var(--color-text) 10%, var(--color-accent) 55%, var(--color-accent-glow) 90%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  line-height: 1;
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-lg);
+  animation: pageRise 0.7s var(--ease-out-expo) both;
 }
 
 .title {
   font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 26px;
+  font-weight: 600;
   color: var(--color-text);
   margin-bottom: var(--space-sm);
+  animation: pageRise 0.7s var(--ease-out-expo) 0.08s both;
 }
 
 .message {
@@ -50,6 +67,16 @@
   color: var(--color-text-secondary);
   line-height: 1.6;
   margin-bottom: var(--space-xl);
+  animation: pageRise 0.7s var(--ease-out-expo) 0.16s both;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  animation: pageRise 0.7s var(--ease-out-expo) 0.24s both;
 }
 
 .button {
@@ -63,15 +90,29 @@
   background: linear-gradient(135deg, var(--color-accent), var(--color-accent-glow));
   border-radius: var(--radius-full);
   text-decoration: none;
-  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25);
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease-out;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease-out;
 }
 
 .button:hover {
   transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.35);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .button:active {
   transform: translateY(0) scale(0.98);
+}
+
+.ghostLink {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: var(--radius-full);
+  transition: color 0.15s;
+}
+
+.ghostLink:hover {
+  color: var(--color-text);
 }

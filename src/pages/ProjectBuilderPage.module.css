@@ -5,7 +5,7 @@
   flex-direction: column;
   overflow: hidden;
   color: var(--color-text);
-  background: #0b090d;
+  background: var(--color-bg);
 }
 
 .topbar {

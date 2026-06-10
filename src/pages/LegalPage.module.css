@@ -2,11 +2,28 @@
 .page {
   min-height: calc(100vh - var(--header-height));
   padding: var(--space-3xl) var(--space-lg) var(--space-6xl);
+  position: relative;
+  overflow: hidden;
+}
+
+/* faint ambient glow up top */
+.page::before {
+  content: '';
+  position: absolute;
+  top: -180px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 420px;
+  background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.07), transparent 70%);
+  pointer-events: none;
 }
 
 .container {
   max-width: 900px;
   margin: 0 auto;
+  position: relative;
+  animation: pageRise 0.55s var(--ease-out-expo) both;
 }
 
 /* ===== Doc nav bar ===== */
@@ -50,21 +67,35 @@
   font-weight: 700;
   color: var(--color-text);
   line-height: 1.2;
+  letter-spacing: -0.015em;
   margin: 0 0 var(--space-sm);
 }
 
 .badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.8125rem;
   color: var(--color-text-muted);
   border: 1px solid var(--color-border-visible);
+  background: rgba(255, 255, 255, 0.02);
   border-radius: var(--radius-full);
-  padding: 3px 10px;
+  padding: 3px 12px;
+}
+
+.badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-secondary);
+  opacity: 0.8;
 }
 
 .divider {
   border: none;
-  border-top: 1px solid var(--color-border-visible);
+  height: 1px;
+  background: linear-gradient(to right, var(--color-border-glow), var(--color-border-visible) 30%, transparent);
   margin: 0 0 var(--space-2xl);
 }
 

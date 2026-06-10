@@ -61,9 +61,12 @@ export default function PricingPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className={styles.title}>Model pricing</h1>
+        <p className={styles.eyebrow}>Bring your own key</p>
+        <h1 className={styles.title}>
+          Model pricing, <span className={styles.titleAccent}>transparent</span>
+        </h1>
         <p className={styles.subtitle}>
-          BYOK means you pay providers directly - no markup, no subscription, no hidden fees.
+          BYOK means you pay providers directly — no markup, no subscription, no hidden fees.
         </p>
       </motion.div>
 

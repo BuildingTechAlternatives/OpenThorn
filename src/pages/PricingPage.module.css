@@ -3,20 +3,54 @@
   padding: calc(var(--header-height) + var(--space-3xl)) var(--space-lg) var(--space-4xl);
   max-width: var(--max-width);
   margin: 0 auto;
+  position: relative;
+}
+
+/* ambient glow behind the hero */
+.page::before {
+  content: '';
+  position: absolute;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 760px;
+  height: 460px;
+  background: radial-gradient(ellipse at center, rgba(246, 193, 119, 0.06), rgba(139, 92, 246, 0.07) 40%, transparent 70%);
+  pointer-events: none;
 }
 
 .header {
   text-align: center;
   margin-bottom: var(--space-4xl);
+  position: relative;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: var(--space-md);
 }
 
 .title {
   font-family: var(--font-display);
-  font-size: 56px;
+  font-size: clamp(40px, 6vw, 56px);
   font-weight: 800;
   color: var(--color-text);
   margin-bottom: var(--space-md);
-  letter-spacing: 0;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+}
+
+.titleAccent {
+  font-style: italic;
+  background: linear-gradient(120deg, var(--color-accent), var(--color-warm-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .subtitle {
@@ -102,6 +136,12 @@
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 72%),
     var(--color-surface);
+  transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+
+.storyCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.32);
 }
 
 .storyCard strong {
@@ -431,6 +471,12 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-top: 3px solid var(--color-secondary);
+  transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+
+.highlightCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.32);
 }
 
 .highlightCard.bestValue {

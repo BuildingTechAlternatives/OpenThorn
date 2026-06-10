@@ -173,7 +173,10 @@ export default function FaqPage() {
     <div className={styles.page}>
       <div className={styles.container}>
         <header className={styles.hero}>
-          <h1 className={styles.title}>Frequently Asked Questions</h1>
+          <p className={styles.eyebrow}>Support</p>
+          <h1 className={styles.title}>
+            Questions, <span className={styles.titleAccent}>answered</span>
+          </h1>
           <p className={styles.subtitle}>
             Everything you need to know about OpenThorn. Can&rsquo;t find your answer?{' '}
             <a href="mailto:mys.thomas00@gmail.com">Drop us a line.</a>

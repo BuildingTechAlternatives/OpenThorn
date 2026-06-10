@@ -29,7 +29,7 @@
   --color-border-glow: rgba(139, 92, 246, 0.15);
 
   /* Typography */
-  --font-display: 'Fraunces', Georgia, serif;
+  --font-display: 'Fraunces Variable', Georgia, serif;
   --font-body: 'Roboto', -apple-system, 'Helvetica Neue', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
@@ -61,19 +61,6 @@
   /* Layout */
   --max-width: 1100px;
   --header-height: 64px;
-}
-
-/* ===== Noise Texture — subtle ===== */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 9998;
-  pointer-events: none;
-  opacity: 0.025;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 256px 256px;
 }
 
 /* ===== Noise Texture ===== */
@@ -131,9 +118,25 @@ input, textarea { font-family: inherit; font-size: inherit; color: inherit; }
 }
 
 :focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.3);
+  outline: 2px solid rgba(167, 139, 250, 0.65);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* ===== Shared entrance keyframes (global — referenced from page modules) ===== */
+@keyframes pageRise {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pageFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes glowDrift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(4%, 3%, 0) scale(1.06); }
 }
 
 @media (prefers-reduced-motion: reduce) {

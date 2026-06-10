@@ -189,9 +189,9 @@
 }
 
 .panelTitle {
-  font-family: var(--font-body);
-  font-size: 24px;
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
   color: var(--color-text);
   letter-spacing: -0.02em;
   margin: 0 0 5px;

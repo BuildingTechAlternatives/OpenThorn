@@ -1,7 +1,7 @@
 .root {
   display: flex;
   min-height: 100vh;
-  background: #0a0a12;
+  background: var(--color-bg);
 }
 
 .main {
@@ -15,30 +15,33 @@
 
 .header {
   margin-bottom: 3rem;
+  animation: pageRise 0.55s var(--ease-out-expo) both;
 }
 
 .heading {
-  font-size: 1.75rem;
+  font-family: var(--font-display);
+  font-size: 2rem;
   font-weight: 700;
-  letter-spacing: -0.03em;
-  color: #ededf5;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
   margin-bottom: 0.5rem;
 }
 
 .subheading {
   font-size: 0.95rem;
-  color: #7474a0;
+  color: var(--color-text-muted);
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 1.75rem;
+  animation: pageRise 0.55s var(--ease-out-expo) 0.1s both;
 }
 
 /* Template card */
 .card {
-  background: #0e0e1c;
+  background: var(--color-surface-raised);
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 16px;
   overflow: hidden;
@@ -57,7 +60,7 @@
   position: relative;
   height: 220px;
   overflow: hidden;
-  background: #16162a;
+  background: var(--color-surface-overlay);
 }
 
 .thumbnail {
@@ -77,7 +80,7 @@
   align-items: center;
   justify-content: center;
   font-size: 0.8rem;
-  color: #7474a0;
+  color: var(--color-text-muted);
 }
 
 .previewOverlay {
@@ -99,7 +102,7 @@
 .previewBtn {
   padding: 0.5rem 1.25rem;
   background: rgba(255, 255, 255, 0.95);
-  color: #0a0a12;
+  color: var(--color-bg);
   border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 700;
@@ -129,7 +132,7 @@
 .cardName {
   font-size: 1rem;
   font-weight: 700;
-  color: #ededf5;
+  color: var(--color-text);
 }
 
 .categoryBadge {
@@ -146,7 +149,7 @@
 
 .cardDesc {
   font-size: 0.85rem;
-  color: #7474a0;
+  color: var(--color-text-muted);
   line-height: 1.6;
 }
 
@@ -180,7 +183,7 @@
 .overlayPreview {
   flex: 1;
   position: relative;
-  background: #080810;
+  background: var(--color-bg);
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -203,7 +206,7 @@
   display: grid;
   place-items: center;
   font-size: 0.9rem;
-  color: #7474a0;
+  color: var(--color-text-muted);
   background: rgba(255, 255, 255, 0.06);
   transition: all 0.15s;
   cursor: pointer;
@@ -212,7 +215,7 @@
 }
 
 .overlayClose:hover {
-  color: #ededf5;
+  color: var(--color-text);
   background: rgba(255, 255, 255, 0.1);
 }
 
@@ -226,7 +229,7 @@
   padding: 0.3rem 0.625rem;
   border-radius: 6px;
   font-size: 0.75rem;
-  color: #7474a0;
+  color: var(--color-text-muted);
   transition: all 0.15s;
   cursor: pointer;
   border: none;
@@ -235,12 +238,12 @@
 
 .deviceBtn:hover {
   background: rgba(255, 255, 255, 0.08);
-  color: #ededf5;
+  color: var(--color-text);
 }
 
 .deviceBtnActive {
   background: rgba(255, 255, 255, 0.1);
-  color: #ededf5;
+  color: var(--color-text);
 }
 
 .overlayIframeWrapper {
@@ -275,7 +278,7 @@
 .overlayPanel {
   width: 320px;
   flex-shrink: 0;
-  background: #0e0e1c;
+  background: var(--color-surface-raised);
   border-left: 1px solid rgba(255, 255, 255, 0.07);
   display: flex;
   flex-direction: column;
@@ -287,14 +290,14 @@
 .overlayName {
   font-size: 1.4rem;
   font-weight: 800;
-  color: #ededf5;
+  color: var(--color-text);
   letter-spacing: -0.03em;
   margin: 0.75rem 0 0.5rem;
 }
 
 .overlayDesc {
   font-size: 0.875rem;
-  color: #7474a0;
+  color: var(--color-text-muted);
   line-height: 1.65;
   margin-bottom: 1.75rem;
 }
@@ -304,7 +307,7 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #7474a0;
+  color: var(--color-text-muted);
   margin-bottom: 0.75rem;
 }
 
@@ -320,7 +323,7 @@
   align-items: flex-start;
   gap: 0.625rem;
   font-size: 0.85rem;
-  color: #b0b0d0;
+  color: var(--color-text-secondary);
   line-height: 1.5;
 }
 
@@ -340,7 +343,7 @@
 .modelLabel {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #7474a0;
+  color: var(--color-text-muted);
   margin-bottom: 0.5rem;
   display: block;
 }

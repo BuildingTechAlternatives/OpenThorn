@@ -2,11 +2,27 @@
 .page {
   min-height: calc(100vh - var(--header-height));
   padding: var(--space-3xl) var(--space-lg) var(--space-6xl);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ambient glow behind the hero */
+.page::before {
+  content: '';
+  position: absolute;
+  top: -160px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 720px;
+  height: 480px;
+  background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.1), transparent 70%);
+  pointer-events: none;
 }
 
 .container {
   max-width: 780px;
   margin: 0 auto;
+  position: relative;
 }
 
 /* ===== Hero ===== */
@@ -14,13 +30,34 @@
   margin-bottom: var(--space-3xl);
 }
 
+.eyebrow {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin: 0 0 var(--space-md);
+  animation: pageRise 0.6s var(--ease-out-expo) both;
+}
+
 .title {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 600;
+  font-size: clamp(2.2rem, 5.5vw, 3.4rem);
+  font-weight: 700;
   color: var(--color-text);
   margin: 0 0 var(--space-md);
-  line-height: 1.15;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  animation: pageRise 0.6s var(--ease-out-expo) 0.06s both;
+}
+
+.titleAccent {
+  font-style: italic;
+  background: linear-gradient(120deg, var(--color-accent), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .subtitle {
@@ -29,20 +66,40 @@
   margin: 0;
   max-width: 520px;
   line-height: 1.6;
+  animation: pageRise 0.6s var(--ease-out-expo) 0.12s both;
+}
+
+.subtitle a {
+  color: var(--color-accent);
+}
+
+.subtitle a:hover {
+  text-decoration: underline;
 }
 
 /* ===== Category group ===== */
 .group {
   margin-bottom: var(--space-3xl);
+  animation: pageRise 0.6s var(--ease-out-expo) 0.18s both;
 }
 
 .groupLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
   font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-text-muted);
   margin: 0 0 var(--space-md);
+}
+
+.groupLabel::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--color-border-visible), transparent);
 }
 
 /* ===== Accordion item ===== */
@@ -52,7 +109,7 @@
   background: var(--color-surface-raised);
   margin-bottom: var(--space-sm);
   overflow: hidden;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.25s;
 }
 
 .item:hover {
@@ -61,6 +118,7 @@
 
 .itemOpen {
   border-color: var(--color-border-glow);
+  box-shadow: 0 8px 28px rgba(139, 92, 246, 0.08);
 }
 
 .question {

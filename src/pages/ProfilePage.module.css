@@ -1,8 +1,8 @@
 .root {
   display: flex;
   min-height: 100vh;
-  background: #0d0d1a;
-  color: #e8e8f0;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .main {
@@ -25,6 +25,7 @@
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.025);
   border: 1px solid rgba(255, 255, 255, 0.06);
+  animation: pageRise 0.55s var(--ease-out-expo) both;
 }
 
 .heroGlow {
@@ -76,9 +77,10 @@
 }
 
 .name {
-  font-size: 28px;
-  font-weight: 800;
-  color: #fff;
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--color-text);
   letter-spacing: -0.02em;
   margin: 0;
   line-height: 1.15;
