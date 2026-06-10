@@ -9,6 +9,7 @@ const checks = [
   ['dist/index.html', 'rel="canonical" href="https://www.openthorn.app/"', 'home: canonical'],
   ['dist/index.html', 'og-card.png', 'home: og-card image'],
   ['dist/faq/index.html', 'FAQPage', 'faq: FAQPage JSON-LD'],
+  ['dist/faq/index.html', 'data-prerendered', 'faq: JSON-LD marked for boot removal'],
   ['dist/faq/index.html', '17 AI providers', 'faq: provider answer'],
   ['dist/pricing/index.html', 'Model pricing, transparent', 'pricing: content snapshot'],
   ['dist/blog/what-is-a-byok-ai-website-builder/index.html', 'BlogPosting', 'byok post: BlogPosting'],

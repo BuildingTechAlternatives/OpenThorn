@@ -307,8 +307,12 @@ function injectMeta(html, route) {
     `  <link rel="canonical" href="${SITE_URL}${route.path}" />\n  </head>`
   )
 
+  // data-prerendered marks these for removal at app boot (src/main.tsx):
+  // the same schemas are re-injected at runtime by useJsonLd, and Google's
+  // JS rendering would otherwise see each schema twice ("Duplicate field"
+  // error in the Rich Results test).
   for (const schema of route.jsonLd) {
-    const scriptTag = `<script type="application/ld+json">${JSON.stringify(schema)}</script>`
+    const scriptTag = `<script type="application/ld+json" data-prerendered>${JSON.stringify(schema)}</script>`
     out = out.replace('</head>', `  ${scriptTag}\n  </head>`)
   }
 

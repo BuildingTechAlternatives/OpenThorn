@@ -13,6 +13,14 @@ import '@fontsource/roboto/700.css'
 import '@fontsource/roboto/900.css'
 import './index.css'
 
+// Prerendered per-route JSON-LD (scripts/prerender.mjs) exists for crawlers
+// that don't run JS. Once the app boots, useJsonLd re-injects the schema for
+// the current route, so drop the static copies — otherwise Google's rendered
+// view sees every schema twice and flags "Duplicate field" errors.
+document
+  .querySelectorAll('script[type="application/ld+json"][data-prerendered]')
+  .forEach((el) => el.remove())
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
