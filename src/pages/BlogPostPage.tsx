@@ -88,6 +88,10 @@ export default function BlogPostPage() {
           />
         )}
 
+        {!post.coverVideo && post.coverImage && (
+          <img className={styles.cover} src={post.coverImage} alt="" />
+        )}
+
         <article className={styles.article}>
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}

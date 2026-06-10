@@ -58,6 +58,18 @@ export default function BlogPage() {
                 <div className={styles.videoGlow} />
               </div>
             )}
+
+            {!featured.coverVideo && featured.coverImage && (
+              <div className={styles.featuredMedia}>
+                <img
+                  className={styles.featuredVideo}
+                  src={featured.coverImage}
+                  alt=""
+                  aria-hidden="true"
+                />
+                <div className={styles.videoGlow} />
+              </div>
+            )}
           </Link>
         )}
 
@@ -67,6 +79,9 @@ export default function BlogPage() {
             <div className={styles.grid}>
               {rest.map((post) => (
                 <Link key={post.slug} to={`/blog/${post.slug}`} className={styles.card}>
+                  {post.coverImage && (
+                    <img className={styles.cardThumb} src={post.coverImage} alt="" loading="lazy" />
+                  )}
                   <time className={styles.date}>{formatDate(post.date)}</time>
                   <h3 className={styles.cardTitle}>{post.title}</h3>
                   <p className={styles.excerpt}>{post.excerpt}</p>

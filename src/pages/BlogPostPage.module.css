@@ -159,3 +159,14 @@
   color: #9090b8;
   font-style: italic;
 }
+
+.cover {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 12px;
+  background: var(--color-surface);
+  margin-bottom: 48px;
+  display: block;
+  border: 1px solid rgba(148, 137, 251, 0.15);
+}

@@ -10,6 +10,8 @@
     "slug": "what-is-a-byok-ai-website-builder",
     "title": "What Is a BYOK AI Website Builder?",
     "date": "2026-06-11",
-    "excerpt": "A BYOK (bring-your-own-key) AI website builder is a tool that generates websites with AI while you connect your own API key from a provider like OpenAI or Anthropic — so you pay the provider directly, with no platform markup or subscription."
+    "excerpt": "A BYOK (bring-your-own-key) AI website builder is a tool that generates websites with AI while you connect your own API key from a provider like OpenAI or Anthropic — so you pay the provider directly, with no platform markup or subscription.",
+    "coverImage": "/assets/blog_2.jpg",
+    "ogImage": "https://www.openthorn.app/assets/blog_2.jpg"
   }
 ]
