@@ -3,10 +3,10 @@ import { usePageTitle } from '../lib/usePageTitle'
 
 export default function PrivacyPage() {
   usePageTitle('Privacy Policy', {
-    description: 'How OpenThorn handles your data. Your provider API keys are encrypted at rest, and we run no analytics or third-party tracking.',
+    description: 'How OpenThorn handles your data. Your provider API keys are encrypted at rest, and we use only cookieless, privacy-friendly analytics.',
   })
   return (
-    <LegalPage title="Privacy Policy" lastUpdated="June 8, 2026">
+    <LegalPage title="Privacy Policy" lastUpdated="June 10, 2026">
       <h2>1. Who We Are</h2>
       <p>
         OpenThorn is operated by <strong>Thomas Tschinkel</strong>, located in{' '}
@@ -64,6 +64,14 @@ export default function PrivacyPage() {
           logs, error information, and security events processed by our hosting,
           authentication, database, font, CDN, and integration providers.
         </li>
+        <li>
+          <strong>Aggregated usage data</strong> - anonymous page views and visit
+          statistics collected via Vercel Web Analytics. This service is cookieless: it
+          stores no cookies or identifiers in your browser and does not track you across
+          sites or sessions. Visitors are counted using a temporary hash derived from the
+          incoming request that is discarded and cannot be used to identify you across
+          days or websites.
+        </li>
       </ul>
 
       <h2>3. Why We Process Data and Legal Bases</h2>
@@ -76,6 +84,12 @@ export default function PrivacyPage() {
         <li>
           <strong>Security, abuse prevention, reliability, and essential diagnostics</strong> -
           processed under Art. 6(1)(f) GDPR (legitimate interests).
+        </li>
+        <li>
+          <strong>Anonymous usage statistics</strong> - cookieless, aggregated page-view
+          analytics used to understand how the service is used, processed under
+          Art. 6(1)(f) GDPR (legitimate interests). No persistent identifiers are stored
+          and no cross-site or cross-session tracking takes place.
         </li>
         <li>
           <strong>Legal compliance</strong> - records or disclosures required by law are
@@ -93,8 +107,11 @@ export default function PrivacyPage() {
       <p>We use service providers and integrations that may process personal data:</p>
       <ul>
         <li>
-          <strong>Vercel Inc.</strong> (hosting and infrastructure) - request data,
-          including IP addresses and technical logs, may be processed by Vercel.
+          <strong>Vercel Inc.</strong> (hosting, infrastructure, and web analytics) -
+          request data, including IP addresses and technical logs, may be processed by
+          Vercel. We also use Vercel Web Analytics, a cookieless analytics service that
+          records anonymous, aggregated page views without storing cookies or persistent
+          identifiers in your browser.
         </li>
         <li>
           <strong>Supabase, Inc.</strong> (authentication, database, realtime) - account,

@@ -6,7 +6,7 @@ export default function CookiesPage() {
     description: 'How OpenThorn uses cookies and local storage. We use only essential cookies for authentication — no tracking or advertising cookies.',
   })
   return (
-    <LegalPage title="Cookie and Storage Policy" lastUpdated="June 8, 2026">
+    <LegalPage title="Cookie and Storage Policy" lastUpdated="June 10, 2026">
       <h2>1. What Cookies and Local Storage Are</h2>
       <p>
         Cookies are small text files stored in your browser by a website. Modern web apps
@@ -49,16 +49,27 @@ export default function CookiesPage() {
         </li>
       </ul>
 
-      <h2>4. Consent Banner</h2>
+      <h2>4. Cookieless Analytics</h2>
       <p>
-        OpenThorn currently does not use analytics cookies, advertising cookies,
-        retargeting pixels, or third-party social media tracking pixels. Because the
-        current browser storage is used for authentication, security, and requested app
-        functionality, we do not show a cookie consent banner. If we add non-essential
-        cookies or tracking, we will update this page and request consent where required.
+        OpenThorn uses <strong>Vercel Web Analytics</strong> to count anonymous page
+        views. This service is cookieless: it does not set cookies, does not store
+        identifiers in localStorage or sessionStorage, and does not track you across
+        sites or sessions. Because nothing is stored on your device for analytics
+        purposes, this does not require cookie consent under the ePrivacy rules. See the
+        Privacy Policy for details on how this data is processed.
       </p>
 
-      <h2>5. External Resource Requests</h2>
+      <h2>5. Consent Banner</h2>
+      <p>
+        OpenThorn does not use analytics cookies, advertising cookies, retargeting
+        pixels, or third-party social media tracking pixels. Because the current browser
+        storage is used for authentication, security, and requested app functionality —
+        and our analytics stores nothing on your device — we do not show a cookie
+        consent banner. If we add non-essential cookies or tracking, we will update this
+        page and request consent where required.
+      </p>
+
+      <h2>6. External Resource Requests</h2>
       <p>
         OpenThorn's fonts are self-hosted and served from our own infrastructure — no
         font requests are made to Google or other third parties. Generated project
@@ -74,7 +85,7 @@ export default function CookiesPage() {
         this notice and request consent where required.
       </p>
 
-      <h2>6. How to Control Storage</h2>
+      <h2>7. How to Control Storage</h2>
       <p>
         You can clear cookies and localStorage through your browser settings. Clearing
         storage may sign you out, remove local preferences, reset notification state, and
@@ -83,15 +94,15 @@ export default function CookiesPage() {
         handled as described in the Privacy Policy.
       </p>
 
-      <h2>7. What We Do Not Use</h2>
+      <h2>8. What We Do Not Use</h2>
       <ul>
-        <li>No analytics or tracking cookies.</li>
+        <li>No analytics or tracking cookies (our analytics is cookieless).</li>
         <li>No advertising or retargeting cookies.</li>
         <li>No third-party social media tracking pixels.</li>
         <li>No data shared with or sold to data brokers.</li>
       </ul>
 
-      <h2>8. Contact</h2>
+      <h2>9. Contact</h2>
       <p>
         For questions about our use of cookies or local storage, contact us at{' '}
         <strong><a href="mailto:mys.thomas00@gmail.com">mys.thomas00@gmail.com</a></strong>.
