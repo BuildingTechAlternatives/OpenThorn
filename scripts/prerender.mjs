@@ -47,6 +47,7 @@ function blogPostingJsonLd(post) {
     headline: post.title,
     description: post.excerpt,
     datePublished: post.date,
+    dateModified: post.dateModified ?? post.date,
     url: `${SITE_URL}/blog/${post.slug}`,
     author: { '@type': 'Organization', name: 'OpenThorn' },
     publisher: {
@@ -124,8 +125,26 @@ const routes = [
     description: post.excerpt,
     ogImage: post.ogImage,
     ogType: 'article',
-    lastmod: post.date,
-    jsonLd: [blogPostingJsonLd(post), breadcrumbJsonLd(post)],
+    lastmod: post.dateModified ?? post.date,
+    jsonLd: [
+      blogPostingJsonLd(post),
+      breadcrumbJsonLd(post),
+      ...(post.howTo
+        ? [{
+            '@context': 'https://schema.org',
+            '@type': 'HowTo',
+            name: post.howTo.name,
+            step: post.howTo.steps.map((s, i) => ({ '@type': 'HowToStep', position: i + 1, name: s.name, text: s.text })),
+          }]
+        : []),
+      ...(post.itemList
+        ? [{
+            '@context': 'https://schema.org',
+            '@type': 'ItemList',
+            itemListElement: post.itemList.map((name, i) => ({ '@type': 'ListItem', position: i + 1, name })),
+          }]
+        : []),
+    ],
   })),
   {
     path: '/faq',

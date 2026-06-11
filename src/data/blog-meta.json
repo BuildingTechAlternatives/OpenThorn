@@ -13,5 +13,37 @@
     "excerpt": "A BYOK (bring-your-own-key) AI website builder is a tool that generates websites with AI while you connect your own API key from a provider like OpenAI or Anthropic — so you pay the provider directly, with no platform markup or subscription.",
     "coverImage": "/assets/blog_2.jpg",
     "ogImage": "https://www.openthorn.app/assets/blog_2.jpg"
+  },
+  {
+    "slug": "how-to-build-a-website-with-ai-byok",
+    "title": "How to Build a Website with AI Using Your Own API Key",
+    "date": "2026-06-12",
+    "excerpt": "Build and deploy a complete website with AI for cents, not subscriptions: get an API key, connect it to OpenThorn, describe what you want, and ship — in six steps.",
+    "howTo": {
+      "name": "Build a website with AI using your own API key",
+      "steps": [
+        { "name": "Choose an AI provider and get an API key", "text": "Pick any of the 17 supported providers (OpenAI, Anthropic, Google Gemini, and more) and generate an API key in its developer console." },
+        { "name": "Create a free OpenThorn account", "text": "Sign up at openthorn.app — free, no credit card, no subscription." },
+        { "name": "Connect your API key", "text": "Paste the key on the Providers page; it is encrypted server-side with AES-256-GCM." },
+        { "name": "Describe the website you want", "text": "Create a project and describe the site in plain language; the agent generates real React code." },
+        { "name": "Preview and iterate", "text": "Use the in-browser live preview and ask for changes conversationally until it is right." },
+        { "name": "Deploy or export", "text": "Deploy to Netlify in one click, or export the full source code and host it anywhere." }
+      ]
+    }
+  },
+  {
+    "slug": "how-to-get-an-ai-api-key",
+    "title": "How to Get an AI API Key (OpenAI, Anthropic, Google Gemini)",
+    "date": "2026-06-12",
+    "excerpt": "A five-minute guide to creating an API key with OpenAI, Anthropic, or Google Gemini — including billing setup and the spend limits that keep costs predictable.",
+    "howTo": {
+      "name": "Get an AI API key",
+      "steps": [
+        { "name": "Create a provider account", "text": "Sign up at platform.openai.com, console.anthropic.com, or aistudio.google.com." },
+        { "name": "Add billing", "text": "Add a payment method or prepaid credit (Gemini offers a free tier without billing)." },
+        { "name": "Generate the key", "text": "Create a new secret key in the provider's API keys section and copy it — it is shown only once." },
+        { "name": "Set a spend limit", "text": "Configure a monthly budget in the provider dashboard so usage can never surprise you." }
+      ]
+    }
   }
 ]

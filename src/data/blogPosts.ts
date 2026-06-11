@@ -1,6 +1,8 @@
 import blogMeta from './blog-meta.json'
 import introducingOpenThornContent from '../content/blog/introducing-openthorn.md?raw'
 import whatIsByokContent from '../content/blog/what-is-a-byok-ai-website-builder.md?raw'
+import howToBuildContent from '../content/blog/how-to-build-a-website-with-ai-byok.md?raw'
+import howToKeyContent from '../content/blog/how-to-get-an-ai-api-key.md?raw'
 
 export interface BlogPost {
   slug: string
@@ -12,6 +14,12 @@ export interface BlogPost {
   coverImage?: string
   /** Absolute URL for og:image. Falls back to site logo when omitted. */
   ogImage?: string
+  /** ISO date of the last substantive edit; defaults to the publish date. */
+  dateModified?: string
+  /** Optional HowTo structured data emitted as JSON-LD on the post page. */
+  howTo?: { name: string; steps: { name: string; text: string }[] }
+  /** Optional ItemList structured data (for listicle posts). */
+  itemList?: string[]
   content: string
 }
 
@@ -22,6 +30,8 @@ export interface BlogPost {
 const contentBySlug: Record<string, string> = {
   'introducing-openthorn': introducingOpenThornContent,
   'what-is-a-byok-ai-website-builder': whatIsByokContent,
+  'how-to-build-a-website-with-ai-byok': howToBuildContent,
+  'how-to-get-an-ai-api-key': howToKeyContent,
 }
 
 export const blogPosts: BlogPost[] = blogMeta.map((meta) => ({
