@@ -29,6 +29,8 @@ const LOGO_URL = `${SITE_URL}/logo.png`
 const blogMeta = JSON.parse(readFileSync(join(rootDir, 'src', 'data', 'blog-meta.json'), 'utf8'))
 const faqData = JSON.parse(readFileSync(join(rootDir, 'src', 'data', 'faq.json'), 'utf8'))
 const changelog = JSON.parse(readFileSync(join(rootDir, 'src', 'data', 'changelog.json'), 'utf8'))
+const compareMeta = JSON.parse(readFileSync(join(rootDir, 'src', 'data', 'compare-meta.json'), 'utf8'))
+const glossary = JSON.parse(readFileSync(join(rootDir, 'src', 'data', 'glossary.json'), 'utf8'))
 
 // Build-time SSR renderer (vite build --ssr src/entry-ssr.tsx --outDir dist-ssr)
 const { render } = await import(pathToFileURL(join(rootDir, 'dist-ssr', 'entry-ssr.js')).href)
@@ -56,6 +58,17 @@ function blogPostingJsonLd(post) {
       logo: { '@type': 'ImageObject', url: LOGO_URL },
     },
     image: post.ogImage ?? DEFAULT_OG_IMAGE,
+  }
+}
+
+function pageBreadcrumbJsonLd(name) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+      { '@type': 'ListItem', position: 2, name },
+    ],
   }
 }
 
@@ -167,6 +180,47 @@ const routes = [
       },
     ],
   },
+  ...compareMeta.map((entry) => ({
+    path: `/compare/${entry.slug}`,
+    title: `${entry.title} — OpenThorn`,
+    description: entry.description,
+    ogType: 'website',
+    lastmod: entry.lastVerified,
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: entry.faqs.map((f) => ({
+          '@type': 'Question',
+          name: f.question,
+          acceptedAnswer: { '@type': 'Answer', text: f.answer },
+        })),
+      },
+      pageBreadcrumbJsonLd(entry.title),
+    ],
+  })),
+  {
+    path: '/glossary',
+    title: 'AI Website Builder Glossary — OpenThorn',
+    description:
+      'Plain-English definitions of the terms behind AI website building: BYOK, AI agents, tokens, context windows, API keys, and more.',
+    ogType: 'website',
+    lastmod: '2026-06-12',
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'DefinedTermSet',
+        name: 'AI Website Builder Glossary',
+        url: `${SITE_URL}/glossary`,
+        hasDefinedTerm: glossary.map((g) => ({
+          '@type': 'DefinedTerm',
+          name: g.term,
+          description: g.definition,
+          url: `${SITE_URL}/glossary#${g.id}`,
+        })),
+      },
+    ],
+  },
   {
     path: '/changelog',
     title: 'Changelog — OpenThorn',
@@ -181,7 +235,7 @@ const routes = [
     title: 'Terms of Service — OpenThorn',
     description: 'Terms of service for OpenThorn.',
     ogType: 'website',
-    jsonLd: [],
+    jsonLd: [pageBreadcrumbJsonLd('Terms of Service')],
   },
   {
     path: '/privacy',
@@ -189,7 +243,7 @@ const routes = [
     description: 'Privacy policy for OpenThorn.',
     ogType: 'website',
     lastmod: '2026-06-10',
-    jsonLd: [],
+    jsonLd: [pageBreadcrumbJsonLd('Privacy Policy')],
   },
   {
     path: '/cookies',
@@ -197,21 +251,21 @@ const routes = [
     description: 'Cookie policy for OpenThorn.',
     ogType: 'website',
     lastmod: '2026-06-10',
-    jsonLd: [],
+    jsonLd: [pageBreadcrumbJsonLd('Cookie Policy')],
   },
   {
     path: '/imprint',
     title: 'Imprint — OpenThorn',
     description: 'Legal imprint for OpenThorn.',
     ogType: 'website',
-    jsonLd: [],
+    jsonLd: [pageBreadcrumbJsonLd('Imprint')],
   },
   {
     path: '/moderation',
     title: 'Moderation and DSA — OpenThorn',
     description: 'Moderation policy and DSA compliance information for OpenThorn.',
     ogType: 'website',
-    jsonLd: [],
+    jsonLd: [pageBreadcrumbJsonLd('Moderation and DSA')],
   },
 ]
 
