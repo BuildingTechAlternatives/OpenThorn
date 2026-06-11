@@ -1,5 +1,5 @@
 import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import { createRoot, hydrateRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { SupabaseAuthProvider } from './lib/AuthContext'
 import App from './App'
@@ -21,7 +21,8 @@ document
   .querySelectorAll('script[type="application/ld+json"][data-prerendered]')
   .forEach((el) => el.remove())
 
-createRoot(document.getElementById('root')!).render(
+const container = document.getElementById('root')!
+const app = (
   <StrictMode>
     <ErrorBoundary>
       <BrowserRouter>
@@ -30,5 +31,25 @@ createRoot(document.getElementById('root')!).render(
         </SupabaseAuthProvider>
       </BrowserRouter>
     </ErrorBoundary>
-  </StrictMode>,
+  </StrictMode>
 )
+
+// Prerendered routes ship real SSR markup inside #root — hydrate it. The dev
+// server and any non-prerendered entry HTML have an empty root — render fresh.
+// A hydration mismatch (e.g. visiting /dashboard, which is served the
+// prerendered home shell by the SPA rewrite) makes React discard the server
+// DOM and client-render — same end state as createRoot.
+if (container.hasChildNodes()) {
+  hydrateRoot(container, app, {
+    // Hydration mismatches are expected on prerendered pages (the SSR build
+    // renders logged-out, non-loading auth state; the client's first frame has
+    // loading=true) and React recovers by client-rendering. The default
+    // handler is reportError, which would trip App's global error banner —
+    // log quietly instead.
+    onRecoverableError: (error) => {
+      console.warn('[hydration]', error)
+    },
+  })
+} else {
+  createRoot(container).render(app)
+}
