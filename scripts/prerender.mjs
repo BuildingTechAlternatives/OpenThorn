@@ -19,6 +19,7 @@ import { readFileSync, mkdirSync, writeFileSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { buildLlmsFull } from './llms-full.mjs'
+import { loadFonts, renderOgCard } from './og-cards.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const rootDir = join(__dirname, '..')
@@ -329,7 +330,31 @@ function injectMeta(html, route, appHtml) {
 
 const baseHtml = readFileSync(join(distDir, 'index.html'), 'utf8')
 
+// Per-route OG cards, generated at build time. Routes with an explicit
+// ogImage (e.g. blog posts with a real cover) keep it.
+const ogFonts = loadFonts(rootDir)
+mkdirSync(join(distDir, 'og'), { recursive: true })
+
+function ogSlug(path) {
+  return path === '/' ? 'home' : path.slice(1).replace(/\//g, '-')
+}
+
+function ogEyebrow(path) {
+  if (path.startsWith('/blog/')) return 'Blog'
+  if (path.startsWith('/compare/')) return 'Comparison'
+  if (path === '/glossary') return 'Glossary'
+  if (path === '/faq') return 'FAQ'
+  return 'BYOK AI Website Builder'
+}
+
 for (const route of routes) {
+  if (!route.ogImage) {
+    const slug = ogSlug(route.path)
+    const cardTitle = route.title.replace(/ — OpenThorn$/, '')
+    const png = await renderOgCard({ title: cardTitle, eyebrow: ogEyebrow(route.path) }, ogFonts)
+    writeFileSync(join(distDir, 'og', `${slug}.png`), png)
+    route.ogImage = `${SITE_URL}/og/${slug}.png`
+  }
   const appHtml = await render(route.path)
   const html = injectMeta(baseHtml, route, appHtml)
 

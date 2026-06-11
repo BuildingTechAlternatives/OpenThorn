@@ -8,7 +8,7 @@ const checks = [
   ['dist/index.html', 'Build with OpenThorn', 'home: hero SSR body'],
   ['dist/index.html', 'deploy anywhere', 'home: hero subtitle SSR body'],
   ['dist/index.html', 'rel="canonical" href="https://www.openthorn.app/"', 'home: canonical'],
-  ['dist/index.html', 'og-card.png', 'home: og-card image'],
+  ['dist/index.html', '/og/home.png', 'home: generated og card'],
   ['dist/faq/index.html', 'FAQPage', 'faq: FAQPage JSON-LD'],
   ['dist/faq/index.html', 'data-prerendered', 'faq: JSON-LD marked for boot removal'],
   ['dist/faq/index.html', '17 AI providers', 'faq: provider answer'],
@@ -36,6 +36,9 @@ const checks = [
   ['dist/llms-full.txt', 'OpenThorn vs Lovable', 'llms-full: comparisons'],
   ['dist/robots.txt', 'GPTBot', 'robots.txt: AI crawlers'],
   ['dist/og-card.png', null, 'og-card.png copied to dist'],
+  ['dist/og/home.png', null, 'og: home card generated'],
+  ['dist/og/compare-lovable.png', null, 'og: compare card generated'],
+  ['dist/og/blog-best-byok-ai-website-builders-2026.png', null, 'og: listicle card generated'],
 ]
 
 let failed = 0
