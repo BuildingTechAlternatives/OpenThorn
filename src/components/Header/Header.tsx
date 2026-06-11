@@ -39,7 +39,8 @@ const useCasesItems: DropdownItem[] = [
 ]
 
 const resourcesItems: DropdownItem[] = [
-  { label: 'Blog', description: 'Changelog, product updates, and behind-the-scenes', href: '/blog' },
+  { label: 'Blog', description: 'Product updates, guides, and behind-the-scenes', href: '/blog' },
+  { label: 'Changelog', description: 'What shipped, straight from our commits', href: '/changelog' },
   { label: 'Templates', description: 'Jump-start your next project', href: '/templates' },
   { label: 'Docs & FAQs', description: 'How OpenThorn works, answered clearly', href: '/faq' },
 ]

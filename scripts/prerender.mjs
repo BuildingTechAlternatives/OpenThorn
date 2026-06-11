@@ -28,6 +28,7 @@ const LOGO_URL = `${SITE_URL}/logo.png`
 
 const blogMeta = JSON.parse(readFileSync(join(rootDir, 'src', 'data', 'blog-meta.json'), 'utf8'))
 const faqData = JSON.parse(readFileSync(join(rootDir, 'src', 'data', 'faq.json'), 'utf8'))
+const changelog = JSON.parse(readFileSync(join(rootDir, 'src', 'data', 'changelog.json'), 'utf8'))
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -222,6 +223,28 @@ const routes = [
             category.items
               .map((item) => `<h3>${escapeHtml(item.question)}</h3><p>${escapeHtml(item.answer)}</p>`)
               .join('')
+        )
+        .join('')}`,
+  },
+  {
+    path: '/changelog',
+    title: 'Changelog — OpenThorn',
+    description:
+      'Every OpenThorn update, generated automatically from our GitHub commit history — new features, fixes, and improvements as they ship.',
+    ogType: 'website',
+    lastmod: changelog.days[0]?.date,
+    jsonLd: [],
+    contentHtml: `
+      <h1>OpenThorn Changelog</h1>
+      <p>Every update, generated automatically from our GitHub commit history.</p>
+      ${changelog.days
+        .slice(0, 10)
+        .map(
+          (day) =>
+            `<h2><time datetime="${day.date}">${day.date}</time></h2>` +
+            `<ul>${day.entries
+              .map((e) => `<li>${escapeHtml(e.category)}: ${escapeHtml(e.message)}</li>`)
+              .join('')}</ul>`
         )
         .join('')}`,
   },

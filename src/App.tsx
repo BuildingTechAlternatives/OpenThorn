@@ -31,6 +31,7 @@ const CommunityPage = lazy(() => import('./pages/CommunityPage'))
 const BlogPage = lazy(() => import('./pages/BlogPage'))
 const BlogPostPage = lazy(() => import('./pages/BlogPostPage'))
 const FaqPage = lazy(() => import('./pages/FaqPage'))
+const ChangelogPage = lazy(() => import('./pages/ChangelogPage'))
 const ModerationPage = lazy(() => import('./pages/ModerationPage'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
 const SettingsPage = lazy(() => import('./pages/SettingsPage'))
@@ -129,6 +130,7 @@ export default function App() {
             <Route path="/blog" element={<Layout><BlogPage /></Layout>} />
             <Route path="/blog/:slug" element={<Layout><BlogPostPage /></Layout>} />
             <Route path="/faq" element={<Layout><FaqPage /></Layout>} />
+            <Route path="/changelog" element={<Layout><ChangelogPage /></Layout>} />
             <Route path="/dashboard" element={<ProtectedRoute pageName="the Dashboard"><DashboardPage /></ProtectedRoute>} />
             <Route path="/projects/:projectId" element={<ProtectedRoute pageName="your project"><ProjectBuilderPage /></ProtectedRoute>} />
             <Route path="/templates" element={<ProtectedRoute pageName="Templates"><TemplatesPage /></ProtectedRoute>} />

@@ -16,6 +16,7 @@ Key facts:
 - [Model Pricing](https://www.openthorn.app/pricing): Live per-token cost and quality comparison across supported AI models
 - [FAQ](https://www.openthorn.app/faq): Common questions about BYOK, providers, costs, security, and data
 - [Blog](https://www.openthorn.app/blog): Product updates and guides
+- [Changelog](https://www.openthorn.app/changelog): Every update, generated automatically from the GitHub commit history
 - [What is a BYOK AI website builder?](https://www.openthorn.app/blog/what-is-a-byok-ai-website-builder): Definition and explanation of the BYOK model
 
 ## Legal
