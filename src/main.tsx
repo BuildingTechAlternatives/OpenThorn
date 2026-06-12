@@ -44,10 +44,11 @@ if (container.hasChildNodes()) {
     // Hydration mismatches are expected on prerendered pages (the SSR build
     // renders logged-out, non-loading auth state; the client's first frame has
     // loading=true) and React recovers by client-rendering. The default
-    // handler is reportError, which would trip App's global error banner —
-    // log quietly instead.
+    // handler is reportError, which would trip App's global error banner.
+    // In production the recovery is silent and automatic; in dev we log so
+    // the mismatch is visible when debugging.
     onRecoverableError: (error) => {
-      console.warn('[hydration]', error)
+      if (import.meta.env.DEV) console.warn('[hydration]', error)
     },
   })
 } else {
