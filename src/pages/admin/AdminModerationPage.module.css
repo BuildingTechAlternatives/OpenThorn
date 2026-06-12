@@ -1,0 +1,134 @@
+.page {
+  max-width: 1000px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.heading {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.search {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+  background: transparent;
+  color: var(--color-text);
+  min-width: 260px;
+}
+
+.error {
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, #e0524f 15%, transparent);
+  color: var(--color-text);
+  margin-bottom: 1rem;
+}
+
+.muted {
+  opacity: 0.6;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+  border-radius: 12px;
+  flex-wrap: wrap;
+}
+
+.cardHidden {
+  opacity: 0.55;
+}
+
+.cardMain {
+  min-width: 0;
+  flex: 1;
+}
+
+.cardTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cardTitle {
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.cardDesc {
+  margin: 0.35rem 0 0;
+  opacity: 0.75;
+  font-size: 0.9rem;
+}
+
+.cardMeta {
+  margin: 0.4rem 0 0;
+  font-size: 0.82rem;
+  opacity: 0.55;
+}
+
+.badge {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background: color-mix(in srgb, var(--color-text) 10%, transparent);
+}
+
+.badgeAccent {
+  background: color-mix(in srgb, var(--color-accent) 20%, transparent);
+  color: var(--color-accent);
+}
+
+.badgeDanger {
+  background: color-mix(in srgb, #e0524f 20%, transparent);
+}
+
+.actions {
+  display: flex;
+  gap: 0.4rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 0.35rem 0.7rem;
+  border-radius: 7px;
+  border: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btnDanger {
+  border-color: color-mix(in srgb, #e0524f 50%, transparent);
+  color: #e0524f;
+}
