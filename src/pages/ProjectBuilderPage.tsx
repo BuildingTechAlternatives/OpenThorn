@@ -2377,6 +2377,12 @@ export default function ProjectBuilderPage() {
                 </article>
               )
             ))}
+
+            {(agentRunning || reconnecting || remoteGenerating) && (
+              <div className={styles.generatingIndicator} role="status" aria-label="Generating">
+                <span className={styles.generatingDot} aria-hidden="true" />
+              </div>
+            )}
           </div>
 
           {firstRunComplete && !agentRunning && agentSuggestions.length > 0 && (
