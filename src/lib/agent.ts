@@ -2645,11 +2645,34 @@ async function parseGeminiToolStream(response: Response, onText: (chunk: string)
           }
           const parts = parsed?.candidates?.[0]?.content?.parts
           if (parts) {
+            // Gemini 3.x uses cumulative SSE snapshots: the same functionCall
+            // may arrive in multiple chunks with increasingly complete args, but
+            // thought_signature only appears in the first chunk. Track position
+            // within each chunk so repeated calls update-in-place rather than
+            // creating duplicate entries (which would end up in the history
+            // without a signature and trigger the 400 error on the next turn).
+            let chunkFcIdx = 0
             for (const part of parts) {
               if (part.text) { fullText += part.text; onText(part.text) }
               if (part.functionCall) {
-                toolIdCounter++
-                toolCalls.push({ id: `call_${toolIdCounter}`, name: part.functionCall.name, input: part.functionCall.args ?? {}, thoughtSignature: part.functionCall.thought_signature })
+                if (chunkFcIdx < toolCalls.length) {
+                  // Update existing entry from a previous chunk (cumulative stream).
+                  // Refresh args but never overwrite a captured thought_signature.
+                  const existing = toolCalls[chunkFcIdx]
+                  existing.input = part.functionCall.args ?? existing.input
+                  if (part.functionCall.thought_signature) {
+                    existing.thoughtSignature = part.functionCall.thought_signature
+                  }
+                } else {
+                  toolIdCounter++
+                  toolCalls.push({
+                    id: `call_${toolIdCounter}`,
+                    name: part.functionCall.name,
+                    input: part.functionCall.args ?? {},
+                    thoughtSignature: part.functionCall.thought_signature,
+                  })
+                }
+                chunkFcIdx++
               }
             }
           }
@@ -2657,6 +2680,16 @@ async function parseGeminiToolStream(response: Response, onText: (chunk: string)
       }
     }
   } finally { reader.releaseLock() }
+
+  // Gemini only attaches thought_signature to the first function call in a
+  // parallel-call response. Propagate it to all calls so the conversation
+  // history passes validation on every subsequent turn.
+  const sharedSig = toolCalls.find(tc => tc.thoughtSignature)?.thoughtSignature
+  if (sharedSig) {
+    for (const tc of toolCalls) {
+      if (!tc.thoughtSignature) tc.thoughtSignature = sharedSig
+    }
+  }
 
   return { text: fullText, toolCalls, usage }
 }
