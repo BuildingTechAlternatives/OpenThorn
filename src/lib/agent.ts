@@ -949,6 +949,9 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   // Track session details for changelog
   const sessionFilesCreated: string[] = []
   const sessionFilesEdited: string[] = []
+  // Whether any file-mutating tool ran this run. Gates the text-only early
+  // return: a conversational run may end without done, a build may not.
+  let filesMutatedThisRun = false
 
   // Tool execution loop
   while (turnCount < (input.maxTurns ?? thinkingProfile.maxTurns ?? MAX_TOOL_TURNS)) {
@@ -1056,6 +1059,25 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
       continue
     }
 
+    // ── Conversational reply (text only, no tool calls) ─────────
+    // Greetings and questions ("hey", "what is this app?") are answered in
+    // plain text per the system prompt — ending the response without tool
+    // calls ends the run. But if files were already modified this run, the
+    // agent must still land a verified done, so nudge it onward instead.
+    if (toolCalls.length === 0 && (invalidCalls?.length ?? 0) === 0 && text) {
+      if (!filesMutatedThisRun) {
+        circuitBreaker.recordSuccess(provider.key.provider_id)
+        input.onProgress?.({ type: 'done', files: currentFiles })
+        return { files: currentFiles, turns: turnCount, providerName, modelName, usage: totalUsage }
+      }
+      messages.push({
+        role: 'user',
+        content:
+          'You modified files this run but ended your response without any tool call. Continue: compile to verify the current files, finish any remaining plan items, then call done.',
+      })
+      continue
+    }
+
     // ── Execute tools with parallelism ──────────────────────────
     runCtx.turn = turnCount
     const toolResults = await executeToolsParallel(
@@ -1068,7 +1090,8 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     )
 
     // Track file operations for changelog
-    for (const tc of toolCalls) {
+    for (let i = 0; i < toolCalls.length; i++) {
+      const tc = toolCalls[i]
       if (tc.name === 'write_file' && tc.input?.path) {
         const path = String(tc.input.path)
         if (!sessionFilesCreated.includes(path)) sessionFilesCreated.push(path)
@@ -1076,6 +1099,12 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
       if (tc.name === 'edit_file' && tc.input?.path) {
         const path = String(tc.input.path)
         if (!sessionFilesEdited.includes(path)) sessionFilesEdited.push(path)
+      }
+      if (
+        ['write_file', 'edit_file', 'multi_edit', 'delete_file'].includes(tc.name) &&
+        !toolResults[i]?.isError
+      ) {
+        filesMutatedThisRun = true
       }
     }
 
@@ -2802,13 +2831,13 @@ function buildUserPrompt(
     .join('\n')
 
   if (isNew || mode === 'create') {
-    let p = `Create a web app for: ${prompt}\n\nProject title: ${title}\n\nThis is a new build. Think about the design and file plan first, then create files in order: theme.css → App.tsx → pages → components. Write complete files and compile after every few to catch build AND runtime errors early.`
+    let p = `The user's message: ${prompt}\n\nProject title: ${title}\n\nIf this is a request to build something, create a web app for it: think about the design and file plan first, then create files in order: theme.css → App.tsx → pages → components. Write complete files and compile after every few to catch build AND runtime errors early.\n\nIf it is NOT a build request (a greeting, casual remark, or question), do not build anything — reply in plain text with no tool calls.`
     if (leftoverFiles) {
       p += `\n\nNOTE: the workspace still contains files from a previous, unrelated project:\n${leftoverFiles}\nThese do not belong to what the user asked for. Overwrite the ones you reuse (App.tsx, theme.css) and delete_file the rest so the project only contains files for THIS app.`
     }
     return p
   }
-  return `Update the existing project based on this request: ${prompt}\n\nProject title: ${title}\n\nCurrent files:\n${leftoverFiles || '(none)'}\n\nRead files before editing them. Use search_files to find patterns, multi_edit for several changes to one file, and delete_file to remove anything this change makes obsolete. Make focused changes and compile (build + runtime) after edits to verify.`
+  return `The user's message about the existing project: ${prompt}\n\nProject title: ${title}\n\nCurrent files:\n${leftoverFiles || '(none)'}\n\nIf this requests a change, update the project: read files before editing them, use search_files to find patterns, multi_edit for several changes to one file, and delete_file to remove anything this change makes obsolete. Make focused changes and compile (build + runtime) after edits to verify.\n\nIf it is a question or remark rather than a change request, answer it in plain text (use read-only tools to look things up if needed) and do not modify any files or call done.`
 }
 
 // ─── Provider Resolution with Fallback ──────────────────────────────────────
