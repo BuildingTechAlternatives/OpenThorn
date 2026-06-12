@@ -2527,6 +2527,42 @@ async function parseAnthropicToolStream(response: Response, onText: (chunk: stri
 
 // ─── Gemini ─────────────────────────────────────────────────────────────────
 
+// Documented validator bypass for functionCall parts that legitimately have no
+// signature (history from a failed-over provider, malformed-call placeholders,
+// or turns where Gemini omitted one): https://ai.google.dev/gemini-api/docs/thought-signatures
+export const GEMINI_SKIP_SIGNATURE = 'skip_thought_signature_validator'
+
+// The REST API expects thoughtSignature (camelCase) as a sibling of functionCall
+// on the Part — not snake_case inside functionCall (that's the OpenAI-compat format).
+export function convertToGeminiContents(messages: LlmMessage[]): Array<{ role: string; parts: Array<Record<string, unknown>> }> {
+  return messages.map((msg) => {
+    const role = msg.role === 'assistant' ? 'model' : 'user'
+    if (typeof msg.content === 'string') return { role, parts: [{ text: msg.content }] }
+    const parts: Array<Record<string, unknown>> = []
+    for (const block of msg.content) {
+      if (block.type === 'text' && block.text) {
+        parts.push({ text: block.text })
+      } else if (block.type === 'image' && block.image) {
+        parts.push({ inlineData: { mimeType: block.image.mediaType, data: block.image.base64 } })
+      } else if (block.type === 'tool_use') {
+        parts.push({
+          functionCall: { name: block.name, args: block.input ?? {} },
+          thoughtSignature: block.thoughtSignature ?? GEMINI_SKIP_SIGNATURE,
+        })
+      } else if (block.type === 'tool_result') {
+        const toolUseBlock = findMatchingToolUse(messages, block.tool_use_id)
+        parts.push({
+          functionResponse: {
+            name: toolUseBlock?.name ?? 'unknown',
+            response: { content: block.content, is_error: block.is_error },
+          },
+        })
+      }
+    }
+    return { role, parts: parts.length > 0 ? parts : [{ text: '' }] }
+  })
+}
+
 async function callGeminiWithTools({
   baseUrl, apiKey, modelId, system, tools, messages, signal, onText, thinkingBudget,
 }: {
@@ -2544,29 +2580,7 @@ async function callGeminiWithTools({
   }))
   const systemParts = system ? [{ text: system }] : []
 
-  const contents = messages.map((msg) => {
-    const role = msg.role === 'assistant' ? 'model' : 'user'
-    if (typeof msg.content === 'string') return { role, parts: [{ text: msg.content }] }
-    const parts: Array<Record<string, unknown>> = []
-    for (const block of msg.content) {
-      if (block.type === 'text' && block.text) {
-        parts.push({ text: block.text })
-      } else if (block.type === 'image' && block.image) {
-        parts.push({ inlineData: { mimeType: block.image.mediaType, data: block.image.base64 } })
-      } else if (block.type === 'tool_use') {
-        parts.push({ functionCall: { name: block.name, args: block.input ?? {}, ...(block.thoughtSignature && { thought_signature: block.thoughtSignature }) } })
-      } else if (block.type === 'tool_result') {
-        const toolUseBlock = findMatchingToolUse(messages, block.tool_use_id)
-        parts.push({
-          functionResponse: {
-            name: toolUseBlock?.name ?? 'unknown',
-            response: { content: block.content, is_error: block.is_error },
-          },
-        })
-      }
-    }
-    return { role, parts: parts.length > 0 ? parts : [{ text: '' }] }
-  })
+  const contents = convertToGeminiContents(messages)
 
   const requestBody = JSON.stringify({
     systemInstruction: systemParts.length > 0 ? { parts: systemParts } : undefined,
@@ -2616,7 +2630,7 @@ async function callGeminiWithTools({
   }
 }
 
-async function parseGeminiToolStream(response: Response, onText: (chunk: string) => void): Promise<ModelCallResult> {
+export async function parseGeminiToolStream(response: Response, onText: (chunk: string) => void): Promise<ModelCallResult> {
   const reader = response.body?.getReader()
   if (!reader) throw new Error('Response body not readable')
   const decoder = new TextDecoder()
@@ -2655,21 +2669,21 @@ async function parseGeminiToolStream(response: Response, onText: (chunk: string)
             for (const part of parts) {
               if (part.text) { fullText += part.text; onText(part.text) }
               if (part.functionCall) {
+                // The REST API puts the signature on the Part, next to functionCall.
+                const signature = part.thoughtSignature ?? part.functionCall.thoughtSignature
                 if (chunkFcIdx < toolCalls.length) {
                   // Update existing entry from a previous chunk (cumulative stream).
-                  // Refresh args but never overwrite a captured thought_signature.
+                  // Refresh args but never overwrite a captured signature.
                   const existing = toolCalls[chunkFcIdx]
                   existing.input = part.functionCall.args ?? existing.input
-                  if (part.functionCall.thought_signature) {
-                    existing.thoughtSignature = part.functionCall.thought_signature
-                  }
+                  if (signature) existing.thoughtSignature = signature
                 } else {
                   toolIdCounter++
                   toolCalls.push({
                     id: `call_${toolIdCounter}`,
                     name: part.functionCall.name,
                     input: part.functionCall.args ?? {},
-                    thoughtSignature: part.functionCall.thought_signature,
+                    thoughtSignature: signature,
                   })
                 }
                 chunkFcIdx++
