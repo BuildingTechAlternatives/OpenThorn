@@ -159,6 +159,8 @@ interface ResolvedProvider {
 interface LlmMessage {
   role: 'user' | 'assistant'
   content: string | LlmContentBlock[]
+  /** DeepSeek thinking mode — must be replayed verbatim on subsequent calls. */
+  reasoningContent?: string
 }
 
 interface LlmContentBlock {
@@ -1047,7 +1049,9 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     }
 
     if (assistantBlocks.length > 0) {
-      messages.push({ role: 'assistant', content: assistantBlocks })
+      const assistantMsg: LlmMessage = { role: 'assistant', content: assistantBlocks }
+      if (modelResult.reasoningContent) assistantMsg.reasoningContent = modelResult.reasoningContent
+      messages.push(assistantMsg)
       consecutiveEmptyTurns = 0
     } else {
       // Empty response — nudge once (providers hiccup), stop on a repeat.
@@ -2117,6 +2121,8 @@ interface ModelCallResult {
   toolCalls: ToolCall[]
   /** Anthropic thinking blocks from this turn — replayed on the next turn. */
   thinkingBlocks?: { thinking: string; signature: string }[]
+  /** DeepSeek reasoning_content from this turn — replayed on the next turn. */
+  reasoningContent?: string
   /** Token usage for this single call, when the provider reports it. */
   usage?: RunUsage
   /** Tool calls whose arguments were not valid JSON — surfaced as errors. */
@@ -2292,6 +2298,7 @@ async function parseOpenAINonStream(response: Response, onText: (chunk: string) 
   if (!message) return null
   const text = typeof message.content === 'string' ? message.content : ''
   if (text) onText(text)
+  const reasoningContent = typeof message.reasoning_content === 'string' ? message.reasoning_content : undefined
   const toolCalls: ToolCall[] = []
   const invalidCalls: InvalidToolCall[] = []
   if (Array.isArray(message.tool_calls)) {
@@ -2313,7 +2320,7 @@ async function parseOpenAINonStream(response: Response, onText: (chunk: string) 
       }
     }
   }
-  return { text, toolCalls, invalidCalls, usage: parseOpenAIUsage(payload?.usage) }
+  return { text, toolCalls, invalidCalls, usage: parseOpenAIUsage(payload?.usage), reasoningContent }
 }
 
 /** Best-effort usage extraction from an OpenAI-compatible usage object. */
@@ -2333,7 +2340,7 @@ async function parseOpenAIToolStream(response: Response, onText: (chunk: string)
   const reader = response.body?.getReader()
   if (!reader) return null
   const decoder = new TextDecoder()
-  let buffer = '', fullText = ''
+  let buffer = '', fullText = '', fullReasoning = ''
   let usage: RunUsage | undefined
   const toolCalls: Map<number, { id: string; name: string; arguments: string }> = new Map()
 
@@ -2354,6 +2361,7 @@ async function parseOpenAIToolStream(response: Response, onText: (chunk: string)
           const parsed = JSON.parse(data)
           if (parsed?.usage) usage = parseOpenAIUsage(parsed.usage) ?? usage
           const delta = parsed?.choices?.[0]?.delta
+          if (delta?.reasoning_content) fullReasoning += delta.reasoning_content
           if (delta?.content) { fullText += delta.content; onText(delta.content) }
           if (delta?.tool_calls) {
             for (const tc of delta.tool_calls) {
@@ -2379,7 +2387,7 @@ async function parseOpenAIToolStream(response: Response, onText: (chunk: string)
       }
     }
   }
-  return { text: fullText, toolCalls: parsedToolCalls, invalidCalls, usage }
+  return { text: fullText, toolCalls: parsedToolCalls, invalidCalls, usage, reasoningContent: fullReasoning || undefined }
 }
 
 // ─── Anthropic (with caching + thinking) ────────────────────────────────────
@@ -2775,12 +2783,16 @@ function convertToOpenAIMessages(msg: LlmMessage): Record<string, unknown>[] {
   }
 
   if (toolCalls.length > 0 && msg.role === 'assistant') {
-    return [{ role: 'assistant', content: openaiContent.length > 0 ? openaiContent : null, tool_calls: toolCalls }]
+    const out: Record<string, unknown> = { role: 'assistant', content: openaiContent.length > 0 ? openaiContent : null, tool_calls: toolCalls }
+    if (msg.reasoningContent) out.reasoning_content = msg.reasoningContent
+    return [out]
   }
   // Any role with structured content (text and/or images) — preserve the array
   // so multimodal user messages (visual review) keep their image blocks.
   if (openaiContent.length > 0) {
-    return [{ role: msg.role, content: openaiContent }]
+    const out: Record<string, unknown> = { role: msg.role, content: openaiContent }
+    if (msg.role === 'assistant' && msg.reasoningContent) out.reasoning_content = msg.reasoningContent
+    return [out]
   }
   return [{ role: msg.role, content: msg.content.map((b) => b.content ?? b.text ?? '').join('\n') }]
 }
