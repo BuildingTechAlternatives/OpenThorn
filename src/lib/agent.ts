@@ -165,6 +165,7 @@ interface LlmContentBlock {
   id?: string
   name?: string
   input?: Record<string, unknown>
+  thoughtSignature?: string
   tool_use_id?: string
   content?: string
   is_error?: boolean
@@ -179,6 +180,7 @@ interface ToolCall {
   id: string
   name: string
   input: Record<string, unknown>
+  thoughtSignature?: string
 }
 
 interface StructuredError {
@@ -1029,6 +1031,7 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
         id: tc.id,
         name: tc.name,
         input: tc.input,
+        thoughtSignature: tc.thoughtSignature,
       })
     }
 
@@ -2551,7 +2554,7 @@ async function callGeminiWithTools({
       } else if (block.type === 'image' && block.image) {
         parts.push({ inlineData: { mimeType: block.image.mediaType, data: block.image.base64 } })
       } else if (block.type === 'tool_use') {
-        parts.push({ functionCall: { name: block.name, args: block.input ?? {} } })
+        parts.push({ functionCall: { name: block.name, args: block.input ?? {}, ...(block.thoughtSignature && { thought_signature: block.thoughtSignature }) } })
       } else if (block.type === 'tool_result') {
         const toolUseBlock = findMatchingToolUse(messages, block.tool_use_id)
         parts.push({
@@ -2646,7 +2649,7 @@ async function parseGeminiToolStream(response: Response, onText: (chunk: string)
               if (part.text) { fullText += part.text; onText(part.text) }
               if (part.functionCall) {
                 toolIdCounter++
-                toolCalls.push({ id: `call_${toolIdCounter}`, name: part.functionCall.name, input: part.functionCall.args ?? {} })
+                toolCalls.push({ id: `call_${toolIdCounter}`, name: part.functionCall.name, input: part.functionCall.args ?? {}, thoughtSignature: part.functionCall.thought_signature })
               }
             }
           }
