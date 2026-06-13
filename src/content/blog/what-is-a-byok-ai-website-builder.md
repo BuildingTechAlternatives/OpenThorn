@@ -27,7 +27,7 @@ Three things:
 2. **An API key.** Generated in your provider's dashboard in about a minute.
 3. **A BYOK builder.** Paste the key, describe what you want to build, and start.
 
-OpenThorn supports 17 providers — including OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral, Groq, xAI, Amazon Bedrock, Azure OpenAI, and even local models via Ollama — so whichever ecosystem you already have credits with, you can use it.
+OpenThorn supports 18 providers — including OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral, Groq, xAI, RodiumAi, Amazon Bedrock, Azure OpenAI, and even local models via Ollama — so whichever ecosystem you already have credits with, you can use it.
 
 ## Is BYOK safe? What happens to my API key?
 

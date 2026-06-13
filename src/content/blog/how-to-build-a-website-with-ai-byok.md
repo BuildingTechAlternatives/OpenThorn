@@ -4,7 +4,7 @@ Here is the full process, start to finish.
 
 ## Step 1: Choose an AI provider and get an API key
 
-Any of OpenThorn's 17 supported providers works: OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral AI, Groq, Together AI, xAI, Cohere, Perplexity, OpenRouter, Ollama, Fireworks AI, Cerebras, Azure OpenAI, Amazon Bedrock, or NVIDIA NIM. If you are unsure, OpenAI or Anthropic are the easiest starting points. See our guide on [how to get an API key](/blog/how-to-get-an-ai-api-key) for exact steps.
+Any of OpenThorn's 18 supported providers works: OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral AI, Groq, Together AI, xAI, Cohere, Perplexity, OpenRouter, RodiumAi, Ollama, Fireworks AI, Cerebras, Azure OpenAI, Amazon Bedrock, or NVIDIA NIM. If you are unsure, OpenAI or Anthropic are the easiest starting points. See our guide on [how to get an API key](/blog/how-to-get-an-ai-api-key) for exact steps.
 
 ## Step 2: Create a free OpenThorn account
 

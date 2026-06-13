@@ -6,13 +6,13 @@
     "excerpt": "Build and deploy a complete website with AI for cents, not subscriptions: get an API key, connect it to OpenThorn, describe what you want, and ship — in six steps.",
     "coverImage": "/assets/blog_3.png",
     "ogImage": "https://www.openthorn.app/assets/blog_3.png",
-    "tldr": "Get an API key from any of 17 supported providers, connect it to OpenThorn (free, encrypted server-side), describe your website in plain language, and the AI agent generates, previews, and deploys it. Total cost: your provider's token rates — typically cents to a few dollars per complete site.",
+    "tldr": "Get an API key from any of 18 supported providers, connect it to OpenThorn (free, encrypted server-side), describe your website in plain language, and the AI agent generates, previews, and deploys it. Total cost: your provider's token rates — typically cents to a few dollars per complete site.",
     "howTo": {
       "name": "Build a website with AI using your own API key",
       "steps": [
         {
           "name": "Choose an AI provider and get an API key",
-          "text": "Pick any of the 17 supported providers (OpenAI, Anthropic, Google Gemini, and more) and generate an API key in its developer console."
+          "text": "Pick any of the 18 supported providers (OpenAI, Anthropic, Google Gemini, and more) and generate an API key in its developer console."
         },
         {
           "name": "Create a free OpenThorn account",
@@ -74,7 +74,7 @@
     "excerpt": "Most AI builders resell AI usage as credits. These tools let you bring your own API key instead — OpenThorn, bolt.diy, and Dyad compared, plus how they differ from Lovable, Bolt.new, and v0.",
     "coverImage": "/assets/blog_5.png",
     "ogImage": "https://www.openthorn.app/assets/blog_5.png",
-    "tldr": "Three tools let you bring your own API key instead of buying platform credits: OpenThorn (free, hosted, 17 providers), bolt.diy (open source, self-hosted), and Dyad (local desktop app). All three eliminate the $20–50/month subscriptions charged by Lovable, Bolt.new, and v0 — you pay raw token rates instead.",
+    "tldr": "Three tools let you bring your own API key instead of buying platform credits: OpenThorn (free, hosted, 18 providers), bolt.diy (open source, self-hosted), and Dyad (local desktop app). All three eliminate the $20–50/month subscriptions charged by Lovable, Bolt.new, and v0 — you pay raw token rates instead.",
     "itemList": [
       "OpenThorn",
       "bolt.diy",

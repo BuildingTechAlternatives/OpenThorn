@@ -5,7 +5,7 @@
 Key facts:
 
 - The OpenThorn platform is free; AI usage is billed by your own provider at their published rates.
-- Supports 17 AI providers: OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral AI, Groq, Together AI, xAI, Cohere, Perplexity, OpenRouter, Ollama (local models), Fireworks AI, Cerebras, Azure OpenAI, Amazon Bedrock, and NVIDIA NIM.
+- Supports 18 AI providers: OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral AI, Groq, Together AI, xAI, Cohere, Perplexity, OpenRouter, RodiumAi, Ollama (local models), Fireworks AI, Cerebras, Azure OpenAI, Amazon Bedrock, and NVIDIA NIM.
 - Generated code belongs to the user: it can be exported, pushed to GitHub, and deployed anywhere. No proprietary format, no export paywall.
 - API keys are encrypted server-side and never exposed raw; users keep control via provider-side spend limits and key rotation.
 - Built by BTA (Building Tech Alternatives). Source on GitHub: https://github.com/BuildingTechAlternatives/OpenThorn
@@ -17,7 +17,7 @@ Key facts:
 - [Model Pricing](https://www.openthorn.app/pricing): Live per-token cost and quality comparison across supported AI models
 - [FAQ](https://www.openthorn.app/faq): Common questions about BYOK, providers, costs, security, and data
 - [Glossary](https://www.openthorn.app/glossary): Plain-English definitions of BYOK, AI agent, token, context window, and other key terms
-- [Build with your API key](https://www.openthorn.app/build-with): Step-by-step guides for all 17 supported providers — where to get the key, recommended models, real costs
+- [Build with your API key](https://www.openthorn.app/build-with): Step-by-step guides for all 18 supported providers — where to get the key, recommended models, real costs
 - [OpenThorn vs Lovable](https://www.openthorn.app/compare/lovable): Honest comparison — BYOK vs credit subscription
 - [OpenThorn vs Bolt.new](https://www.openthorn.app/compare/bolt): Honest comparison — BYOK vs token packs
 - [OpenThorn vs v0](https://www.openthorn.app/compare/v0): Honest comparison — BYOK vs metered credits

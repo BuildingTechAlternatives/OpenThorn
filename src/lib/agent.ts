@@ -230,6 +230,7 @@ const ALLOWED_PROVIDER_HOSTS = new Set([
   'api.cerebras.ai',
   'api.cohere.com',
   'api.cohere.ai',
+  'api.rodiumai.io',
   'api.github.com',
   'models.github.com',
   'localhost',

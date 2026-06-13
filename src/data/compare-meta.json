@@ -7,18 +7,18 @@
     "description": "Lovable charges $25+/month for credits; OpenThorn is free and you pay your AI provider directly. An honest comparison of pricing, model choice, and code ownership.",
     "lastVerified": "2026-06-12",
     "answer": "OpenThorn is a free BYOK alternative to Lovable. Lovable Pro costs $25/month for roughly 100 credits; OpenThorn charges nothing — you pay your AI provider's raw token rates, typically cents to a few dollars per complete website. The trade-off: Lovable bundles everything into one subscription, while OpenThorn requires bringing your own API key.",
-    "intro": "Lovable is one of the most popular AI app builders — and a genuinely good product. The fundamental difference is the business model: Lovable resells AI usage as monthly credits, while OpenThorn is BYOK — you bring an API key from any of 17 providers and pay that provider's raw per-token rates. No subscription, no markup.",
+    "intro": "Lovable is one of the most popular AI app builders — and a genuinely good product. The fundamental difference is the business model: Lovable resells AI usage as monthly credits, while OpenThorn is BYOK — you bring an API key from any of 18 providers and pay that provider's raw per-token rates. No subscription, no markup.",
     "rows": [
       { "feature": "Platform price", "openthorn": "Free — no subscription, no platform fee", "competitor": "Pro from $25/month (100 credits); Business from $50/month" },
       { "feature": "AI usage billing", "openthorn": "You pay your provider directly at raw per-token rates", "competitor": "Credits per edit (~0.5–1.2+ credits each), bought from Lovable" },
-      { "feature": "Bring your own API key", "openthorn": "Yes — built around it (17 providers)", "competitor": "No" },
+      { "feature": "Bring your own API key", "openthorn": "Yes — built around it (18 providers)", "competitor": "No" },
       { "feature": "Model choice", "openthorn": "Any model from OpenAI, Anthropic, Gemini, DeepSeek, Groq, and 12 more", "competitor": "Models selected by Lovable" },
       { "feature": "Code export", "openthorn": "Full source export, no paywall; deploy anywhere", "competitor": "GitHub sync available" },
       { "feature": "Free tier", "openthorn": "Whole platform is free; you only pay provider API usage", "competitor": "~5 credits/day (~30/month)" }
     ],
     "faqs": [
       { "question": "Is OpenThorn a free alternative to Lovable?", "answer": "Yes. The OpenThorn platform is completely free — you connect your own AI provider API key and pay only that provider's per-token rates, typically cents to a few dollars per website. Lovable requires a subscription from $25/month for meaningful usage." },
-      { "question": "Can I use my own OpenAI or Anthropic API key with Lovable?", "answer": "No. As of June 2026 Lovable does not support bring-your-own-key; AI usage is billed in Lovable credits. OpenThorn is built entirely around BYOK with 17 supported providers." },
+      { "question": "Can I use my own OpenAI or Anthropic API key with Lovable?", "answer": "No. As of June 2026 Lovable does not support bring-your-own-key; AI usage is billed in Lovable credits. OpenThorn is built entirely around BYOK with 18 supported providers." },
       { "question": "Which is cheaper, OpenThorn or Lovable?", "answer": "For most usage, OpenThorn — you pay raw provider token prices with no markup or subscription. A typical website costs cents to a few dollars in API usage versus a $25+/month Lovable subscription. Lovable can be simpler if you prefer one predictable monthly bill." }
     ],
     "verdict": "Choose Lovable if you want a polished all-in-one subscription and don't want to think about API keys. Choose OpenThorn if you want to pick your own models, pay raw token prices with no subscription, and keep full ownership of the exported code."
@@ -30,12 +30,12 @@
     "title": "OpenThorn vs Bolt.new",
     "description": "Bolt.new sells AI tokens in monthly packs from $25/month; OpenThorn is free and BYOK — you pay your AI provider directly. Pricing, model choice, and ownership compared.",
     "lastVerified": "2026-06-12",
-    "answer": "OpenThorn is a free BYOK alternative to Bolt.new. Bolt's free tier caps at 1M tokens/month and Pro costs $25/month for token packs; OpenThorn charges nothing and you pay your provider's raw per-token rates — typically cents to a few dollars per site — with any of 17 providers and no monthly pack to use up.",
+    "answer": "OpenThorn is a free BYOK alternative to Bolt.new. Bolt's free tier caps at 1M tokens/month and Pro costs $25/month for token packs; OpenThorn charges nothing and you pay your provider's raw per-token rates — typically cents to a few dollars per site — with any of 18 providers and no monthly pack to use up.",
     "intro": "Bolt.new (by StackBlitz) is a strong in-browser AI builder. Like Lovable it resells AI usage — you buy token packs from Bolt. OpenThorn takes the BYOK route: connect your own provider key and pay raw per-token rates with no subscription. Bolt's own team also maintains bolt.diy, an open-source BYOK variant — which says something about the demand for this model.",
     "rows": [
       { "feature": "Platform price", "openthorn": "Free — no subscription, no platform fee", "competitor": "Pro $25/month; Teams $30/member/month" },
       { "feature": "AI usage billing", "openthorn": "You pay your provider directly at raw per-token rates", "competitor": "Token packs from Bolt (~10–13M tokens/month on Pro)" },
-      { "feature": "Bring your own API key", "openthorn": "Yes — 17 providers", "competitor": "No (the separate open-source bolt.diy supports it, self-hosted)" },
+      { "feature": "Bring your own API key", "openthorn": "Yes — 18 providers", "competitor": "No (the separate open-source bolt.diy supports it, self-hosted)" },
       { "feature": "Model choice", "openthorn": "Any model from OpenAI, Anthropic, Gemini, DeepSeek, Groq, and 12 more", "competitor": "Models selected by Bolt" },
       { "feature": "Free tier", "openthorn": "Whole platform is free; you only pay provider API usage", "competitor": "1M tokens/month with a 300K daily cap" },
       { "feature": "Code export", "openthorn": "Full source export, no paywall; deploy anywhere", "competitor": "Download/GitHub available" }
@@ -54,22 +54,22 @@
     "title": "OpenThorn vs v0 (Vercel)",
     "description": "v0 meters AI usage in credits on plans from $20/month; OpenThorn is free and BYOK. How the two compare on pricing, model choice, scope, and code ownership.",
     "lastVerified": "2026-06-12",
-    "answer": "OpenThorn is a free BYOK alternative to v0. v0's free tier includes about $5/month in credits and Premium costs $20/month; OpenThorn charges nothing — you pay your AI provider's raw token rates, typically cents to a few dollars per site, with 17 providers to choose from and no ecosystem lock-in.",
-    "intro": "v0 by Vercel is excellent at generating React/Next.js UI and ships tight Vercel integration. It bills AI usage in credits metered over tokens, on plans from $20/month. OpenThorn is a free BYOK website builder: bring a key from any of 17 providers, pay raw token rates, and deploy or export wherever you like.",
+    "answer": "OpenThorn is a free BYOK alternative to v0. v0's free tier includes about $5/month in credits and Premium costs $20/month; OpenThorn charges nothing — you pay your AI provider's raw token rates, typically cents to a few dollars per site, with 18 providers to choose from and no ecosystem lock-in.",
+    "intro": "v0 by Vercel is excellent at generating React/Next.js UI and ships tight Vercel integration. It bills AI usage in credits metered over tokens, on plans from $20/month. OpenThorn is a free BYOK website builder: bring a key from any of 18 providers, pay raw token rates, and deploy or export wherever you like.",
     "rows": [
       { "feature": "Platform price", "openthorn": "Free — no subscription, no platform fee", "competitor": "Free tier ($5/month credits); Premium $20/month; Team $30/user/month" },
       { "feature": "AI usage billing", "openthorn": "You pay your provider directly at raw per-token rates", "competitor": "Credits metered over input/output tokens, bought from Vercel" },
-      { "feature": "Bring your own API key", "openthorn": "Yes — 17 providers", "competitor": "No" },
+      { "feature": "Bring your own API key", "openthorn": "Yes — 18 providers", "competitor": "No" },
       { "feature": "Model choice", "openthorn": "Any model from OpenAI, Anthropic, Gemini, DeepSeek, Groq, and 12 more", "competitor": "v0's own model tiers (Mini, Pro, Max)" },
       { "feature": "Ecosystem", "openthorn": "Provider-agnostic; deploy to Netlify or export and host anywhere", "competitor": "Optimized for Next.js and Vercel deployment" },
       { "feature": "Code export", "openthorn": "Full source export, no paywall", "competitor": "Code visible/exportable; Git integration" }
     ],
     "faqs": [
       { "question": "Is OpenThorn a free alternative to v0?", "answer": "Yes. OpenThorn's platform is free and you pay your AI provider directly per token. v0's free tier includes about $5/month in credits; sustained use needs Premium at $20/month." },
-      { "question": "Can I use my own OpenAI or Anthropic key with v0?", "answer": "No — v0 bills usage in its own credits as of June 2026. OpenThorn is built around bring-your-own-key with 17 supported providers." },
+      { "question": "Can I use my own OpenAI or Anthropic key with v0?", "answer": "No — v0 bills usage in its own credits as of June 2026. OpenThorn is built around bring-your-own-key with 18 supported providers." },
       { "question": "Should I use v0 or OpenThorn?", "answer": "If you live in the Vercel/Next.js ecosystem and want best-in-class UI generation with a subscription, v0 is a great fit. If you want a free, provider-agnostic builder where you control the model and pay raw token prices, use OpenThorn." }
     ],
-    "verdict": "v0 is the strongest choice for Next.js teams already on Vercel. OpenThorn is the choice for BYOK: free platform, 17 providers, raw token pricing, and no ecosystem lock-in."
+    "verdict": "v0 is the strongest choice for Next.js teams already on Vercel. OpenThorn is the choice for BYOK: free platform, 18 providers, raw token pricing, and no ecosystem lock-in."
   },
   {
     "slug": "framer",
@@ -83,7 +83,7 @@
     "rows": [
       { "feature": "Platform price", "openthorn": "Free — no subscription, no platform fee", "competitor": "Free tier (Framer badge, no custom domain); Basic ~$10/month; Pro ~$30/month; Scale ~$100/month (annual billing)" },
       { "feature": "AI usage billing", "openthorn": "You pay your provider directly at raw per-token rates", "competitor": "AI features included with plans — no separate metering, but gated by tier" },
-      { "feature": "Bring your own API key", "openthorn": "Yes — 17 providers", "competitor": "No" },
+      { "feature": "Bring your own API key", "openthorn": "Yes — 18 providers", "competitor": "No" },
       { "feature": "What you get", "openthorn": "Real React source code you fully own", "competitor": "A site hosted and edited inside Framer's platform" },
       { "feature": "Code export", "openthorn": "Full source export, no paywall; deploy anywhere", "competitor": "No editable source export — sites live on Framer hosting" },
       { "feature": "Best for", "openthorn": "Developers and founders who want owned, portable code", "competitor": "Designers who want pixel-level visual control with managed hosting" }
@@ -107,7 +107,7 @@
     "rows": [
       { "feature": "Platform price", "openthorn": "Free — no subscription, no platform fee", "competitor": "Free plan (3 pages, subdomain); paid plans from ~$12/month billed annually" },
       { "feature": "AI usage billing", "openthorn": "You pay your provider directly at raw per-token rates", "competitor": "Included in subscription" },
-      { "feature": "Bring your own API key", "openthorn": "Yes — 17 providers", "competitor": "No" },
+      { "feature": "Bring your own API key", "openthorn": "Yes — 18 providers", "competitor": "No" },
       { "feature": "What you get", "openthorn": "Real React source code you fully own", "competitor": "A hosted site plus CRM, invoicing, and marketing tools" },
       { "feature": "Code export", "openthorn": "Full source export, no paywall; deploy anywhere", "competitor": "No source export — sites stay on Durable's platform" },
       { "feature": "Best for", "openthorn": "Anyone who wants owned, customizable code at token prices", "competitor": "Non-technical small-business owners who want site + business tools in one bill" }
@@ -131,7 +131,7 @@
     "rows": [
       { "feature": "Platform price", "openthorn": "Free — no subscription, no platform fee", "competitor": "Free plan (Wix branding, wixsite.com domain); Light ~$17/month; Core ~$29; Business ~$39; Business Elite ~$159 (annual billing)" },
       { "feature": "AI usage billing", "openthorn": "You pay your provider directly at raw per-token rates", "competitor": "AI features included in all plans" },
-      { "feature": "Bring your own API key", "openthorn": "Yes — 17 providers", "competitor": "No" },
+      { "feature": "Bring your own API key", "openthorn": "Yes — 18 providers", "competitor": "No" },
       { "feature": "Custom domain on free tier", "openthorn": "Yes — deploy to Netlify or host the exported code anywhere", "competitor": "No — requires a paid plan" },
       { "feature": "Code export", "openthorn": "Full React source export, no paywall", "competitor": "No — sites are locked to Wix hosting" },
       { "feature": "Ecosystem", "openthorn": "Provider-agnostic, host-agnostic", "competitor": "Large app market, e-commerce, bookings — all within Wix" }

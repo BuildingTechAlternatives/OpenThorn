@@ -10,7 +10,7 @@ const guides = providersMeta as ProviderGuide[]
 export default function BuildWithIndexPage() {
   usePageTitle('Build with your API key', {
     description:
-      'Step-by-step guides for building a website with your own API key from any of the 17 AI providers OpenThorn supports — OpenAI, Anthropic, Gemini, and more.',
+      'Step-by-step guides for building a website with your own API key from any of the 18 AI providers OpenThorn supports — OpenAI, Anthropic, Gemini, RodiumAi, and more.',
   })
 
   useJsonLd({
@@ -32,7 +32,7 @@ export default function BuildWithIndexPage() {
           <span className={styles.eyebrow}>Provider guides</span>
           <h1 className={styles.title}>Build with your API key</h1>
           <p className={styles.subtitle}>
-            OpenThorn works with 17 AI providers. Pick yours for a step-by-step guide:
+            OpenThorn works with 18 AI providers. Pick yours for a step-by-step guide:
             where to get the key, which models to use, and what a website actually costs.
           </p>
         </header>

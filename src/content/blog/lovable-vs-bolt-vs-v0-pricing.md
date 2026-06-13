@@ -33,7 +33,7 @@ For scale: Anthropic's published rate for Claude Sonnet 4.6 is [$3 per million i
 
 ## The BYOK alternative
 
-If the subscription math bothers you — paying $25/month whether you build two sites or zero — the alternative is bringing your own API key. [OpenThorn](https://www.openthorn.app/) is free: you connect a key from any of 17 providers (OpenAI, Anthropic, Google Gemini, DeepSeek, Groq, and more), the agent generates a complete React site, and you pay your provider's raw token rate. No markup, no monthly reset, no model lock-in. Several providers — [Google Gemini](https://www.openthorn.app/build-with/google), [Groq](https://www.openthorn.app/build-with/groq), [Cerebras](https://www.openthorn.app/build-with/cerebras) — even have free API tiers, making the first site genuinely $0.
+If the subscription math bothers you — paying $25/month whether you build two sites or zero — the alternative is bringing your own API key. [OpenThorn](https://www.openthorn.app/) is free: you connect a key from any of 18 providers (OpenAI, Anthropic, Google Gemini, DeepSeek, Groq, RodiumAi, and more), the agent generates a complete React site, and you pay your provider's raw token rate. No markup, no monthly reset, no model lock-in. Several providers — [Google Gemini](https://www.openthorn.app/build-with/google), [Groq](https://www.openthorn.app/build-with/groq), [Cerebras](https://www.openthorn.app/build-with/cerebras) — even have free API tiers, making the first site genuinely $0.
 
 The trade-off is honest: you manage an API key (five minutes, [guide here](https://www.openthorn.app/blog/how-to-get-an-ai-api-key)) and you don't get Lovable's polish or Bolt's dev environment. What you get instead is raw pricing, any model, and full ownership of the exported source.
 

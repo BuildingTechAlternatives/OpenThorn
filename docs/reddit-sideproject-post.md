@@ -10,7 +10,7 @@ I got tired of AI website builders charging $30/month to resell API access, so I
 
 Every AI website builder I tried had the same model: $25–50/month for "credits" that are really just OpenAI/Anthropic API calls resold at a markup. You don't pick the model, you can't export the code without paying more, and when the credits run out mid-project you're stuck.
 
-So I spent the last months building OpenThorn. The idea is simple: the platform is free, you connect your own API key (OpenAI, Anthropic, Gemini, DeepSeek, Groq, Ollama, OpenRouter — 17 providers total), and you pay your provider's raw per-token rates. A typical small site costs cents, not a subscription.
+So I spent the last months building OpenThorn. The idea is simple: the platform is free, you connect your own API key (OpenAI, Anthropic, Gemini, DeepSeek, Groq, Ollama, OpenRouter — 18 providers total), and you pay your provider's raw per-token rates. A typical small site costs cents, not a subscription.
 
 How it works: you describe the site, an agent writes the code, and the preview renders **live in your browser** — I bundle everything client-side with esbuild-wasm, so there's no server build step and no waiting. When you're happy, it deploys to a public URL in one click, or you just export the full source. No proprietary format, no paywall on your own code.
 

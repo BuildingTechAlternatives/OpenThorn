@@ -36,8 +36,8 @@ const RICH_ANSWERS: Record<string, React.ReactNode> = {
   ),
   'Which AI providers are supported?': (
     <>
-      OpenThorn supports 17 AI providers: OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral AI,
-      Groq, Together AI, xAI, Cohere, Perplexity, OpenRouter, Ollama, Fireworks AI, Cerebras, Azure
+      OpenThorn supports 18 AI providers: OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral AI,
+      Groq, Together AI, xAI, Cohere, Perplexity, OpenRouter, RodiumAi, Ollama, Fireworks AI, Cerebras, Azure
       OpenAI, Amazon Bedrock, and NVIDIA NIM. See the <Link to="/providers">Providers page</Link>{' '}
       inside the app for the current list and per-model pricing data.
     </>

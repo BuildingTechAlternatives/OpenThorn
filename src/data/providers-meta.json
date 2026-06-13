@@ -502,5 +502,35 @@
       { "question": "Which NVIDIA-served model is best for website generation?", "answer": "DeepSeek R1 is the strongest for reasoning-heavy builds; Llama 3.1 Nemotron Ultra is NVIDIA's tuned large model and handles complete sites well." },
       { "question": "Is my NVIDIA API key safe in OpenThorn?", "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can rotate the key on build.nvidia.com at any time." }
     ]
+  },
+  {
+    "slug": "rodiumai",
+    "name": "RodiumAi",
+    "logo": "/assets/rodiumai.png",
+    "title": "Build a website with your RodiumAi API key",
+    "description": "Connect your RodiumAi API key to OpenThorn and build complete websites with 50+ models through one key — pay in RODI with Mobile Money, no platform markup.",
+    "lastVerified": "2026-06-13",
+    "answer": "Yes — RodiumAi is an OpenAI-compatible API gateway: one key (rd_sk_...) routes to Claude, GPT, Gemini, DeepSeek, and more. Create a key at rodiumai.io/dashboard/api-keys, recharge your wallet in RODI, paste the key into OpenThorn (free, encrypted server-side), and build. You pay RodiumAi's published rates directly with no OpenThorn subscription.",
+    "freeTier": "No standing free API tier — RodiumAi uses a prepaid RODI wallet (recharge via Mobile Money). Typical site builds cost a few RODI.",
+    "consoleUrl": "https://rodiumai.io/dashboard/api-keys",
+    "consoleLabel": "rodiumai.io/dashboard/api-keys",
+    "pricingUrl": "https://rodiumai.io/models",
+    "models": [
+      { "name": "Claude Sonnet 4.6", "note": "Best default for complete React sites — strong code quality at mid-tier cost." },
+      { "name": "Gemini 3.5 Flash", "note": "Fast and cheap — great for landing pages and quick iterations." },
+      { "name": "DeepSeek V4 Pro", "note": "Frontier-class open routing — excellent for complex multi-page builds." }
+    ],
+    "costNote": "Pricing is in RODI (prepaid wallet). A typical landing page costs a few RODI depending on model and revisions — compare models at rodiumai.io/models.",
+    "steps": [
+      { "name": "Create a RodiumAi account and API key", "text": "Sign up at rodiumai.io, open Dashboard → API Keys, and create a production key (rd_sk_...). Copy it immediately — it is shown only once." },
+      { "name": "Recharge your RODI wallet", "text": "Add RODI via Mobile Money from the billing page so API calls can debit your balance. Set a comfortable top-up — unused balance stays on your account." },
+      { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose RodiumAi, paste your key, and run Test connection to sync models. The key is encrypted server-side with AES-256-GCM." },
+      { "name": "Describe your website and ship it", "text": "Create a project, pick a RodiumAi model, describe the site in plain language, preview it live, then deploy to Netlify or export the React source." }
+    ],
+    "faqs": [
+      { "question": "How is RodiumAi different from OpenRouter in OpenThorn?", "answer": "Both are OpenAI-compatible aggregators. RodiumAi adds RODI wallet billing with Mobile Money recharge — designed for developers who want one key and local payment rails without a Western credit card. OpenThorn still charges nothing; you pay RodiumAi directly." },
+      { "question": "Which RodiumAi model should I pick for website generation?", "answer": "Claude Sonnet 4.6 is the best default for polished React sites. Use Gemini 3.5 Flash when speed and cost matter most, or DeepSeek V4 Pro for the most demanding multi-page builds." },
+      { "question": "Is my RodiumAi API key safe in OpenThorn?", "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can revoke and rotate keys anytime from rodiumai.io/dashboard/api-keys." }
+    ]
   }
 ]

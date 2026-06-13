@@ -33,7 +33,7 @@
       },
       {
         "question": "Which AI providers are supported?",
-        "answer": "OpenThorn supports 17 AI providers: OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral AI, Groq, Together AI, xAI, Cohere, Perplexity, OpenRouter, Ollama, Fireworks AI, Cerebras, Azure OpenAI, Amazon Bedrock, and NVIDIA NIM. See the Providers page inside the app for the current list and per-model pricing data."
+        "answer": "OpenThorn supports 18 AI providers: OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral AI, Groq, Together AI, xAI, Cohere, Perplexity, OpenRouter, RodiumAi, Ollama, Fireworks AI, Cerebras, Azure OpenAI, Amazon Bedrock, and NVIDIA NIM. See the Providers page inside the app for the current list and per-model pricing data."
       },
       {
         "question": "Can I use multiple providers?",
