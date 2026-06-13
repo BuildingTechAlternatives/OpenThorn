@@ -26,6 +26,8 @@ interface PromptInputProps {
   placeholder?: string
   disabled?: boolean
   modelMenuPlacement?: 'bottom' | 'top'
+  isRunning?: boolean
+  onCancel?: () => void
 }
 
 const typingPrompts = [
@@ -107,6 +109,8 @@ export default function PromptInput({
   placeholder = '',
   disabled = false,
   modelMenuPlacement = 'bottom',
+  isRunning = false,
+  onCancel,
 }: PromptInputProps) {
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -168,6 +172,10 @@ export default function PromptInput({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    if (isRunning) {
+      onCancel?.()
+      return
+    }
     if (disabled) return
 
     const prompt = internalValue.trim() || activeTyping || undefined
@@ -187,10 +195,17 @@ export default function PromptInput({
     }
   }
 
+  const handleCancelClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onCancel?.()
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     // Submit on Enter (without Shift)
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
+      if (isRunning) return
       handleSubmit(e)
     }
   }
@@ -281,7 +296,7 @@ export default function PromptInput({
                 placeholder={placeholder}
                 rows={1}
                 aria-label="Describe your website idea"
-                disabled={disabled}
+                disabled={disabled || isRunning}
               />
               {showTyping && (
                 <span className={styles.typingPlaceholder} aria-hidden="true">
@@ -301,7 +316,7 @@ export default function PromptInput({
                 className={styles.uploadBtn}
                 onClick={handleUploadClick}
                 aria-label="Upload files"
-                disabled={disabled}
+                disabled={disabled || isRunning}
               >
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <path d="M8 1v14M1 8h14" />
@@ -342,7 +357,7 @@ export default function PromptInput({
                   aria-expanded={thinkingOpen}
                   aria-label="Agent thinking level"
                   title={AGENT_THINKING_PROFILES[thinkingLevel].description}
-                  disabled={disabled}
+                  disabled={disabled || isRunning}
                 >
                   <span>{AGENT_THINKING_PROFILES[thinkingLevel].label}</span>
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -386,20 +401,22 @@ export default function PromptInput({
 
               {/* Send button */}
               <motion.button
-                type="submit"
-                className={styles.submitBtn}
+                type={isRunning ? 'button' : 'submit'}
+                className={`${styles.submitBtn} ${isRunning ? styles.cancelBtn : ''}`}
                 whileTap={{ scale: 0.95 }}
                 disabled={disabled}
+                onClick={isRunning ? handleCancelClick : undefined}
+                aria-label={isRunning ? 'Cancel message' : 'Send message'}
               >
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.span
-                    key="send"
+                    key={isRunning ? 'cancel' : 'send'}
                     initial={{ y: 10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: -10, opacity: 0 }}
                     transition={{ duration: 0.2, ease: [0.19, 1, 0.22, 1] }}
                   >
-                    Send
+                    {isRunning ? 'Stop' : 'Send'}
                   </motion.span>
                 </AnimatePresence>
               </motion.button>

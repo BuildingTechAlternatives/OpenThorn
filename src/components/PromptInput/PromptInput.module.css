@@ -423,6 +423,16 @@
   transform: scale(0.95);
 }
 
+.cancelBtn {
+  color: #fff3f0;
+  background: linear-gradient(135deg, #ef4444, #f97316);
+}
+
+.cancelBtn:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.22);
+}
+
 .submitBtn:disabled:hover {
   filter: none;
   box-shadow: none;

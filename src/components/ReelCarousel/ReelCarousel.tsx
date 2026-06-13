@@ -41,7 +41,7 @@ const bloomSlides: CarouselSlide[] = [
     tag: 'Step 03',
     title: 'Edit and publish',
     description:
-      'Tweak anything with a follow-up message, then deploy to your domain or export to your own repo.',
+      'Refine anything in the builder, then deploy to your domain or export to your own repo.',
   },
 ]
 

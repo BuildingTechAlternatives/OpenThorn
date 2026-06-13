@@ -574,19 +574,8 @@ function avatarColor(userId: string): string {
   return AVATAR_COLORS[hash % AVATAR_COLORS.length]
 }
 
-function normalizeAgentSuggestions(items: string[]): string[] {
-  const seen = new Set<string>()
-  const normalized: string[] = []
-
-  for (const item of items) {
-    const value = item.trim()
-    const key = value.toLowerCase()
-    if (!value || seen.has(key)) continue
-    seen.add(key)
-    normalized.push(value)
-  }
-
-  return normalized.slice(0, 2)
+function cloneAgentFiles(files: AgentCodeFile[]): AgentCodeFile[] {
+  return files.map((file) => ({ ...file }))
 }
 
 function formatToolLabel(name: string, input?: Record<string, unknown>): string {
@@ -776,7 +765,6 @@ export default function ProjectBuilderPage() {
   const handleAgentRequestRef = useRef<((request: string, selectedModel: SelectedAgentModel | null, thinkingLevel?: AgentThinkingLevel, options?: { reuseInitialUser?: boolean; mode?: 'create' | 'refine' }) => Promise<void>) | null>(null)
   const [agentStatus, setAgentStatus] = useState('')
   const [firstRunComplete, setFirstRunComplete] = useState(false)
-  const [agentSuggestions, setAgentSuggestions] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<ViewMode>('preview')
   const [deviceMode, setDeviceMode] = useState<DeviceMode>('desktop')
   const [previewHtml, setPreviewHtml] = useState('')
@@ -822,6 +810,11 @@ export default function ProjectBuilderPage() {
   const titleShouldSaveRef = useRef(true)
   const initialAgentStartedRef = useRef(false)
   const agentAbortRef = useRef<AbortController | null>(null)
+  const agentRunSnapshotRef = useRef<{
+    controller: AbortController
+    files: AgentCodeFile[]
+    firstRunComplete: boolean
+  } | null>(null)
   const isResumingRef = useRef(false)
   // Tracks whether the agent has already produced a turn for this project. The agent may
   // auto-name the project only on its very first run; after that the title is "owned".
@@ -1581,6 +1574,12 @@ export default function ProjectBuilderPage() {
     )))
   }, [])
 
+  const handleCancelAgent = useCallback(() => {
+    pendingRequestRef.current = null
+    setAgentStatus('Cancelling...')
+    agentAbortRef.current?.abort()
+  }, [])
+
   const handleAgentRequest = useCallback(async (
     request: string,
     selectedModel: SelectedAgentModel | null,
@@ -1610,7 +1609,6 @@ export default function ProjectBuilderPage() {
     const timeline: TimelineEvent[] = []
     let eventCounter = 0
 
-    setAgentSuggestions([])
     // The agent may auto-name the project only on its first run. After any prior run the
     // title is considered owned (by the agent's earlier choice or a manual rename).
     const hadTitle = agentHasRunRef.current
@@ -1677,6 +1675,11 @@ export default function ProjectBuilderPage() {
     }
 
     const controller = new AbortController()
+    agentRunSnapshotRef.current = {
+      controller,
+      files: cloneAgentFiles(projectFiles),
+      firstRunComplete,
+    }
     agentAbortRef.current = controller
     agentHasRunRef.current = true
     setAgentRunning(true)
@@ -1791,9 +1794,6 @@ export default function ProjectBuilderPage() {
             if (event.toolName === 'done' && event.toolResult) {
               try {
                 const doneData = JSON.parse(event.toolResult)
-                if (doneData.nextSuggestions) {
-                  setAgentSuggestions(normalizeAgentSuggestions(doneData.nextSuggestions))
-                }
                 if (!hadTitle && doneData.title && typeof doneData.title === 'string' && doneData.title.trim()) {
                   setTitle(doneData.title.trim())
                   if (user && projectId) {
@@ -1840,7 +1840,48 @@ export default function ProjectBuilderPage() {
         modelName: result.modelName,
       })
     } catch (err) {
-      if (isAbortError(err)) return
+      if (isAbortError(err)) {
+        const snapshot = agentRunSnapshotRef.current?.controller === controller
+          ? agentRunSnapshotRef.current
+          : null
+        if (snapshot) {
+          const restoredFiles = cloneAgentFiles(snapshot.files)
+          setProjectFiles(restoredFiles)
+          setFirstRunComplete(snapshot.firstRunComplete)
+
+          if (projectId && !isViewOnly) {
+            filesSaveChainRef.current = filesSaveChainRef.current
+              .then(async () => {
+                const { error } = await supabase
+                  .from('projects')
+                  .update({ files: restoredFiles as unknown as Record<string, unknown>[] })
+                  .eq('id', projectId)
+
+                if (error) throw error
+              })
+              .catch((error) => logError('ProjectRestoreFilesAfterAbort', error))
+          }
+        }
+        setAgentStatus('')
+        for (let i = timeline.length - 1; i >= 0; i--) {
+          if (timeline[i].type === 'tool_call' && timeline[i].toolStatus === 'running') {
+            timeline[i] = { ...timeline[i], toolStatus: 'error' }
+          }
+        }
+        if (!timeline.some((event) => event.type === 'status' && event.text === 'Request cancelled.')) {
+          timeline.push({
+            id: `ev-${eventCounter++}`,
+            timestamp: Date.now(),
+            type: 'status',
+            text: 'Request cancelled.',
+          })
+        }
+        updateAssistantMessage(assistantId, {
+          title: 'Request cancelled',
+          timeline: [...timeline],
+        })
+        return
+      }
       logError('ProjectAgentRun', err)
       setAgentStatus('')
       for (let i = timeline.length - 1; i >= 0; i--) {
@@ -1858,6 +1899,9 @@ export default function ProjectBuilderPage() {
       if (agentAbortRef.current === controller) {
         agentAbortRef.current = null
       }
+      if (agentRunSnapshotRef.current?.controller === controller) {
+        agentRunSnapshotRef.current = null
+      }
       if (projectId) {
         void supabase
           .from('projects')
@@ -1873,7 +1917,7 @@ export default function ProjectBuilderPage() {
         void handleAgentRequestRef.current?.(pending.prompt, pending.model, pending.thinkingLevel, { reuseInitialUser: true })
       }
     }
-  }, [activeThinkingLevel, isViewOnly, projectFiles, state.selectedModel, title, updateAssistantMessage, user])
+  }, [activeThinkingLevel, firstRunComplete, isViewOnly, projectFiles, projectId, state.selectedModel, title, updateAssistantMessage, user])
 
   // Keep ref current so the queue effect can call it without stale-closure issues
   useEffect(() => {
@@ -2450,21 +2494,6 @@ export default function ProjectBuilderPage() {
             )}
           </div>
 
-          {firstRunComplete && !agentRunning && agentSuggestions.length > 0 && (
-            <div className={styles.suggestionBlock}>
-              {agentSuggestions.map((suggestion) => (
-                <button
-                  key={suggestion}
-                  type="button"
-                  disabled={agentRunning}
-                  onClick={() => void handleAgentRequest(suggestion, state.selectedModel ?? null, activeThinkingLevel)}
-                >
-                  {suggestion}
-                </button>
-              ))}
-            </div>
-          )}
-
           <div className={styles.composer}>
             {isViewOnly ? (
               <div className={styles.viewOnlyNotice}>
@@ -2493,6 +2522,9 @@ export default function ProjectBuilderPage() {
                     void supabase.from('projects').update({ selected_model: model }).eq('id', projectId)
                   }
                 }}
+                isRunning={agentRunning}
+                onCancel={handleCancelAgent}
+                disabled={reconnecting || remoteGenerating}
                 onSubmit={(nextPrompt, selectedModel, thinkingLevel) => { void handleAgentRequest(nextPrompt, selectedModel, thinkingLevel) }}
               />
             )}

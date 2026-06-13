@@ -102,11 +102,6 @@ export const AGENT_TOOLS: ToolDefinition[] = [
           description:
             'A short, descriptive title for the project (3-6 words). Make it specific to what was built — not generic like "Website" or "Project".',
         },
-        nextSuggestions: {
-          type: 'array',
-          items: { type: 'string' },
-          description: '2-4 follow-up requests the user might want.',
-        },
       },
       required: ['summary'],
       additionalProperties: false,
@@ -839,7 +834,6 @@ export interface AgentResponse {
   thought: string
   plan: string[]
   files: { path: string; language: string; code: string }[]
-  nextSuggestions: string[]
   needsResearch: boolean
   researchQuery: string
 }
@@ -854,7 +848,6 @@ export interface StreamEvent {
     | 'file_chunk'
     | 'file_end'
     | 'files_end'
-    | 'suggestions'
     | 'done'
     | 'error'
   text?: string
@@ -894,16 +887,6 @@ export function parseAgentResponse(raw: string): AgentResponse | null {
         return null
       }
     }
-
-    parsed.nextSuggestions = Array.isArray(parsed.nextSuggestions)
-      ? parsed.nextSuggestions
-          .filter(
-            (item: unknown) =>
-              typeof item === 'string' && item.trim().length > 0,
-          )
-          .map((item: string) => item.trim())
-          .slice(0, 4)
-      : []
 
     return parsed as AgentResponse
   } catch {

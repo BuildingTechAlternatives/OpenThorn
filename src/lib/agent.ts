@@ -2175,11 +2175,8 @@ async function executeTool(
           : typeof toolCall.input.title === 'string'
             ? toolCall.input.title.trim()
             : ''
-      const nextSuggestions = Array.isArray(toolCall.input.nextSuggestions)
-        ? toolCall.input.nextSuggestions.filter((s: unknown) => typeof s === 'string')
-        : []
       return {
-        content: JSON.stringify({ summary, title, nextSuggestions }),
+        content: JSON.stringify({ summary, title }),
         isError: false,
         files: currentFiles,
       }
