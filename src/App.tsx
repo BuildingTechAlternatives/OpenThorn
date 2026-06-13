@@ -46,6 +46,7 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'))
 const AdminModerationPage = lazy(() => import('./pages/admin/AdminModerationPage'))
 const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'))
+const AdminConfigPage = lazy(() => import('./pages/admin/AdminConfigPage'))
 
 function HomePage() {
   usePageTitle()
@@ -168,6 +169,7 @@ export default function App() {
             <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
               <Route index element={<AdminModerationPage />} />
               <Route path="users" element={<AdminUsersPage />} />
+              <Route path="config" element={<AdminConfigPage />} />
             </Route>
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

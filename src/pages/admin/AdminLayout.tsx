@@ -5,6 +5,7 @@ import styles from './AdminLayout.module.css'
 const NAV_ITEMS = [
   { to: '/admin', label: 'Moderation', end: true },
   { to: '/admin/users', label: 'Users', end: false },
+  { to: '/admin/config', label: 'Config', end: false },
 ]
 
 export default function AdminLayout() {

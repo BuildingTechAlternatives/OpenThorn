@@ -1,0 +1,150 @@
+.page {
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.heading {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.muted {
+  opacity: 0.6;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.65;
+}
+
+.ok,
+.error {
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+}
+
+.ok {
+  background: color-mix(in srgb, #34c98a 15%, transparent);
+}
+
+.error {
+  background: color-mix(in srgb, #e0524f 15%, transparent);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+  border-radius: 12px;
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.input {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+  background: transparent;
+  color: var(--color-text);
+}
+
+.textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+  background: transparent;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.88rem;
+  resize: vertical;
+}
+
+.checkRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.providerGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 0.4rem;
+}
+
+.catalogRow {
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+  padding-bottom: 0.5rem;
+}
+
+.catalogSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.35rem 0;
+  font-weight: 600;
+}
+
+.badge {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  background: color-mix(in srgb, var(--color-text) 10%, transparent);
+}
+
+.rowActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.flagRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.btn {
+  padding: 0.4rem 0.85rem;
+  border-radius: 7px;
+  border: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 0.88rem;
+  align-self: flex-start;
+}
+
+.btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btnSmall {
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 0.8rem;
+}
