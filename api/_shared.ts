@@ -404,6 +404,19 @@ export async function adminSetUserSuspended(userId: string, suspended: boolean):
   if (!mirror.ok) throw new Error(`Profile update error ${mirror.status}`)
 }
 
+/** True when a Vercel deploy hook is configured. */
+export function hasDeployHook(): boolean {
+  return Boolean(process.env.VERCEL_DEPLOY_HOOK_URL)
+}
+
+/** Fire the Vercel deploy hook to regenerate the prerendered site. */
+export async function triggerDeploy(): Promise<void> {
+  const hook = process.env.VERCEL_DEPLOY_HOOK_URL
+  if (!hook) throw new Error('Deploy hook not configured')
+  const res = await fetch(hook, { method: 'POST' })
+  if (!res.ok) throw new Error(`Deploy hook error ${res.status}`)
+}
+
 /** Permanently delete a user. The profiles row cascades via its FK. */
 export async function adminDeleteUser(userId: string): Promise<void> {
   const env = supabaseEnv()

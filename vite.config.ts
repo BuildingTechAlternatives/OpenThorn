@@ -15,6 +15,7 @@ import {
   hasServiceRoleKey,
   adminSetUserSuspended,
   adminDeleteUser,
+  triggerDeploy,
 } from './api/_shared'
 
 async function readJsonBody<T>(req: IncomingMessage): Promise<T | Record<string, never>> {
@@ -103,6 +104,10 @@ export default defineConfig(({ mode, isSsrBuild }) => {
               if (!(await rateLimit(`admin:${user.id}`, 30, 60_000))) return sendJson(res, 429, { error: 'Too many requests' })
               if (!(await isAdminUser(user.id))) return sendJson(res, 403, { error: 'Forbidden' })
               const body = await readJsonBody<{ action?: string; userId?: string }>(req)
+              if (body.action === 'trigger-deploy') {
+                await triggerDeploy()
+                return sendJson(res, 200, { ok: true })
+              }
               const action = body.action
               const userId = body.userId
               const allowed = action === 'suspend-user' || action === 'unsuspend-user' || action === 'delete-user'

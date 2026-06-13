@@ -6,6 +6,7 @@ import {
   hasServiceRoleKey,
   adminSetUserSuspended,
   adminDeleteUser,
+  triggerDeploy,
 } from './_shared.js'
 
 interface VercelReq {
@@ -62,7 +63,20 @@ export default async function handler(req: VercelReq, res: VercelRes): Promise<v
     return
   }
 
-  const { action, userId } = parseBody(req.body)
+  const body = parseBody(req.body)
+
+  // trigger-deploy takes no target user; handle it before user-action validation.
+  if (body.action === 'trigger-deploy') {
+    try {
+      await triggerDeploy()
+      res.status(200).json({ ok: true })
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : 'Deploy failed' })
+    }
+    return
+  }
+
+  const { action, userId } = body
   if (!ACTIONS.includes(action as AdminAction) || typeof userId !== 'string' || !isValidUserId(userId)) {
     res.status(400).json({ error: 'Invalid request' })
     return

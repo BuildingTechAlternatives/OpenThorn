@@ -69,4 +69,18 @@ describe('admin server helpers', () => {
     const { adminDeleteUser } = await import('../../../api/_shared')
     await expect(adminDeleteUser(USER_ID)).rejects.toThrow()
   })
+
+  it('triggerDeploy posts to the configured hook and throws without it', async () => {
+    const shared = await import('../../../api/_shared')
+
+    delete process.env.VERCEL_DEPLOY_HOOK_URL
+    await expect(shared.triggerDeploy()).rejects.toThrow()
+
+    process.env.VERCEL_DEPLOY_HOOK_URL = 'https://api.vercel.com/v1/integrations/deploy/abc'
+    fetchMock.mockResolvedValueOnce(jsonResponse({ job: { id: 'j1' } }))
+    await shared.triggerDeploy()
+    const last = fetchMock.mock.calls[fetchMock.mock.calls.length - 1]
+    expect(String(last[0])).toBe('https://api.vercel.com/v1/integrations/deploy/abc')
+    expect(last[1].method).toBe('POST')
+  })
 })

@@ -128,4 +128,31 @@ describe('api/admin handler', () => {
     await handler(makeReq({ action: 'delete-user', userId: TARGET_ID }), res)
     expect(res.statusCode).toBe(503)
   })
+
+  it('trigger-deploy fires the hook for an admin (no userId required)', async () => {
+    process.env.VERCEL_DEPLOY_HOOK_URL = 'https://api.vercel.com/v1/integrations/deploy/abc'
+    fetchMock.mockImplementation(async (url: unknown) => {
+      const u = String(url)
+      if (u.includes('/auth/v1/user')) return jsonResponse({ id: ADMIN_ID, email: 'a@test.dev' })
+      if (u.includes(`/rest/v1/profiles?id=eq.${ADMIN_ID}`)) return jsonResponse([{ is_admin: true }])
+      if (u.startsWith('https://api.vercel.com/')) return jsonResponse({ job: { id: 'j' } })
+      return jsonResponse({ error: 'unexpected' }, false, 404)
+    })
+    const { default: handler } = await import('../../../api/admin')
+    const res = makeRes()
+    await handler(makeReq({ action: 'trigger-deploy' }), res)
+    expect(res.statusCode).toBe(200)
+    expect(res.body).toEqual({ ok: true })
+    const hookCall = fetchMock.mock.calls.find(([u]) => String(u).startsWith('https://api.vercel.com/'))
+    expect(hookCall).toBeDefined()
+  })
+
+  it('trigger-deploy is rejected for non-admins', async () => {
+    process.env.VERCEL_DEPLOY_HOOK_URL = 'https://api.vercel.com/v1/integrations/deploy/abc'
+    stubFetch({ callerIsAdmin: false })
+    const { default: handler } = await import('../../../api/admin')
+    const res = makeRes()
+    await handler(makeReq({ action: 'trigger-deploy' }), res)
+    expect(res.statusCode).toBe(403)
+  })
 })
