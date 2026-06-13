@@ -403,7 +403,7 @@
     align-items: center;
     gap: 12px;
     position: fixed;
-    top: 0;
+    top: var(--announcement-offset, 0px);
     left: 0;
     right: 0;
     height: 56px;

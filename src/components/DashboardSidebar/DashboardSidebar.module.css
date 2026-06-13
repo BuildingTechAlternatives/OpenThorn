@@ -1,7 +1,7 @@
 /* ===== Sidebar ===== */
 .sidebar {
   position: fixed;
-  top: 0;
+  top: var(--announcement-offset, 0px);
   left: 0;
   bottom: 0;
   width: 248px;
@@ -56,13 +56,13 @@
 /* ===== Notification popover ===== */
 .notifBackdrop {
   position: fixed;
-  inset: 0;
+  inset: var(--announcement-offset, 0px) 0 0;
   z-index: 60;
 }
 
 .notifPopover {
   position: fixed;
-  top: 56px;
+  top: calc(var(--announcement-offset, 0px) + 56px);
   left: 260px;
   z-index: 61;
   width: 320px;
@@ -490,7 +490,7 @@
 
 .overlay {
   position: fixed;
-  inset: 0;
+  inset: var(--announcement-offset, 0px) 0 0;
   z-index: 49;
   background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(2px);
