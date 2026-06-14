@@ -2,6 +2,7 @@ export interface ProviderModel {
   name: string
   id: string
   recommended?: boolean
+  cheapest?: boolean
 }
 
 export type ProviderApiFormat =
@@ -224,10 +225,10 @@ export const DEFAULT_PROVIDER_MODELS: Record<string, ProviderModel[]> = {
     { name: 'Claude Mythos 5', id: 'claude-mythos-5' },
   ],
   google: [
+    { name: 'Gemini 3 Flash Preview', id: 'gemini-3-flash-preview', recommended: true },
     { name: 'Gemini 3.5 Flash', id: 'gemini-3.5-flash' },
     { name: 'Gemini 3.1 Pro Preview', id: 'gemini-3.1-pro-preview' },
-    { name: 'Gemini 3 Flash Preview', id: 'gemini-3-flash-preview' },
-    { name: 'Gemini 3.1 Flash-Lite', id: 'gemini-3.1-flash-lite' },
+    { name: 'Gemini 3.1 Flash-Lite', id: 'gemini-3.1-flash-lite', cheapest: true },
     { name: 'Gemini 3.1 Pro Preview (Custom Tools)', id: 'gemini-3.1-pro-preview-customtools' },
   ],
   deepseek: [
@@ -334,13 +335,16 @@ export function parseProviderModels(raw: string | null | undefined): ProviderMod
     .split(',')
     .map((item) => {
       const [name, id, flag] = item.split('|').map((part) => part.trim())
-      return { name: name || id || '', id: id || name || '', recommended: flag === 'recommended' }
+      return { name: name || id || '', id: id || name || '', recommended: flag === 'recommended', cheapest: flag === 'cheapest' }
     })
     .filter((model) => model.id.length > 0)
 }
 
 export function serializeProviderModels(models: ProviderModel[]): string {
-  return models.map((model) => model.recommended ? `${model.name}|${model.id}|recommended` : `${model.name}|${model.id}`).join(', ')
+  return models.map((model) => {
+    const flag = model.recommended ? '|recommended' : model.cheapest ? '|cheapest' : ''
+    return `${model.name}|${model.id}${flag}`
+  }).join(', ')
 }
 
 export function providerModelsFor(providerId: string): ProviderModel[] {

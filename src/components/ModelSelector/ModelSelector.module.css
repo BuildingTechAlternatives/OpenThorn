@@ -316,6 +316,20 @@
   white-space: nowrap;
 }
 
+.cheapestBadge {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.1);
+  border: 1px solid rgba(22, 163, 74, 0.25);
+  border-radius: 4px;
+  padding: 1px 5px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 /* ── Inline stacked models ─────────────────────────── */
 
 .inlineModels {
