@@ -1,6 +1,6 @@
 # OpenThorn
 
-**AI website builder — bring your own API key, pay your provider directly.**
+**The free, BYOK AI website builder — a Lovable, Bolt.new, and v0 alternative. Bring your own API key, pay your provider directly.**
 
 [![Live](https://img.shields.io/badge/live-openthorn.app-4f46e5?style=flat-square)](https://openthorn.app)
 [![License](https://img.shields.io/badge/license-proprietary-gray?style=flat-square)](#license)
@@ -10,6 +10,7 @@
 OpenThorn is a BYOK (bring-your-own-key) AI app builder. Describe what you want in plain language; the AI agent writes the code, previews it live in-browser, and deploys a working website to Netlify. **The platform is free** — you only pay your AI provider's raw per-token rates, with no subscription and no markup.
 
 ## Why OpenThorn?
+
 
 Most AI builders charge $25–50/month for credits that resell API access at a markup. OpenThorn flips that model: you connect your own key from any of 18 providers and pay them directly. The platform itself is free.
 

@@ -4,7 +4,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import {
   verifyUser,
   rateLimit,
-  runNetlifyDeploy,
+  runCloudflareDeploy,
   getProjectForDeploy,
   persistProjectSiteId,
   encryptForUser,
@@ -44,7 +44,8 @@ export default defineConfig(({ mode, isSsrBuild }) => {
   const env = loadEnv(mode, process.cwd(), '')
   process.env.SUPABASE_URL ||= env.SUPABASE_URL || env.VITE_SUPABASE_URL
   process.env.SUPABASE_ANON_KEY ||= env.SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY
-  process.env.NETLIFY_TOKEN ||= env.NETLIFY_TOKEN || env.VITE_NETLIFY_TOKEN
+  if (env.CLOUDFLARE_ACCOUNT_ID) process.env.CLOUDFLARE_ACCOUNT_ID ||= env.CLOUDFLARE_ACCOUNT_ID
+  if (env.CLOUDFLARE_API_TOKEN) process.env.CLOUDFLARE_API_TOKEN ||= env.CLOUDFLARE_API_TOKEN
   if (env.KEY_ENCRYPTION_SECRET) process.env.KEY_ENCRYPTION_SECRET ||= env.KEY_ENCRYPTION_SECRET
   if (env.SUPABASE_SERVICE_ROLE_KEY) process.env.SUPABASE_SERVICE_ROLE_KEY ||= env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -54,7 +55,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
       {
         name: 'bloom-api-dev-endpoints',
         configureServer(server) {
-          server.middlewares.use('/api/deploy-netlify', async (req, res) => {
+          server.middlewares.use('/api/deploy', async (req, res) => {
             if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' })
             try {
               const user = await verifyUser(req.headers.authorization)
@@ -66,7 +67,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
               if (!body.projectId || !body.html) return sendJson(res, 400, { error: 'Missing projectId or html' })
               const access = await getProjectForDeploy(req.headers.authorization, body.projectId)
               if (!access.ok) return sendJson(res, 403, { error: 'You do not have access to this project.' })
-              const result = await runNetlifyDeploy({ projectId: body.projectId, html: body.html, existingSiteId: access.siteId })
+              const result = await runCloudflareDeploy({ projectId: body.projectId, html: body.html, existingSiteId: access.siteId })
               if (result.siteId !== access.siteId) {
                 await persistProjectSiteId(req.headers.authorization, body.projectId, result.siteId)
               }

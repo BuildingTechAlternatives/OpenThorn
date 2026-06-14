@@ -8,8 +8,11 @@ import {
   isLikelyBuildRequest,
   mergePromptRequirementsIntoPlan,
   shouldRunVisualReviewForRun,
+  shouldRunLayoutGateForRun,
   shouldRejectWholeFileRewrite,
   supportsVisualReview,
+  matchesGlob,
+  nearestSnippet,
   type RunUsage,
 } from '../agent'
 import { applyPlanUpdate, createPlan, unmetRequirements } from '../agent-plan'
@@ -145,6 +148,66 @@ describe('agent request planning helpers', () => {
       providerId: 'anthropic',
       modelId: 'claude-sonnet-4-5',
     })).toBe(true)
+  })
+
+  it('runs the deterministic layout gate regardless of vision support', () => {
+    // Every create run is visual — gate applies even for a no-vision provider.
+    expect(shouldRunLayoutGateForRun({
+      goal: 'Build a restaurant website',
+      mode: 'create',
+      mutatedPaths: [],
+    })).toBe(true)
+    // Refine that changed a component is visual.
+    expect(shouldRunLayoutGateForRun({
+      goal: 'Add a new dish card',
+      mode: 'refine',
+      mutatedPaths: ['src/components/MenuSection.tsx'],
+    })).toBe(true)
+    // Non-visual refine touching only data → skip.
+    expect(shouldRunLayoutGateForRun({
+      goal: 'Update the menu prices',
+      mode: 'refine',
+      mutatedPaths: ['src/data/menu.ts'],
+    })).toBe(false)
+  })
+
+  it('matches a no-slash glob by basename anywhere in the tree', () => {
+    // The bug: "*.css" never matched a nested file because * cannot cross "/".
+    expect(matchesGlob('src/styles/theme.css', '*.css')).toBe(true)
+    expect(matchesGlob('src/pages/Menu.tsx', 'Menu.tsx')).toBe(true)
+    expect(matchesGlob('src/pages/Menu.tsx', '*.tsx')).toBe(true)
+    // A path-scoped glob still scopes to that directory.
+    expect(matchesGlob('src/styles/theme.css', 'src/**')).toBe(true)
+    expect(matchesGlob('src/styles/theme.css', 'src/components/**')).toBe(false)
+    // "**/" can match zero directories too.
+    expect(matchesGlob('theme.css', '**/*.css')).toBe(true)
+  })
+
+  it('tolerates malformed globs (stray quotes / leading ./)', () => {
+    expect(matchesGlob('src/pages/Game.tsx', 'src/**"')).toBe(true)
+    expect(matchesGlob('src/App.tsx', './src/App.tsx')).toBe(true)
+    expect(matchesGlob('src/styles/theme.css', '"*.css"')).toBe(true)
+  })
+
+  it('nearestSnippet points at the closest current text for a failed edit', () => {
+    const code = [
+      'function greet() {',
+      '  const message = "hello world"',
+      '  return message',
+      '}',
+    ].join('\n')
+    // old_string has slightly wrong text (drifted whitespace/quote) — should
+    // still anchor on the message line and show its region with line numbers.
+    const near = nearestSnippet(code, "  const message = 'hello world';")
+    expect(near).not.toBeNull()
+    expect(near!.text).toContain('const message = "hello world"')
+    expect(near!.start).toBeLessThanOrEqual(2)
+    expect(near!.end).toBeGreaterThanOrEqual(2)
+  })
+
+  it('nearestSnippet returns null when nothing resembles old_string', () => {
+    const code = 'const a = 1\nconst b = 2\n'
+    expect(nearestSnippet(code, 'completely unrelated zzzzzzzzzzzz qqqqq')).toBeNull()
   })
 
   it('guards long whole-file rewrites on small refine requests', () => {

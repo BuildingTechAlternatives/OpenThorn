@@ -1,6 +1,7 @@
 // Shared server-side helpers for Vercel Functions and the Vite dev shims.
 // Files prefixed with "_" are not treated as routes by Vercel.
-import { createHash, createCipheriv, createDecipheriv, randomBytes, hkdfSync } from 'node:crypto'
+import { createCipheriv, createDecipheriv, randomBytes, hkdfSync } from 'node:crypto'
+import { blake3 } from 'hash-wasm'
 
 // ---------------------------------------------------------------------------
 // Supabase JWT verification
@@ -79,13 +80,13 @@ export async function getProjectForDeploy(
 
   try {
     const res = await fetch(
-      `${env.url}/rest/v1/projects?id=eq.${encodeURIComponent(projectId)}&select=netlify_site_id&limit=1`,
+      `${env.url}/rest/v1/projects?id=eq.${encodeURIComponent(projectId)}&select=cf_pages_project_name&limit=1`,
       { headers: { apikey: env.anonKey, Authorization: `Bearer ${token}`, Accept: 'application/json' } },
     )
     if (!res.ok) return { ok: false, siteId: null }
-    const rows = (await res.json()) as Array<{ netlify_site_id?: string | null }>
+    const rows = (await res.json()) as Array<{ cf_pages_project_name?: string | null }>
     if (!Array.isArray(rows) || rows.length === 0) return { ok: false, siteId: null }
-    const siteId = rows[0]?.netlify_site_id
+    const siteId = rows[0]?.cf_pages_project_name
     return { ok: true, siteId: typeof siteId === 'string' && siteId ? siteId : null }
   } catch {
     return { ok: false, siteId: null }
@@ -111,7 +112,7 @@ export async function persistProjectSiteId(
         'Content-Type': 'application/json',
         Prefer: 'return=minimal',
       },
-      body: JSON.stringify({ netlify_site_id: siteId }),
+      body: JSON.stringify({ cf_pages_project_name: siteId }),
     })
   } catch {
     /* non-fatal — the client also persists this after a successful deploy */
@@ -226,100 +227,142 @@ export function decryptForUser(stored: string, userId: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Netlify deploy (for user-generated sites)
+// Cloudflare Pages deploy (for user-generated sites)
 // ---------------------------------------------------------------------------
 
-const NETLIFY_API = 'https://api.netlify.com/api/v1'
+const CF_API = 'https://api.cloudflare.com/client/v4'
 
-interface NetlifySiteResponse { id?: string }
-interface NetlifyDeployResponse {
-  id?: string
-  required?: string[]
-  state?: string
-  ssl_url?: string
-  url?: string
-  deploy_ssl_url?: string
-  deploy_url?: string
+interface CFResult<T> {
+  success: boolean
+  result: T
+  errors: Array<{ message: string }>
 }
 
-async function netlifyFetch(token: string, path: string, options: RequestInit): Promise<Response> {
-  const res = await fetch(`${NETLIFY_API}${path}`, {
+function cfEnv(): { accountId: string; token: string } {
+  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID
+  const token = process.env.CLOUDFLARE_API_TOKEN
+  if (!accountId || !token) throw new Error('Missing CLOUDFLARE_ACCOUNT_ID or CLOUDFLARE_API_TOKEN')
+  return { accountId, token }
+}
+
+async function cfFetch<T>(token: string, path: string, options: RequestInit): Promise<T> {
+  const res = await fetch(`${CF_API}${path}`, {
     ...options,
     headers: { Authorization: `Bearer ${token}`, ...options.headers },
   })
-  if (!res.ok) {
-    const body = await res.text().catch(() => res.statusText)
-    throw new Error(`Netlify API error ${res.status}: ${body}`)
+  const text = await res.text()
+  let data: CFResult<T>
+  try { data = JSON.parse(text) as CFResult<T> } catch { throw new Error(`CF ${res.status} non-JSON: ${text.slice(0, 300)}`) }
+  if (!data.success) {
+    const msgs = Array.isArray(data.errors) ? data.errors.map((e) => e.message).join(', ') : text.slice(0, 300)
+    throw new Error(`Cloudflare API error ${res.status}: ${msgs}`)
   }
-  return res
+  return data.result
 }
 
-async function createNetlifySite(token: string, projectId: string): Promise<string> {
+async function createCFPagesProject(token: string, accountId: string, projectId: string): Promise<string> {
   const suffix = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
-  const res = await netlifyFetch(token, '/sites', {
+  const name = `ot-${projectId.slice(0, 8)}-${suffix}`
+  await cfFetch<{ name: string }>(token, `/accounts/${accountId}/pages/projects`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: `bloom-${projectId.slice(0, 8)}-${suffix}` }),
+    body: JSON.stringify({ name, production_branch: 'main' }),
   })
-  const data = (await res.json()) as NetlifySiteResponse
-  if (!data.id) throw new Error('Netlify did not return a site id')
-  return data.id
+  return name
 }
 
-function sha1(content: string): string {
-  return createHash('sha1').update(content).digest('hex')
+// Cloudflare Pages identifies each asset by blake3(base64(content) + fileExtension)
+// truncated to the first 32 hex chars — NOT a plain sha256. If the manifest/upload
+// key doesn't match CF's own blake3 of the content, the upload is silently dropped,
+// upsert-hashes still reports success, and the deployment serves no assets (404 on /).
+async function cfPagesHash(content: string, path: string): Promise<string> {
+  const base64 = Buffer.from(content).toString('base64')
+  const ext = path.includes('.') ? path.split('.').pop()! : ''
+  return (await blake3(base64 + ext)).slice(0, 32)
 }
 
-function deployUrl(data: NetlifyDeployResponse): string | undefined {
-  return data.ssl_url || data.url || data.deploy_ssl_url || data.deploy_url
-}
+const CF_UPLOAD_BASE = 'https://api.cloudflare.com/client/v4'
 
-async function uploadDeployFile(token: string, deployId: string, path: string, content: string): Promise<void> {
-  await netlifyFetch(token, `/deploys/${deployId}/files/${encodeURIComponent(path.slice(1))}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/octet-stream' },
-    body: content,
-  })
-}
+async function deployToCFPages(
+  token: string,
+  accountId: string,
+  projectName: string,
+  html: string,
+): Promise<void> {
+  // Cloudflare Pages manifest keys MUST be absolute paths (leading slash), or
+  // nothing maps to the root URL and "/" returns 404 even though the deploy succeeds.
+  // _redirects gives SPA-style client routing a fallback to index.html.
+  const files: Array<{ path: string; content: string; contentType: string }> = [
+    { path: '/index.html', content: html, contentType: 'text/html; charset=utf-8' },
+    { path: '/_redirects', content: '/* /index.html 200\n', contentType: 'text/plain; charset=utf-8' },
+  ]
 
-async function waitForDeployReady(token: string, deployId: string): Promise<NetlifyDeployResponse> {
-  for (let attempt = 0; attempt < 20; attempt += 1) {
-    const res = await netlifyFetch(token, `/deploys/${deployId}`, { method: 'GET' })
-    const data = (await res.json()) as NetlifyDeployResponse
-    if (data.state === 'ready') return data
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+  // 1. Compute manifest (path → blake3 hash)
+  const manifest: Record<string, string> = {}
+  for (const f of files) {
+    manifest[f.path] = await cfPagesHash(f.content, f.path)
   }
-  throw new Error('Netlify deploy did not become ready in time')
-}
+  const hashes = Object.values(manifest)
 
-async function deployToNetlifySite(token: string, siteId: string, html: string): Promise<string> {
-  const files = new Map<string, string>([
-    ['/index.html', html],
-    ['/_headers', ['/index.html', '  Content-Type: text/html; charset=utf-8', '/*', '  X-Content-Type-Options: nosniff', ''].join('\n')],
-    ['/_redirects', '/* /index.html 200\n'],
-  ])
+  // 2. Get short-lived upload JWT
+  const { jwt } = await cfFetch<{ jwt: string }>(
+    token,
+    `/accounts/${accountId}/pages/projects/${projectName}/upload-token`,
+    { method: 'GET' },
+  )
 
-  const manifest = Object.fromEntries(Array.from(files, ([path, content]) => [path, sha1(content)]))
-
-  const res = await netlifyFetch(token, `/sites/${siteId}/deploys`, {
+  // 3. Upload all files unconditionally (skip check-missing to avoid stale-cache issues)
+  const uploadRes = await fetch(`${CF_UPLOAD_BASE}/pages/assets/upload`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ files: manifest }),
+    headers: { Authorization: `Bearer ${jwt}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(
+      files.map((f) => ({
+        key: manifest[f.path],
+        value: Buffer.from(f.content).toString('base64'),
+        metadata: { contentType: f.contentType },
+        base64: true,
+      })),
+    ),
   })
-  const data = (await res.json()) as NetlifyDeployResponse
-  if (!data.id) throw new Error('Netlify did not return a deploy id')
-
-  const required = new Set(data.required ?? [])
-  for (const [path, content] of files) {
-    if (required.size === 0 || required.has(manifest[path])) {
-      await uploadDeployFile(token, data.id, path, content)
-    }
+  if (!uploadRes.ok) {
+    throw new Error(`File upload failed: ${uploadRes.status} ${await uploadRes.text().catch(() => '')}`)
   }
 
-  const readyDeploy = await waitForDeployReady(token, data.id)
-  const url = deployUrl(readyDeploy) || deployUrl(data)
-  if (!url) throw new Error('Netlify did not return a deploy URL')
-  return url
+  // 4. Finalize — link these hashes to the project
+  const upsertRes = await fetch(`${CF_UPLOAD_BASE}/pages/assets/upsert-hashes`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${jwt}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ hashes }),
+  })
+  if (!upsertRes.ok) {
+    throw new Error(`upsert-hashes failed: ${upsertRes.status} ${await upsertRes.text().catch(() => '')}`)
+  }
+
+  // 5. Create deployment with manifest. branch must match the project's
+  // production_branch so this becomes the production deployment served at
+  // <project>.pages.dev (otherwise it's a preview and the root URL 404s).
+  const form = new FormData()
+  form.append('manifest', JSON.stringify(manifest))
+  form.append('branch', 'main')
+
+  const deploy = await cfFetch<{ id: string }>(
+    token,
+    `/accounts/${accountId}/pages/projects/${projectName}/deployments`,
+    { method: 'POST', body: form },
+  )
+
+  // 7. Poll until ready
+  for (let i = 0; i < 60; i++) {
+    await new Promise((r) => setTimeout(r, 1000))
+    const status = await cfFetch<{ latest_stage: { name: string; status: string } }>(
+      token,
+      `/accounts/${accountId}/pages/projects/${projectName}/deployments/${deploy.id}`,
+      { method: 'GET' },
+    )
+    if (status.latest_stage.name === 'deploy' && status.latest_stage.status === 'success') return
+    if (status.latest_stage.status === 'failure') throw new Error('Cloudflare Pages deployment failed')
+  }
+  throw new Error('Cloudflare Pages deployment timed out after 60s')
 }
 
 export interface DeployInput {
@@ -328,12 +371,11 @@ export interface DeployInput {
   existingSiteId?: string | null
 }
 
-export async function runNetlifyDeploy(input: DeployInput): Promise<{ url: string; siteId: string }> {
-  const token = process.env.NETLIFY_TOKEN || process.env.VITE_NETLIFY_TOKEN
-  if (!token) throw new Error('Missing NETLIFY_TOKEN')
-  const siteId = input.existingSiteId || (await createNetlifySite(token, input.projectId))
-  const url = await deployToNetlifySite(token, siteId, input.html)
-  return { url, siteId }
+export async function runCloudflareDeploy(input: DeployInput): Promise<{ url: string; siteId: string }> {
+  const { accountId, token } = cfEnv()
+  const projectName = input.existingSiteId ?? (await createCFPagesProject(token, accountId, input.projectId))
+  await deployToCFPages(token, accountId, projectName, input.html)
+  return { url: `https://${projectName}.pages.dev`, siteId: projectName }
 }
 
 // ---------------------------------------------------------------------------

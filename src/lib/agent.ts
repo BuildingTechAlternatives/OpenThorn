@@ -10,8 +10,16 @@ import {
   getReasoningParams,
   loopBreakPrompt,
   turnBudgetPrompt,
+  selectToolsForRun,
+  LEAN_TOOLSET_REMINDER,
+  capToolResultContent,
   type ToolDefinition,
 } from './agent-prompt'
+import {
+  normalizeWrittenCode,
+  findOrphanedStylesheets,
+  findDisallowedImageSources,
+} from './agent-lint'
 import { decryptApiKey, encryptApiKey } from './crypto'
 import {
   AGENT_THINKING_PROFILES,
@@ -25,6 +33,7 @@ import {
   interactiveSmokeTest,
   formatRuntimeReport,
 } from './preview-runtime-check'
+import { inspectPreview, formatInspectReport } from './preview-inspect'
 import {
   VISUAL_REVIEW_SYSTEM,
   buildVisualReviewPrompt,
@@ -63,6 +72,8 @@ import {
   changelogToSystemReminder,
   createChangelogEntry,
   generateSessionId,
+  extractLessonFromError,
+  consolidateLessons,
 } from './agent-memory'
 import {
   DEFAULT_BASE_URLS,
@@ -248,6 +259,13 @@ const COMPACTION_THRESHOLD = 5
 const KEEP_RECENT_TURNS = 3
 const SUMMARY_INTERVAL = 6
 const READ_TRUNCATE_LINES = 500
+/**
+ * How many turns a full-file read/write keeps suppressing re-reads of the same
+ * unchanged file. Generous (long refines interleave many searches between
+ * reads) but bounded, so that after context compaction the agent can re-read a
+ * file whose content it can no longer see.
+ */
+const FULL_READ_DEDUP_TURNS = 6
 const OBSERVATION_TOOLS = new Set([
   'list_files',
   'read_file',
@@ -495,12 +513,14 @@ function findSimilarFiles(targetPath: string, files: AgentCodeFile[], maxDistanc
 
 // ─── Glob Matching ──────────────────────────────────────────────────────────
 
-function matchesGlob(filePath: string, globPattern: string): boolean {
+/** Compile a single glob pattern (already cleaned) to an anchored RegExp. */
+function globToRegex(globPattern: string): RegExp {
   let regexStr = '^'
   let i = 0
   while (i < globPattern.length) {
     if (globPattern[i] === '*' && globPattern[i + 1] === '*') {
       regexStr += '.*'; i += 2
+      if (globPattern[i] === '/') i += 1 // collapse "**/" so it can also match zero dirs
     } else if (globPattern[i] === '*') {
       regexStr += '[^/]*'; i += 1
     } else if (globPattern[i] === '?') {
@@ -512,7 +532,32 @@ function matchesGlob(filePath: string, globPattern: string): boolean {
     }
   }
   regexStr += '$'
-  try { return new RegExp(regexStr).test(filePath) } catch { return false }
+  return new RegExp(regexStr)
+}
+
+export function matchesGlob(filePath: string, globPattern: string): boolean {
+  // Tolerate the malformed globs weaker models emit: stray surrounding quotes,
+  // trailing quotes (e.g. `src/**"`), whitespace, and a leading `./`.
+  const pattern = globPattern
+    .trim()
+    .replace(/^['"]+|['"]+$/g, '')
+    .replace(/^\.\//, '')
+  if (!pattern) return false
+  try {
+    const re = globToRegex(pattern)
+    if (re.test(filePath)) return true
+    // A pattern with no path separator (e.g. "*.css") should match the file's
+    // basename anywhere in the tree — that is what models intuitively expect,
+    // mirroring ripgrep/Claude Code glob behavior. Without this, "*.css" never
+    // matches "src/styles/theme.css" because `*` cannot cross a slash.
+    if (!pattern.includes('/')) {
+      const base = filePath.split('/').pop() ?? filePath
+      return re.test(base)
+    }
+    return false
+  } catch {
+    return false
+  }
 }
 
 // ─── Line-Trimmed Fuzzy Matching (edit_file fallback) ───────────────────────
@@ -595,11 +640,51 @@ export function applySingleEdit(code: string, oldStr: string, newStr: string): E
 }
 
 /** Turn an edit failure into a structured, actionable error string. */
+/**
+ * Find the contiguous block in `code` that best resembles `oldStr`, anchored on
+ * its first significant line (nearest by normalized Levenshtein distance).
+ * Returns the surrounding region with 1-based line numbers, or null when nothing
+ * is close enough. Used to turn a failed edit into an actionable correction.
+ */
+export function nearestSnippet(
+  code: string,
+  oldStr: string,
+): { start: number; end: number; text: string } | null {
+  const codeLines = code.split('\n')
+  const oldLines = oldStr.split('\n')
+  const anchor = (oldLines.find((l) => l.trim().length > 3) ?? oldLines[0] ?? '').trim()
+  if (!anchor) return null
+
+  let bestIdx = -1
+  let bestDist = Infinity
+  for (let i = 0; i < codeLines.length; i++) {
+    const line = codeLines[i].trim()
+    if (!line) continue
+    const dist = levenshtein(anchor, line)
+    if (dist < bestDist) {
+      bestDist = dist
+      bestIdx = i
+    }
+    if (dist === 0) break
+  }
+  // Require a real resemblance: edit distance under ~45% of the anchor length.
+  if (bestIdx < 0 || bestDist > Math.max(4, Math.floor(anchor.length * 0.45))) return null
+
+  const start = Math.max(0, bestIdx - 2)
+  const end = Math.min(codeLines.length, bestIdx + Math.max(oldLines.length, 1) + 2)
+  const text = codeLines
+    .slice(start, end)
+    .map((l, k) => `${String(start + k + 1).padStart(4, ' ')}  ${l}`)
+    .join('\n')
+  return { start: start + 1, end, text }
+}
+
 function describeEditFailure(
   reason: EditFailure,
   path: string,
   code: string,
   count?: number,
+  oldString?: string,
 ): string {
   switch (reason) {
     case 'EMPTY_OLD_STRING':
@@ -622,11 +707,17 @@ function describeEditFailure(
         retryable: true,
       })
     case 'STRING_NOT_FOUND': {
-      const firstLines = code.split('\n').slice(0, 5).join('\n')
+      // Show the file region that most resembles old_string so the model can
+      // copy the CURRENT exact text and retry in one shot — instead of
+      // re-reading the whole file and guessing again (the #1 multi_edit waste).
+      const near = oldString ? nearestSnippet(code, oldString) : null
+      const hint = near
+        ? `Closest matching text currently in ${path} (lines ${near.start}-${near.end}) — copy from here exactly:\n${near.text}`
+        : `The file starts with:\n${code.split('\n').slice(0, 5).join('\n')}`
       return formatStructuredError({
         code: 'STRING_NOT_FOUND',
         message: `old_string not found in ${path} (tried exact and whitespace-tolerant matching).`,
-        suggestion: `Read the file again to copy the current text exactly. The file starts with:\n${firstLines}\n\nIf the section is large, use write_file to replace the whole file instead.`,
+        suggestion: `${hint}\n\nCopy the current text exactly (including indentation), or use write_file to replace the whole file if the section is large.`,
         retryable: true,
       })
     }
@@ -956,6 +1047,15 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   const thinkingLevel = normalizeThinkingLevel(input.thinkingLevel)
   const thinkingProfile = AGENT_THINKING_PROFILES[thinkingLevel]
 
+  // ── Progressive tool expansion (#6) ───────────────────────────
+  // Choose the tool set once, then hold it stable for the whole run so the API
+  // tool schema stays byte-identical across turns (prompt-cache safe).
+  const { tools: runTools, expanded: toolsExpanded } = selectToolsForRun({
+    mode,
+    isNewProject,
+    prompt: input.prompt,
+  })
+
   // ── Build initial messages ────────────────────────────────────
   const messages: LlmMessage[] = []
 
@@ -983,6 +1083,12 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   }
 
   messages.push({ role: 'user', content: buildThinkingLevelPrompt(thinkingLevel) })
+
+  // When the lean tool set is in effect, tell the model so it doesn't try to
+  // call a deferred tool the system prompt still mentions.
+  if (!toolsExpanded) {
+    messages.push({ role: 'user', content: LEAN_TOOLSET_REMINDER })
+  }
 
   // SPEC PHASE: for new projects, inject spec guidance
   if (isNewProject || mode === 'create') {
@@ -1050,6 +1156,8 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     dirtySinceCompile: true,
     lastCompileOk: false,
     doneRejections: 0,
+    pendingErrorLessons: [],
+    recoveredLessons: [],
   }
 
   // Track session details for changelog
@@ -1093,7 +1201,7 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
         apiKey: provider.key.api_key,
         modelId: provider.model.id,
         system: AGENT_SYSTEM_PROMPT,
-        tools: AGENT_TOOLS,
+        tools: runTools,
         messages,
         signal: input.signal,
         onText: (chunk) => {
@@ -1342,16 +1450,17 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
         ],
       })
 
-      // ── Write changelog entry ──────────────────────────────────
+      // ── Write lessons + changelog entry ────────────────────────
       // Into currentFiles — input.files is the pre-run snapshot and is
       // discarded by the caller, which persists the returned files.
+      persistRunLessons(currentFiles, runCtx.recoveredLessons)
       await saveSessionChangelog(input.userId, currentFiles, {
         sessionId,
         prompt: input.prompt,
         filesCreated: sessionFilesCreated,
         filesEdited: sessionFilesEdited,
         approaches: [],
-        lessons: [],
+        lessons: runCtx.recoveredLessons,
       })
 
       // Persist a durable cross-project fact about what was built (#8).
@@ -1366,14 +1475,15 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     }
   }
 
-  // ── Max turns reached — write changelog anyway ─────────────────
+  // ── Max turns reached — write lessons + changelog anyway ───────
+  persistRunLessons(currentFiles, runCtx.recoveredLessons)
   await saveSessionChangelog(input.userId, currentFiles, {
     sessionId,
     prompt: input.prompt,
     filesCreated: sessionFilesCreated,
     filesEdited: sessionFilesEdited,
     approaches: [],
-    lessons: [],
+    lessons: runCtx.recoveredLessons,
   })
 
   circuitBreaker.recordSuccess(provider.key.provider_id)
@@ -1454,6 +1564,41 @@ async function saveSessionChangelog(
   }
 }
 
+/**
+ * Distil a lesson from a compile/runtime error and stash it as pending (#1).
+ * It becomes a recorded lesson only if a later compile passes — i.e. the agent
+ * actually recovered from it. Deduped to avoid repeating the same error.
+ */
+function recordPendingLesson(runCtx: RunContext, errorText: string | null): void {
+  const lesson = extractLessonFromError(errorText ?? '')
+  if (!lesson) return
+  if (runCtx.pendingErrorLessons.includes(lesson)) return
+  if (runCtx.recoveredLessons.includes(lesson)) return
+  runCtx.pendingErrorLessons.push(lesson)
+}
+
+/**
+ * Persist recovered lessons into lessons.md and consolidate the file so it
+ * stays lean (#1 + #3). Mutates `files` in place (mirrors saveSessionChangelog).
+ */
+function persistRunLessons(files: AgentCodeFile[], lessons: string[]): void {
+  if (lessons.length === 0) return
+
+  const lessonsFile = files.find((f) => f.path === 'src/lib/lessons.md')
+  let entries = lessonsFile ? parseLessons(lessonsFile.code) : []
+  for (const content of lessons) {
+    entries = addLesson(entries, 'GOTCHA', content)
+  }
+  entries = consolidateLessons(entries)
+  const formatted = formatLessons(entries)
+
+  if (lessonsFile) {
+    lessonsFile.code = formatted
+  } else {
+    files.push({ path: 'src/lib/lessons.md', language: 'md', code: formatted })
+  }
+}
+
 // ─── Public Memory API (called from UI after user corrections) ──────────────
 
 /**
@@ -1490,8 +1635,13 @@ interface RunContext {
   goal: string
   /** The current turn number (updated each loop iteration). */
   turn: number
-  /** path|offset|limit → snapshot + turn it was last served, to skip re-reads. */
-  reads: Map<string, { snap: string; turn: number }>
+  /**
+   * path → fingerprint of the file content the agent has already SEEN this run
+   * (via a read or its own write/edit), the turn it was last seen, and the line
+   * range already served. Used to short-circuit redundant re-reads — including
+   * re-reading a file the agent just wrote, and overlapping fragment re-reads.
+   */
+  reads: Map<string, { snap: string; turn: number; servedStart: number; servedEnd: number }>
   /** Project files changed during this run, excluding PLAN.md bookkeeping. */
   mutatedPaths: Set<string>
   /** Long existing files where write_file was already rejected once this run. */
@@ -1504,6 +1654,10 @@ interface RunContext {
   doneRejections: number
   /** File fingerprint for the latest passing visual review. */
   visualReviewHash?: string
+  /** Lessons distilled from compile/runtime errors not yet known to be fixed. */
+  pendingErrorLessons: string[]
+  /** Lessons from errors that a later passing compile confirmed recovered (#1). */
+  recoveredLessons: string[]
 }
 
 async function executeToolsParallel(
@@ -1581,10 +1735,47 @@ async function executeToolsParallel(
     if (result.files) currentFiles = result.files
   }
 
-  return results.filter((r): r is ToolResult => r !== null)
+  // Uniform last-line cap (#4): every tool result is bounded, so no single
+  // verbose output (minified line, giant error dump) can blow the context.
+  return results
+    .filter((r): r is ToolResult => r !== null)
+    .map((r) => ({ ...r, content: capToolResultContent(r.content) }))
 }
 
 // ─── Tool Execution ─────────────────────────────────────────────────────────
+
+/** Cheap content fingerprint — length + head is enough to detect any change. */
+function fileSnap(code: string): string {
+  return `${code.length}:${code.slice(0, 80)}`
+}
+
+/**
+ * Record that the agent has now SEEN the given line range of a file (1-based,
+ * inclusive). Used after reads AND after writes/edits, so a re-read of content
+ * the agent already has is short-circuited. Ranges from the same unchanged
+ * snapshot are unioned; a content change resets the seen range.
+ */
+function noteFileSeen(
+  runCtx: RunContext | undefined,
+  path: string,
+  code: string,
+  servedStart: number,
+  servedEnd: number,
+): void {
+  if (!runCtx) return
+  const snap = fileSnap(code)
+  const prev = runCtx.reads.get(path)
+  if (prev && prev.snap === snap) {
+    runCtx.reads.set(path, {
+      snap,
+      turn: runCtx.turn,
+      servedStart: Math.min(prev.servedStart, servedStart),
+      servedEnd: Math.max(prev.servedEnd, servedEnd),
+    })
+  } else {
+    runCtx.reads.set(path, { snap, turn: runCtx.turn, servedStart, servedEnd })
+  }
+}
 
 async function executeTool(
   toolCall: ToolCall,
@@ -1679,28 +1870,50 @@ async function executeTool(
           isError: true,
         }
       }
-      // Short-circuit a redundant re-read: same path+range, unchanged content,
-      // read within the last couple of turns (so the earlier output is still in
-      // context, not yet compacted away). Saves tokens and breaks read loops.
-      const snap = `${file.code.length}:${file.code.slice(0, 80)}`
-      if (runCtx) {
-        const key = `${path}|${offset}|${limit}`
-        const prev = runCtx.reads.get(key)
-        if (prev && prev.snap === snap && runCtx.turn - prev.turn <= 2) {
-          return {
-            content:
-              `You already read ${path} a moment ago and it has not changed since. ` +
-              `Its content is still shown above — do not read it again. Make your edit now ` +
-              `(or use search_files to jump to a specific section).`,
-            isError: false,
-          }
-        }
-        runCtx.reads.set(key, { snap, turn: runCtx.turn })
-      }
-
       const allLines = file.code.split('\n')
       const startIdx = offset - 1
       const endIdx = Math.min(startIdx + limit, allLines.length)
+
+      // Short-circuit a redundant re-read: unchanged content, the requested
+      // range is already covered by what was served (or written) within the
+      // last couple of turns (so the earlier output is still in context, not
+      // yet compacted away). This catches re-reading a file you just wrote and
+      // overlapping fragment re-reads, not only identical ranges. Saves tokens
+      // and breaks read loops.
+      const snap = fileSnap(file.code)
+      if (runCtx) {
+        const prev = runCtx.reads.get(path)
+        const requestedEnd = endIdx // already clamped to file length
+        // If the agent has already seen the WHOLE file (a full read or its own
+        // write) and it is unchanged, block the re-read across a generous
+        // window — not just 2 turns. Long refines interleave many searches
+        // between reads, and re-reading an unchanged 69-line file is pure waste.
+        const sawWholeFile =
+          prev &&
+          prev.snap === snap &&
+          prev.servedStart <= 1 &&
+          prev.servedEnd >= allLines.length &&
+          runCtx.turn - prev.turn <= FULL_READ_DEDUP_TURNS
+        // For a partial prior read, only short-circuit a tightly-overlapping
+        // re-read within the last couple of turns (still in context).
+        const partialCovered =
+          prev &&
+          prev.snap === snap &&
+          runCtx.turn - prev.turn <= 2 &&
+          offset >= prev.servedStart &&
+          requestedEnd <= prev.servedEnd
+        if (sawWholeFile || partialCovered) {
+          return {
+            content:
+              `You already have ${path} (lines ${prev.servedStart}-${prev.servedEnd}) from a moment ago ` +
+              `and it has not changed since — its content is still shown above. Do not read it again. ` +
+              `Make your edit now, or use search_files with context_lines to jump to a specific section.`,
+            isError: false,
+          }
+        }
+        noteFileSeen(runCtx, path, file.code, offset, endIdx)
+      }
+
       const selected = allLines.slice(startIdx, endIdx)
       const numbered = selected
         .map((line, i) => `${String(startIdx + i + 1).padStart(4, ' ')}  ${line}`)
@@ -1927,10 +2140,22 @@ async function executeTool(
         }
       }
 
+      // Deterministic write-time cleanup (#5): safe normalizations the harness
+      // applies so the model doesn't have to (trailing whitespace, blank-line
+      // runs, provably-unused React hook imports).
+      const normalized = normalizeWrittenCode(language, code)
+      const finalCode = normalized.code
+
       const isNew = !existingFile
-      const newFiles = upsertFile(currentFiles, { path, language, code })
+      const newFiles = upsertFile(currentFiles, { path, language, code: finalCode })
+      // The agent now has the full content it just wrote — a re-read is wasteful.
+      noteFileSeen(runCtx, path, finalCode, 1, finalCode.split('\n').length)
+      const cleanupNote =
+        normalized.removedImports.length > 0
+          ? ` Cleaned up unused import(s): ${normalized.removedImports.join(', ')}.`
+          : ''
       return {
-        content: `${isNew ? 'Created' : 'Overwrote'} ${path} (${code.split('\n').length} lines, ${code.length} chars).`,
+        content: `${isNew ? 'Created' : 'Overwrote'} ${path} (${finalCode.split('\n').length} lines, ${finalCode.length} chars).${cleanupNote}`,
         isError: false,
         files: newFiles,
       }
@@ -1957,7 +2182,7 @@ async function executeTool(
       const outcome = applySingleEdit(file.code, oldStr, newStr)
       if (!outcome.ok) {
         return {
-          content: describeEditFailure(outcome.reason, path, file.code, outcome.count),
+          content: describeEditFailure(outcome.reason, path, file.code, outcome.count, oldStr),
           isError: true,
         }
       }
@@ -1965,6 +2190,7 @@ async function executeTool(
       const newFiles = currentFiles.map((f) =>
         f.path === path ? { ...f, code: outcome.code } : f,
       )
+      noteFileSeen(runCtx, path, outcome.code, 1, outcome.code.split('\n').length)
       return {
         content: `Edited ${path}: replaced ${oldStr.length} chars with ${newStr.length} chars${outcome.fuzzy ? ' (matched ignoring whitespace)' : ''}.\nPreview: ${newStr.slice(0, 200)}${newStr.length > 200 ? '...' : ''}`,
         isError: false,
@@ -2011,7 +2237,7 @@ async function executeTool(
           return {
             content:
               `multi_edit failed on edit ${e + 1} of ${rawEdits.length} — no changes were applied to ${path}.\n` +
-              describeEditFailure(outcome.reason, path, working, outcome.count),
+              describeEditFailure(outcome.reason, path, working, outcome.count, oldStr),
             isError: true,
           }
         }
@@ -2022,6 +2248,7 @@ async function executeTool(
       const newFiles = currentFiles.map((f) =>
         f.path === path ? { ...f, code: working } : f,
       )
+      noteFileSeen(runCtx, path, working, 1, working.split('\n').length)
       return {
         content: `Applied ${rawEdits.length} edit(s) to ${path}${fuzzyCount > 0 ? ` (${fuzzyCount} matched ignoring whitespace)` : ''}. File is now ${working.split('\n').length} lines.`,
         isError: false,
@@ -2081,7 +2308,10 @@ async function executeTool(
           const runtime = await runtimeSmokeTest(preview.html)
           const report = formatRuntimeReport(runtime)
           if (!runtime.ok) {
-            if (runCtx) runCtx.lastCompileOk = false
+            if (runCtx) {
+              runCtx.lastCompileOk = false
+              recordPendingLesson(runCtx, report)
+            }
             return {
               content: `Build succeeded, but the app crashes at runtime.\n\n${report}`,
               isError: true,
@@ -2090,11 +2320,45 @@ async function executeTool(
           if (runCtx) {
             runCtx.lastCompileOk = true
             runCtx.dirtySinceCompile = false
+            // A passing compile confirms whatever errors preceded it were
+            // recovered — promote those distilled lessons (#1).
+            if (runCtx.pendingErrorLessons.length > 0) {
+              for (const lesson of runCtx.pendingErrorLessons) {
+                if (!runCtx.recoveredLessons.includes(lesson)) {
+                  runCtx.recoveredLessons.push(lesson)
+                }
+              }
+              runCtx.pendingErrorLessons = []
+            }
           }
-          if (report) {
-            // Non-fatal console warnings — surface but don't block.
+          // Cross-file lint: a stylesheet that nothing imports means the page
+          // renders with browser defaults — looks "broken" but compiles fine.
+          // Surface it loudly so the agent wires it up before calling done
+          // (the done gate also rejects it as a backstop).
+          const orphans = findOrphanedStylesheets(
+            currentFiles.map((f) => ({ path: f.path, code: f.code })),
+          )
+          const orphanNote =
+            orphans.length > 0
+              ? `\n\n⚠ Unimported stylesheet(s): ${orphans.join(', ')}. ` +
+                `These files exist but no module imports them, so NONE of their styles are applied — ` +
+                `the app is rendering with browser defaults. Add an import (e.g. \`import './styles/theme.css'\` in src/App.tsx) and recompile.`
+              : ''
+          // Image licensing: catch hotlinked images from non-free hosts before
+          // they can ship (done gate rejects them as a backstop).
+          const badImages = findDisallowedImageSources(
+            currentFiles.map((f) => ({ path: f.path, code: f.code })),
+          )
+          const imageNote =
+            badImages.length > 0
+              ? `\n\n⚠ Possibly-copyrighted image(s) from non-free hosts:\n` +
+                badImages.slice(0, 8).map((b) => `  - ${b.url} (in ${b.path})`).join('\n') +
+                `\nUse only free-to-use images: Unsplash (images.unsplash.com), Picsum (picsum.photos), or placehold.co. Replace these URLs.`
+              : ''
+          if (report || orphanNote || imageNote) {
+            // Non-fatal warnings — surface but don't block the build.
             return {
-              content: `Compilation + runtime check passed (with warnings).\n\n${report}`,
+              content: `Compilation + runtime check passed (with warnings).\n\n${report ?? ''}${orphanNote}${imageNote}`,
               isError: false,
             }
           }
@@ -2103,9 +2367,11 @@ async function executeTool(
             isError: false,
           }
         }
-        if (runCtx) runCtx.lastCompileOk = false
-
         const uniqueErrors = [...new Set(preview.errors)]
+        if (runCtx) {
+          runCtx.lastCompileOk = false
+          recordPendingLesson(runCtx, uniqueErrors.join(' | '))
+        }
         const shown = uniqueErrors.slice(0, COMPILE_MAX_ERRORS)
         const truncated =
           uniqueErrors.length > COMPILE_MAX_ERRORS
@@ -2125,6 +2391,60 @@ async function executeTool(
             suggestion: 'This might be a config issue or syntax error. Check recent changes.',
             retryable: true,
           }), isError: true,
+        }
+      }
+    }
+
+    // ── inspect_preview ─────────────────────────────────────────
+    case 'inspect_preview': {
+      if (currentFiles.length === 0) {
+        return { content: 'No files to inspect. Create some files first.', isError: false }
+      }
+      try {
+        const preview = await buildPreview(
+          currentFiles.map((f) => ({ path: f.path, content: f.code })),
+        )
+        if (preview.errors.length > 0) {
+          return {
+            content:
+              'Cannot inspect — the project does not build yet. Fix the build first:\n' +
+              [...new Set(preview.errors)].slice(0, COMPILE_MAX_ERRORS).map((e, i) => `  ${i + 1}. ${e}`).join('\n'),
+            isError: true,
+          }
+        }
+        const result = await inspectPreview(preview.html)
+        if (!result.ran) {
+          return {
+            content:
+              'Inspection unavailable in this environment (no browser). Rely on compile + careful reasoning about layout instead.',
+            isError: false,
+          }
+        }
+        const report = formatInspectReport(result)
+        if (!report) {
+          const s = result.summary
+          const stats = s
+            ? ` (${s.headings} heading(s), ${s.buttons} button(s), ${s.links} link(s), ${s.inputs} input(s)${s.imagesWithoutAlt > 0 ? `, ${s.imagesWithoutAlt} image(s) missing alt text` : ''})`
+            : ''
+          return {
+            content: `Visual inspection clean at ${result.viewports.join(' and ')} — no overflow, contrast, clipping, or overlap problems detected${stats}.`,
+            isError: false,
+          }
+        }
+        // Informational tool: any PROBLEM is surfaced in the report text but
+        // does not hard-fail the turn (inspect_preview does not gate done).
+        // isError stays false so the model reads it as feedback to act on,
+        // not a tool failure to retry.
+        return { content: report, isError: false }
+      } catch (err) {
+        return {
+          content: formatStructuredError({
+            code: 'INSPECT_CRASH',
+            message: err instanceof Error ? err.message : String(err),
+            suggestion: 'Inspection failed unexpectedly. Continue with compile-based verification.',
+            retryable: false,
+          }),
+          isError: false,
         }
       }
     }
@@ -2244,7 +2564,41 @@ async function runDoneVerificationGate(
     }
   }
 
-  // 3. Interactive smoke test — the buttons must actually work.
+  // 3. Orphaned-stylesheet gate (deterministic, cross-file). A written-but-
+  // unimported .css file means the app renders unstyled — compile passes, the
+  // app "works", but it looks broken. This catches the single most common
+  // silent failure and works for every provider (no vision needed).
+  const orphans = findOrphanedStylesheets(
+    currentFiles.map((f) => ({ path: f.path, code: f.code })),
+  )
+  if (orphans.length > 0) {
+    return formatStructuredError({
+      code: 'DONE_REJECTED',
+      message: `Stylesheet(s) exist but nothing imports them: ${orphans.join(', ')}. None of their styles are applied — the app is rendering with browser defaults.`,
+      suggestion:
+        "Import each stylesheet where it is used (e.g. `import './styles/theme.css'` in src/App.tsx), compile, then call done again.",
+      retryable: true,
+    })
+  }
+
+  // 4. Image-licensing gate (deterministic). Reject remote images from hosts
+  // that are not known to be free to use — they may be copyrighted/unlicensed.
+  const badImages = findDisallowedImageSources(
+    currentFiles.map((f) => ({ path: f.path, code: f.code })),
+  )
+  if (badImages.length > 0) {
+    return formatStructuredError({
+      code: 'DONE_REJECTED',
+      message:
+        `These images load from hosts that are not known to be free to use and may be copyrighted:\n` +
+        badImages.slice(0, 8).map((b) => `  - ${b.url} (in ${b.path})`).join('\n'),
+      suggestion:
+        'Replace them with free-to-use images: Unsplash (images.unsplash.com), Picsum (picsum.photos), or placehold.co — or use inline SVG / a gradient. Then compile and call done again.',
+      retryable: true,
+    })
+  }
+
+  // 5. Interactive smoke test — the buttons must actually work.
   try {
     const preview = await buildPreview(
       currentFiles.map((f) => ({ path: f.path, content: f.code })),
@@ -2261,6 +2615,16 @@ async function runDoneVerificationGate(
           retryable: true,
         })
       }
+
+      // 6. Deterministic layout gate — measured PROBLEMs (mobile overflow,
+      // overlap, clipping, off-screen controls) block done. This works for
+      // EVERY provider (no vision model needed), so DeepSeek/Ollama runs can no
+      // longer rationalize a visible layout bug away and finish on it.
+      const layoutRejection = await runLayoutGate({
+        runCtx,
+        html: preview.html,
+      })
+      if (layoutRejection) return layoutRejection
 
       const visualRejection = await runVisualReviewGate({
         runCtx,
@@ -2327,6 +2691,72 @@ export function shouldRunVisualReviewForRun(params: {
   if (params.mode === 'create') return true
   if (VISUAL_REVIEW_PROMPT_RE.test(params.goal)) return true
   return params.mutatedPaths.some((path) => path.endsWith('.css'))
+}
+
+/**
+ * Whether to run the DETERMINISTIC layout gate (measured overflow/overlap/etc.)
+ * before accepting done. Unlike the vision review, this needs no vision model,
+ * so it applies to every provider — gated only on whether the run touched
+ * visible UI: any create run, a visually-worded refine, or one that changed a
+ * .css/.tsx/.jsx file.
+ */
+export function shouldRunLayoutGateForRun(params: {
+  goal: string
+  mode: 'create' | 'refine'
+  mutatedPaths: string[]
+}): boolean {
+  if (params.mode === 'create') return true
+  if (VISUAL_REVIEW_PROMPT_RE.test(params.goal)) return true
+  return params.mutatedPaths.some(
+    (path) => path.endsWith('.css') || path.endsWith('.tsx') || path.endsWith('.jsx'),
+  )
+}
+
+/**
+ * Deterministic layout gate: render the built app at phone + desktop widths,
+ * measure it, and reject done when there are error-severity layout PROBLEMs
+ * (content overflowing the mobile viewport, controls covering text, clipped
+ * text, off-screen interactive elements). Returns a rejection string or null.
+ * Inconclusive environments (no DOM, nothing rendered) never block.
+ */
+async function runLayoutGate({
+  runCtx,
+  html,
+}: {
+  runCtx: RunContext
+  html: string
+}): Promise<string | null> {
+  if (
+    !shouldRunLayoutGateForRun({
+      goal: runCtx.goal,
+      mode: runCtx.mode,
+      mutatedPaths: [...runCtx.mutatedPaths],
+    })
+  ) {
+    return null
+  }
+
+  let result
+  try {
+    result = await inspectPreview(html)
+  } catch {
+    return null // measurement hiccup — never block done on a flaky check
+  }
+  if (!result.ran || !result.rendered) return null
+
+  const errors = result.issues.filter((i) => i.severity === 'error')
+  if (errors.length === 0) return null
+
+  const report = formatInspectReport(result) ?? ''
+  return formatStructuredError({
+    code: 'DONE_REJECTED',
+    message:
+      'The rendered layout has measured problems a user would see (not a guess — these are measured at 390px/1280px):\n' +
+      report,
+    suggestion:
+      'Fix the PROBLEM items (mobile overflow, overlap, clipped text, off-screen controls) at their cause — do not just hide them with overflow:hidden. Compile, then call done again.',
+    retryable: true,
+  })
 }
 
 async function runVisualReviewGate({

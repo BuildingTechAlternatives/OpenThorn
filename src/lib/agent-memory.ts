@@ -101,6 +101,104 @@ export function addLesson(
   return [...entries, { date: today, type, content }]
 }
 
+// ─── Self-Improving Lesson Loop (#1) ───────────────────────────────────────
+
+/**
+ * Distil a one-line, reusable lesson from a compile/runtime error report so the
+ * agent learns from mistakes it recovered from this run and avoids repeating
+ * them next time. Returns null when nothing transferable can be extracted (e.g.
+ * a flaky network blip), so we don't pollute lessons.md with noise.
+ *
+ * Pure + deterministic so it can be unit-tested and stays cache-safe.
+ */
+export function extractLessonFromError(error: string): string | null {
+  if (!error) return null
+  const text = error.replace(/\s+/g, ' ').trim()
+  if (!text) return null
+
+  const cap = (s: string) => (s.length > 160 ? s.slice(0, 157) + '…' : s)
+
+  // React default-import crash — the single most common ESM-build failure.
+  if (/React is not defined/i.test(text) || /import React from ['"]react['"]/i.test(text)) {
+    return "Default `import React from 'react'` breaks in this ESM build — use named hook imports (e.g. `import { useState } from 'react'`)."
+  }
+
+  // Undefined / not-declared identifier (covers most "white screen" crashes).
+  const notDefined = text.match(/(\b[\w$]+) is not defined/)
+  if (notDefined) {
+    return cap(`"${notDefined[1]}" was used before being declared or imported — define/import it before use.`)
+  }
+
+  // Importing a package outside the curated allowlist.
+  const missingModule = text.match(/(?:Cannot find module|Could not resolve|Failed to resolve(?: import)?) ['"]([^'"]+)['"]/)
+  if (missingModule) {
+    return cap(`Package "${missingModule[1]}" isn't importable — only the curated allowlist is available; build the feature with inline SVG/CSS instead.`)
+  }
+
+  // Reading a property off undefined/null.
+  const badProp = text.match(/Cannot read propert(?:y|ies) of (?:undefined|null) \(reading ['"]([^'"]+)['"]\)/)
+  if (badProp) {
+    return cap(`Read ".${badProp[1]}" off undefined/null — guard the value (optional chaining or a default) before accessing it.`)
+  }
+
+  // Infinite render loop.
+  if (/Maximum update depth|Too many re-renders/i.test(text)) {
+    return 'Infinite render loop — never call setState during render; move it into an event handler or a useEffect with correct deps.'
+  }
+
+  // Calling a non-function.
+  const notFn = text.match(/(\b[\w$.]+) is not a function/)
+  if (notFn) {
+    return cap(`"${notFn[1]}" is not a function — check the import/destructure and that the value is what you expect.`)
+  }
+
+  // Syntax / parse errors.
+  const syntax = text.match(/(Unexpected token[^.]*|Unterminated[^.]*|Expected [^.]*)/)
+  if (syntax) {
+    return cap(`Syntax error: ${syntax[1].trim()} — check brackets, JSX tags, and string quoting near the reported line.`)
+  }
+
+  return null
+}
+
+/**
+ * Consolidate the lessons file ("dream consolidation") — collapse exact and
+ * near-duplicate lessons, keep the most recent occurrence of each, and cap the
+ * total so lessons.md stays lean and high-signal across many sessions. Without
+ * this the file bloats and poisons the prompt cache.
+ *
+ * Dedup key is the lowercased, whitespace-collapsed, punctuation-stripped
+ * content. Order is preserved by most-recent date; the newest `maxEntries` are
+ * kept. Pure + deterministic.
+ */
+export function consolidateLessons(
+  entries: LessonEntry[],
+  maxEntries = 40,
+): LessonEntry[] {
+  const normalize = (s: string) =>
+    s
+      .toLowerCase()
+      .replace(/[`"'.]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+
+  // Last occurrence wins so we keep the freshest date/type for a given lesson.
+  const seen = new Map<string, LessonEntry>()
+  for (const entry of entries) {
+    const key = normalize(entry.content)
+    if (!key) continue
+    const prev = seen.get(key)
+    // Keep whichever is newer by date; on a tie keep the later array position.
+    if (!prev || entry.date >= prev.date) seen.set(key, entry)
+  }
+
+  const deduped = [...seen.values()].sort((a, b) =>
+    a.date === b.date ? 0 : a.date < b.date ? -1 : 1,
+  )
+
+  return deduped.slice(-maxEntries)
+}
+
 /**
  * Format lessons as a compact `<system-reminder>` for injection into the agent context.
  */

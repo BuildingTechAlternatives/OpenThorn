@@ -5,7 +5,7 @@ export interface DeployResult {
   siteId: string
 }
 
-export async function deployToNetlify(
+export async function deploySite(
   projectId: string,
   html: string,
   existingSiteId?: string | null,
@@ -16,7 +16,7 @@ export async function deployToNetlify(
     throw new Error('You must be signed in to publish a site.')
   }
 
-  const res = await fetch('/api/deploy-netlify', {
+  const res = await fetch('/api/deploy', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

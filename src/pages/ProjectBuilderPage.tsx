@@ -7,7 +7,7 @@ import JSZip from 'jszip'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabase'
 import { describeAgentError, getErrorMessage, isAbortError, logError, type AgentErrorInfo } from '../lib/errors'
-import { deployToNetlify } from '../lib/deploy'
+import { deploySite } from '../lib/deploy'
 import { buildPreview, escapeHtml } from '../lib/preview-bundle'
 import { capturePreviewThumbnail } from '../lib/preview-screenshot'
 import { runOpenThornAgent, type AgentCodeFile, type SelectedAgentModel } from '../lib/agent'
@@ -596,6 +596,8 @@ function formatToolLabel(name: string, input?: Record<string, unknown>): string 
       return `Deleting ${input?.path || 'file'}`
     case 'compile':
       return 'Verifying build'
+    case 'inspect_preview':
+      return 'Inspecting layout'
     case 'done':
       return 'Wrapping up'
     case 'set_title':
@@ -621,6 +623,8 @@ function formatToolDetail(name: string, input?: Record<string, unknown>): string
       return 'Removing unused file'
     case 'compile':
       return 'Building and running preview'
+    case 'inspect_preview':
+      return 'Measuring layout at mobile + desktop'
     case 'done':
       // The full summary renders as the completion paragraph below the
       // timeline — repeating a truncated copy here reads as a glitch.
@@ -654,6 +658,10 @@ function formatToolResultDetail(name: string, result?: string, error?: boolean):
     case 'compile':
       if (text.includes('Compilation + runtime check passed')) return 'Build and runtime check passed'
       if (text.includes('with warnings')) return 'Passed with warnings'
+      return firstLine(text).slice(0, 160)
+    case 'inspect_preview':
+      if (text.includes('inspection clean')) return 'Layout looks clean'
+      if (text.includes('[PROBLEM]')) return 'Layout problems found'
       return firstLine(text).slice(0, 160)
     case 'set_title': {
       const title = parseJsonStringField(text, 'title')
@@ -805,7 +813,7 @@ export default function ProjectBuilderPage() {
   const [publishing, setPublishing] = useState(false)
   const [publishError, setPublishError] = useState('')
   const [publishSuccess, setPublishSuccess] = useState(false)
-  const [netlifySiteId, setNetlifySiteId] = useState<string | null>(null)
+  const [cfPagesProjectName, setCfPagesProjectName] = useState<string | null>(null)
   const titleInputRef = useRef<HTMLInputElement>(null)
   const titleShouldSaveRef = useRef(true)
   const initialAgentStartedRef = useRef(false)
@@ -905,7 +913,7 @@ export default function ProjectBuilderPage() {
       // Verify ownership before upserting to prevent IDOR
       const { data: existing, error: existingError } = await supabase
         .from('projects')
-        .select('user_id, title, files, chat_history, netlify_site_id, generating, generating_by, selected_model')
+        .select('user_id, title, files, chat_history, cf_pages_project_name, generating, generating_by, selected_model')
         .eq('id', projectId)
         .maybeSingle()
 
@@ -1010,7 +1018,7 @@ export default function ProjectBuilderPage() {
         setTitle(existing.title)
       }
 
-      setNetlifySiteId(typeof existing?.netlify_site_id === 'string' ? existing.netlify_site_id : null)
+      setCfPagesProjectName(typeof existing?.cf_pages_project_name === 'string' ? existing.cf_pages_project_name : null)
 
       // Restore persisted model selection (navigation state takes priority)
       if (!state.selectedModel && existing?.selected_model) {
@@ -1348,28 +1356,28 @@ export default function ProjectBuilderPage() {
         throw new Error(`Build failed: ${result.errors[0]}`)
       }
 
-      const deploy = await deployToNetlify(projectId!, result.html, netlifySiteId)
+      const deploy = await deploySite(projectId!, result.html, cfPagesProjectName)
       setDeployUrl(deploy.url)
 
-      if (deploy.siteId !== netlifySiteId && user && projectId) {
+      if (deploy.siteId !== cfPagesProjectName && user && projectId) {
         const { error } = await supabase
           .from('projects')
-          .update({ netlify_site_id: deploy.siteId })
+          .update({ cf_pages_project_name: deploy.siteId })
           .eq('id', projectId)
           .eq('user_id', user.id)
 
         if (error) {
-          throw new Error(`Deploy succeeded, but saving the Netlify site failed: ${error.message}`)
+          throw new Error(`Deploy succeeded, but saving the site failed: ${error.message}`)
         }
 
-        setNetlifySiteId(deploy.siteId)
+        setCfPagesProjectName(deploy.siteId)
       }
       setDeployState('deployed')
     } catch (err) {
       setDeployError(err instanceof Error ? err.message : 'Deploy failed')
       setDeployState('error')
     }
-  }, [netlifySiteId, projectFiles, projectId, user])
+  }, [cfPagesProjectName, projectFiles, projectId, user])
 
 
   const handleDownloadZip = useCallback(async () => {

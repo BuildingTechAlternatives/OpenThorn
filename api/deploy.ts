@@ -1,4 +1,4 @@
-import { verifyUser, rateLimit, runNetlifyDeploy, getProjectForDeploy, persistProjectSiteId } from './_shared.js'
+import { verifyUser, rateLimit, runCloudflareDeploy, getProjectForDeploy, persistProjectSiteId } from './_shared.js'
 
 interface VercelReq {
   method?: string
@@ -15,8 +15,8 @@ function header(req: VercelReq, name: string): string | undefined {
   return Array.isArray(v) ? v[0] : v
 }
 
-// The Netlify site id is never trusted from the body — it is looked up from the
-// database, scoped to the caller, so a user cannot deploy onto someone else's site.
+// The CF Pages project name is never trusted from the body — it is looked up from
+// the database, scoped to the caller, so a user cannot deploy onto someone else's project.
 function parseBody(body: unknown): { projectId?: string; html?: string } {
   if (!body) return {}
   if (typeof body === 'string') {
@@ -38,7 +38,6 @@ export default async function handler(req: VercelReq, res: VercelRes): Promise<v
     return
   }
 
-  // Best-effort guard against abuse: cap deploys per user per minute.
   if (!(await rateLimit(`deploy:${user.id}`, 10, 60_000))) {
     res.status(429).json({ error: 'Too many deploys. Please wait a minute and try again.' })
     return
@@ -50,7 +49,6 @@ export default async function handler(req: VercelReq, res: VercelRes): Promise<v
     return
   }
 
-  // Verify the caller owns/collaborates on this project and derive its site id.
   const access = await getProjectForDeploy(authorization, projectId)
   if (!access.ok) {
     res.status(403).json({ error: 'You do not have access to this project.' })
@@ -58,7 +56,7 @@ export default async function handler(req: VercelReq, res: VercelRes): Promise<v
   }
 
   try {
-    const result = await runNetlifyDeploy({ projectId, html, existingSiteId: access.siteId })
+    const result = await runCloudflareDeploy({ projectId, html, existingSiteId: access.siteId })
     if (result.siteId !== access.siteId) {
       await persistProjectSiteId(authorization, projectId, result.siteId)
     }
