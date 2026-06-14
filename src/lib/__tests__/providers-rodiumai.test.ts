@@ -24,6 +24,7 @@ describe('RodiumAi provider registry', () => {
     const models = DEFAULT_PROVIDER_MODELS.rodiumai
     expect(models.length).toBeGreaterThanOrEqual(10)
     expect(models.some((m) => m.id === 'anthropic/claude-sonnet-4-6')).toBe(true)
+    // RodiumAi gateway slugs use hyphen minor versions (not OpenRouter dot notation)
     expect(models.some((m) => m.id === 'anthropic/claude-opus-4-8')).toBe(true)
     expect(models.some((m) => m.id === 'anthropic/claude-fable-5')).toBe(false)
   })

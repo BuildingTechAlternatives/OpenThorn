@@ -1,13 +1,16 @@
 /**
- * Simule le bouton « Test connection » de ProvidersPage pour RodiumAi.
+ * Simulates the "Test connection" flow from ProvidersPage for RodiumAi.
  *
- * Usage:
+ * Usage (macOS/Linux):
+ *   RODIUM_API_KEY=rd_sk_... node scripts/test-rodiumai-connection.mjs
+ *
+ * Usage (Windows cmd):
  *   set RODIUM_API_KEY=rd_sk_...
  *   node scripts/test-rodiumai-connection.mjs
  *
  * Options:
- *   RODIUM_BASE_URL=https://api.rodiumai.io/v1  (défaut)
- *   RODIUM_ORIGIN=http://localhost:5173         (header Origin pour tester CORS)
+ *   RODIUM_BASE_URL=https://api.rodiumai.io/v1  (default)
+ *   RODIUM_ORIGIN=http://localhost:5173         (Origin header to test CORS)
  */
 
 const baseUrl = (process.env.RODIUM_BASE_URL ?? 'https://api.rodiumai.io/v1').replace(/\/+$/, '')
@@ -15,7 +18,7 @@ const apiKey = process.env.RODIUM_API_KEY?.trim()
 const origin = process.env.RODIUM_ORIGIN ?? 'http://localhost:5173'
 
 if (!apiKey) {
-  console.error('RODIUM_API_KEY manquant. Ex: set RODIUM_API_KEY=rd_sk_...')
+  console.error('Missing RODIUM_API_KEY. Example: RODIUM_API_KEY=rd_sk_... node scripts/test-rodiumai-connection.mjs')
   process.exit(1)
 }
 

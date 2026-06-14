@@ -147,7 +147,7 @@ User-generated sites deploy to Netlify via the `/api/deploy-netlify` endpoint us
 
 ### RodiumAi (OpenThorn browser calls)
 
-OpenThorn calls `https://api.rodiumai.io/v1` directly from the browser. The RodiumAi gateway must allow CORS from OpenThorn origins — set `CORS_EXTRA_ORIGINS=https://openthorn.app,https://www.openthorn.app,http://localhost:5173` on the FastAPI gateway (see `rodiumai_fastapi/.env.example`).
+OpenThorn calls `https://api.rodiumai.io/v1` directly from the browser. The RodiumAi gateway must allow CORS from OpenThorn origins — set `CORS_EXTRA_ORIGINS=https://openthorn.app,https://www.openthorn.app,http://localhost:5173` on the FastAPI gateway.
 
 ## License
 
