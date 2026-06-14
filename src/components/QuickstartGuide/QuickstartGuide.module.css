@@ -1,0 +1,120 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  animation: pageFade 0.2s ease both;
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  background: var(--color-bg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 2.25rem 2rem 1.5rem;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  animation: pageRise 0.25s ease both;
+}
+
+.close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  color: var(--color-text);
+  opacity: 0.6;
+  transition: opacity 0.15s, background 0.15s;
+}
+.close:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
+
+.eyebrow {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 0.85rem;
+}
+
+.heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+  color: var(--color-text);
+}
+
+.body {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--color-text);
+  opacity: 0.75;
+  margin: 0 auto 1.5rem;
+  max-width: 36ch;
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: background 0.2s, transform 0.2s;
+}
+.dotActive { background: var(--color-accent); transform: scale(1.25); }
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.primary {
+  flex: 1;
+  max-width: 280px;
+  padding: 0.8rem 1.5rem;
+  background: var(--color-accent);
+  color: #fff;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.back {
+  padding: 0.8rem 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  color: var(--color-text);
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: border-color 0.15s;
+}
+.back:hover { border-color: var(--color-accent); }
+
+.skip {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: var(--color-text);
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+.skip:hover { opacity: 0.85; }
