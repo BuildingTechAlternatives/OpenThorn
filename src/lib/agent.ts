@@ -2528,9 +2528,9 @@ async function executeTool(
 async function runDoneVerificationGate(
   runCtx: RunContext,
   currentFiles: AgentCodeFile[],
-  provider: ResolvedProvider,
-  signal: AbortSignal | undefined,
-  onProgress: ((event: AgentProgressEvent) => void) | undefined,
+  _provider: ResolvedProvider,
+  _signal: AbortSignal | undefined,
+  _onProgress: ((event: AgentProgressEvent) => void) | undefined,
 ): Promise<string | null> {
   // 1. Stale-compile gate
   if (runCtx.dirtySinceCompile || !runCtx.lastCompileOk) {
@@ -2632,22 +2632,6 @@ async function runDoneVerificationGate(
 }
 
 // ─── Model Calling ──────────────────────────────────────────────────────────
-
-function hashString(value: string): string {
-  let hash = 2166136261
-  for (let i = 0; i < value.length; i++) {
-    hash ^= value.charCodeAt(i)
-    hash = Math.imul(hash, 16777619)
-  }
-  return (hash >>> 0).toString(36)
-}
-
-function projectFingerprint(files: AgentCodeFile[]): string {
-  return files
-    .map((f) => `${f.path}:${f.code.length}:${hashString(f.code)}`)
-    .sort()
-    .join('|')
-}
 
 const LAYOUT_GATE_PROMPT_RE =
   /\b(visual|design|layout|style|css|theme|dark|light|button|icon|canvas|game|animation|sprite|particle|shake|responsive|mobile|overlap|clip|contrast|color|polish|ui)\b/i
