@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabase'
 import { buildPreview } from '../lib/preview-bundle'
@@ -30,6 +30,7 @@ export default function TemplatesPage() {
   })
   const { user, loading } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [htmlMap, setHtmlMap] = useState<Record<string, string>>({})
   const [selected, setSelected] = useState<Template | null>(null)
   const [deviceMode, setDeviceMode] = useState<DeviceMode>('desktop')
@@ -53,6 +54,18 @@ export default function TemplatesPage() {
       })
     }
   }, [templates])
+
+  // Deep-link: open a specific template's preview when navigated here with state
+  // (e.g. from the first-login quickstart guide).
+  useEffect(() => {
+    const openId = (location.state as { openTemplateId?: string } | null)?.openTemplateId
+    if (!openId) return
+    const match = templates.find((t) => t.id === openId)
+    if (match) {
+      setSelected(match)
+      setDeviceMode('desktop')
+    }
+  }, [location.state, templates])
 
   // Close on Escape
   useEffect(() => {
