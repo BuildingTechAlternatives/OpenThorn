@@ -7,6 +7,8 @@ import { usePageTitle } from '../lib/usePageTitle'
 import type { AgentThinkingLevel } from '../lib/agent-thinking'
 import DashboardSidebar, { type ProjectFilter, type SidebarNotification } from '../components/DashboardSidebar/DashboardSidebar'
 import PromptInput from '../components/PromptInput/PromptInput'
+import QuickstartGuide from '../components/QuickstartGuide/QuickstartGuide'
+import { shouldShowQuickstart } from '../lib/quickstart'
 import FloatingParticles from '../components/FloatingParticles/FloatingParticles'
 import type { SelectedModel } from '../components/ModelSelector/ModelSelector'
 import styles from './DashboardPage.module.css'
@@ -108,6 +110,7 @@ export default function DashboardPage() {
     return parseStoredJson<SelectedModel | null>(localStorage.getItem('dashboard:selectedModel'), null)
   })
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showQuickstart, setShowQuickstart] = useState(false)
 
   const visiblePrompts = showAllPrompts ? examplePrompts : examplePrompts.slice(0, INITIAL_VISIBLE)
 
@@ -283,6 +286,27 @@ export default function DashboardPage() {
       cancelled = true
       supabase.removeChannel(channel)
     }
+  }, [user])
+
+  // First-login quickstart guide — show once per account.
+  useEffect(() => {
+    if (!user) return
+    let cancelled = false
+    supabase
+      .from('profiles')
+      .select('has_seen_quickstart')
+      .eq('id', user.id)
+      .single()
+      .then(({ data, error }) => {
+        if (error) {
+          logError('DashboardQuickstartFlag', error)
+          return
+        }
+        if (!cancelled && shouldShowQuickstart(data?.has_seen_quickstart)) {
+          setShowQuickstart(true)
+        }
+      })
+    return () => { cancelled = true }
   }, [user])
 
   // Fetch and subscribe to global notifications for the dashboard bell.
@@ -505,6 +529,16 @@ export default function DashboardPage() {
   const handleExampleClick = (prompt: string) => {
     setPromptDefault(prompt)
   }
+
+  const handleQuickstartClose = useCallback(async () => {
+    setShowQuickstart(false)
+    if (!user) return
+    const { error } = await supabase
+      .from('profiles')
+      .update({ has_seen_quickstart: true })
+      .eq('id', user.id)
+    if (error) logError('DashboardQuickstartDismiss', error)
+  }, [user])
 
   const filteredProjects = projects
     .filter((p) => {
@@ -1028,6 +1062,10 @@ export default function DashboardPage() {
       </main>
 
     </div>
+
+    {showQuickstart && (
+      <QuickstartGuide firstName={firstName} onClose={handleQuickstartClose} />
+    )}
 
     {/* Publish to Community modal — outside root to avoid overflow:hidden stacking context */}
     {publishingProject && (
