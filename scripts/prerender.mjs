@@ -228,7 +228,7 @@ const routes = [
     path: '/build-with',
     title: 'Build with your API key — OpenThorn',
     description:
-      'Step-by-step guides for building a website with your own API key from any of the 17 AI providers OpenThorn supports — OpenAI, Anthropic, Gemini, and more.',
+      'Step-by-step guides for building a website with your own API key from any of the 18 AI providers OpenThorn supports — OpenAI, Anthropic, Gemini, and more.',
     ogType: 'website',
     lastmod: providersMeta.map((g) => g.lastVerified).sort().at(-1),
     jsonLd: [

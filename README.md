@@ -11,19 +11,19 @@ OpenThorn is a BYOK (bring-your-own-key) AI app builder. Describe what you want 
 
 ## Why OpenThorn?
 
-Most AI builders charge $25–50/month for credits that resell API access at a markup. OpenThorn flips that model: you connect your own key from any of 17 providers and pay them directly. The platform itself is free. If you've hit the credit wall on **Lovable**, **Bolt.new**, or **v0**, OpenThorn is a browser-based BYOK alternative — pair it with a provider free tier (Gemini, Groq, Cerebras) or local Ollama and build for $0.
+Most AI builders charge $25–50/month for credits that resell API access at a markup. OpenThorn flips that model: you connect your own key from any of 18 providers and pay them directly. The platform itself is free. If you've hit the credit wall on **Lovable**, **Bolt.new**, or **v0**, OpenThorn is a browser-based BYOK alternative — pair it with a provider free tier (Gemini, Groq, Cerebras) or local Ollama and build for $0.
 
 | | OpenThorn | Others |
 |---|---|---|
 | Platform cost | Free | $25–50+/month |
 | AI billing | Pay your provider directly | Pay the platform in credits |
-| Model choice | Any of 17 providers | Platform-selected |
+| Model choice | Any of 18 providers | Platform-selected |
 | Code export | Always, no paywall | Often paywalled |
 | API key ownership | Yours | Platform-managed |
 
 ## Features
 
-- **17 AI providers** — OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral, Groq, Together AI, xAI, Cohere, Perplexity, OpenRouter, Ollama, Fireworks AI, Cerebras, Azure OpenAI, Amazon Bedrock, NVIDIA NIM
+- **18 AI providers** — OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral, Groq, Together AI, xAI, Cohere, Perplexity, OpenRouter, RodiumAi, Ollama, Fireworks AI, Cerebras, Azure OpenAI, Amazon Bedrock, NVIDIA NIM
 - **In-browser preview** — generated code bundled with esbuild-wasm and rendered live; no server round-trip, no build wait
 - **One-click Netlify deploy** — from preview to public URL without leaving the app
 - **Full code export** — download the generated source at any point; no proprietary format, no paywall

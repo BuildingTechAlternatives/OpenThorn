@@ -11,7 +11,7 @@ const checks = [
   ['dist/index.html', '/og/home.png', 'home: generated og card'],
   ['dist/faq/index.html', 'FAQPage', 'faq: FAQPage JSON-LD'],
   ['dist/faq/index.html', 'data-prerendered', 'faq: JSON-LD marked for boot removal'],
-  ['dist/faq/index.html', '17 AI providers', 'faq: provider answer'],
+  ['dist/faq/index.html', '18 AI providers', 'faq: provider answer'],
   ['dist/pricing/index.html', '<div id="root"><', 'pricing: non-empty root'],
   ['dist/changelog/index.html', '<div id="root"><', 'changelog: non-empty root'],
   ['dist/faq/index.html', 'aria-expanded', 'faq: interactive markup SSR body'],
