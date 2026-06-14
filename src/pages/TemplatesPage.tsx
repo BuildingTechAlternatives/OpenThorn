@@ -22,6 +22,16 @@ const CATEGORY_COLORS: Record<string, { bg: string; color: string; border: strin
   Portfolio:    { bg: 'rgba(124,106,247,.12)', color: '#9d89fb', border: 'rgba(124,106,247,.3)' },
   SaaS:         { bg: 'rgba(37,99,235,.12)',   color: '#60a5fa', border: 'rgba(37,99,235,.3)'   },
   'E-commerce': { bg: 'rgba(26,92,58,.18)',    color: '#4ade80', border: 'rgba(26,92,58,.4)'    },
+  Restaurant:   { bg: 'rgba(201,136,58,.14)',  color: '#f0b35f', border: 'rgba(201,136,58,.35)'  },
+  Blog:         { bg: 'rgba(232,93,47,.12)',   color: '#fb8a62', border: 'rgba(232,93,47,.32)'   },
+}
+
+function mergePublishedWithBundled(published: Template[]): Template[] {
+  const publishedIds = new Set(published.map(template => template.id))
+  return [
+    ...published,
+    ...TEMPLATES.filter(template => !publishedIds.has(template.id)),
+  ]
 }
 
 export default function TemplatesPage() {
@@ -36,11 +46,11 @@ export default function TemplatesPage() {
   const [selectedModel, setSelectedModel] = useState<SelectedModel | null>(null)
   const [launching, setLaunching] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  // Bundled templates render instantly; published DB templates replace them when present.
+  // Bundled templates render instantly; published DB templates override matching bundled ones.
   const [templates, setTemplates] = useState<Template[]>(TEMPLATES)
 
   useEffect(() => {
-    fetchPublishedTemplates().then(t => { if (t && t.length) setTemplates(t) })
+    fetchPublishedTemplates().then(t => { if (t && t.length) setTemplates(mergePublishedWithBundled(t)) })
   }, [])
 
   // Build live previews for all templates
