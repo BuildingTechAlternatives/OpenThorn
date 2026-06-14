@@ -262,7 +262,7 @@ async function createCFPagesProject(token: string, accountId: string, projectId:
   await cfFetch<{ name: string }>(token, `/accounts/${accountId}/pages/projects`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, production_branch: 'main' }),
+    body: JSON.stringify({ name }),
   })
   return name
 }
@@ -277,25 +277,45 @@ async function deployToCFPages(
   projectName: string,
   html: string,
 ): Promise<void> {
-  const files = new Map<string, { content: string; contentType: string }>([
-    ['/index.html', { content: html, contentType: 'text/html; charset=utf-8' }],
-    ['/_headers', {
-      content: '/index.html\n  Content-Type: text/html; charset=utf-8\n/*\n  X-Content-Type-Options: nosniff\n',
-      contentType: 'text/plain',
-    }],
-    ['/_redirects', { content: '/* /index.html 200\n', contentType: 'text/plain' }],
-  ])
+  const files: Array<{ path: string; content: string; contentType: string }> = [
+    { path: '/index.html', content: html, contentType: 'text/html; charset=utf-8' },
+    { path: '/_redirects', content: '/* /index.html 200\n', contentType: 'text/plain' },
+  ]
 
+  // 1. Compute manifest (path → sha256)
   const manifest: Record<string, string> = {}
-  for (const [path, { content }] of files) {
-    manifest[path] = sha256(content)
+  for (const f of files) {
+    manifest[f.path] = sha256(f.content)
   }
 
+  // 2. Get a short-lived upload JWT from CF
+  const { jwt } = await cfFetch<{ jwt: string }>(
+    token,
+    `/accounts/${accountId}/pages/projects/${projectName}/uploads`,
+    { method: 'POST' },
+  )
+
+  // 3. Upload file contents (keyed by hash) to the CF upload endpoint
+  const uploadRes = await fetch('https://uploads.workers.cloudflare.com/pages/assets/upload', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${jwt}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(
+      files.map((f) => ({
+        key: manifest[f.path],
+        value: Buffer.from(f.content).toString('base64'),
+        metadata: { contentType: f.contentType },
+        base64: true,
+      })),
+    ),
+  })
+  if (!uploadRes.ok) {
+    const body = await uploadRes.text().catch(() => uploadRes.statusText)
+    throw new Error(`CF Pages file upload failed ${uploadRes.status}: ${body}`)
+  }
+
+  // 4. Create the deployment referencing the uploaded hashes
   const form = new FormData()
   form.append('manifest', JSON.stringify(manifest))
-  for (const [path, { content, contentType }] of files) {
-    form.append(path, new Blob([content], { type: contentType }), path.slice(1))
-  }
 
   const deploy = await cfFetch<{ id: string }>(
     token,
@@ -303,6 +323,7 @@ async function deployToCFPages(
     { method: 'POST', body: form },
   )
 
+  // 5. Poll until ready
   for (let i = 0; i < 60; i++) {
     await new Promise((r) => setTimeout(r, 1000))
     const status = await cfFetch<{ latest_stage: { name: string; status: string } }>(
