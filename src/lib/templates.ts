@@ -17,6 +17,9 @@ export const TEMPLATES: Template[] = [
   photographyStudio(),
   restaurantLanding(),
   techBlog(),
+  wellnessClinic(),
+  realEstateAgency(),
+  conferenceEvent(),
 ]
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -2122,6 +2125,272 @@ export default function Newsletter() {
         </>
       )}
     </section>
+  )
+}`,
+      },
+    ],
+  }
+}
+
+// Template 7: Wellness Clinic
+function wellnessClinic(): Template {
+  return {
+    id: 'wellness-clinic',
+    name: 'Wellness Clinic',
+    description: 'A calm, trustworthy clinic website with services, practitioners, and appointment booking.',
+    category: 'SaaS',
+    accentColor: '#0f766e',
+    highlights: [
+      'Warm healthcare hero with real lifestyle imagery',
+      'Service cards, practitioner profiles, and clinic stats',
+      'Appointment request form with confirmation state',
+      'Trust-focused layout for modern wellness practices',
+    ],
+    files: [
+      {
+        path: 'src/styles/theme.css',
+        language: 'css',
+        code: `*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#f8fbf9;color:#10211d;line-height:1.65;overflow-x:hidden}
+a{color:inherit;text-decoration:none}button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+:root{--bg:#f8fbf9;--surface:#fff;--soft:#eef7f3;--ink:#10211d;--muted:#64756f;--line:#dce9e3;--accent:#0f766e;--accent-2:#d97706;--r:8px;--r-lg:14px;--r-xl:20px}
+.nav{position:sticky;top:0;z-index:20;background:rgba(248,251,249,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.nav-inner{max-width:1180px;margin:0 auto;height:68px;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.brand{font-size:1.05rem;font-weight:800;letter-spacing:-.02em}.brand span{color:var(--accent)}
+.nav-links{display:flex;gap:.4rem}.nav-links a{padding:.45rem .8rem;border-radius:var(--r);font-size:.88rem;color:var(--muted)}.nav-links a:hover{background:var(--soft);color:var(--ink)}
+.nav-cta{padding:.65rem 1rem;border-radius:var(--r);background:var(--accent);color:#fff;font-size:.88rem;font-weight:700}
+.hero{max-width:1180px;margin:0 auto;padding:5rem 1.5rem 4rem;display:grid;grid-template-columns:1fr .92fr;gap:3rem;align-items:center}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem}
+.hero h1{font-size:clamp(2.6rem,5vw,4.7rem);line-height:1.02;letter-spacing:-.045em;margin-bottom:1.25rem}
+.hero p{color:var(--muted);font-size:1.05rem;max-width:560px;margin-bottom:2rem}.actions{display:flex;gap:.9rem;flex-wrap:wrap}
+.btn-primary,.btn-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:.8rem 1.2rem;border-radius:var(--r);font-weight:750}
+.btn-primary{background:var(--accent);color:#fff}.btn-secondary{border:1px solid var(--line);background:#fff;color:var(--ink)}
+.hero-media{position:relative}.hero-media img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:var(--r-xl);box-shadow:0 24px 70px rgba(16,33,29,.16)}
+.metric-card{position:absolute;left:-1rem;bottom:2rem;background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:1rem 1.2rem;box-shadow:0 18px 50px rgba(16,33,29,.14)}
+.metric-card strong{display:block;font-size:1.5rem;letter-spacing:-.04em}.metric-card span{font-size:.8rem;color:var(--muted)}
+.section{padding:4.5rem 1.5rem}.wrap{max-width:1180px;margin:0 auto}.section-head{max-width:620px;margin-bottom:2.5rem}.section-head h2{font-size:clamp(1.8rem,3vw,2.7rem);letter-spacing:-.035em;line-height:1.1;margin-bottom:.7rem}.section-head p{color:var(--muted)}
+.services{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}.service{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:1.4rem}.service img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:var(--r);margin-bottom:1rem}.service h3{font-size:1rem;margin-bottom:.45rem}.service p{font-size:.9rem;color:var(--muted)}
+.band{background:var(--soft)}.doctors{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}.doctor{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}.doctor img{width:100%;aspect-ratio:4/3;object-fit:cover}.doctor div{padding:1rem}.doctor p{font-size:.82rem;color:var(--muted)}
+.booking{display:grid;grid-template-columns:.9fr 1.1fr;gap:2rem;align-items:start}.proof{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;margin-top:1.5rem}.proof div{background:var(--soft);border:1px solid var(--line);border-radius:var(--r);padding:1rem}.proof strong{display:block;font-size:1.4rem}.proof span{font-size:.78rem;color:var(--muted)}
+.form{background:#fff;border:1px solid var(--line);border-radius:var(--r-xl);padding:1.5rem;box-shadow:0 18px 50px rgba(16,33,29,.08)}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}.field{margin-bottom:.9rem}.field label{display:block;font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem}.input,.select,.textarea{width:100%;border:1px solid var(--line);border-radius:var(--r);padding:.78rem .85rem;background:#fbfdfc;font:inherit}.textarea{height:108px;resize:vertical}.submit{width:100%;padding:.9rem 1rem;border-radius:var(--r);background:var(--accent);color:#fff;font-weight:800}.success{padding:3rem 1rem;text-align:center}.success h3{font-size:1.35rem;margin-bottom:.4rem}.success p{color:var(--muted)}
+.footer{padding:2rem 1.5rem;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}.footer div{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;gap:1rem}
+@media(max-width:900px){.hero,.booking{grid-template-columns:1fr}.services,.doctors{grid-template-columns:1fr}.hero-media{order:-1}.nav-links{display:none}}
+@media(max-width:640px){.grid2,.proof{grid-template-columns:1fr}.hero{padding-top:2rem}.metric-card{position:static;margin-top:1rem}}`,
+      },
+      {
+        path: 'src/App.tsx',
+        language: 'tsx',
+        code: `import { useState } from 'react'
+import './styles/theme.css'
+
+const services = [
+  { title: 'Primary care', text: 'Preventive visits, diagnostics, and long-term health planning.', image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=900&q=80&auto=format&fit=crop' },
+  { title: 'Nutrition therapy', text: 'Evidence-based nutrition plans shaped around your habits and goals.', image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=900&q=80&auto=format&fit=crop' },
+  { title: 'Mind-body care', text: 'Stress management, sleep coaching, and restorative wellness programs.', image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=900&q=80&auto=format&fit=crop' },
+]
+
+const doctors = [
+  { name: 'Dr. Elise Morgan', role: 'Family medicine', image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=800&q=80&auto=format&fit=crop' },
+  { name: 'Nadia Patel, RD', role: 'Clinical nutrition', image: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=800&q=80&auto=format&fit=crop' },
+  { name: 'Dr. Leo Hart', role: 'Integrative care', image: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=800&q=80&auto=format&fit=crop' },
+]
+
+export default function App() {
+  const [sent, setSent] = useState(false)
+  return (
+    <div>
+      <header className="nav">
+        <div className="nav-inner">
+          <a className="brand" href="#">Luma<span>Care</span></a>
+          <nav className="nav-links">
+            <a href="#services">Services</a><a href="#team">Team</a><a href="#booking">Booking</a>
+          </nav>
+          <a className="nav-cta" href="#booking">Book a visit</a>
+        </div>
+      </header>
+      <main>
+        <section className="hero">
+          <div>
+            <p className="eyebrow">Modern wellness clinic</p>
+            <h1>Whole-person care for your everyday health.</h1>
+            <p>Primary care, nutrition, and restorative wellness in one calm, coordinated experience.</p>
+            <div className="actions"><a className="btn-primary" href="#booking">Request appointment</a><a className="btn-secondary" href="#services">Explore services</a></div>
+          </div>
+          <div className="hero-media">
+            <img src="https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=1100&q=80&auto=format&fit=crop" alt="Clinician consulting with patient" />
+            <div className="metric-card"><strong>4.9/5</strong><span>Average patient rating</span></div>
+          </div>
+        </section>
+        <section className="section" id="services">
+          <div className="wrap">
+            <div className="section-head"><p className="eyebrow">Services</p><h2>Care plans designed around real life.</h2><p>Choose a single visit or build a guided program with our clinical team.</p></div>
+            <div className="services">{services.map(s => <article className="service" key={s.title}><img src={s.image} alt={s.title} /><h3>{s.title}</h3><p>{s.text}</p></article>)}</div>
+          </div>
+        </section>
+        <section className="section band" id="team">
+          <div className="wrap">
+            <div className="section-head"><p className="eyebrow">Practitioners</p><h2>Specialists who listen first.</h2><p>Meet the clinicians guiding LumaCare's integrated approach.</p></div>
+            <div className="doctors">{doctors.map(d => <article className="doctor" key={d.name}><img src={d.image} alt={d.name} /><div><h3>{d.name}</h3><p>{d.role}</p></div></article>)}</div>
+          </div>
+        </section>
+        <section className="section" id="booking">
+          <div className="wrap booking">
+            <div><p className="eyebrow">Appointments</p><h2>Start with a 20-minute consult.</h2><p style={{ color: 'var(--muted)' }}>Tell us what you need and our care coordinator will match you with the right practitioner.</p><div className="proof"><div><strong>24h</strong><span>Response time</span></div><div><strong>8k+</strong><span>Patients served</span></div></div></div>
+            <form className="form" onSubmit={e => { e.preventDefault(); setSent(true) }}>
+              {sent ? <div className="success"><h3>Request received</h3><p>We will contact you within one business day.</p></div> : <>
+                <div className="grid2"><div className="field"><label htmlFor="name">Name</label><input id="name" className="input" required /></div><div className="field"><label htmlFor="email">Email</label><input id="email" type="email" className="input" required /></div></div>
+                <div className="grid2"><div className="field"><label htmlFor="service">Service</label><select id="service" className="select"><option>Primary care</option><option>Nutrition therapy</option><option>Mind-body care</option></select></div><div className="field"><label htmlFor="time">Preferred time</label><select id="time" className="select"><option>Morning</option><option>Afternoon</option><option>Evening</option></select></div></div>
+                <div className="field"><label htmlFor="message">What brings you in?</label><textarea id="message" className="textarea" /></div><button className="submit" type="submit">Send request</button>
+              </>}
+            </form>
+          </div>
+        </section>
+      </main>
+      <footer className="footer"><div><span>LumaCare Clinic</span><span>Insurance-friendly care in Austin, TX</span></div></footer>
+    </div>
+  )
+}`,
+      },
+    ],
+  }
+}
+
+// Template 8: Real Estate Agency
+function realEstateAgency(): Template {
+  return {
+    id: 'real-estate-agency',
+    name: 'Real Estate Agency',
+    description: 'A premium property website for boutique real estate teams and luxury listings.',
+    category: 'Portfolio',
+    accentColor: '#b45309',
+    highlights: [
+      'Luxury property hero with editorial layout',
+      'Featured listings with real home photography',
+      'Agent profile, market stats, and inquiry form',
+      'Responsive design for listing discovery',
+    ],
+    files: [
+      {
+        path: 'src/styles/theme.css',
+        language: 'css',
+        code: `*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#fbfaf7;color:#191612;line-height:1.6;overflow-x:hidden}a{color:inherit;text-decoration:none}button{font:inherit}
+:root{--bg:#fbfaf7;--paper:#fff;--ink:#191612;--muted:#746b5f;--line:#e8e0d5;--accent:#b45309;--dark:#211a12;--r:8px;--r-lg:14px;--r-xl:20px}
+.nav{position:sticky;top:0;background:rgba(251,250,247,.93);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);z-index:10}.nav-inner{max-width:1220px;margin:0 auto;height:70px;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between}.brand{font-weight:900;letter-spacing:-.03em}.links{display:flex;gap:1rem}.links a{font-size:.88rem;color:var(--muted)}.links a:hover{color:var(--ink)}.nav-btn{padding:.65rem 1rem;background:var(--dark);color:#fff;border-radius:var(--r);font-weight:750;font-size:.88rem}
+.hero{max-width:1220px;margin:0 auto;padding:4rem 1.5rem 3rem;display:grid;grid-template-columns:.88fr 1.12fr;gap:3rem;align-items:end}.label{font-size:.72rem;font-weight:850;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem}.hero h1{font-size:clamp(2.8rem,5vw,5rem);line-height:.98;letter-spacing:-.055em;margin-bottom:1.2rem}.hero p{color:var(--muted);max-width:520px;margin-bottom:1.6rem}.search{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:.7rem;display:grid;grid-template-columns:1fr 1fr auto;gap:.6rem;box-shadow:0 20px 60px rgba(33,26,18,.1)}.search input,.search select{border:1px solid var(--line);border-radius:var(--r);padding:.75rem;background:#fbfaf7;font:inherit}.search button{border:0;border-radius:var(--r);background:var(--accent);color:#fff;padding:0 1rem;font-weight:800}.hero-img{position:relative}.hero-img img{width:100%;aspect-ratio:5/4;object-fit:cover;border-radius:var(--r-xl);box-shadow:0 28px 80px rgba(33,26,18,.18)}.floating{position:absolute;right:1.2rem;bottom:1.2rem;background:#fff;border-radius:var(--r-lg);padding:1rem 1.2rem;box-shadow:0 20px 50px rgba(33,26,18,.18)}.floating strong{display:block;font-size:1.4rem}.floating span{font-size:.8rem;color:var(--muted)}
+.section{padding:4.5rem 1.5rem}.wrap{max-width:1220px;margin:0 auto}.head{display:flex;justify-content:space-between;gap:2rem;align-items:end;margin-bottom:2rem}.head h2{font-size:clamp(1.8rem,3vw,2.8rem);letter-spacing:-.04em;line-height:1.05}.head p{max-width:420px;color:var(--muted)}.listings{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}.card{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;transition:transform .2s,box-shadow .2s}.card:hover{transform:translateY(-4px);box-shadow:0 18px 50px rgba(33,26,18,.12)}.card img{width:100%;aspect-ratio:4/3;object-fit:cover}.card-body{padding:1rem}.price{font-size:1.25rem;font-weight:900;letter-spacing:-.03em}.addr{color:var(--muted);font-size:.88rem;margin:.2rem 0 .8rem}.facts{display:flex;gap:.8rem;color:var(--muted);font-size:.78rem;border-top:1px solid var(--line);padding-top:.8rem}
+.dark{background:var(--dark);color:#fff}.dark .wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:3rem;align-items:center}.agent{display:grid;grid-template-columns:160px 1fr;gap:1.4rem;align-items:center}.agent img{width:160px;height:190px;object-fit:cover;border-radius:var(--r-lg)}.agent p{color:#cbbfaa}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem}.stat{border:1px solid rgba(255,255,255,.16);border-radius:var(--r-lg);padding:1.1rem}.stat strong{display:block;font-size:1.6rem}.stat span{color:#cbbfaa;font-size:.82rem}
+.contact{display:grid;grid-template-columns:.9fr 1.1fr;gap:2rem}.form{background:#fff;border:1px solid var(--line);border-radius:var(--r-xl);padding:1.4rem}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}.field{margin-bottom:.8rem}.field label{display:block;font-size:.72rem;font-weight:850;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.35rem}.field input,.field textarea{width:100%;border:1px solid var(--line);border-radius:var(--r);padding:.8rem;font:inherit;background:#fbfaf7}.field textarea{height:112px;resize:vertical}.submit{width:100%;border:0;border-radius:var(--r);background:var(--dark);color:#fff;padding:.9rem;font-weight:850}.ok{text-align:center;padding:2.5rem;color:var(--muted)}
+.footer{padding:2rem 1.5rem;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}.footer div{max-width:1220px;margin:0 auto;display:flex;justify-content:space-between}
+@media(max-width:900px){.hero,.dark .wrap,.contact{grid-template-columns:1fr}.listings{grid-template-columns:1fr}.links{display:none}.search{grid-template-columns:1fr}.agent{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.head{display:block}.grid2{grid-template-columns:1fr}.stats{grid-template-columns:1fr}}`,
+      },
+      {
+        path: 'src/App.tsx',
+        language: 'tsx',
+        code: `import { useState } from 'react'
+import './styles/theme.css'
+
+const listings = [
+  { price: '$2.85M', title: 'Canyon Ridge Residence', address: '824 Laurel Canyon, Los Angeles', facts: ['4 beds', '4.5 baths', '4,180 sqft'], image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1000&q=80&auto=format&fit=crop' },
+  { price: '$1.92M', title: 'Marina Glass House', address: '221 Harbor View, Newport Beach', facts: ['3 beds', '3 baths', '2,740 sqft'], image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1000&q=80&auto=format&fit=crop' },
+  { price: '$3.40M', title: 'Oakline Estate', address: '66 Ridge Road, Montecito', facts: ['5 beds', '6 baths', '5,020 sqft'], image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1000&q=80&auto=format&fit=crop' },
+]
+
+export default function App() {
+  const [sent, setSent] = useState(false)
+  return (
+    <div>
+      <header className="nav"><div className="nav-inner"><a className="brand" href="#">Northline Estates</a><nav className="links"><a href="#listings">Listings</a><a href="#agent">Agent</a><a href="#contact">Contact</a></nav><a className="nav-btn" href="#contact">Private consult</a></div></header>
+      <main>
+        <section className="hero">
+          <div><p className="label">Boutique property advisory</p><h1>Distinctive homes, represented with precision.</h1><p>Luxury residential brokerage for buyers and sellers who expect strategic pricing, editorial presentation, and discreet negotiation.</p><form className="search"><input aria-label="Location" placeholder="City or neighborhood" /><select aria-label="Budget"><option>$1M - $2M</option><option>$2M - $4M</option><option>$4M+</option></select><button type="button">Search</button></form></div>
+          <div className="hero-img"><img src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=1200&q=80&auto=format&fit=crop" alt="Luxury living room" /><div className="floating"><strong>$840M+</strong><span>Closed volume</span></div></div>
+        </section>
+        <section className="section" id="listings"><div className="wrap"><div className="head"><div><p className="label">Featured listings</p><h2>Homes with rare presence.</h2></div><p>Every listing receives a tailored campaign across photography, private buyer networks, and targeted digital distribution.</p></div><div className="listings">{listings.map(item => <article className="card" key={item.title}><img src={item.image} alt={item.title} /><div className="card-body"><p className="price">{item.price}</p><h3>{item.title}</h3><p className="addr">{item.address}</p><div className="facts">{item.facts.map(f => <span key={f}>{f}</span>)}</div></div></article>)}</div></div></section>
+        <section className="section dark" id="agent"><div className="wrap"><div className="agent"><img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=700&q=80&auto=format&fit=crop" alt="Julian Price" /><div><p className="label">Lead advisor</p><h2>Julian Price</h2><p>Twenty years representing architecturally significant homes across coastal California.</p></div></div><div className="stats"><div className="stat"><strong>98%</strong><span>List-to-sale ratio</span></div><div className="stat"><strong>31</strong><span>Days median market time</span></div><div className="stat"><strong>420+</strong><span>Private clients served</span></div></div></div></section>
+        <section className="section" id="contact"><div className="wrap contact"><div><p className="label">Inquiry</p><h2>Plan your next move with a clear market view.</h2><p style={{ color: 'var(--muted)' }}>Request a confidential valuation, buyer brief, or listing strategy consultation.</p></div><form className="form" onSubmit={e => { e.preventDefault(); setSent(true) }}>{sent ? <div className="ok">Thank you. Our team will follow up shortly.</div> : <><div className="grid2"><div className="field"><label htmlFor="n">Name</label><input id="n" required /></div><div className="field"><label htmlFor="e">Email</label><input id="e" type="email" required /></div></div><div className="field"><label htmlFor="m">Message</label><textarea id="m" placeholder="Tell us what you are looking for." /></div><button className="submit">Send inquiry</button></>}</form></div></section>
+      </main>
+      <footer className="footer"><div><span>Northline Estates</span><span>Los Angeles - Newport Beach - Montecito</span></div></footer>
+    </div>
+  )
+}`,
+      },
+    ],
+  }
+}
+
+// Template 9: Conference Event
+function conferenceEvent(): Template {
+  return {
+    id: 'conference-event',
+    name: 'Conference Event',
+    description: 'A sharp event website for conferences, summits, and launch gatherings.',
+    category: 'Blog',
+    accentColor: '#dc2626',
+    highlights: [
+      'High-impact hero with real audience photography',
+      'Schedule tabs, speaker cards, and ticket tiers',
+      'Sponsor-ready layout with strong conversion CTA',
+      'Responsive event landing page structure',
+    ],
+    files: [
+      {
+        path: 'src/styles/theme.css',
+        language: 'css',
+        code: `*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#09090b;color:#f7f7f8;line-height:1.6;overflow-x:hidden}a{color:inherit;text-decoration:none}button{font:inherit;color:inherit;border:0;cursor:pointer}
+:root{--bg:#09090b;--panel:#121216;--panel-2:#1d1d24;--text:#f7f7f8;--muted:#a1a1aa;--line:rgba(255,255,255,.1);--accent:#dc2626;--accent-2:#f59e0b;--r:8px;--r-lg:14px;--r-xl:20px}
+.nav{position:fixed;top:0;left:0;right:0;z-index:30;background:rgba(9,9,11,.78);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}.nav-inner{max-width:1180px;margin:0 auto;height:66px;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between}.brand{font-weight:950;letter-spacing:-.03em}.brand span{color:var(--accent)}.links{display:flex;gap:1rem}.links a{font-size:.86rem;color:var(--muted)}.links a:hover{color:#fff}.nav-btn{background:#fff;color:#09090b;border-radius:var(--r);padding:.65rem 1rem;font-weight:850;font-size:.86rem}
+.hero{position:relative;min-height:92vh;display:grid;place-items:end center;padding:8rem 1.5rem 4rem;overflow:hidden}.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.42}.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(9,9,11,.2),#09090b 88%)}.hero-inner{position:relative;z-index:1;max-width:1180px;width:100%;display:grid;grid-template-columns:1fr .55fr;gap:3rem;align-items:end}.kicker{font-size:.72rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-2);margin-bottom:1rem}.hero h1{font-size:clamp(3rem,7vw,6.5rem);line-height:.9;letter-spacing:-.065em;margin-bottom:1.2rem}.hero p{max-width:620px;color:#d4d4d8;font-size:1.08rem}.event-card{background:rgba(18,18,22,.82);border:1px solid var(--line);border-radius:var(--r-xl);padding:1.3rem;box-shadow:0 28px 80px rgba(0,0,0,.35)}.event-row{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:.8rem 0;color:var(--muted)}.event-row strong{color:#fff}.cta{display:block;margin-top:1rem;text-align:center;background:var(--accent);border-radius:var(--r);padding:.9rem 1rem;font-weight:900}
+.section{padding:4.5rem 1.5rem}.wrap{max-width:1180px;margin:0 auto}.head{max-width:680px;margin-bottom:2rem}.head h2{font-size:clamp(2rem,4vw,3.5rem);line-height:1;letter-spacing:-.055em;margin-bottom:.8rem}.head p{color:var(--muted)}.speakers{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}.speaker{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}.speaker img{width:100%;aspect-ratio:1;object-fit:cover}.speaker div{padding:1rem}.speaker p{color:var(--muted);font-size:.84rem}
+.schedule{background:var(--panel)}.days{display:flex;gap:.6rem;margin-bottom:1.4rem;flex-wrap:wrap}.day{background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:.55rem 1rem;color:var(--muted)}.day.active{background:var(--accent);color:#fff;border-color:var(--accent)}.agenda{display:grid;gap:.8rem}.slot{display:grid;grid-template-columns:120px 1fr auto;gap:1rem;align-items:center;background:#09090b;border:1px solid var(--line);border-radius:var(--r-lg);padding:1rem}.time{font-weight:900;color:var(--accent-2)}.slot p{color:var(--muted);font-size:.88rem}.badge{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#fff;background:var(--panel-2);padding:.3rem .6rem;border-radius:999px}
+.tickets{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}.ticket{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-xl);padding:1.4rem}.ticket.featured{border-color:var(--accent);box-shadow:0 0 0 4px rgba(220,38,38,.15)}.ticket h3{font-size:1rem;text-transform:uppercase;letter-spacing:.1em}.price{font-size:2.6rem;font-weight:950;letter-spacing:-.05em;margin:.6rem 0}.ticket ul{list-style:none;display:grid;gap:.5rem;color:var(--muted);font-size:.9rem}.ticket a{display:block;margin-top:1.3rem;text-align:center;padding:.85rem;border-radius:var(--r);background:#fff;color:#09090b;font-weight:900}.ticket.featured a{background:var(--accent);color:#fff}
+.footer-cta{padding:4.5rem 1.5rem;background:#fff;color:#09090b}.footer-cta .wrap{display:flex;align-items:center;justify-content:space-between;gap:2rem}.footer-cta h2{font-size:clamp(2rem,4vw,3.4rem);letter-spacing:-.055em;line-height:1}.footer-cta a{background:#09090b;color:#fff;border-radius:var(--r);padding:.9rem 1.1rem;font-weight:900}.footer{padding:2rem 1.5rem;color:var(--muted);font-size:.85rem}.footer div{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between}
+@media(max-width:980px){.hero-inner{grid-template-columns:1fr}.speakers,.tickets{grid-template-columns:1fr 1fr}.links{display:none}.slot{grid-template-columns:1fr}.footer-cta .wrap{display:block}.footer-cta a{display:inline-block;margin-top:1rem}}
+@media(max-width:640px){.speakers,.tickets{grid-template-columns:1fr}.hero{min-height:760px}.event-card{width:100%}}`,
+      },
+      {
+        path: 'src/App.tsx',
+        language: 'tsx',
+        code: `import { useState } from 'react'
+import './styles/theme.css'
+
+const speakers = [
+  { name: 'Mina Torres', role: 'Founder, Signal Labs', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=700&q=80&auto=format&fit=crop' },
+  { name: 'Caleb Stone', role: 'Design Director, Northstar', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=700&q=80&auto=format&fit=crop' },
+  { name: 'Aisha Reed', role: 'AI Product Lead, Vertex', img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=700&q=80&auto=format&fit=crop' },
+  { name: 'Jon Bell', role: 'CTO, Atlas Cloud', img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=700&q=80&auto=format&fit=crop' },
+]
+
+const agenda = [
+  { time: '09:30', title: 'Opening keynote: building products at AI speed', type: 'Keynote' },
+  { time: '11:00', title: 'Designing trustworthy automation for real users', type: 'Design' },
+  { time: '13:30', title: 'Scaling teams when roadmaps change weekly', type: 'Ops' },
+  { time: '15:00', title: 'Live product teardown with the speaker panel', type: 'Panel' },
+]
+
+export default function App() {
+  const [day, setDay] = useState('Day 1')
+  return (
+    <div>
+      <header className="nav"><div className="nav-inner"><a className="brand" href="#">Future<span>Stack</span></a><nav className="links"><a href="#speakers">Speakers</a><a href="#schedule">Schedule</a><a href="#tickets">Tickets</a></nav><a className="nav-btn" href="#tickets">Get tickets</a></div></header>
+      <main>
+        <section className="hero">
+          <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1800&q=80&auto=format&fit=crop" alt="Conference audience" />
+          <div className="hero-inner">
+            <div><p className="kicker">San Francisco - October 18-19</p><h1>The product conference for teams shipping tomorrow.</h1><p>Two days of strategy, systems, and honest conversations with the builders turning AI from demos into durable businesses.</p></div>
+            <aside className="event-card"><div className="event-row"><span>Date</span><strong>Oct 18-19</strong></div><div className="event-row"><span>Venue</span><strong>Fort Mason Center</strong></div><div className="event-row"><span>Speakers</span><strong>36 leaders</strong></div><a className="cta" href="#tickets">Reserve seat</a></aside>
+          </div>
+        </section>
+        <section className="section" id="speakers"><div className="wrap"><div className="head"><p className="kicker">Featured speakers</p><h2>Practitioners with receipts.</h2><p>Operators, designers, engineers, and founders sharing what is working now.</p></div><div className="speakers">{speakers.map(s => <article className="speaker" key={s.name}><img src={s.img} alt={s.name} /><div><h3>{s.name}</h3><p>{s.role}</p></div></article>)}</div></div></section>
+        <section className="section schedule" id="schedule"><div className="wrap"><div className="head"><p className="kicker">Schedule</p><h2>Two focused days. Zero filler.</h2></div><div className="days">{['Day 1','Day 2','Workshops'].map(d => <button className={\`day\${day === d ? ' active' : ''}\`} onClick={() => setDay(d)} type="button" key={d}>{d}</button>)}</div><div className="agenda">{agenda.map(a => <article className="slot" key={a.time}><span className="time">{a.time}</span><div><h3>{a.title}</h3><p>{day} - Main stage</p></div><span className="badge">{a.type}</span></article>)}</div></div></section>
+        <section className="section" id="tickets"><div className="wrap"><div className="head"><p className="kicker">Tickets</p><h2>Choose your pass.</h2><p>All passes include recordings, breakfast, lunch, and evening networking.</p></div><div className="tickets">{[{name:'Starter',price:'$249',items:['Main stage access','Session recordings','Community Slack']},{name:'Pro',price:'$549',items:['Everything in Starter','Workshop access','Speaker dinner'],featured:true},{name:'Team',price:'$1,499',items:['5 Pro passes','Reserved seating','Private team room']}].map(t => <article className={\`ticket\${t.featured ? ' featured' : ''}\`} key={t.name}><h3>{t.name}</h3><p className="price">{t.price}</p><ul>{t.items.map(i => <li key={i}>{i}</li>)}</ul><a href="#">Buy pass</a></article>)}</div></div></section>
+        <section className="footer-cta"><div className="wrap"><h2>Bring your team to the room where product changes next.</h2><a href="#tickets">Get tickets</a></div></section>
+      </main>
+      <footer className="footer"><div><span>FutureStack 2026</span><span>San Francisco, CA</span></div></footer>
+    </div>
   )
 }`,
       },
