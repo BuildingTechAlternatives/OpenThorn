@@ -4,6 +4,7 @@ import type { AgentCodeFile } from './agent'
 
 interface TemplateRow {
   id: string
+  template_key: string
   name: string
   description: string
   category: string
@@ -14,7 +15,7 @@ interface TemplateRow {
 
 function rowToTemplate(r: TemplateRow): Template {
   return {
-    id: r.id,
+    id: r.template_key || r.id,
     name: r.name,
     description: r.description,
     category: r.category as Template['category'],
@@ -28,7 +29,7 @@ function rowToTemplate(r: TemplateRow): Template {
 export async function fetchPublishedTemplates(): Promise<Template[] | null> {
   const { data, error } = await supabase
     .from('templates')
-    .select('id,name,description,category,accent_color,highlights,files')
+    .select('id,template_key,name,description,category,accent_color,highlights,files')
     .eq('status', 'published')
     .order('featured', { ascending: false })
     .order('sort_order', { ascending: true })
