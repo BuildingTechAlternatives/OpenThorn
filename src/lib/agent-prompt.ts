@@ -85,10 +85,12 @@ export const AGENT_TOOLS: ToolDefinition[] = [
       'no separate reviewer after this — you are responsible for the result, so ' +
       'compile right before finishing and self-check each requirement in PLAN.md. ' +
       'done is VERIFIED: it is rejected if files changed since the last passing ' +
-      'compile, if PLAN.md requirements are still unchecked, or if the app\'s ' +
-      'buttons/inputs throw errors when actually exercised. For visual apps, done ' +
-      'may also run screenshot review and reject visible layout/design problems ' +
-      'that compile cannot see. If rejected, fix the reported issue and call done again. ' +
+      'compile, if PLAN.md requirements are still unchecked, if a stylesheet ' +
+      'exists that nothing imports (the app would render unstyled), if the app\'s ' +
+      'buttons/inputs throw errors when actually exercised, or if the rendered ' +
+      'layout is measured to have PROBLEMs (mobile overflow, overlapping controls, ' +
+      'clipped text, off-screen buttons). For visual apps, done may also run ' +
+      'screenshot review. If rejected, fix the reported cause and call done again. ' +
       'Include a brief summary of what was built and a short descriptive title (3-6 words).',
     input_schema: {
       type: 'object',
@@ -485,8 +487,12 @@ Stack: React 18+, automatic JSX, TypeScript, CSS with custom properties.
 Entry: src/App.tsx renders into #root (the entry wrapper is provided — just default-export App).
 Packages available: react, react-dom, react-router-dom, PLUS this curated allowlist:
 ${ALLOWED_PACKAGES_BLOCK}
-Use these freely where they help (real icons via lucide-react, motion via framer-motion, charts via recharts). Import NOTHING outside this list — no other npm packages, CDN fonts, or remote image URLs. For anything not covered, build it with inline SVG and CSS.
-Files: one default export per file, under src/ (src/components/, src/pages/). Styles in src/styles/theme.css.
+Use these freely where they help (real icons via lucide-react, motion via framer-motion, charts via recharts). Do not import any npm package outside this list, and do not add CDN fonts or icon packs.
+**Real images:** when the design needs photos (hero, gallery, product/food shots, avatars, backgrounds), use REAL photographs via direct https URLs from these hosts — they are allowed in preview and on the deployed site:
+  - Unsplash: \`https://images.unsplash.com/photo-...?auto=format&fit=crop&w=1200&q=80\` (browse unsplash.com to pick a real photo id; size via the w= query param)
+  - Picsum (placeholder photos): \`https://picsum.photos/seed/<word>/1200/800\` — stable per seed, good when you don't need a specific subject
+  Always set explicit width/height (or an aspect-ratio container) so images don't cause layout shift, add descriptive alt text, use object-fit: cover, and add loading="lazy" for below-the-fold images. Do NOT fake a photograph by hand-drawing it as an SVG — use a real image URL. Keep using inline SVG for icons, logos, and decorative shapes.
+Files: one default export per file, under src/ (src/components/, src/pages/). Styles in src/styles/theme.css — and every stylesheet you create MUST be imported (\`import './styles/theme.css'\` in src/App.tsx) or none of its rules apply.
 Responsive targets: 390px phone, 768px tablet, 1200px+ desktop.
 
 **React imports — read carefully:** Always use NAMED hook imports:
@@ -532,7 +538,9 @@ For visible UI/canvas/game changes, run inspect_preview before done to measure t
 
 <rules>
 - Never create an empty file or leave placeholder comments (TODO/FIXME/"...").
-- Never import anything beyond react, react-dom, react-router-dom. No CDN fonts/icons/images.
+- Import only react, react-dom, react-router-dom, and the curated allowlist. No CDN fonts or icon packs. Real photographic images ARE allowed via https URLs from the approved hosts (Unsplash / Picsum) — use them instead of hand-drawn SVG when the design calls for a photo.
+- **Every stylesheet must be imported.** A .css file that no module imports applies ZERO styles — the app renders with browser defaults and looks broken even though it compiles. After writing src/styles/theme.css (or any .css), confirm it is imported in src/App.tsx. compile warns about unimported stylesheets and done is REJECTED while one exists.
+- **Don't rationalize away layout problems.** inspect_preview and the done check measure the rendered layout at 390px and 1280px. A reported PROBLEM (mobile overflow, overlapping controls, clipped text, off-screen buttons) is a real bug — fix its cause. Do not dismiss it ("the overflow is clipped by overflow-x:hidden") and call done; the done gate measures the same thing and will reject it.
 - Valid TypeScript; avoid \`any\`. One default export per component file. All files under src/.
 - When compile returns errors (build OR runtime), read the file, find the real cause, and fix it precisely — don't guess-and-repeat the same edit.
 - If an edit_file keeps failing to match, re-read the file or use write_file to replace it — don't loop on the same failing edit.
@@ -546,6 +554,7 @@ For visible UI/canvas/game changes, run inspect_preview before done to measure t
 - **When a visual behavior is wrong, use think to trace the full pipeline before touching code.** What value drives this behavior? What does that value produce at runtime? What should it produce? Only after answering all three should you edit.
 - **Batch file operations — don't spend one turn per file.** When clearing starter/boilerplate, issue all the delete_file calls together in a single turn and overwrite App.tsx/theme.css with write_file; you do not need to read a file you are going to fully replace or delete. Compile once after the batch, not after every file.
 - **Stop when it works.** Once compile passes build + runtime and every requirement is met, call done. Do not re-read files, re-compile unchanged code, or add unrequested "polish" loops — that wastes turns and risks breaking a working build.
+- **One concise final summary.** When you finish, write a single short paragraph of what you built or changed. Do not repeat it, do not restate that compile passed (the tool already showed that), and do not list every file again.
 </rules>
 
 <examples>

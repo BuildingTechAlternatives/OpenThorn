@@ -109,3 +109,46 @@ function countWord(code: string, ident: string): number {
   const re = new RegExp(`\\b${ident.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g')
   return (code.match(re) ?? []).length
 }
+
+// ─── Project-level: orphaned stylesheet detection ──────────────────────────
+
+export interface ProjectFile {
+  path: string
+  code: string
+}
+
+/**
+ * Find stylesheets that exist in the project but nothing imports — the classic
+ * "wrote theme.css but never `import`ed it, so the whole site is unstyled" bug.
+ * compile/runtime pass on it (the app still renders, just with browser
+ * defaults) and a blind agent will declare success. This is a deterministic,
+ * cross-file check the per-file lint cannot do.
+ *
+ * A `.css` file counts as imported if ANY other file references its basename in
+ * an import-ish position: `import './styles/theme.css'`, `@import 'theme.css'`,
+ * or `url(theme.css)`. Detection is intentionally GENEROUS — a missed orphan is
+ * harmless, but a false orphan would wrongly block `done`. Only stylesheets that
+ * actually contain rules (a `{ ... }` block) are considered; empty/comment-only
+ * files are ignored.
+ */
+export function findOrphanedStylesheets(files: ProjectFile[]): string[] {
+  const cssFiles = files.filter((f) => f.path.toLowerCase().endsWith('.css'))
+  if (cssFiles.length === 0) return []
+
+  const orphans: string[] = []
+  for (const css of cssFiles) {
+    // Only flag stylesheets that would actually change the page if imported.
+    if (!/\{[\s\S]*\}/.test(css.code)) continue
+
+    const basename = css.path.split('/').pop() ?? css.path
+    const escaped = basename.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    // basename must sit at an import/url boundary: preceded by a quote, slash,
+    // or '(' and followed by a closing quote or ')'. Avoids matching a longer
+    // filename that merely ends with this one (e.g. "mytheme.css").
+    const refRe = new RegExp(`["'(/]${escaped}["')]`)
+
+    const imported = files.some((f) => f.path !== css.path && refRe.test(f.code))
+    if (!imported) orphans.push(css.path)
+  }
+  return orphans
+}

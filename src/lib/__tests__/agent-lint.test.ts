@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { normalizeWrittenCode } from '../agent-lint'
+import { normalizeWrittenCode, findOrphanedStylesheets } from '../agent-lint'
 
 describe('normalizeWrittenCode', () => {
   it('leaves non-code files untouched', () => {
@@ -72,5 +72,53 @@ describe('normalizeWrittenCode', () => {
     ].join('\n')
     const res = normalizeWrittenCode('tsx', code)
     expect(res.removedImports).toEqual([])
+  })
+})
+
+describe('findOrphanedStylesheets', () => {
+  const APP_NO_IMPORT = "export default function App(){ return <div/> }"
+  const THEME = ':root{ --x: 1 }\nbody{ color: red }'
+
+  it('flags a stylesheet that nothing imports', () => {
+    const files = [
+      { path: 'src/App.tsx', code: APP_NO_IMPORT },
+      { path: 'src/styles/theme.css', code: THEME },
+    ]
+    expect(findOrphanedStylesheets(files)).toEqual(['src/styles/theme.css'])
+  })
+
+  it('treats a stylesheet imported in App.tsx as connected', () => {
+    const files = [
+      { path: 'src/App.tsx', code: "import './styles/theme.css'\n" + APP_NO_IMPORT },
+      { path: 'src/styles/theme.css', code: THEME },
+    ]
+    expect(findOrphanedStylesheets(files)).toEqual([])
+  })
+
+  it('recognizes a CSS @import from another stylesheet', () => {
+    const files = [
+      { path: 'src/App.tsx', code: "import './index.css'\n" + APP_NO_IMPORT },
+      { path: 'src/index.css', code: "@import './theme.css';\nhtml{ height: 100% }" },
+      { path: 'src/theme.css', code: THEME },
+    ]
+    expect(findOrphanedStylesheets(files)).toEqual([])
+  })
+
+  it('ignores empty / rule-less stylesheets (nothing to apply)', () => {
+    const files = [
+      { path: 'src/App.tsx', code: APP_NO_IMPORT },
+      { path: 'src/empty.css', code: '/* only a comment */\n' },
+    ]
+    expect(findOrphanedStylesheets(files)).toEqual([])
+  })
+
+  it('does not confuse a longer filename ending with the same name', () => {
+    const files = [
+      { path: 'src/App.tsx', code: "import './mytheme.css'\n" + APP_NO_IMPORT },
+      { path: 'src/mytheme.css', code: THEME },
+      { path: 'src/theme.css', code: THEME },
+    ]
+    // theme.css is NOT imported; mytheme.css is. Only theme.css is orphaned.
+    expect(findOrphanedStylesheets(files)).toEqual(['src/theme.css'])
   })
 })

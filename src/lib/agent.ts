@@ -15,7 +15,7 @@ import {
   capToolResultContent,
   type ToolDefinition,
 } from './agent-prompt'
-import { normalizeWrittenCode } from './agent-lint'
+import { normalizeWrittenCode, findOrphanedStylesheets } from './agent-lint'
 import { decryptApiKey, encryptApiKey } from './crypto'
 import {
   AGENT_THINKING_PROFILES,
@@ -1550,8 +1550,13 @@ interface RunContext {
   goal: string
   /** The current turn number (updated each loop iteration). */
   turn: number
-  /** path|offset|limit → snapshot + turn it was last served, to skip re-reads. */
-  reads: Map<string, { snap: string; turn: number }>
+  /**
+   * path → fingerprint of the file content the agent has already SEEN this run
+   * (via a read or its own write/edit), the turn it was last seen, and the line
+   * range already served. Used to short-circuit redundant re-reads — including
+   * re-reading a file the agent just wrote, and overlapping fragment re-reads.
+   */
+  reads: Map<string, { snap: string; turn: number; servedStart: number; servedEnd: number }>
   /** Project files changed during this run, excluding PLAN.md bookkeeping. */
   mutatedPaths: Set<string>
   /** Long existing files where write_file was already rejected once this run. */
@@ -1654,6 +1659,39 @@ async function executeToolsParallel(
 
 // ─── Tool Execution ─────────────────────────────────────────────────────────
 
+/** Cheap content fingerprint — length + head is enough to detect any change. */
+function fileSnap(code: string): string {
+  return `${code.length}:${code.slice(0, 80)}`
+}
+
+/**
+ * Record that the agent has now SEEN the given line range of a file (1-based,
+ * inclusive). Used after reads AND after writes/edits, so a re-read of content
+ * the agent already has is short-circuited. Ranges from the same unchanged
+ * snapshot are unioned; a content change resets the seen range.
+ */
+function noteFileSeen(
+  runCtx: RunContext | undefined,
+  path: string,
+  code: string,
+  servedStart: number,
+  servedEnd: number,
+): void {
+  if (!runCtx) return
+  const snap = fileSnap(code)
+  const prev = runCtx.reads.get(path)
+  if (prev && prev.snap === snap) {
+    runCtx.reads.set(path, {
+      snap,
+      turn: runCtx.turn,
+      servedStart: Math.min(prev.servedStart, servedStart),
+      servedEnd: Math.max(prev.servedEnd, servedEnd),
+    })
+  } else {
+    runCtx.reads.set(path, { snap, turn: runCtx.turn, servedStart, servedEnd })
+  }
+}
+
 async function executeTool(
   toolCall: ToolCall,
   currentFiles: AgentCodeFile[],
@@ -1747,28 +1785,38 @@ async function executeTool(
           isError: true,
         }
       }
-      // Short-circuit a redundant re-read: same path+range, unchanged content,
-      // read within the last couple of turns (so the earlier output is still in
-      // context, not yet compacted away). Saves tokens and breaks read loops.
-      const snap = `${file.code.length}:${file.code.slice(0, 80)}`
-      if (runCtx) {
-        const key = `${path}|${offset}|${limit}`
-        const prev = runCtx.reads.get(key)
-        if (prev && prev.snap === snap && runCtx.turn - prev.turn <= 2) {
-          return {
-            content:
-              `You already read ${path} a moment ago and it has not changed since. ` +
-              `Its content is still shown above — do not read it again. Make your edit now ` +
-              `(or use search_files to jump to a specific section).`,
-            isError: false,
-          }
-        }
-        runCtx.reads.set(key, { snap, turn: runCtx.turn })
-      }
-
       const allLines = file.code.split('\n')
       const startIdx = offset - 1
       const endIdx = Math.min(startIdx + limit, allLines.length)
+
+      // Short-circuit a redundant re-read: unchanged content, the requested
+      // range is already covered by what was served (or written) within the
+      // last couple of turns (so the earlier output is still in context, not
+      // yet compacted away). This catches re-reading a file you just wrote and
+      // overlapping fragment re-reads, not only identical ranges. Saves tokens
+      // and breaks read loops.
+      const snap = fileSnap(file.code)
+      if (runCtx) {
+        const prev = runCtx.reads.get(path)
+        const requestedEnd = endIdx // already clamped to file length
+        const covered =
+          prev &&
+          prev.snap === snap &&
+          runCtx.turn - prev.turn <= 2 &&
+          offset >= prev.servedStart &&
+          requestedEnd <= prev.servedEnd
+        if (covered) {
+          return {
+            content:
+              `You already have ${path} (lines ${prev.servedStart}-${prev.servedEnd}) from a moment ago ` +
+              `and it has not changed since — its content is still shown above. Do not read it again. ` +
+              `Make your edit now, or use search_files with context_lines to jump to a specific section.`,
+            isError: false,
+          }
+        }
+        noteFileSeen(runCtx, path, file.code, offset, endIdx)
+      }
+
       const selected = allLines.slice(startIdx, endIdx)
       const numbered = selected
         .map((line, i) => `${String(startIdx + i + 1).padStart(4, ' ')}  ${line}`)
@@ -2003,6 +2051,8 @@ async function executeTool(
 
       const isNew = !existingFile
       const newFiles = upsertFile(currentFiles, { path, language, code: finalCode })
+      // The agent now has the full content it just wrote — a re-read is wasteful.
+      noteFileSeen(runCtx, path, finalCode, 1, finalCode.split('\n').length)
       const cleanupNote =
         normalized.removedImports.length > 0
           ? ` Cleaned up unused import(s): ${normalized.removedImports.join(', ')}.`
@@ -2043,6 +2093,7 @@ async function executeTool(
       const newFiles = currentFiles.map((f) =>
         f.path === path ? { ...f, code: outcome.code } : f,
       )
+      noteFileSeen(runCtx, path, outcome.code, 1, outcome.code.split('\n').length)
       return {
         content: `Edited ${path}: replaced ${oldStr.length} chars with ${newStr.length} chars${outcome.fuzzy ? ' (matched ignoring whitespace)' : ''}.\nPreview: ${newStr.slice(0, 200)}${newStr.length > 200 ? '...' : ''}`,
         isError: false,
@@ -2100,6 +2151,7 @@ async function executeTool(
       const newFiles = currentFiles.map((f) =>
         f.path === path ? { ...f, code: working } : f,
       )
+      noteFileSeen(runCtx, path, working, 1, working.split('\n').length)
       return {
         content: `Applied ${rawEdits.length} edit(s) to ${path}${fuzzyCount > 0 ? ` (${fuzzyCount} matched ignoring whitespace)` : ''}. File is now ${working.split('\n').length} lines.`,
         isError: false,
@@ -2182,10 +2234,23 @@ async function executeTool(
               runCtx.pendingErrorLessons = []
             }
           }
-          if (report) {
-            // Non-fatal console warnings — surface but don't block.
+          // Cross-file lint: a stylesheet that nothing imports means the page
+          // renders with browser defaults — looks "broken" but compiles fine.
+          // Surface it loudly so the agent wires it up before calling done
+          // (the done gate also rejects it as a backstop).
+          const orphans = findOrphanedStylesheets(
+            currentFiles.map((f) => ({ path: f.path, code: f.code })),
+          )
+          const orphanNote =
+            orphans.length > 0
+              ? `\n\n⚠ Unimported stylesheet(s): ${orphans.join(', ')}. ` +
+                `These files exist but no module imports them, so NONE of their styles are applied — ` +
+                `the app is rendering with browser defaults. Add an import (e.g. \`import './styles/theme.css'\` in src/App.tsx) and recompile.`
+              : ''
+          if (report || orphanNote) {
+            // Non-fatal warnings — surface but don't block the build.
             return {
-              content: `Compilation + runtime check passed (with warnings).\n\n${report}`,
+              content: `Compilation + runtime check passed (with warnings).\n\n${report ?? ''}${orphanNote}`,
               isError: false,
             }
           }
@@ -2391,7 +2456,24 @@ async function runDoneVerificationGate(
     }
   }
 
-  // 3. Interactive smoke test — the buttons must actually work.
+  // 3. Orphaned-stylesheet gate (deterministic, cross-file). A written-but-
+  // unimported .css file means the app renders unstyled — compile passes, the
+  // app "works", but it looks broken. This catches the single most common
+  // silent failure and works for every provider (no vision needed).
+  const orphans = findOrphanedStylesheets(
+    currentFiles.map((f) => ({ path: f.path, code: f.code })),
+  )
+  if (orphans.length > 0) {
+    return formatStructuredError({
+      code: 'DONE_REJECTED',
+      message: `Stylesheet(s) exist but nothing imports them: ${orphans.join(', ')}. None of their styles are applied — the app is rendering with browser defaults.`,
+      suggestion:
+        "Import each stylesheet where it is used (e.g. `import './styles/theme.css'` in src/App.tsx), compile, then call done again.",
+      retryable: true,
+    })
+  }
+
+  // 4. Interactive smoke test — the buttons must actually work.
   try {
     const preview = await buildPreview(
       currentFiles.map((f) => ({ path: f.path, content: f.code })),
@@ -2408,6 +2490,16 @@ async function runDoneVerificationGate(
           retryable: true,
         })
       }
+
+      // 5. Deterministic layout gate — measured PROBLEMs (mobile overflow,
+      // overlap, clipping, off-screen controls) block done. This works for
+      // EVERY provider (no vision model needed), so DeepSeek/Ollama runs can no
+      // longer rationalize a visible layout bug away and finish on it.
+      const layoutRejection = await runLayoutGate({
+        runCtx,
+        html: preview.html,
+      })
+      if (layoutRejection) return layoutRejection
 
       const visualRejection = await runVisualReviewGate({
         runCtx,
@@ -2474,6 +2566,72 @@ export function shouldRunVisualReviewForRun(params: {
   if (params.mode === 'create') return true
   if (VISUAL_REVIEW_PROMPT_RE.test(params.goal)) return true
   return params.mutatedPaths.some((path) => path.endsWith('.css'))
+}
+
+/**
+ * Whether to run the DETERMINISTIC layout gate (measured overflow/overlap/etc.)
+ * before accepting done. Unlike the vision review, this needs no vision model,
+ * so it applies to every provider — gated only on whether the run touched
+ * visible UI: any create run, a visually-worded refine, or one that changed a
+ * .css/.tsx/.jsx file.
+ */
+export function shouldRunLayoutGateForRun(params: {
+  goal: string
+  mode: 'create' | 'refine'
+  mutatedPaths: string[]
+}): boolean {
+  if (params.mode === 'create') return true
+  if (VISUAL_REVIEW_PROMPT_RE.test(params.goal)) return true
+  return params.mutatedPaths.some(
+    (path) => path.endsWith('.css') || path.endsWith('.tsx') || path.endsWith('.jsx'),
+  )
+}
+
+/**
+ * Deterministic layout gate: render the built app at phone + desktop widths,
+ * measure it, and reject done when there are error-severity layout PROBLEMs
+ * (content overflowing the mobile viewport, controls covering text, clipped
+ * text, off-screen interactive elements). Returns a rejection string or null.
+ * Inconclusive environments (no DOM, nothing rendered) never block.
+ */
+async function runLayoutGate({
+  runCtx,
+  html,
+}: {
+  runCtx: RunContext
+  html: string
+}): Promise<string | null> {
+  if (
+    !shouldRunLayoutGateForRun({
+      goal: runCtx.goal,
+      mode: runCtx.mode,
+      mutatedPaths: [...runCtx.mutatedPaths],
+    })
+  ) {
+    return null
+  }
+
+  let result
+  try {
+    result = await inspectPreview(html)
+  } catch {
+    return null // measurement hiccup — never block done on a flaky check
+  }
+  if (!result.ran || !result.rendered) return null
+
+  const errors = result.issues.filter((i) => i.severity === 'error')
+  if (errors.length === 0) return null
+
+  const report = formatInspectReport(result) ?? ''
+  return formatStructuredError({
+    code: 'DONE_REJECTED',
+    message:
+      'The rendered layout has measured problems a user would see (not a guess — these are measured at 390px/1280px):\n' +
+      report,
+    suggestion:
+      'Fix the PROBLEM items (mobile overflow, overlap, clipped text, off-screen controls) at their cause — do not just hide them with overflow:hidden. Compile, then call done again.',
+    retryable: true,
+  })
 }
 
 async function runVisualReviewGate({
