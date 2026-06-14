@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { QUICKSTART_SLIDES, shouldShowQuickstart } from '../quickstart'
+import { DASHBOARD_TOUR_STEPS, shouldShowQuickstart } from '../quickstart'
 
 describe('shouldShowQuickstart', () => {
   it('shows only when the flag is explicitly false', () => {
@@ -14,25 +14,18 @@ describe('shouldShowQuickstart', () => {
   })
 })
 
-describe('QUICKSTART_SLIDES', () => {
-  it('starts with an advance action and ends with a finish action', () => {
-    expect(QUICKSTART_SLIDES[0].action.type).toBe('advance')
-    expect(QUICKSTART_SLIDES[QUICKSTART_SLIDES.length - 1].action.type).toBe('finish')
+describe('DASHBOARD_TOUR_STEPS', () => {
+  it('targets the providers, templates, and prompt anchors', () => {
+    expect(DASHBOARD_TOUR_STEPS.map((s) => s.element)).toEqual([
+      '[data-tour="providers"]',
+      '[data-tour="templates"]',
+      '[data-tour="prompt"]',
+    ])
   })
-  it('routes the Providers slide to /providers', () => {
-    const slide = QUICKSTART_SLIDES.find((s) => s.id === 'providers')
-    expect(slide?.action).toEqual({ type: 'navigate', label: 'Go to Providers', to: '/providers' })
-  })
-  it('deep-links the Restaurant slide to the restaurant-landing template', () => {
-    const slide = QUICKSTART_SLIDES.find((s) => s.id === 'restaurant')
-    expect(slide?.action).toMatchObject({
-      type: 'navigate',
-      to: '/templates',
-      state: { openTemplateId: 'restaurant-landing' },
-    })
-  })
-  it('has unique slide ids', () => {
-    const ids = QUICKSTART_SLIDES.map((s) => s.id)
-    expect(new Set(ids).size).toBe(ids.length)
+  it('gives every step a title and description', () => {
+    for (const step of DASHBOARD_TOUR_STEPS) {
+      expect(step.title.length).toBeGreaterThan(0)
+      expect(step.description.length).toBeGreaterThan(0)
+    }
   })
 })

@@ -1,59 +1,36 @@
-/** Action taken when a quickstart slide's primary button is pressed. */
-export type QuickstartAction =
-  | { type: 'advance'; label: string }
-  | { type: 'finish'; label: string }
-  | { type: 'navigate'; label: string; to: string; state?: Record<string, unknown> }
-
-export interface QuickstartSlide {
-  id: string
-  heading: string
-  body: string
-  action: QuickstartAction
+/**
+ * Steps for the first-login dashboard spotlight tour (driver.js). Each step
+ * points at a real element via a CSS selector and shows a small anchored popover.
+ */
+export interface DashboardTourStep {
+  /** CSS selector for the element to spotlight. */
+  element: string
+  title: string
+  description: string
 }
 
-/**
- * Slides shown to a brand-new user on their first dashboard visit.
- * `navigate` actions close the guide (persisting the flag) and route the user.
- */
-export const QUICKSTART_SLIDES: QuickstartSlide[] = [
+export const DASHBOARD_TOUR_STEPS: DashboardTourStep[] = [
   {
-    id: 'welcome',
-    heading: 'Welcome to OpenThorn',
-    body: 'OpenThorn builds complete websites from a single prompt — using your own AI provider key.',
-    action: { type: 'advance', label: 'Next' },
+    element: '[data-tour="providers"]',
+    title: 'Connect a provider',
+    description:
+      'Add your own AI provider key here — OpenAI, Anthropic, Gemini and more. Your key stays yours, and you only pay your provider’s raw rates.',
   },
   {
-    id: 'providers',
-    heading: 'Connect a provider',
-    body: 'Your API key stays yours (BYOK). Add it under Providers in the sidebar to start generating.',
-    action: { type: 'navigate', label: 'Go to Providers', to: '/providers' },
+    element: '[data-tour="templates"]',
+    title: 'Start from a template',
+    description:
+      'Browse ready-made templates. Open one to preview it, then “Use this template” to customize it with AI — try the Restaurant Landing template.',
   },
   {
-    id: 'templates',
-    heading: 'Browse Templates',
-    body: 'Prefer a head start? Production-ready starting points live under Templates.',
-    action: { type: 'navigate', label: 'Open Templates', to: '/templates' },
-  },
-  {
-    id: 'restaurant',
-    heading: 'Try the Restaurant Landing template',
-    body: 'Open Templates, click a card to preview it, then “Use this template” to customize it with AI.',
-    action: {
-      type: 'navigate',
-      label: 'Open Restaurant template',
-      to: '/templates',
-      state: { openTemplateId: 'restaurant-landing' },
-    },
-  },
-  {
-    id: 'build',
-    heading: 'Build & deploy',
-    body: 'Describe your idea in the prompt box on the dashboard, then deploy your site when it’s ready.',
-    action: { type: 'finish', label: 'Get started' },
+    element: '[data-tour="prompt"]',
+    title: 'Or describe your idea',
+    description:
+      'Tell OpenThorn what you want to build right here, and the agent generates your whole site live in the browser.',
   },
 ]
 
-/** Show the guide only when the persisted flag is explicitly false. */
+/** Show the tour only when the persisted flag is explicitly false. */
 export function shouldShowQuickstart(hasSeen: boolean | null | undefined): boolean {
   return hasSeen === false
 }
