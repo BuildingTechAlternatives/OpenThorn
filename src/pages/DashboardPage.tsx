@@ -16,7 +16,7 @@ interface Project {
   user_id: string
   title: string
   preview_url: string | null
-  netlify_site_id: string | null
+  cf_pages_project_name: string | null
   created_at: string
   updated_at: string
   starred: boolean
@@ -146,7 +146,7 @@ export default function DashboardPage() {
       // Owned projects
       const { data: owned, error: ownedError } = await supabase
         .from('projects')
-        .select('id, user_id, title, preview_url, netlify_site_id, created_at, updated_at, starred')
+        .select('id, user_id, title, preview_url, cf_pages_project_name, created_at, updated_at, starred')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
@@ -165,7 +165,7 @@ export default function DashboardPage() {
         const ids = collabRows.map((r) => r.project_id as string)
         const { data: sharedData, error: sharedError } = await supabase
           .from('projects')
-          .select('id, user_id, title, preview_url, netlify_site_id, created_at, updated_at, starred')
+          .select('id, user_id, title, preview_url, cf_pages_project_name, created_at, updated_at, starred')
           .in('id', ids)
           .order('created_at', { ascending: false })
         if (sharedError) throw sharedError
@@ -529,7 +529,7 @@ export default function DashboardPage() {
   if (authLoading) return null
 
   const hasProjects = !projectsLoading && projects.length > 0
-  const deployedProject = projects.find((p) => p.netlify_site_id)
+  const deployedProject = projects.find((p) => p.cf_pages_project_name)
   const firstProject = projects[0]
   const focusPrompt = () => {
     document.querySelector<HTMLTextAreaElement>('textarea[aria-label="Describe your website idea"]')?.focus()
