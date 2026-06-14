@@ -1,6 +1,7 @@
 // Shared server-side helpers for Vercel Functions and the Vite dev shims.
 // Files prefixed with "_" are not treated as routes by Vercel.
 import { createHash, createCipheriv, createDecipheriv, randomBytes, hkdfSync } from 'node:crypto'
+import { blake3 } from 'hash-wasm'
 
 // ---------------------------------------------------------------------------
 // Supabase JWT verification
@@ -270,8 +271,14 @@ async function createCFPagesProject(token: string, accountId: string, projectId:
   return name
 }
 
-function sha256(content: string): string {
-  return createHash('sha256').update(content).digest('hex')
+// Cloudflare Pages identifies each asset by blake3(base64(content) + fileExtension)
+// truncated to the first 32 hex chars — NOT a plain sha256. If the manifest/upload
+// key doesn't match CF's own blake3 of the content, the upload is silently dropped,
+// upsert-hashes still reports success, and the deployment serves no assets (404 on /).
+async function cfPagesHash(content: string, path: string): Promise<string> {
+  const base64 = Buffer.from(content).toString('base64')
+  const ext = path.includes('.') ? path.split('.').pop()! : ''
+  return (await blake3(base64 + ext)).slice(0, 32)
 }
 
 const CF_UPLOAD_BASE = 'https://api.cloudflare.com/client/v4'
@@ -282,15 +289,18 @@ async function deployToCFPages(
   projectName: string,
   html: string,
 ): Promise<void> {
-  // Only index.html — no _redirects until basic serving is confirmed working
+  // Cloudflare Pages manifest keys MUST be absolute paths (leading slash), or
+  // nothing maps to the root URL and "/" returns 404 even though the deploy succeeds.
+  // _redirects gives SPA-style client routing a fallback to index.html.
   const files: Array<{ path: string; content: string; contentType: string }> = [
-    { path: 'index.html', content: html, contentType: 'text/html; charset=utf-8' },
+    { path: '/index.html', content: html, contentType: 'text/html; charset=utf-8' },
+    { path: '/_redirects', content: '/* /index.html 200\n', contentType: 'text/plain; charset=utf-8' },
   ]
 
-  // 1. Compute manifest (path → sha256)
+  // 1. Compute manifest (path → blake3 hash)
   const manifest: Record<string, string> = {}
   for (const f of files) {
-    manifest[f.path] = sha256(f.content)
+    manifest[f.path] = await cfPagesHash(f.content, f.path)
   }
   const hashes = Object.values(manifest)
 
@@ -328,9 +338,12 @@ async function deployToCFPages(
     throw new Error(`upsert-hashes failed: ${upsertRes.status} ${await upsertRes.text().catch(() => '')}`)
   }
 
-  // 5. Create deployment with manifest
+  // 5. Create deployment with manifest. branch must match the project's
+  // production_branch so this becomes the production deployment served at
+  // <project>.pages.dev (otherwise it's a preview and the root URL 404s).
   const form = new FormData()
   form.append('manifest', JSON.stringify(manifest))
+  form.append('branch', 'main')
 
   const deploy = await cfFetch<{ id: string }>(
     token,

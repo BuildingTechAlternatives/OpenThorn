@@ -19,6 +19,7 @@
     "@vercel/speed-insights": "^2.0.0",
     "esbuild-wasm": "^0.28.0",
     "framer-motion": "^12.12.1",
+    "hash-wasm": "^4.12.0",
     "html2canvas": "^1.4.1",
     "jszip": "^3.10.1",
     "react": "^19.2.6",
