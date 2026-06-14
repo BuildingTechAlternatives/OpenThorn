@@ -302,6 +302,20 @@
   color: var(--color-accent);
 }
 
+.recommendedBadge {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 4px;
+  padding: 1px 5px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 /* ── Inline stacked models ─────────────────────────── */
 
 .inlineModels {

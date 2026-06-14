@@ -16,13 +16,21 @@ export interface AgentErrorInfo {
   tip?: string
 }
 
+const GEMINI_FLASH_LITE_ID = 'gemini-3.1-flash-lite'
+
+function isExpensiveGeminiModel(modelId: string | undefined): boolean {
+  return !!modelId && modelId.startsWith('gemini-') && modelId !== GEMINI_FLASH_LITE_ID
+}
+
+const GEMINI_FLASH_LITE_TIP = " This model is expensive and burns through free-tier quota quickly. Consider switching to Gemini 3.1 Flash Lite in the model selector — it's much cheaper and works great for most projects."
+
 /**
  * Classify a raw agent/provider error message into a short title and an
  * actionable tip for the user. The raw message is kept as `detail`.
  */
-export function describeAgentError(error: unknown): AgentErrorInfo {
+export function describeAgentError(error: unknown, modelId?: string): AgentErrorInfo {
   const raw = getErrorMessage(error, 'The generation failed.')
-  const detail = raw.length > 280 ? `${raw.slice(0, 280)}…` : raw
+  const detail = raw.length > 280 ? `${raw.slice(0, 280)}...` : raw
   const m = raw.toLowerCase()
 
   if (/\b401\b|unauthorized|invalid[_ -]?api[_ -]?key|invalid x-api-key|authentication[_ ]error|incorrect api key/.test(m)) {
@@ -36,28 +44,28 @@ export function describeAgentError(error: unknown): AgentErrorInfo {
     return {
       title: 'Access denied',
       detail,
-      tip: 'The key is valid but not allowed to use this model. Check the key’s permissions or model access in your provider dashboard.',
+      tip: "The key is valid but not allowed to use this model. Check the key's permissions or model access in your provider dashboard.",
     }
   }
   if (/\b402\b|insufficient[_ ]quota|insufficient[_ ]credit|billing|exceeded your current quota|balance|payment required/.test(m)) {
     return {
       title: 'Out of credits',
       detail,
-      tip: 'Your provider account has run out of quota or credits. Add credits or check your billing settings, then try again.',
+      tip: 'Your provider account has run out of quota or credits. Add credits or check your billing settings, then try again.' + (isExpensiveGeminiModel(modelId) ? GEMINI_FLASH_LITE_TIP : ''),
     }
   }
   if (/\b429\b|rate[_ -]?limit|too many requests/.test(m)) {
     return {
       title: 'Rate limited',
       detail,
-      tip: 'The provider is throttling requests. Wait a minute and try again, or switch to another provider or model.',
+      tip: 'The provider is throttling requests. Wait a minute and try again, or switch to another provider or model.' + (isExpensiveGeminiModel(modelId) ? GEMINI_FLASH_LITE_TIP : ''),
     }
   }
   if (/model.*(not found|does not exist|not available)|\b404\b|no such model/.test(m)) {
     return {
       title: 'Model not found',
       detail,
-      tip: 'This model isn’t available with your key. Pick a different model from the selector or check the model ID for your provider.',
+      tip: "This model isn't available with your key. Pick a different model from the selector or check the model ID for your provider.",
     }
   }
   if (/\b(500|502|503|529)\b|overloaded|server[_ ]error|internal error|service unavailable|bad gateway/.test(m)) {
@@ -78,7 +86,7 @@ export function describeAgentError(error: unknown): AgentErrorInfo {
     return {
       title: 'Connection problem',
       detail,
-      tip: 'We couldn’t reach the provider. Check your internet connection, and if you use a custom base URL, verify it allows browser (CORS) requests.',
+      tip: 'We could not reach the provider. Check your internet connection, and if you use a custom base URL, verify it allows browser (CORS) requests.',
     }
   }
   if (/no enabled provider/.test(m)) {

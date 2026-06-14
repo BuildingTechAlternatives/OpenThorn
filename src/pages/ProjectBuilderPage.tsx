@@ -1900,7 +1900,7 @@ export default function ProjectBuilderPage() {
       updateAssistantMessage(assistantId, {
         title: 'Something went wrong',
         timeline: [...timeline],
-        errorInfo: describeAgentError(err),
+        errorInfo: describeAgentError(err, chosenModel?.model_id),
         error: true,
       })
     } finally {

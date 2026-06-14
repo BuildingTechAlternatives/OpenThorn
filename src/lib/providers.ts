@@ -1,6 +1,7 @@
 export interface ProviderModel {
   name: string
   id: string
+  recommended?: boolean
 }
 
 export type ProviderApiFormat =
@@ -332,14 +333,14 @@ export function parseProviderModels(raw: string | null | undefined): ProviderMod
   return (raw ?? '')
     .split(',')
     .map((item) => {
-      const [name, id] = item.split('|').map((part) => part.trim())
-      return { name: name || id || '', id: id || name || '' }
+      const [name, id, flag] = item.split('|').map((part) => part.trim())
+      return { name: name || id || '', id: id || name || '', recommended: flag === 'recommended' }
     })
     .filter((model) => model.id.length > 0)
 }
 
 export function serializeProviderModels(models: ProviderModel[]): string {
-  return models.map((model) => `${model.name}|${model.id}`).join(', ')
+  return models.map((model) => model.recommended ? `${model.name}|${model.id}|recommended` : `${model.name}|${model.id}`).join(', ')
 }
 
 export function providerModelsFor(providerId: string): ProviderModel[] {

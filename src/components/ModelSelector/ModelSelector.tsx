@@ -23,6 +23,7 @@ export interface SelectedModel {
 interface ModelInfo {
   name: string
   id: string
+  recommended?: boolean
 }
 
 interface ProviderGroup {
@@ -319,6 +320,7 @@ export default function ModelSelector({ page, selectedModel, onModelSelect, plac
                                   onClick={() => handleModelClick(p, m)}
                                 >
                                   <span className={styles.modelItemName}>{m.name}</span>
+                                  {m.recommended && <span className={styles.recommendedBadge}>Recommended</span>}
                                   {isModelSelected && (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className={styles.checkIcon}>
                                       <polyline points="20 6 9 17 4 12" />
@@ -362,6 +364,7 @@ export default function ModelSelector({ page, selectedModel, onModelSelect, plac
                                 onClick={() => handleModelClick(activeProvider, m)}
                               >
                                 <span className={styles.modelItemName}>{m.name}</span>
+                                {m.recommended && <span className={styles.recommendedBadge}>Recommended</span>}
                                 {isSelected && (
                                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className={styles.checkIcon}>
                                     <polyline points="20 6 9 17 4 12" />
