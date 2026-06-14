@@ -44,7 +44,8 @@ export default defineConfig(({ mode, isSsrBuild }) => {
   const env = loadEnv(mode, process.cwd(), '')
   process.env.SUPABASE_URL ||= env.SUPABASE_URL || env.VITE_SUPABASE_URL
   process.env.SUPABASE_ANON_KEY ||= env.SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY
-  process.env.NETLIFY_TOKEN ||= env.NETLIFY_TOKEN || env.VITE_NETLIFY_TOKEN
+  if (env.CLOUDFLARE_ACCOUNT_ID) process.env.CLOUDFLARE_ACCOUNT_ID ||= env.CLOUDFLARE_ACCOUNT_ID
+  if (env.CLOUDFLARE_API_TOKEN) process.env.CLOUDFLARE_API_TOKEN ||= env.CLOUDFLARE_API_TOKEN
   if (env.KEY_ENCRYPTION_SECRET) process.env.KEY_ENCRYPTION_SECRET ||= env.KEY_ENCRYPTION_SECRET
   if (env.SUPABASE_SERVICE_ROLE_KEY) process.env.SUPABASE_SERVICE_ROLE_KEY ||= env.SUPABASE_SERVICE_ROLE_KEY
 
