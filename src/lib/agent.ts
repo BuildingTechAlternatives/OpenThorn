@@ -258,6 +258,13 @@ const COMPACTION_THRESHOLD = 5
 const KEEP_RECENT_TURNS = 3
 const SUMMARY_INTERVAL = 6
 const READ_TRUNCATE_LINES = 500
+/**
+ * How many turns a full-file read/write keeps suppressing re-reads of the same
+ * unchanged file. Generous (long refines interleave many searches between
+ * reads) but bounded, so that after context compaction the agent can re-read a
+ * file whose content it can no longer see.
+ */
+const FULL_READ_DEDUP_TURNS = 6
 const OBSERVATION_TOOLS = new Set([
   'list_files',
   'read_file',
@@ -505,12 +512,14 @@ function findSimilarFiles(targetPath: string, files: AgentCodeFile[], maxDistanc
 
 // ─── Glob Matching ──────────────────────────────────────────────────────────
 
-function matchesGlob(filePath: string, globPattern: string): boolean {
+/** Compile a single glob pattern (already cleaned) to an anchored RegExp. */
+function globToRegex(globPattern: string): RegExp {
   let regexStr = '^'
   let i = 0
   while (i < globPattern.length) {
     if (globPattern[i] === '*' && globPattern[i + 1] === '*') {
       regexStr += '.*'; i += 2
+      if (globPattern[i] === '/') i += 1 // collapse "**/" so it can also match zero dirs
     } else if (globPattern[i] === '*') {
       regexStr += '[^/]*'; i += 1
     } else if (globPattern[i] === '?') {
@@ -522,7 +531,32 @@ function matchesGlob(filePath: string, globPattern: string): boolean {
     }
   }
   regexStr += '$'
-  try { return new RegExp(regexStr).test(filePath) } catch { return false }
+  return new RegExp(regexStr)
+}
+
+export function matchesGlob(filePath: string, globPattern: string): boolean {
+  // Tolerate the malformed globs weaker models emit: stray surrounding quotes,
+  // trailing quotes (e.g. `src/**"`), whitespace, and a leading `./`.
+  const pattern = globPattern
+    .trim()
+    .replace(/^['"]+|['"]+$/g, '')
+    .replace(/^\.\//, '')
+  if (!pattern) return false
+  try {
+    const re = globToRegex(pattern)
+    if (re.test(filePath)) return true
+    // A pattern with no path separator (e.g. "*.css") should match the file's
+    // basename anywhere in the tree — that is what models intuitively expect,
+    // mirroring ripgrep/Claude Code glob behavior. Without this, "*.css" never
+    // matches "src/styles/theme.css" because `*` cannot cross a slash.
+    if (!pattern.includes('/')) {
+      const base = filePath.split('/').pop() ?? filePath
+      return re.test(base)
+    }
+    return false
+  } catch {
+    return false
+  }
 }
 
 // ─── Line-Trimmed Fuzzy Matching (edit_file fallback) ───────────────────────
@@ -605,11 +639,51 @@ export function applySingleEdit(code: string, oldStr: string, newStr: string): E
 }
 
 /** Turn an edit failure into a structured, actionable error string. */
+/**
+ * Find the contiguous block in `code` that best resembles `oldStr`, anchored on
+ * its first significant line (nearest by normalized Levenshtein distance).
+ * Returns the surrounding region with 1-based line numbers, or null when nothing
+ * is close enough. Used to turn a failed edit into an actionable correction.
+ */
+export function nearestSnippet(
+  code: string,
+  oldStr: string,
+): { start: number; end: number; text: string } | null {
+  const codeLines = code.split('\n')
+  const oldLines = oldStr.split('\n')
+  const anchor = (oldLines.find((l) => l.trim().length > 3) ?? oldLines[0] ?? '').trim()
+  if (!anchor) return null
+
+  let bestIdx = -1
+  let bestDist = Infinity
+  for (let i = 0; i < codeLines.length; i++) {
+    const line = codeLines[i].trim()
+    if (!line) continue
+    const dist = levenshtein(anchor, line)
+    if (dist < bestDist) {
+      bestDist = dist
+      bestIdx = i
+    }
+    if (dist === 0) break
+  }
+  // Require a real resemblance: edit distance under ~45% of the anchor length.
+  if (bestIdx < 0 || bestDist > Math.max(4, Math.floor(anchor.length * 0.45))) return null
+
+  const start = Math.max(0, bestIdx - 2)
+  const end = Math.min(codeLines.length, bestIdx + Math.max(oldLines.length, 1) + 2)
+  const text = codeLines
+    .slice(start, end)
+    .map((l, k) => `${String(start + k + 1).padStart(4, ' ')}  ${l}`)
+    .join('\n')
+  return { start: start + 1, end, text }
+}
+
 function describeEditFailure(
   reason: EditFailure,
   path: string,
   code: string,
   count?: number,
+  oldString?: string,
 ): string {
   switch (reason) {
     case 'EMPTY_OLD_STRING':
@@ -632,11 +706,17 @@ function describeEditFailure(
         retryable: true,
       })
     case 'STRING_NOT_FOUND': {
-      const firstLines = code.split('\n').slice(0, 5).join('\n')
+      // Show the file region that most resembles old_string so the model can
+      // copy the CURRENT exact text and retry in one shot — instead of
+      // re-reading the whole file and guessing again (the #1 multi_edit waste).
+      const near = oldString ? nearestSnippet(code, oldString) : null
+      const hint = near
+        ? `Closest matching text currently in ${path} (lines ${near.start}-${near.end}) — copy from here exactly:\n${near.text}`
+        : `The file starts with:\n${code.split('\n').slice(0, 5).join('\n')}`
       return formatStructuredError({
         code: 'STRING_NOT_FOUND',
         message: `old_string not found in ${path} (tried exact and whitespace-tolerant matching).`,
-        suggestion: `Read the file again to copy the current text exactly. The file starts with:\n${firstLines}\n\nIf the section is large, use write_file to replace the whole file instead.`,
+        suggestion: `${hint}\n\nCopy the current text exactly (including indentation), or use write_file to replace the whole file if the section is large.`,
         retryable: true,
       })
     }
@@ -1803,13 +1883,25 @@ async function executeTool(
       if (runCtx) {
         const prev = runCtx.reads.get(path)
         const requestedEnd = endIdx // already clamped to file length
-        const covered =
+        // If the agent has already seen the WHOLE file (a full read or its own
+        // write) and it is unchanged, block the re-read across a generous
+        // window — not just 2 turns. Long refines interleave many searches
+        // between reads, and re-reading an unchanged 69-line file is pure waste.
+        const sawWholeFile =
+          prev &&
+          prev.snap === snap &&
+          prev.servedStart <= 1 &&
+          prev.servedEnd >= allLines.length &&
+          runCtx.turn - prev.turn <= FULL_READ_DEDUP_TURNS
+        // For a partial prior read, only short-circuit a tightly-overlapping
+        // re-read within the last couple of turns (still in context).
+        const partialCovered =
           prev &&
           prev.snap === snap &&
           runCtx.turn - prev.turn <= 2 &&
           offset >= prev.servedStart &&
           requestedEnd <= prev.servedEnd
-        if (covered) {
+        if (sawWholeFile || partialCovered) {
           return {
             content:
               `You already have ${path} (lines ${prev.servedStart}-${prev.servedEnd}) from a moment ago ` +
@@ -2089,7 +2181,7 @@ async function executeTool(
       const outcome = applySingleEdit(file.code, oldStr, newStr)
       if (!outcome.ok) {
         return {
-          content: describeEditFailure(outcome.reason, path, file.code, outcome.count),
+          content: describeEditFailure(outcome.reason, path, file.code, outcome.count, oldStr),
           isError: true,
         }
       }
@@ -2144,7 +2236,7 @@ async function executeTool(
           return {
             content:
               `multi_edit failed on edit ${e + 1} of ${rawEdits.length} — no changes were applied to ${path}.\n` +
-              describeEditFailure(outcome.reason, path, working, outcome.count),
+              describeEditFailure(outcome.reason, path, working, outcome.count, oldStr),
             isError: true,
           }
         }

@@ -236,7 +236,7 @@ export const AGENT_TOOLS: ToolDefinition[] = [
         glob: {
           type: 'string',
           description:
-            'Optional glob pattern to filter files, e.g. "*.tsx", "src/components/**".',
+            'Optional glob pattern to filter files. A pattern with no slash matches by filename anywhere in the tree, e.g. "*.tsx" or "theme.css". Use a path like "src/components/**" to scope to a directory.',
         },
         output_mode: {
           type: 'string',
@@ -494,7 +494,7 @@ Use these freely where they help (real icons via lucide-react, motion via framer
   - placehold.co (generated placeholders): \`https://placehold.co/1200x800\`
   NEVER hotlink an image from any other site (Google Images, a brand/company site, stock-photo watermarked previews, social media, news sites, etc.) — those are copyrighted and not licensed for reuse. Only the three hosts above are permitted; the done check rejects images from any other host.
   Always set explicit width/height (or an aspect-ratio container) so images don't cause layout shift, add descriptive alt text, use object-fit: cover, and add loading="lazy" for below-the-fold images. Do NOT fake a photograph by hand-drawing it as an SVG — use a real image URL. Keep using inline SVG for icons, logos, and decorative shapes.
-Files: one default export per file, under src/ (src/components/, src/pages/). Styles in src/styles/theme.css — and every stylesheet you create MUST be imported (\`import './styles/theme.css'\` in src/App.tsx) or none of its rules apply.
+Files: one default export per file, under src/ (src/components/, src/pages/). Put the design system — tokens (custom properties), resets, base typography, shared utilities — in src/styles/theme.css. Keep page- and component-specific styles in their OWN stylesheet next to the file that uses them (e.g. src/pages/Menu.css imported by src/pages/Menu.tsx), not all piled into theme.css. A 1000+ line theme.css is a smell: it makes every edit a needle-in-a-haystack and re-reads expensive. Split styles by the file they belong to. Every stylesheet you create MUST be imported where it is used (e.g. \`import './Menu.css'\` in Menu.tsx, \`import './styles/theme.css'\` in App.tsx) or none of its rules apply.
 Responsive targets: 390px phone, 768px tablet, 1200px+ desktop.
 
 **React imports — read carefully:** Always use NAMED hook imports:
@@ -530,7 +530,8 @@ For visible UI/canvas/game changes, run inspect_preview before done to measure t
 - **write_file** — new files or full rewrites. Always complete code.
 - **edit_file** — one targeted change. **multi_edit** — several changes to ONE file at once (atomic; preferred over repeated edit_file on the same file).
 - **delete_file** — remove dead/unused files so the project stays clean.
-- **read_file / list_files / search_files** — understand before you change. Read each file ONCE: extract everything you need in that single read, then plan all changes with think, then apply them all with multi_edit. Do NOT re-read after an edit — the tool confirms success. Do NOT re-read to "verify the current state" — use search_files with context_lines to look up a specific section instead. Reading the same file again without editing it first is wasted tokens and a sign of drift.
+- **read_file / list_files / search_files** — understand before you change. On a refine, list_files first, then read only the 2-3 files you will actually touch — do not fish around the project with speculative searches before you have read the obvious files. Read each file ONCE: extract everything you need in that single read, then plan all changes with think, then apply them all with multi_edit. Do NOT re-read after an edit — the tool confirms success. Do NOT re-read to "verify the current state" — use search_files with context_lines to look up a specific section instead. Reading the same file again without editing it first is wasted tokens and a sign of drift.
+- **search_files glob** — a pattern with no slash matches by filename anywhere (e.g. \`*.css\` finds src/styles/theme.css; \`Menu.tsx\` finds src/pages/Menu.tsx). Use a path like \`src/pages/**\` only when you specifically want to scope to a directory.
 - **set_title** — call once at the very start of a new project (create mode) with a 3-6 word title.
 - **compile** — the source of truth for "does it work". Run it after writing or editing files. Do NOT compile again if no files changed since the last passing compile — the result will be identical.
 - **inspect_preview** — your eyes on the layout. After a clean compile, run it on any visual UI to get MEASURED facts: viewport overflow, real contrast ratios, clipped/overlapping/off-screen elements, small tap targets. Use it to fix design bugs you would otherwise have to guess at, then compile and (if it changed things) re-inspect. Skip it for non-visual work.
