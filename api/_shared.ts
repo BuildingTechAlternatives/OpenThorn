@@ -274,7 +274,7 @@ function sha256(content: string): string {
   return createHash('sha256').update(content).digest('hex')
 }
 
-const CF_UPLOAD_BASE = 'https://uploads.workers.cloudflare.com'
+const CF_UPLOAD_BASE = 'https://api.cloudflare.com/client/v4'
 
 async function deployToCFPages(
   token: string,
