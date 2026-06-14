@@ -488,9 +488,11 @@ Entry: src/App.tsx renders into #root (the entry wrapper is provided — just de
 Packages available: react, react-dom, react-router-dom, PLUS this curated allowlist:
 ${ALLOWED_PACKAGES_BLOCK}
 Use these freely where they help (real icons via lucide-react, motion via framer-motion, charts via recharts). Do not import any npm package outside this list, and do not add CDN fonts or icon packs.
-**Real images:** when the design needs photos (hero, gallery, product/food shots, avatars, backgrounds), use REAL photographs via direct https URLs from these hosts — they are allowed in preview and on the deployed site:
-  - Unsplash: \`https://images.unsplash.com/photo-...?auto=format&fit=crop&w=1200&q=80\` (browse unsplash.com to pick a real photo id; size via the w= query param)
-  - Picsum (placeholder photos): \`https://picsum.photos/seed/<word>/1200/800\` — stable per seed, good when you don't need a specific subject
+**Real images — FREE-TO-USE ONLY:** when the design needs photos (hero, gallery, product/food shots, avatars, backgrounds), use REAL photographs via direct https URLs, but ONLY from these free-to-use hosts (allowed in preview and on the deployed site):
+  - Unsplash (Unsplash License — free, no attribution): \`https://images.unsplash.com/photo-...?auto=format&fit=crop&w=1200&q=80\` (size via the w= query param)
+  - Picsum / Lorem Picsum (free, Unsplash-sourced): \`https://picsum.photos/seed/<word>/1200/800\` — stable per seed, good when you don't need a specific subject
+  - placehold.co (generated placeholders): \`https://placehold.co/1200x800\`
+  NEVER hotlink an image from any other site (Google Images, a brand/company site, stock-photo watermarked previews, social media, news sites, etc.) — those are copyrighted and not licensed for reuse. Only the three hosts above are permitted; the done check rejects images from any other host.
   Always set explicit width/height (or an aspect-ratio container) so images don't cause layout shift, add descriptive alt text, use object-fit: cover, and add loading="lazy" for below-the-fold images. Do NOT fake a photograph by hand-drawing it as an SVG — use a real image URL. Keep using inline SVG for icons, logos, and decorative shapes.
 Files: one default export per file, under src/ (src/components/, src/pages/). Styles in src/styles/theme.css — and every stylesheet you create MUST be imported (\`import './styles/theme.css'\` in src/App.tsx) or none of its rules apply.
 Responsive targets: 390px phone, 768px tablet, 1200px+ desktop.
@@ -538,7 +540,7 @@ For visible UI/canvas/game changes, run inspect_preview before done to measure t
 
 <rules>
 - Never create an empty file or leave placeholder comments (TODO/FIXME/"...").
-- Import only react, react-dom, react-router-dom, and the curated allowlist. No CDN fonts or icon packs. Real photographic images ARE allowed via https URLs from the approved hosts (Unsplash / Picsum) — use them instead of hand-drawn SVG when the design calls for a photo.
+- Import only react, react-dom, react-router-dom, and the curated allowlist. No CDN fonts or icon packs. Real photographic images ARE allowed via https URLs, but ONLY from the free-to-use hosts (images.unsplash.com, picsum.photos, placehold.co) — never hotlink a copyrighted image from any other site. The done check rejects images from non-free hosts.
 - **Every stylesheet must be imported.** A .css file that no module imports applies ZERO styles — the app renders with browser defaults and looks broken even though it compiles. After writing src/styles/theme.css (or any .css), confirm it is imported in src/App.tsx. compile warns about unimported stylesheets and done is REJECTED while one exists.
 - **Don't rationalize away layout problems.** inspect_preview and the done check measure the rendered layout at 390px and 1280px. A reported PROBLEM (mobile overflow, overlapping controls, clipped text, off-screen buttons) is a real bug — fix its cause. Do not dismiss it ("the overflow is clipped by overflow-x:hidden") and call done; the done gate measures the same thing and will reject it.
 - Valid TypeScript; avoid \`any\`. One default export per component file. All files under src/.

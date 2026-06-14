@@ -15,7 +15,11 @@ import {
   capToolResultContent,
   type ToolDefinition,
 } from './agent-prompt'
-import { normalizeWrittenCode, findOrphanedStylesheets } from './agent-lint'
+import {
+  normalizeWrittenCode,
+  findOrphanedStylesheets,
+  findDisallowedImageSources,
+} from './agent-lint'
 import { decryptApiKey, encryptApiKey } from './crypto'
 import {
   AGENT_THINKING_PROFILES,
@@ -2247,10 +2251,21 @@ async function executeTool(
                 `These files exist but no module imports them, so NONE of their styles are applied — ` +
                 `the app is rendering with browser defaults. Add an import (e.g. \`import './styles/theme.css'\` in src/App.tsx) and recompile.`
               : ''
-          if (report || orphanNote) {
+          // Image licensing: catch hotlinked images from non-free hosts before
+          // they can ship (done gate rejects them as a backstop).
+          const badImages = findDisallowedImageSources(
+            currentFiles.map((f) => ({ path: f.path, code: f.code })),
+          )
+          const imageNote =
+            badImages.length > 0
+              ? `\n\n⚠ Possibly-copyrighted image(s) from non-free hosts:\n` +
+                badImages.slice(0, 8).map((b) => `  - ${b.url} (in ${b.path})`).join('\n') +
+                `\nUse only free-to-use images: Unsplash (images.unsplash.com), Picsum (picsum.photos), or placehold.co. Replace these URLs.`
+              : ''
+          if (report || orphanNote || imageNote) {
             // Non-fatal warnings — surface but don't block the build.
             return {
-              content: `Compilation + runtime check passed (with warnings).\n\n${report ?? ''}${orphanNote}`,
+              content: `Compilation + runtime check passed (with warnings).\n\n${report ?? ''}${orphanNote}${imageNote}`,
               isError: false,
             }
           }
@@ -2473,7 +2488,24 @@ async function runDoneVerificationGate(
     })
   }
 
-  // 4. Interactive smoke test — the buttons must actually work.
+  // 4. Image-licensing gate (deterministic). Reject remote images from hosts
+  // that are not known to be free to use — they may be copyrighted/unlicensed.
+  const badImages = findDisallowedImageSources(
+    currentFiles.map((f) => ({ path: f.path, code: f.code })),
+  )
+  if (badImages.length > 0) {
+    return formatStructuredError({
+      code: 'DONE_REJECTED',
+      message:
+        `These images load from hosts that are not known to be free to use and may be copyrighted:\n` +
+        badImages.slice(0, 8).map((b) => `  - ${b.url} (in ${b.path})`).join('\n'),
+      suggestion:
+        'Replace them with free-to-use images: Unsplash (images.unsplash.com), Picsum (picsum.photos), or placehold.co — or use inline SVG / a gradient. Then compile and call done again.',
+      retryable: true,
+    })
+  }
+
+  // 5. Interactive smoke test — the buttons must actually work.
   try {
     const preview = await buildPreview(
       currentFiles.map((f) => ({ path: f.path, content: f.code })),
@@ -2491,7 +2523,7 @@ async function runDoneVerificationGate(
         })
       }
 
-      // 5. Deterministic layout gate — measured PROBLEMs (mobile overflow,
+      // 6. Deterministic layout gate — measured PROBLEMs (mobile overflow,
       // overlap, clipping, off-screen controls) block done. This works for
       // EVERY provider (no vision model needed), so DeepSeek/Ollama runs can no
       // longer rationalize a visible layout bug away and finish on it.

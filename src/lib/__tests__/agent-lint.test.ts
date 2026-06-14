@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { normalizeWrittenCode, findOrphanedStylesheets } from '../agent-lint'
+import {
+  normalizeWrittenCode,
+  findOrphanedStylesheets,
+  findDisallowedImageSources,
+} from '../agent-lint'
 
 describe('normalizeWrittenCode', () => {
   it('leaves non-code files untouched', () => {
@@ -120,5 +124,62 @@ describe('findOrphanedStylesheets', () => {
     ]
     // theme.css is NOT imported; mytheme.css is. Only theme.css is orphaned.
     expect(findOrphanedStylesheets(files)).toEqual(['src/theme.css'])
+  })
+})
+
+describe('findDisallowedImageSources', () => {
+  it('allows Unsplash, Picsum, and placehold.co', () => {
+    const files = [
+      {
+        path: 'src/components/Hero.tsx',
+        code: [
+          '<img src="https://images.unsplash.com/photo-123?auto=format&w=1200&q=80" alt="dish" />',
+          '<img src="https://picsum.photos/seed/food/1200/800" alt="x" />',
+          '<img src="https://placehold.co/600x400" alt="ph" />',
+        ].join('\n'),
+      },
+    ]
+    expect(findDisallowedImageSources(files)).toEqual([])
+  })
+
+  it('flags a hotlinked image from a non-free host (by <img src>)', () => {
+    const files = [
+      { path: 'src/App.tsx', code: '<img src="https://some-brand.com/photo" alt="x" />' },
+    ]
+    expect(findDisallowedImageSources(files)).toEqual([
+      { path: 'src/App.tsx', url: 'https://some-brand.com/photo' },
+    ])
+  })
+
+  it('flags an image URL by extension and a CSS background url()', () => {
+    const files = [
+      { path: 'src/data.ts', code: "export const img = 'https://evil.example/cat.jpg'" },
+      { path: 'src/styles/theme.css', code: '.hero{ background-image: url("https://news.site/banner.png") }' },
+    ]
+    const found = findDisallowedImageSources(files).map((b) => b.url).sort()
+    expect(found).toEqual([
+      'https://evil.example/cat.jpg',
+      'https://news.site/banner.png',
+    ])
+  })
+
+  it('does not flag non-image embeds like a map/video iframe', () => {
+    const files = [
+      {
+        path: 'src/components/Map.tsx',
+        code: '<iframe src="https://www.openstreetmap.org/export/embed.html" title="map" />',
+      },
+    ]
+    expect(findDisallowedImageSources(files)).toEqual([])
+  })
+
+  it('ignores local/relative and data URIs', () => {
+    const files = [
+      {
+        path: 'src/App.tsx',
+        code: '<img src="/logo.png" /><img src="data:image/svg+xml;base64,abc" />',
+      },
+    ]
+    expect(findDisallowedImageSources(files)).toEqual([])
   })
 })

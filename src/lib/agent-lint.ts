@@ -152,3 +152,78 @@ export function findOrphanedStylesheets(files: ProjectFile[]): string[] {
   }
   return orphans
 }
+
+// ─── Image licensing: only free-to-use remote image hosts ──────────────────
+
+/**
+ * Remote image hosts whose content is free to use without permission or
+ * attribution. Unsplash (Unsplash License) and Picsum (Lorem Picsum, sourced
+ * from Unsplash) cover real photography; placehold.co serves generated
+ * placeholders. Any other remote image is rejected — it could be copyrighted.
+ */
+export const ALLOWED_IMAGE_HOSTS = [
+  'images.unsplash.com',
+  'source.unsplash.com',
+  'picsum.photos',
+  'fastly.picsum.photos',
+  'placehold.co',
+]
+
+export interface DisallowedImage {
+  path: string
+  url: string
+}
+
+// Remote URLs that are unambiguously images: a URL ending in an image
+// extension, a CSS `url(...)` background, or an <img src="...">. We do NOT match
+// generic `src=`/`href=` so legitimate non-image embeds (e.g. a map/video
+// iframe) are never mistaken for a copyrighted image.
+const IMG_EXT_RE =
+  /https?:\/\/[^\s'"()<>]+\.(?:jpe?g|png|gif|webp|avif|bmp|svg)(?:[?#][^\s'"()<>]*)?/gi
+const CSS_URL_RE = /url\(\s*['"]?(https?:\/\/[^'")]+?)['"]?\s*\)/gi
+const IMG_TAG_SRC_RE = /<img\b[^>]*?\bsrc\s*=\s*['"](https?:\/\/[^'"]+)['"]/gi
+
+function hostOf(url: string): string | null {
+  try {
+    return new URL(url).hostname.toLowerCase()
+  } catch {
+    return null
+  }
+}
+
+function isAllowedImageHost(host: string): boolean {
+  return ALLOWED_IMAGE_HOSTS.some((h) => host === h || host.endsWith('.' + h))
+}
+
+/**
+ * Find remote image URLs that are NOT from a free-to-use host — i.e. images
+ * that may be copyrighted and unlicensed. Deterministic, cross-file; surfaced
+ * on compile and rejected by the done gate so a generated site can never ship
+ * hotlinked copyrighted photos. Free hosts (Unsplash/Picsum/placehold.co),
+ * data:, blob:, and local/relative paths are all fine and never flagged.
+ */
+export function findDisallowedImageSources(files: ProjectFile[]): DisallowedImage[] {
+  const out: DisallowedImage[] = []
+  const seen = new Set<string>()
+
+  const consider = (path: string, url: string) => {
+    const clean = url.trim().replace(/[)'"]+$/, '')
+    const host = hostOf(clean)
+    if (!host || isAllowedImageHost(host)) return
+    const key = `${path}|${clean}`
+    if (seen.has(key)) return
+    seen.add(key)
+    out.push({ path, url: clean })
+  }
+
+  for (const f of files) {
+    for (const re of [IMG_EXT_RE, CSS_URL_RE, IMG_TAG_SRC_RE]) {
+      re.lastIndex = 0
+      let m: RegExpExecArray | null
+      while ((m = re.exec(f.code)) !== null) {
+        consider(f.path, m[1] ?? m[0])
+      }
+    }
+  }
+  return out
+}
