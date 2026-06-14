@@ -57,6 +57,10 @@
         "answer": "Your data is hosted on Vercel's infrastructure. Request data including IP addresses may be processed by Vercel, and data may be transferred to the United States under Standard Contractual Clauses (SCCs) in compliance with GDPR."
       },
       {
+        "question": "Is OpenThorn open source?",
+        "answer": "Yes. OpenThorn is fully open source — the complete source code is available on GitHub at github.com/BuildingTechAlternatives/OpenThorn. You can inspect how API keys are encrypted and handled, how the AI agent works, and how deployments are triggered. Pull requests and issue reports are welcome."
+      },
+      {
         "question": "Can I delete my data?",
         "answer": "Yes. Email btalabs.contact@gmail.com to request full account and data deletion. We will process your request within 30 days."
       }

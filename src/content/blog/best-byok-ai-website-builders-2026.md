@@ -4,9 +4,9 @@ If you specifically want BYOK, the field is small. Here are the options worth kn
 
 ## 1. OpenThorn
 
-[OpenThorn](https://www.openthorn.app) is a free, browser-based BYOK website builder. You connect a key from any of 17 providers (OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral, Groq, and more), describe the site you want, and an agent generates complete React code with a live in-browser preview. One-click Netlify deploy, full code export, no platform fee of any kind. Disclosure: this is our product — the rest of this list is genuinely worth a look if it fits you better.
+[OpenThorn](https://www.openthorn.app) is a free, open-source, browser-based BYOK website builder. You connect a key from any of 18 providers (OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral, Groq, and more), describe the site you want, and an agent generates complete React code with a live in-browser preview. One-click Netlify deploy, full code export, no platform fee of any kind. The [source code is on GitHub](https://github.com/BuildingTechAlternatives/OpenThorn) if you want to inspect it, self-host it, or contribute. Disclosure: this is our product — the rest of this list is genuinely worth a look if it fits you better.
 
-**Best for:** building and deploying complete websites without a subscription.
+**Best for:** building and deploying complete websites without a subscription — and anyone who wants full transparency into how the tool works.
 
 ## 2. bolt.diy
 
