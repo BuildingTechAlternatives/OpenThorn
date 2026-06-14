@@ -12,7 +12,7 @@ vi.mock('../supabase', () => ({
   },
 }))
 
-describe('deployToNetlify', () => {
+describe('deploySite', () => {
   beforeEach(() => {
     vi.resetModules()
     fetchMock.mockReset()
@@ -22,19 +22,19 @@ describe('deployToNetlify', () => {
     fetchMock.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        siteId: 'site-123',
-        url: 'https://bloom-project.netlify.app',
+        siteId: 'ot-abc12345-xyz123',
+        url: 'https://ot-abc12345-xyz123.pages.dev',
       }),
     })
 
-    const { deployToNetlify } = await import('../deploy')
-    const result = await deployToNetlify('project-12345678', '<!doctype html><html>OpenThorn</html>')
+    const { deploySite } = await import('../deploy')
+    const result = await deploySite('project-12345678', '<!doctype html><html>OpenThorn</html>')
 
     expect(result).toEqual({
-      siteId: 'site-123',
-      url: 'https://bloom-project.netlify.app',
+      siteId: 'ot-abc12345-xyz123',
+      url: 'https://ot-abc12345-xyz123.pages.dev',
     })
-    expect(fetchMock).toHaveBeenCalledWith('/api/deploy-netlify', {
+    expect(fetchMock).toHaveBeenCalledWith('/api/deploy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: 'Bearer test-token' },
       body: JSON.stringify({
@@ -44,30 +44,30 @@ describe('deployToNetlify', () => {
     })
   })
 
-  it('reuses an existing Netlify site when one is saved', async () => {
+  it('reuses an existing CF Pages project when one is saved', async () => {
     fetchMock.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        siteId: 'site-existing',
-        url: 'https://existing.netlify.app',
+        siteId: 'ot-existing-abc',
+        url: 'https://ot-existing-abc.pages.dev',
       }),
     })
 
-    const { deployToNetlify } = await import('../deploy')
-    const result = await deployToNetlify('project-1', '<html></html>', 'site-existing')
+    const { deploySite } = await import('../deploy')
+    const result = await deploySite('project-1', '<html></html>', 'ot-existing-abc')
 
     expect(result).toEqual({
-      siteId: 'site-existing',
-      url: 'https://existing.netlify.app',
+      siteId: 'ot-existing-abc',
+      url: 'https://ot-existing-abc.pages.dev',
     })
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    expect(fetchMock).toHaveBeenCalledWith('/api/deploy-netlify', {
+    expect(fetchMock).toHaveBeenCalledWith('/api/deploy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: 'Bearer test-token' },
       body: JSON.stringify({
         projectId: 'project-1',
         html: '<html></html>',
-        existingSiteId: 'site-existing',
+        existingSiteId: 'ot-existing-abc',
       }),
     })
   })
