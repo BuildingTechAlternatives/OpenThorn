@@ -1,5 +1,19 @@
 [
   {
+    "slug": "how-much-does-it-cost-to-build-a-website-with-ai",
+    "title": "How Much Does It Cost to Build a Website with AI? (2026 Data)",
+    "date": "2026-06-13",
+    "excerpt": "Credit-based builders charge $20–50/month, but the AI work behind a complete website costs cents to a few dollars in tokens. A breakdown of what a build actually consumes, and what each provider charges for it.",
+    "coverImage": "/assets/blog_6.png",
+    "tldr": "A complete AI website build consumes roughly 250,000 input and 80,000 output tokens after prompt caching. At published June 2026 rates that costs $0 on free tiers (Gemini, Groq, Cerebras, Ollama), single-digit cents on cheap models like DeepSeek, and about $0.50–$3 on mid-tier and flagship models such as Claude Sonnet 4.6 — versus $20–50/month for credit-based builders.",
+    "itemList": [
+      "Free tier (Gemini, Groq, Cerebras, Ollama)",
+      "Very cheap (DeepSeek, open models)",
+      "Mid-tier (Claude Sonnet, GPT mid-tier)",
+      "Flagship (GPT flagship, Claude Opus, Grok)"
+    ]
+  },
+  {
     "slug": "how-to-build-a-website-with-ai-byok",
     "title": "How to Build a Website with AI Using Your Own API Key",
     "date": "2026-06-12",
