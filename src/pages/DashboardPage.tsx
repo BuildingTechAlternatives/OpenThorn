@@ -7,6 +7,8 @@ import { usePageTitle } from '../lib/usePageTitle'
 import type { AgentThinkingLevel } from '../lib/agent-thinking'
 import DashboardSidebar, { type ProjectFilter, type SidebarNotification } from '../components/DashboardSidebar/DashboardSidebar'
 import PromptInput from '../components/PromptInput/PromptInput'
+import { shouldShowQuickstart } from '../lib/quickstart'
+import { startDashboardTour } from '../lib/dashboard-tour'
 import FloatingParticles from '../components/FloatingParticles/FloatingParticles'
 import type { SelectedModel } from '../components/ModelSelector/ModelSelector'
 import styles from './DashboardPage.module.css'
@@ -108,6 +110,8 @@ export default function DashboardPage() {
     return parseStoredJson<SelectedModel | null>(localStorage.getItem('dashboard:selectedModel'), null)
   })
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showQuickstart, setShowQuickstart] = useState(false)
+  const tourStartedRef = useRef(false)
 
   const visiblePrompts = showAllPrompts ? examplePrompts : examplePrompts.slice(0, INITIAL_VISIBLE)
 
@@ -283,6 +287,27 @@ export default function DashboardPage() {
       cancelled = true
       supabase.removeChannel(channel)
     }
+  }, [user])
+
+  // First-login quickstart guide — show once per account.
+  useEffect(() => {
+    if (!user) return
+    let cancelled = false
+    supabase
+      .from('profiles')
+      .select('has_seen_quickstart')
+      .eq('id', user.id)
+      .single()
+      .then(({ data, error }) => {
+        if (error) {
+          logError('DashboardQuickstartFlag', error)
+          return
+        }
+        if (!cancelled && shouldShowQuickstart(data?.has_seen_quickstart)) {
+          setShowQuickstart(true)
+        }
+      })
+    return () => { cancelled = true }
   }, [user])
 
   // Fetch and subscribe to global notifications for the dashboard bell.
@@ -506,6 +531,24 @@ export default function DashboardPage() {
     setPromptDefault(prompt)
   }
 
+  const markQuickstartSeen = useCallback(async () => {
+    setShowQuickstart(false)
+    if (!user) return
+    const { error } = await supabase
+      .from('profiles')
+      .update({ has_seen_quickstart: true })
+      .eq('id', user.id)
+    if (error) logError('DashboardQuickstartDismiss', error)
+  }, [user])
+
+  // Launch the spotlight tour once the dashboard has rendered its anchors.
+  useEffect(() => {
+    if (!showQuickstart || authLoading || projectsLoading || tourStartedRef.current) return
+    tourStartedRef.current = true
+    const timer = setTimeout(() => startDashboardTour(() => { void markQuickstartSeen() }), 400)
+    return () => clearTimeout(timer)
+  }, [showQuickstart, authLoading, projectsLoading, markQuickstartSeen])
+
   const filteredProjects = projects
     .filter((p) => {
       if (activeFilter === 'starred') return p.starred
@@ -625,7 +668,7 @@ export default function DashboardPage() {
               What do you want to build, <span className={styles.name}>{firstName}</span>?
             </h1>
 
-            <div className={styles.promptWrapper}>
+            <div className={styles.promptWrapper} data-tour="prompt">
               <PromptInput
                 defaultValue={promptDefault}
                 onSubmit={handlePromptSubmit}

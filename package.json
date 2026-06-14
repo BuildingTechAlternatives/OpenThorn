@@ -17,6 +17,7 @@
     "@supabase/supabase-js": "^2.106.2",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
+    "driver.js": "^1.4.0",
     "esbuild-wasm": "^0.28.0",
     "framer-motion": "^12.12.1",
     "hash-wasm": "^4.12.0",
