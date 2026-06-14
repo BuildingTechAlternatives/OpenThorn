@@ -20,6 +20,7 @@ import {
   AGENT_THINKING_PROFILES,
   normalizeThinkingLevel,
   type AgentThinkingLevel,
+  type ThinkingPhase,
 } from './agent-thinking'
 
 // ─── Tool Definitions ──────────────────────────────────────────────────────
@@ -609,26 +610,48 @@ After planning, start building. Compile after a sensible batch of files, not aft
 // ─── Adaptive Thinking Config ──────────────────────────────────────────────
 
 /**
- * Returns the thinking budget based on task phase.
- * - Spec phase (early turns, create mode): deep thinking for architecture
- * - Build phase (mid turns): standard thinking
- * - Fix/verify phase (refine mode, late turns): light thinking
+ * Classify the current turn into a thinking phase. The guiding principle —
+ * borrowed from Claude Code — is that extended thinking is expensive latency
+ * paid serially before any visible output, so it should be spent only on the
+ * turns that genuinely benefit from reasoning, never on the mechanical majority.
+ *
+ * - `debug` — a compile/runtime error is outstanding; reasoning about the real
+ *   cause (rather than guess-and-retry) pays for itself. Takes priority.
+ * - `plan` — the opening turns of a fresh build, before any code exists, where
+ *   architecture/colors/routes/file-plan decisions are made.
+ * - `build` — everything else: writing files, editing, recompiling, finishing.
+ *   These run with no thinking by default (the fast path).
+ */
+export function inferThinkingPhase(params: {
+  mode: 'create' | 'refine'
+  turnCount: number
+  hasPendingErrors?: boolean
+}): ThinkingPhase {
+  if (params.hasPendingErrors) return 'debug'
+  if (params.mode === 'create' && params.turnCount <= 2) return 'plan'
+  return 'build'
+}
+
+/**
+ * Returns the extended-thinking budget (in tokens) for the current turn.
+ *
+ * Thinking is phase-gated, not always-on: most turns are `build` turns and get
+ * 0 thinking, which is what keeps runs fast. The selected thinking level scales
+ * how much reasoning each phase gets (and whether build turns think at all).
+ * A return of 0 means thinking is disabled for this turn.
  */
 export function getThinkingBudget(params: {
   mode: 'create' | 'refine'
   turnCount: number
   thinkingLevel?: AgentThinkingLevel
+  hasPendingErrors?: boolean
 }): number {
   const level = normalizeThinkingLevel(params.thinkingLevel)
-  const multiplier = AGENT_THINKING_PROFILES[level].budgetMultiplier
-  let base = 3000
-
-  if (params.mode === 'create' && params.turnCount <= 2) base = 4500 // Spec phase
-  else if (params.mode === 'create' && params.turnCount <= 5) base = 3500 // Early build
-  else if (params.mode === 'create') base = 3000 // Late build
-  else if (params.mode === 'refine') base = 1500 // Targeted edits
-
-  return Math.max(512, Math.min(12000, Math.round(base * multiplier)))
+  const phase = inferThinkingPhase(params)
+  const budget = AGENT_THINKING_PROFILES[level].thinking[phase]
+  if (budget <= 0) return 0
+  // Anthropic requires a minimum thinking budget of 1024 tokens when enabled.
+  return Math.max(1024, Math.min(12000, Math.round(budget)))
 }
 
 export function buildThinkingLevelPrompt(levelInput: AgentThinkingLevel): string {

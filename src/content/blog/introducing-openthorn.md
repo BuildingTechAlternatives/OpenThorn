@@ -40,12 +40,6 @@ The community page surfaces apps shared by other OpenThorn users. Browse by newe
 
 It's a useful way to see what's actually possible before you write your first prompt.
 
-## Open source
-
-OpenThorn is fully open source. The complete source code — the agent, the in-browser preview pipeline, the serverless API, everything — is [on GitHub](https://github.com/BuildingTechAlternatives/OpenThorn). You can read exactly how your keys are handled, how the agent works, and what happens when you hit deploy. No black boxes.
-
-If you find a bug, want to add a provider, or just want to poke around: pull requests are welcome.
-
 ## Try it
 
 Bring your model keys and start building.

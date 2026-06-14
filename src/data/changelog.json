@@ -5,6 +5,90 @@
       "date": "2026-06-14",
       "entries": [
         {
+          "category": "Improved",
+          "message": "content: mention OpenThorn is open source in blog and FAQ",
+          "sha": "09576de8b8d32e5c2ca12cd4953160419a96216b",
+          "shortSha": "09576de",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/09576de8b8d32e5c2ca12cd4953160419a96216b"
+        },
+        {
+          "category": "Improved",
+          "message": "feat: replace quickstart overlay with driver.js spotlight tour",
+          "sha": "945445532c64798f025e2e978442dc566e0de345",
+          "shortSha": "9454455",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/945445532c64798f025e2e978442dc566e0de345"
+        },
+        {
+          "category": "Improved",
+          "message": "feat: deep-link templates page to auto-open a template preview",
+          "sha": "eeb509e91fb4906f0e4a1548fac1785fef82feab",
+          "shortSha": "eeb509e",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/eeb509e91fb4906f0e4a1548fac1785fef82feab"
+        },
+        {
+          "category": "Improved",
+          "message": "feat: show quickstart guide to first-login users on dashboard",
+          "sha": "a4d917a094ea0a813bcf68899f9b1bd7e35ee8aa",
+          "shortSha": "a4d917a",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/a4d917a094ea0a813bcf68899f9b1bd7e35ee8aa"
+        },
+        {
+          "category": "Improved",
+          "message": "feat: add QuickstartGuide modal component",
+          "sha": "643490bf89daa09adb775815d3e055e35055b9be",
+          "shortSha": "643490b",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/643490bf89daa09adb775815d3e055e35055b9be"
+        },
+        {
+          "category": "Improved",
+          "message": "feat: add quickstart slide config and show-once predicate",
+          "sha": "124e03b69742e84c005aaa419c8399d34b819e71",
+          "shortSha": "124e03b",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/124e03b69742e84c005aaa419c8399d34b819e71"
+        },
+        {
+          "category": "Improved",
+          "message": "feat(db): add has_seen_quickstart flag to profiles",
+          "sha": "e57b11ed8a0da2e25c0711da2fbce6c2d11ff6a3",
+          "shortSha": "e57b11e",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/e57b11ed8a0da2e25c0711da2fbce6c2d11ff6a3"
+        },
+        {
+          "category": "Improved",
+          "message": "feat(deploy): derive CF Pages subdomain from project title",
+          "sha": "60195ae1a66b56b02df1e628f0d7cbd4286c5129",
+          "shortSha": "60195ae",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/60195ae1a66b56b02df1e628f0d7cbd4286c5129"
+        },
+        {
+          "category": "Improved",
+          "message": "content: add 'how much does it cost to build a website with AI' blog post",
+          "sha": "f842f69ad86dc49cc0cca6af11ce6416355e940b",
+          "shortSha": "f842f69",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/f842f69ad86dc49cc0cca6af11ce6416355e940b"
+        },
+        {
+          "category": "Fix",
+          "message": "fix(providers): trim RodiumAi to standard provider shape",
+          "sha": "ba7d004080cfd6a08b985139bb7303f265f5d677",
+          "shortSha": "ba7d004",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/ba7d004080cfd6a08b985139bb7303f265f5d677"
+        },
+        {
+          "category": "Improved",
+          "message": "feat: add RodiumAi as BYOK provider",
+          "sha": "6097130a6ebfae004f2a6d97ed673d07faf1c590",
+          "shortSha": "6097130",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/6097130a6ebfae004f2a6d97ed673d07faf1c590"
+        },
+        {
+          "category": "Fix",
+          "message": "fix(agent): glob basename matching, edit near-match hints, longer read dedup, split CSS",
+          "sha": "2bc4a25f696366a5f41a22806263eb361dccb180",
+          "shortSha": "2bc4a25",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/2bc4a25f696366a5f41a22806263eb361dccb180"
+        },
+        {
           "category": "Fix",
           "message": "fix(agent): reject non-free remote images (copyright safety)",
           "sha": "cd28f8392a0c9bbc5ef4d20ce15f6df10f7d774d",
@@ -1731,104 +1815,6 @@
           "sha": "f316c987e5a378cca8224c72130400b1e3ce1dc0",
           "shortSha": "f316c98",
           "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/f316c987e5a378cca8224c72130400b1e3ce1dc0"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: add profiles table, generating columns, collaborator RLS",
-          "sha": "273e9e5a32246842b358a2e24a2aacd1cfdb1f69",
-          "shortSha": "273e9e5",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/273e9e5a32246842b358a2e24a2aacd1cfdb1f69"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: rebrand to Florvia + major UX improvements",
-          "sha": "c9a221bdc309175bd265b4ebc33502ff0e9a6408",
-          "shortSha": "c9a221b",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/c9a221bdc309175bd265b4ebc33502ff0e9a6408"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: deploy generated sites through Netlify function",
-          "sha": "f075ed7ac3fbade29f02072023227e8e2ed83cf7",
-          "shortSha": "f075ed7",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/f075ed7ac3fbade29f02072023227e8e2ed83cf7"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: Bloom agent round 2 — multi_edit, delete_file, runtime validation, system prompt rewrite",
-          "sha": "5103cf14eb5768ba7a31de33f20cfaf17e3dacd0",
-          "shortSha": "5103cf1",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/5103cf14eb5768ba7a31de33f20cfaf17e3dacd0"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: starred projects + sidebar filter navigation",
-          "sha": "70cee1572f996e70a9919ef3d4a1a2f4c8a112e3",
-          "shortSha": "70cee15",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/70cee1572f996e70a9919ef3d4a1a2f4c8a112e3"
-        },
-        {
-          "category": "Improved",
-          "message": "@",
-          "sha": "7e223868eaf9581c5e3531d7e8d89f75ae6e07a8",
-          "shortSha": "7e22386",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/7e223868eaf9581c5e3531d7e8d89f75ae6e07a8"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: custom hash router replaces react-router-dom in previews",
-          "sha": "697a7f4b2a10d250202ed88761dba6af6dc23abf",
-          "shortSha": "697a7f4",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/697a7f4b2a10d250202ed88761dba6af6dc23abf"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: polyfill URL constructor for srcdoc iframe compatibility",
-          "sha": "9779c024d08b6d13b8550c43891d3d635df5fb6a",
-          "shortSha": "9779c02",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/9779c024d08b6d13b8550c43891d3d635df5fb6a"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: remove broken base tag, BrowserRouter needs valid URL base",
-          "sha": "51ceccfa67ec6f6e6d223750505bd0680a97d5e9",
-          "shortSha": "51ceccf",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/51ceccfa67ec6f6e6d223750505bd0680a97d5e9"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: base tag in preview HTML + mandate HashRouter for iframe compat",
-          "sha": "88f3b1fe7b705f304d654a1b706d875e8a81a72f",
-          "shortSha": "88f3b1f",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/88f3b1fe7b705f304d654a1b706d875e8a81a72f"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: defensive Vite sanitizer, cache-busting, no-store cache control",
-          "sha": "74e1354103803ad51af78bbb2b02bb9cc8b5c17f",
-          "shortSha": "74e1354",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/74e1354103803ad51af78bbb2b02bb9cc8b5c17f"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: replace fragile bundleProject with reliable esbuild buildPreview for deploy",
-          "sha": "ee5353569b1d28f68eecbc1b7150c86841ce44ed",
-          "shortSha": "ee53535",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/ee5353569b1d28f68eecbc1b7150c86841ce44ed"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: proper markdown rendering with react-markdown + fix React ESM import bug",
-          "sha": "acbd6314d39666da66840bb2632824c7a5b3f373",
-          "shortSha": "acbd631",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/acbd6314d39666da66840bb2632824c7a5b3f373"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: agent smartness upgrade - spec-driven, self-verifying, self-learning",
-          "sha": "91cfa6ed5c25a7c4a68f020b009da5edac3de239",
-          "shortSha": "91cfa6e",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/91cfa6ed5c25a7c4a68f020b009da5edac3de239"
         }
       ]
     }

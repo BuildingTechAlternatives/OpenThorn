@@ -21,7 +21,12 @@ import {
   buildVisualReviewPrompt,
 } from '../agent-vision'
 import { formatTypeErrors } from '../typecheck'
-import { getReasoningParams, loopBreakPrompt } from '../agent-prompt'
+import {
+  getReasoningParams,
+  loopBreakPrompt,
+  getThinkingBudget,
+  inferThinkingPhase,
+} from '../agent-prompt'
 import { RESOLVABLE_PACKAGES, ALLOWED_PACKAGE_NAMES } from '../allowed-packages'
 
 // ─── Plan & requirements (#5) ───────────────────────────────────────────────
@@ -216,6 +221,50 @@ describe('getReasoningParams', () => {
     expect(getReasoningParams('openai', 'gpt-4o', 4000)).toEqual({})
     expect(getReasoningParams('google', 'gemini-1.5-pro', 4000)).toEqual({})
     expect(getReasoningParams('perplexity', 'sonar-reasoning-pro', 4000)).toEqual({})
+  })
+})
+
+// ─── Phase-gated thinking budget ────────────────────────────────────────────
+
+describe('thinking budget (phase-gated)', () => {
+  it('classifies phases by mode/turn/error state', () => {
+    // An outstanding error wins over everything else.
+    expect(
+      inferThinkingPhase({ mode: 'create', turnCount: 1, hasPendingErrors: true }),
+    ).toBe('debug')
+    expect(
+      inferThinkingPhase({ mode: 'refine', turnCount: 9, hasPendingErrors: true }),
+    ).toBe('debug')
+    // Opening turns of a fresh build are the planning phase.
+    expect(inferThinkingPhase({ mode: 'create', turnCount: 1 })).toBe('plan')
+    expect(inferThinkingPhase({ mode: 'create', turnCount: 2 })).toBe('plan')
+    // Later create turns, and all refine turns, are mechanical build turns.
+    expect(inferThinkingPhase({ mode: 'create', turnCount: 3 })).toBe('build')
+    expect(inferThinkingPhase({ mode: 'refine', turnCount: 1 })).toBe('build')
+  })
+
+  it('spends 0 thinking on mechanical build turns at the default level', () => {
+    // The whole point: the common case (writing/compiling) is the fast path.
+    expect(getThinkingBudget({ mode: 'create', turnCount: 5, thinkingLevel: 'medium' })).toBe(0)
+    expect(getThinkingBudget({ mode: 'refine', turnCount: 2, thinkingLevel: 'medium' })).toBe(0)
+  })
+
+  it('enables thinking for planning and error recovery', () => {
+    expect(getThinkingBudget({ mode: 'create', turnCount: 1, thinkingLevel: 'medium' })).toBe(4000)
+    expect(
+      getThinkingBudget({ mode: 'refine', turnCount: 7, thinkingLevel: 'medium', hasPendingErrors: true }),
+    ).toBe(4000)
+  })
+
+  it('higher levels keep some build-turn thinking; lower levels do not', () => {
+    expect(getThinkingBudget({ mode: 'create', turnCount: 6, thinkingLevel: 'low' })).toBe(0)
+    expect(getThinkingBudget({ mode: 'create', turnCount: 6, thinkingLevel: 'high' })).toBe(1500)
+    expect(getThinkingBudget({ mode: 'create', turnCount: 6, thinkingLevel: 'extra-high' })).toBe(3000)
+  })
+
+  it('clamps an enabled budget into the supported range', () => {
+    // extra-high plan is 12000 — at the ceiling, never above it.
+    expect(getThinkingBudget({ mode: 'create', turnCount: 1, thinkingLevel: 'extra-high' })).toBe(12000)
   })
 })
 

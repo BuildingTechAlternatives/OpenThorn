@@ -1183,8 +1183,16 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
       input.onProgress?.({ type: 'compaction', message: 'Context compacted to save tokens.' })
     }
 
-    // ── Adaptive thinking budget ────────────────────────────────
-    const thinkingBudget = getThinkingBudget({ mode, turnCount, thinkingLevel })
+    // ── Phase-gated thinking budget ─────────────────────────────
+    // Thinking is reserved for planning a fresh build and recovering from a
+    // compile/runtime error (an outstanding lesson means errors are unresolved).
+    // Mechanical build turns think 0 — that is what keeps runs fast.
+    const thinkingBudget = getThinkingBudget({
+      mode,
+      turnCount,
+      thinkingLevel,
+      hasPendingErrors: runCtx.pendingErrorLessons.length > 0,
+    })
 
     // ── Call the model (with mid-run provider failover) ─────────
     // Each call already retries transient failures internally. If a provider
