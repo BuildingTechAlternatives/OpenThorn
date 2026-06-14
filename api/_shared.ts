@@ -66,8 +66,10 @@ const PROJECT_ID_RE = /^[A-Za-z0-9_-]{1,100}$/
 export interface ProjectAccess {
   /** True only when the caller may deploy this project. */
   ok: boolean
-  /** The project's persisted Netlify site id, or null if it has none yet. */
+  /** The project's persisted CF Pages project name, or null if it has none yet. */
   siteId: string | null
+  /** The project's title, used to build a readable subdomain on first deploy. */
+  title: string | null
 }
 
 export async function getProjectForDeploy(
@@ -76,20 +78,25 @@ export async function getProjectForDeploy(
 ): Promise<ProjectAccess> {
   const env = supabaseEnv()
   const token = bearer(authorization)
-  if (!env || !token || !PROJECT_ID_RE.test(projectId)) return { ok: false, siteId: null }
+  if (!env || !token || !PROJECT_ID_RE.test(projectId)) return { ok: false, siteId: null, title: null }
 
   try {
     const res = await fetch(
-      `${env.url}/rest/v1/projects?id=eq.${encodeURIComponent(projectId)}&select=cf_pages_project_name&limit=1`,
+      `${env.url}/rest/v1/projects?id=eq.${encodeURIComponent(projectId)}&select=cf_pages_project_name,title&limit=1`,
       { headers: { apikey: env.anonKey, Authorization: `Bearer ${token}`, Accept: 'application/json' } },
     )
-    if (!res.ok) return { ok: false, siteId: null }
-    const rows = (await res.json()) as Array<{ cf_pages_project_name?: string | null }>
-    if (!Array.isArray(rows) || rows.length === 0) return { ok: false, siteId: null }
+    if (!res.ok) return { ok: false, siteId: null, title: null }
+    const rows = (await res.json()) as Array<{ cf_pages_project_name?: string | null; title?: string | null }>
+    if (!Array.isArray(rows) || rows.length === 0) return { ok: false, siteId: null, title: null }
     const siteId = rows[0]?.cf_pages_project_name
-    return { ok: true, siteId: typeof siteId === 'string' && siteId ? siteId : null }
+    const title = rows[0]?.title
+    return {
+      ok: true,
+      siteId: typeof siteId === 'string' && siteId ? siteId : null,
+      title: typeof title === 'string' && title ? title : null,
+    }
   } catch {
-    return { ok: false, siteId: null }
+    return { ok: false, siteId: null, title: null }
   }
 }
 
@@ -260,15 +267,74 @@ async function cfFetch<T>(token: string, path: string, options: RequestInit): Pr
   return data.result
 }
 
-async function createCFPagesProject(token: string, accountId: string, projectId: string): Promise<string> {
-  const suffix = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
-  const name = `ot-${projectId.slice(0, 8)}-${suffix}`
-  await cfFetch<{ name: string }>(token, `/accounts/${accountId}/pages/projects`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, production_branch: 'main' }),
-  })
-  return name
+// Turn a project title into a Cloudflare Pages project name (== the pages.dev
+// subdomain). CF names are lowercase, [a-z0-9-], cannot start/end with a hyphen,
+// and max 58 chars. We cap the base well under that to leave room for a numeric
+// suffix or a uniqueness fallback. Diacritics are folded to ASCII (café → cafe).
+function slugifyTitle(title: string | null | undefined): string {
+  return (title ?? '')
+    .normalize('NFKD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40)
+    .replace(/-+$/g, '')
+}
+
+// CF rejects a create when the chosen name (and therefore the pages.dev
+// subdomain, which is unique across ALL Cloudflare accounts) is already taken.
+function isNameTakenError(err: unknown): boolean {
+  const msg = (err instanceof Error ? err.message : String(err)).toLowerCase()
+  return (
+    msg.includes('already exists') ||
+    msg.includes('already in use') ||
+    msg.includes('not available') ||
+    msg.includes('is taken') ||
+    msg.includes('unique') ||
+    msg.includes('8000007')
+  )
+}
+
+// Create a CF Pages project named after the site's title. The pages.dev
+// subdomain equals the project name, so we try the clean slug first
+// (joes-bakery.pages.dev) and fall back to numbered variants (joes-bakery-2, …),
+// then a guaranteed-unique name, only when the nicer ones are already claimed.
+async function createCFPagesProject(
+  token: string,
+  accountId: string,
+  projectId: string,
+  title: string | null | undefined,
+): Promise<{ name: string; url: string }> {
+  const base = slugifyTitle(title) || `site-${projectId.slice(0, 8)}`
+
+  const candidates = [base]
+  for (let i = 2; i <= 6; i++) candidates.push(`${base}-${i}`)
+  // Last resort: append a short random token so a create always eventually succeeds.
+  const token36 = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
+  candidates.push(`${base.slice(0, 50)}-${token36}`)
+
+  let lastErr: unknown
+  for (const name of candidates) {
+    try {
+      const result = await cfFetch<{ name: string; subdomain?: string }>(
+        token,
+        `/accounts/${accountId}/pages/projects`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, production_branch: 'main' }),
+        },
+      )
+      const subdomain = result.subdomain || `${result.name}.pages.dev`
+      return { name: result.name, url: `https://${subdomain}` }
+    } catch (err) {
+      lastErr = err
+      if (isNameTakenError(err)) continue
+      throw err
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error('Could not create a Cloudflare Pages project')
 }
 
 // Cloudflare Pages identifies each asset by blake3(base64(content) + fileExtension)
@@ -369,13 +435,22 @@ export interface DeployInput {
   projectId: string
   html: string
   existingSiteId?: string | null
+  /** Project title — used to pick a readable subdomain on the first deploy. */
+  title?: string | null
 }
 
 export async function runCloudflareDeploy(input: DeployInput): Promise<{ url: string; siteId: string }> {
   const { accountId, token } = cfEnv()
-  const projectName = input.existingSiteId ?? (await createCFPagesProject(token, accountId, input.projectId))
-  await deployToCFPages(token, accountId, projectName, input.html)
-  return { url: `https://${projectName}.pages.dev`, siteId: projectName }
+
+  // Reuse the project (and its existing subdomain) on subsequent deploys.
+  if (input.existingSiteId) {
+    await deployToCFPages(token, accountId, input.existingSiteId, input.html)
+    return { url: `https://${input.existingSiteId}.pages.dev`, siteId: input.existingSiteId }
+  }
+
+  const project = await createCFPagesProject(token, accountId, input.projectId, input.title)
+  await deployToCFPages(token, accountId, project.name, input.html)
+  return { url: project.url, siteId: project.name }
 }
 
 // ---------------------------------------------------------------------------

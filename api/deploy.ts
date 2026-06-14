@@ -56,7 +56,7 @@ export default async function handler(req: VercelReq, res: VercelRes): Promise<v
   }
 
   try {
-    const result = await runCloudflareDeploy({ projectId, html, existingSiteId: access.siteId })
+    const result = await runCloudflareDeploy({ projectId, html, existingSiteId: access.siteId, title: access.title })
     if (result.siteId !== access.siteId) {
       await persistProjectSiteId(authorization, projectId, result.siteId)
     }

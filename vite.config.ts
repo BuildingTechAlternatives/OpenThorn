@@ -67,7 +67,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
               if (!body.projectId || !body.html) return sendJson(res, 400, { error: 'Missing projectId or html' })
               const access = await getProjectForDeploy(req.headers.authorization, body.projectId)
               if (!access.ok) return sendJson(res, 403, { error: 'You do not have access to this project.' })
-              const result = await runCloudflareDeploy({ projectId: body.projectId, html: body.html, existingSiteId: access.siteId })
+              const result = await runCloudflareDeploy({ projectId: body.projectId, html: body.html, existingSiteId: access.siteId, title: access.title })
               if (result.siteId !== access.siteId) {
                 await persistProjectSiteId(req.headers.authorization, body.projectId, result.siteId)
               }
