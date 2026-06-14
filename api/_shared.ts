@@ -265,7 +265,7 @@ async function createCFPagesProject(token: string, accountId: string, projectId:
   await cfFetch<{ name: string }>(token, `/accounts/${accountId}/pages/projects`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name }),
+    body: JSON.stringify({ name, production_branch: 'main' }),
   })
   return name
 }
