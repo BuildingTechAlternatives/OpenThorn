@@ -12,7 +12,7 @@ export default function PrivacyPage() {
         OpenThorn is operated by <strong>Thomas Tschinkel</strong>, located in{' '}
         <strong>Rome, Italy</strong> (the "Data Controller"). For privacy-related enquiries,
         contact us at{' '}
-        <strong><a href="mailto:mys.thomas00@gmail.com">mys.thomas00@gmail.com</a></strong>.
+        <strong><a href="mailto:btalabs.contact@gmail.com">btalabs.contact@gmail.com</a></strong>.
       </p>
 
       <h2>2. What Data We Process</h2>
@@ -241,7 +241,7 @@ export default function PrivacyPage() {
       </ul>
       <p>
         To exercise any of these rights, email us at{' '}
-        <strong><a href="mailto:mys.thomas00@gmail.com">mys.thomas00@gmail.com</a></strong>.
+        <strong><a href="mailto:btalabs.contact@gmail.com">btalabs.contact@gmail.com</a></strong>.
         We will respond within 30 days.
       </p>
 
@@ -272,7 +272,7 @@ export default function PrivacyPage() {
       <h2>12. Contact</h2>
       <p>
         For any questions about this privacy policy or your personal data, contact us at{' '}
-        <strong><a href="mailto:mys.thomas00@gmail.com">mys.thomas00@gmail.com</a></strong>.
+        <strong><a href="mailto:btalabs.contact@gmail.com">btalabs.contact@gmail.com</a></strong>.
       </p>
     </LegalPage>
   )

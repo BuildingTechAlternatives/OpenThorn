@@ -107,7 +107,7 @@ export default function CookiesPage() {
       <h2>9. Contact</h2>
       <p>
         For questions about our use of cookies or local storage, contact us at{' '}
-        <strong><a href="mailto:mys.thomas00@gmail.com">mys.thomas00@gmail.com</a></strong>.
+        <strong><a href="mailto:btalabs.contact@gmail.com">btalabs.contact@gmail.com</a></strong>.
       </p>
     </LegalPage>
   )

@@ -45,7 +45,7 @@ const RICH_ANSWERS: Record<string, React.ReactNode> = {
   ),
   'Can I delete my data?': (
     <>
-      Yes. Email <a href="mailto:mys.thomas00@gmail.com">mys.thomas00@gmail.com</a> to request full
+      Yes. Email <a href="mailto:btalabs.contact@gmail.com">btalabs.contact@gmail.com</a> to request full
       account and data deletion. We will process your request within 30 days.
     </>
   ),
@@ -111,7 +111,7 @@ export default function FaqPage() {
           </h1>
           <p className={styles.subtitle}>
             Everything you need to know about OpenThorn. Can&rsquo;t find your answer?{' '}
-            <a href="mailto:mys.thomas00@gmail.com">Drop us a line.</a>
+            <a href="mailto:btalabs.contact@gmail.com">Drop us a line.</a>
           </p>
           <p className={styles.lastUpdated}>
             Last updated:{' '}
@@ -136,7 +136,7 @@ export default function FaqPage() {
 
         <div className={styles.cta}>
           Still have questions?{' '}
-          <a href="mailto:mys.thomas00@gmail.com">Contact us</a> — we&rsquo;re happy to help. You
+          <a href="mailto:btalabs.contact@gmail.com">Contact us</a> — we&rsquo;re happy to help. You
           can also read{' '}
           <Link to="/blog/what-is-a-byok-ai-website-builder">
             what a BYOK AI website builder is

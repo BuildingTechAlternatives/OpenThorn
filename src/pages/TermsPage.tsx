@@ -28,7 +28,7 @@ export default function TermsPage() {
           credentials.
         </li>
         <li>
-          You must notify us immediately at <strong><a href="mailto:mys.thomas00@gmail.com">mys.thomas00@gmail.com</a></strong> if you suspect
+          You must notify us immediately at <strong><a href="mailto:btalabs.contact@gmail.com">btalabs.contact@gmail.com</a></strong> if you suspect
           unauthorised access to your account.
         </li>
         <li>You must be at least 16 years old to use the service.</li>
@@ -200,7 +200,7 @@ export default function TermsPage() {
       <h2>13. Termination</h2>
       <p>
         We may suspend or terminate your account if you breach these Terms. You may delete
-        your account at any time by contacting us at <strong><a href="mailto:mys.thomas00@gmail.com">mys.thomas00@gmail.com</a></strong>.
+        your account at any time by contacting us at <strong><a href="mailto:btalabs.contact@gmail.com">btalabs.contact@gmail.com</a></strong>.
         Termination does not affect any accrued rights or obligations.
       </p>
 
@@ -223,7 +223,7 @@ export default function TermsPage() {
 
       <h2>16. Contact</h2>
       <p>
-        For any questions about these Terms, contact us at <strong><a href="mailto:mys.thomas00@gmail.com">mys.thomas00@gmail.com</a></strong>.
+        For any questions about these Terms, contact us at <strong><a href="mailto:btalabs.contact@gmail.com">btalabs.contact@gmail.com</a></strong>.
       </p>
     </LegalPage>
   )

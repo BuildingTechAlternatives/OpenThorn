@@ -10,7 +10,7 @@ export default function ImprintPage() {
       <h2>Operator</h2>
       <p>
         Name: <strong>Thomas Tschinkel</strong><br />
-        Email: <a href="mailto:mys.thomas00@gmail.com">mys.thomas00@gmail.com</a><br />
+        Email: <a href="mailto:btalabs.contact@gmail.com">btalabs.contact@gmail.com</a><br />
         Country: Italy
       </p>
     </LegalPage>

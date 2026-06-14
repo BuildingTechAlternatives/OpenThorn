@@ -19,7 +19,7 @@ export default function ModerationPage() {
       <p>
         For Digital Services Act, moderation, law-enforcement, or regulatory enquiries,
         contact us at{' '}
-        <strong><a href="mailto:mys.thomas00@gmail.com">mys.thomas00@gmail.com</a></strong>.
+        <strong><a href="mailto:btalabs.contact@gmail.com">btalabs.contact@gmail.com</a></strong>.
         Please write in English, German, or Italian and include enough detail for us to
         identify the content or account concerned.
       </p>
@@ -55,7 +55,7 @@ export default function ModerationPage() {
       <p>
         If your content or account is restricted and you believe the decision was wrong,
         contact us at{' '}
-        <strong><a href="mailto:mys.thomas00@gmail.com">mys.thomas00@gmail.com</a></strong>
+        <strong><a href="mailto:btalabs.contact@gmail.com">btalabs.contact@gmail.com</a></strong>
         {' '}with the subject line "Moderation Appeal". Include the original decision,
         your account email, the affected content, and why you believe the decision should
         be changed.
@@ -80,7 +80,7 @@ export default function ModerationPage() {
       <h2>8. Emergency and Authority Requests</h2>
       <p>
         Public authorities and law-enforcement bodies may contact us at{' '}
-        <strong><a href="mailto:mys.thomas00@gmail.com">mys.thomas00@gmail.com</a></strong>.
+        <strong><a href="mailto:btalabs.contact@gmail.com">btalabs.contact@gmail.com</a></strong>.
         We will review requests under applicable law and may require proof of authority,
         legal basis, and a clear description of the requested action.
       </p>

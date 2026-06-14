@@ -49,7 +49,7 @@ Single-column layout, max-width `--max-width` (1100px), centered.
 8. **Are my API keys safe?** — Yes. Keys are encrypted with AES-256-GCM before being stored and are never shared with third parties or used outside your own requests.
 9. **What data does OpenThorn store?** — Your email address, encrypted API keys, project names, and the prompts and code within your projects. Nothing else.
 10. **Where is my data hosted?** — On Vercel's infrastructure. Data may be processed in the United States under Standard Contractual Clauses (SCCs).
-11. **Can I delete my data?** — Yes. Contact mys.thomas00@gmail.com to request account and data deletion.
+11. **Can I delete my data?** — Yes. Contact btalabs.contact@gmail.com to request account and data deletion.
 
 ### Pricing
 12. **Is OpenThorn free to use?** — The platform itself is free. You pay only for the AI usage billed directly by your provider based on the model and tokens used.
