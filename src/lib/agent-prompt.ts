@@ -1,4 +1,4 @@
-/**
+﻿/**
  * OpenThorn Agent — System prompt, tool definitions, and skill blocks.
  *
  * ## Design Principles
@@ -16,6 +16,12 @@
  */
 
 import { ALLOWED_PACKAGES } from './allowed-packages'
+import skillUiUxProMax from './skills/ui-ux-pro-max'
+import skillFrontendDesign from './skills/frontend-design'
+import skillReactBestPractices from './skills/react-best-practices'
+import skillMotionDevAnimations from './skills/motion-dev-animations'
+import skillPerformance from './skills/performance'
+import skillCoreWebVitals from './skills/core-web-vitals'
 import {
   AGENT_THINKING_PROFILES,
   normalizeThinkingLevel,
@@ -155,6 +161,32 @@ export const AGENT_TOOLS: ToolDefinition[] = [
       'List all files currently in the virtual project. Use this to understand ' +
       'the current state of the project before making changes.',
     input_schema: { type: 'object', properties: {}, additionalProperties: false },
+  },
+  {
+    name: 'load_skill',
+    description:
+      'Load a skill to get deep domain knowledge before working on tasks in that ' +
+      'domain. Call this at the start of a task when it falls into one of the ' +
+      'available skill domains. The full skill body is returned as the result.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        skill_id: {
+          type: 'string',
+          enum: [
+            'core-web-vitals',
+            'frontend-design',
+            'motion-dev-animations',
+            'performance',
+            'react-best-practices',
+            'ui-ux-pro-max',
+          ],
+          description: 'The skill to load.',
+        },
+      },
+      required: ['skill_id'],
+      additionalProperties: false,
+    },
   },
   {
     name: 'multi_edit',
@@ -538,7 +570,19 @@ For visible UI/canvas/game changes, run inspect_preview before done to measure t
 - **inspect_preview** — your eyes on the layout. After a clean compile, run it on any visual UI to get MEASURED facts: viewport overflow, real contrast ratios, clipped/overlapping/off-screen elements, small tap targets. Use it to fix design bugs you would otherwise have to guess at, then compile and (if it changed things) re-inspect. Skip it for non-visual work.
 - **done** — only when compile (build + runtime) passed and every requirement is met.
 - For visible UI, done may run screenshot review. If it rejects overlap, clipping, contrast, or mobile layout issues, fix them, compile, and call done again.
+- **load_skill** — call this at the start of a task to load deep domain knowledge. Returns the full skill body as text. Use it proactively; don't wait until you're stuck.
 </tool-guidance>
+
+<available-skills>
+Call load_skill(skill_id) before working on tasks in these domains:
+
+- ui-ux-pro-max          → Design intelligence: color palettes, UX rules, responsive patterns, accessibility, typography, animation principles
+- frontend-design        → Distinctive interfaces with bold aesthetic direction; avoids generic AI aesthetics; creative typography and layout choices
+- react-best-practices   → React 19 hooks, effects, refs, composition, component patterns
+- motion-dev-animations  → Motion.dev (Framer Motion successor): 120fps animations, scroll effects, gestures, spring physics
+- performance            → Loading speed, code splitting, image optimization, fonts, caching, runtime perf
+- core-web-vitals        → LCP, INP, CLS — specific fixes, checklists, React/Next.js patterns
+</available-skills>
 
 <rules>
 - Never create an empty file or leave placeholder comments (TODO/FIXME/"...").
@@ -755,203 +799,54 @@ The run ends automatically when turns run out — unfinished work is what the us
 </system-reminder>`
 }
 
-// ─── Skill Blocks (Progressive Disclosure) ─────────────────────────────────
+// ─── Skill Blocks (On-Demand via load_skill tool) ──────────────────────────
 
 /**
- * Skills load on demand when trigger keywords match the user's request.
- * Metadata is always visible; body is injected via <system-reminder> when triggered.
- * This keeps the base prompt lean while providing deep knowledge on demand.
+ * Skills are loaded on demand by the agent via the load_skill tool.
+ * The agent sees only id + description in the system prompt and decides
+ * itself when to load a skill. The full body is returned as the tool result.
  */
 export interface SkillBlock {
   id: string
-  /** Short description shown in the skill list (always in context). */
   description: string
-  /** Keywords that trigger this skill to load its full body. Case-insensitive. */
-  triggers: string[]
-  /** The full skill body, injected as a <system-reminder> when triggered. */
   body: string
 }
 
 export const SKILL_BLOCKS: SkillBlock[] = [
   {
-    id: 'routing',
-    description: 'Multi-page apps with react-router-dom v6',
-    triggers: [
-      'pages',
-      'routing',
-      'navigation',
-      'multi-page',
-      'router',
-      'react-router',
-      'link',
-      'navlink',
-      'browserrouter',
-      'routes',
-      'useparams',
-      'usenavigate',
-      'outlet',
-      '404',
-      'not found page',
-    ],
-    body: `<system-reminder>
-The "routing" skill has been activated because this project involves multi-page navigation.
-
-<routing-skill>
-Use react-router-dom for multi-page apps. Import from 'react-router-dom':
-
-  \`import { HashRouter, Routes, Route, Link, NavLink, useNavigate, useParams, Outlet } from 'react-router-dom'\`
-
-- Wrap your app in \`<HashRouter>\` (in App.tsx)
-- Define routes with \`<Routes>\` and \`<Route path="..." element={...} />\`
-- Use \`<Link to="/page">\` or \`<NavLink>\` for navigation (never plain \`<a href>\`)
-- Create page components in \`src/pages/\`
-- Include \`<Route path="*" element={<NotFound />} />\` as the last route
-- For single-page scroll sites, skip routing entirely — use id anchors
-
-Example:
-  src/App.tsx       → HashRouter + Routes
-  src/pages/Home.tsx
-  src/pages/Game.tsx
-  src/pages/NotFound.tsx
-  src/components/Navbar.tsx
-</routing-skill>
-</system-reminder>`,
+    id: 'ui-ux-pro-max',
+    description:
+      'Design intelligence: color palettes, UX rules, responsive patterns, accessibility, typography, animation principles',
+    body: skillUiUxProMax,
   },
   {
-    id: 'accessibility',
-    description: 'WCAG compliance, screen readers, keyboard navigation',
-    triggers: [
-      'accessible',
-      'accessibility',
-      'a11y',
-      'wcag',
-      'screen reader',
-      'keyboard',
-      'focus',
-      'aria',
-      'contrast',
-      'alt text',
-    ],
-    body: `<system-reminder>
-The "accessibility" skill has been activated because this project involves accessibility requirements.
-
-<accessibility-skill>
-- Use semantic HTML: <header>, <nav>, <main>, <section>, <article>, <aside>, <footer>
-- Every <input>, <select>, <textarea> needs an associated <label>
-- Visible focus outlines on all interactive elements (never outline: none without a replacement)
-- Color contrast: at least 4.5:1 for body text, 3:1 for large text (18px+ bold or 24px+ regular)
-- Images and icons: aria-label or aria-hidden with adjacent screen-reader text
-- Use button for actions, a for navigation — never div onClick for interactive elements
-- Add aria-current="page" to the active nav link
-- Test: can you navigate the entire site with just the Tab key?
-</accessibility-skill>
-</system-reminder>`,
+    id: 'frontend-design',
+    description:
+      'Distinctive interfaces with bold aesthetic direction; avoids generic AI aesthetics; creative typography and layout choices',
+    body: skillFrontendDesign,
   },
   {
-    id: 'animation',
-    description: 'CSS animations, transitions, micro-interactions',
-    triggers: [
-      'animation',
-      'animate',
-      'transition',
-      'motion',
-      'fade',
-      'slide',
-      'scroll animation',
-      'micro-interaction',
-      'hover effect',
-    ],
-    body: `<system-reminder>
-The "animation" skill has been activated because this project involves animations or transitions.
-
-<animation-skill>
-- Prefer CSS transitions and @keyframes over JavaScript animation libraries
-- Use transform and opacity for performant animations (they only trigger compositing, not layout)
-- Add prefers-reduced-motion: no-preference around animations:
-  \`\`\`css
-  @media (prefers-reduced-motion: no-preference) {
-    .element { animation: fadeIn 0.5s ease; }
-  }
-  \`\`\`
-- Scroll-triggered animations: use Intersection Observer with a CSS class toggle
-- Keep animations subtle: 200-500ms duration, ease-out or cubic-bezier curves
-- Stagger child animations with animation-delay for list items
-</animation-skill>
-</system-reminder>`,
+    id: 'react-best-practices',
+    description: 'React 19 hooks, effects, refs, composition, component patterns',
+    body: skillReactBestPractices,
   },
   {
-    id: 'canvas-game',
-    description: 'Canvas games, game loops, sprites, collision, power-ups',
-    triggers: [
-      'game',
-      'canvas',
-      'dino',
-      'runner',
-      'obstacle',
-      'collision',
-      'jump',
-      'double-jump',
-      'power-up',
-      'sprite',
-      'particles',
-      'screen shake',
-      'score',
-      'spawn',
-    ],
-    body: `<system-reminder>
-The "canvas-game" skill has been activated because this project involves a canvas/game-loop mechanic.
-
-<canvas-game-skill>
-- First map the loop phases from the existing file: input -> physics/update -> spawn -> collision -> draw -> reset/restart.
-- For a small mechanic change, patch the existing component with edit_file or multi_edit. Do not rewrite a long game file unless targeted edits cannot safely match.
-- Any new mechanic must update all relevant paths: state/ref shape, reset/start/restart, per-frame update, draw, collision/collection, and cleanup.
-- Use stable constants for sizes, speeds, durations, spawn odds, and cooldowns. Compute gameplay timings before choosing numbers.
-- For power-ups: define spawn conditions, pickup bounds, active duration/charges, UI feedback, expiry/reset, and collision behavior.
-- Before done, trace one concrete scenario through 2-3 frames: spawn, pickup/collision, effect activation, expiry/reset. Then compile once after the edit batch.
-</canvas-game-skill>
-</system-reminder>`,
+    id: 'motion-dev-animations',
+    description:
+      'Motion.dev (Framer Motion successor): 120fps animations, scroll effects, gestures, spring physics',
+    body: skillMotionDevAnimations,
   },
   {
-    id: 'forms',
-    description: 'Form validation, controlled inputs, submission handling',
-    triggers: [
-      'form',
-      'validation',
-      'input',
-      'contact form',
-      'signup',
-      'login',
-      'subscribe',
-      'newsletter',
-    ],
-    body: `<system-reminder>
-The "forms" skill has been activated because this project involves form handling.
-
-<forms-skill>
-- Use controlled inputs with React useState (value + onChange)
-- Validate on blur, not on every keystroke (better UX)
-- Show inline error messages next to the offending field, not in a generic banner
-- Disable the submit button while submitting (prevents double-submit)
-- Add type="email", required, minLength, pattern attributes for HTML5 validation as a first line
-- Loading state: show a spinner or "Sending..." text on the submit button
-- Success state: clear the form or show a confirmation message
-- Error state: show the error message and re-enable the button
-- All inputs need accessible labels (see accessibility skill)
-</forms-skill>
-</system-reminder>`,
+    id: 'performance',
+    description: 'Loading speed, code splitting, image optimization, fonts, caching, runtime performance',
+    body: skillPerformance,
+  },
+  {
+    id: 'core-web-vitals',
+    description: 'LCP, INP, CLS — specific fixes, checklists, React/Next.js patterns',
+    body: skillCoreWebVitals,
   },
 ]
-
-/**
- * Determine which skill blocks should be activated based on the user's prompt.
- * Returns the matched skill blocks (id for UI display, body for injection).
- */
-export function resolveActiveSkills(prompt: string): SkillBlock[] {
-  const lower = prompt.toLowerCase()
-  return SKILL_BLOCKS.filter((skill) =>
-    skill.triggers.some((trigger) => lower.includes(trigger.toLowerCase())),
-  )
-}
 
 // ─── Compaction Prompt ─────────────────────────────────────────────────────
 

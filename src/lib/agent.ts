@@ -1,11 +1,11 @@
 import {
   AGENT_SYSTEM_PROMPT,
   AGENT_TOOLS,
+  SKILL_BLOCKS,
   TOOL_CATEGORIES,
   COMPACTION_PROMPT,
   SPEC_PHASE_PROMPT,
   buildThinkingLevelPrompt,
-  resolveActiveSkills,
   getThinkingBudget,
   getReasoningParams,
   loopBreakPrompt,
@@ -1023,15 +1023,6 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     .single()
   const customInstructions = (profileData as { custom_instructions: string | null } | null)?.custom_instructions?.trim() ?? ''
 
-  // ── Resolve active skills from prompt ────────────────────────
-  const activeSkills = resolveActiveSkills(input.prompt)
-  if (activeSkills.length > 0) {
-    input.onProgress?.({
-      type: 'status',
-      message: `Activated skills: ${activeSkills.map((s) => s.id).join(', ')}`,
-    })
-  }
-
   const isNewProject =
     input.files.length === 0 || input.files[0].path === 'No files yet'
   const mode = input.mode ?? 'create'
@@ -1050,11 +1041,6 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
 
   // ── Build initial messages ────────────────────────────────────
   const messages: LlmMessage[] = []
-
-  // Inject skill blocks (preserves cache)
-  for (const skill of activeSkills) {
-    messages.push({ role: 'user', content: skill.body })
-  }
 
   // Inject memory context (lessons + failed approaches)
   if (memoryContext) {
@@ -2499,6 +2485,24 @@ async function executeTool(
         isError: false,
         files: currentFiles,
       }
+    }
+
+    // ── load_skill ──────────────────────────────────────────────
+    case 'load_skill': {
+      const skillId = String(toolCall.input.skill_id ?? '')
+      const skill = SKILL_BLOCKS.find((s) => s.id === skillId)
+      if (!skill) {
+        return {
+          content: formatStructuredError({
+            code: 'SKILL_NOT_FOUND',
+            message: `Unknown skill: "${skillId}"`,
+            suggestion: `Available skills: ${SKILL_BLOCKS.map((s) => s.id).join(', ')}`,
+            retryable: false,
+          }),
+          isError: true,
+        }
+      }
+      return { content: skill.body, isError: false }
     }
 
     default:
