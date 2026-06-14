@@ -27,20 +27,12 @@ import {
   type AgentThinkingLevel,
 } from './agent-thinking'
 import { buildPreview } from './preview-bundle'
-import { captureResponsiveViews } from './preview-screenshot'
 import {
   runtimeSmokeTest,
   interactiveSmokeTest,
   formatRuntimeReport,
 } from './preview-runtime-check'
 import { inspectPreview, formatInspectReport } from './preview-inspect'
-import {
-  VISUAL_REVIEW_SYSTEM,
-  buildVisualReviewPrompt,
-  formatVisualFeedback,
-  parseVisualReview,
-  viewsToVisionImages,
-} from './agent-vision'
 import {
   PLAN_PATH,
   createPlan,
@@ -1660,8 +1652,6 @@ interface RunContext {
   lastCompileOk: boolean
   /** How many times the done verification gate has rejected done this run. */
   doneRejections: number
-  /** File fingerprint for the latest passing visual review. */
-  visualReviewHash?: string
   /** Lessons distilled from compile/runtime errors not yet known to be fixed. */
   pendingErrorLessons: string[]
   /** Lessons from errors that a later passing compile confirmed recovered (#1). */
@@ -2633,16 +2623,6 @@ async function runDoneVerificationGate(
         html: preview.html,
       })
       if (layoutRejection) return layoutRejection
-
-      const visualRejection = await runVisualReviewGate({
-        runCtx,
-        currentFiles,
-        html: preview.html,
-        provider,
-        signal,
-        onProgress,
-      })
-      if (visualRejection) return visualRejection
     }
   } catch {
     // Inconclusive (no DOM / bundler hiccup) — never block done on a flaky check.
@@ -2669,44 +2649,14 @@ function projectFingerprint(files: AgentCodeFile[]): string {
     .join('|')
 }
 
-const VISUAL_REVIEW_PROMPT_RE =
+const LAYOUT_GATE_PROMPT_RE =
   /\b(visual|design|layout|style|css|theme|dark|light|button|icon|canvas|game|animation|sprite|particle|shake|responsive|mobile|overlap|clip|contrast|color|polish|ui)\b/i
-
-export function supportsVisualReview(providerId: string, modelId: string): boolean {
-  const provider = providerId.toLowerCase()
-  const model = modelId.toLowerCase()
-
-  if (provider === 'anthropic' || provider === 'google') return true
-  if (provider === 'openai' || provider === 'azure') {
-    return /\b(gpt-4o|gpt-4\.1|gpt-5|o3|o4|vision)\b/.test(model)
-  }
-  if (provider === 'openrouter') {
-    return /(claude|gemini|gpt-4o|gpt-4\.1|gpt-5|o3|o4|pixtral|qwen.*vl|llava|vision)/.test(model)
-  }
-  if (provider === 'mistral') return /pixtral|vision/.test(model)
-
-  return false
-}
-
-export function shouldRunVisualReviewForRun(params: {
-  goal: string
-  mode: 'create' | 'refine'
-  mutatedPaths: string[]
-  providerId: string
-  modelId: string
-}): boolean {
-  if (!supportsVisualReview(params.providerId, params.modelId)) return false
-  if (params.mode === 'create') return true
-  if (VISUAL_REVIEW_PROMPT_RE.test(params.goal)) return true
-  return params.mutatedPaths.some((path) => path.endsWith('.css'))
-}
 
 /**
  * Whether to run the DETERMINISTIC layout gate (measured overflow/overlap/etc.)
- * before accepting done. Unlike the vision review, this needs no vision model,
- * so it applies to every provider — gated only on whether the run touched
- * visible UI: any create run, a visually-worded refine, or one that changed a
- * .css/.tsx/.jsx file.
+ * before accepting done. Applies to every provider — gated only on whether the
+ * run touched visible UI: any create run, a visually-worded refine, or one that
+ * changed a .css/.tsx/.jsx file.
  */
 export function shouldRunLayoutGateForRun(params: {
   goal: string
@@ -2714,7 +2664,7 @@ export function shouldRunLayoutGateForRun(params: {
   mutatedPaths: string[]
 }): boolean {
   if (params.mode === 'create') return true
-  if (VISUAL_REVIEW_PROMPT_RE.test(params.goal)) return true
+  if (LAYOUT_GATE_PROMPT_RE.test(params.goal)) return true
   return params.mutatedPaths.some(
     (path) => path.endsWith('.css') || path.endsWith('.tsx') || path.endsWith('.jsx'),
   )
@@ -2765,95 +2715,6 @@ async function runLayoutGate({
       'Fix the PROBLEM items (mobile overflow, overlap, clipped text, off-screen controls) at their cause — do not just hide them with overflow:hidden. Compile, then call done again.',
     retryable: true,
   })
-}
-
-async function runVisualReviewGate({
-  runCtx,
-  currentFiles,
-  html,
-  provider,
-  signal,
-  onProgress,
-}: {
-  runCtx: RunContext
-  currentFiles: AgentCodeFile[]
-  html: string
-  provider: ResolvedProvider
-  signal: AbortSignal | undefined
-  onProgress: ((event: AgentProgressEvent) => void) | undefined
-}): Promise<string | null> {
-  const fingerprint = projectFingerprint(currentFiles)
-  if (runCtx.visualReviewHash === fingerprint) return null
-
-  if (!shouldRunVisualReviewForRun({
-    goal: runCtx.goal,
-    mode: runCtx.mode,
-    mutatedPaths: [...runCtx.mutatedPaths],
-    providerId: provider.key.provider_id,
-    modelId: provider.model.id,
-  })) {
-    return null
-  }
-
-  const views = await captureResponsiveViews(html)
-  if (views.length === 0) return null
-
-  onProgress?.({
-    type: 'status',
-    message: `Running visual review (${views.map((v) => v.label).join(', ')}).`,
-  })
-
-  try {
-    const prompt = buildVisualReviewPrompt(runCtx.goal, views)
-    const images = viewsToVisionImages(views)
-    let streamedText = ''
-    const result = await callModelWithTools({
-      providerId: provider.key.provider_id,
-      baseUrl: provider.baseUrl,
-      apiKey: provider.key.api_key,
-      modelId: provider.model.id,
-      system: VISUAL_REVIEW_SYSTEM,
-      tools: [],
-      messages: [
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: prompt },
-            ...images.map((image) => ({
-              type: 'image' as const,
-              image: { base64: image.base64, mediaType: image.mediaType },
-            })),
-          ],
-        },
-      ],
-      signal,
-      onText: (chunk) => {
-        streamedText += chunk
-      },
-      thinkingBudget: 0,
-    })
-
-    const verdict = parseVisualReview(result.text || streamedText)
-    if (verdict.verdict === 'revise' && verdict.issues.length > 0) {
-      return formatStructuredError({
-        code: 'DONE_REJECTED',
-        message: formatVisualFeedback(verdict),
-        suggestion:
-          'Fix the visible issues from the screenshot review, compile, then call done again.',
-        retryable: true,
-      })
-    }
-
-    runCtx.visualReviewHash = fingerprint
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    onProgress?.({
-      type: 'status',
-      message: `Visual review skipped (${message.slice(0, 160)}).`,
-    })
-  }
-
-  return null
 }
 
 interface ModelCallResult {

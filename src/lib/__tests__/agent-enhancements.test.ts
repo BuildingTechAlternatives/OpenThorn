@@ -15,11 +15,6 @@ import {
   userMemoryToSystemReminder,
   forgetForUser,
 } from '../user-memory'
-import {
-  parseVisualReview,
-  formatVisualFeedback,
-  buildVisualReviewPrompt,
-} from '../agent-vision'
 import { formatTypeErrors } from '../typecheck'
 import {
   getReasoningParams,
@@ -120,49 +115,6 @@ describe('user-memory', () => {
     rememberForUser(uid, 'preference', 'prefers minimal')
     const reminder = userMemoryToSystemReminder(loadUserMemory(uid))
     expect(reminder.indexOf('Design preference')).toBeLessThan(reminder.indexOf('Fact'))
-  })
-})
-
-// ─── Visual review parsing (#1) ─────────────────────────────────────────────
-
-describe('agent-vision', () => {
-  it('parses a pass verdict', () => {
-    const v = parseVisualReview('VERDICT: pass\nSCORE: 9\nISSUES:\n- none')
-    expect(v.verdict).toBe('pass')
-    expect(v.score).toBe(9)
-    expect(v.issues).toEqual([])
-  })
-
-  it('parses a revise verdict with issues', () => {
-    const v = parseVisualReview(
-      'VERDICT: revise\nSCORE: 4\nISSUES:\n- White text on white background\n- Mobile layout overflows',
-    )
-    expect(v.verdict).toBe('revise')
-    expect(v.issues.length).toBe(2)
-  })
-
-  it('treats low score with issues as revise even if it said pass', () => {
-    const v = parseVisualReview('VERDICT: pass\nSCORE: 3\nISSUES:\n- Cramped spacing')
-    expect(v.verdict).toBe('revise')
-  })
-
-  it('formats actionable feedback', () => {
-    const fb = formatVisualFeedback({
-      verdict: 'revise',
-      score: 4,
-      issues: ['Low contrast hero'],
-      raw: '',
-    })
-    expect(fb).toContain('Low contrast hero')
-    expect(fb).toContain('Visual review')
-  })
-
-  it('builds a review prompt naming the viewports', () => {
-    const prompt = buildVisualReviewPrompt('Build X', [
-      { label: 'desktop', width: 1280, base64: '', mediaType: 'image/png' },
-    ])
-    expect(prompt).toContain('desktop')
-    expect(prompt).toContain('Build X')
   })
 })
 

@@ -7,10 +7,8 @@ import {
   isContinuationRequest,
   isLikelyBuildRequest,
   mergePromptRequirementsIntoPlan,
-  shouldRunVisualReviewForRun,
   shouldRunLayoutGateForRun,
   shouldRejectWholeFileRewrite,
-  supportsVisualReview,
   matchesGlob,
   nearestSnippet,
   type RunUsage,
@@ -129,28 +127,7 @@ describe('agent request planning helpers', () => {
     expect(next.items).toEqual(plan.items)
   })
 
-  it('runs visual review only when the provider and task support it', () => {
-    expect(supportsVisualReview('deepseek', 'deepseek-chat')).toBe(false)
-    expect(supportsVisualReview('anthropic', 'claude-sonnet-4-5')).toBe(true)
-    expect(supportsVisualReview('openai', 'gpt-4o')).toBe(true)
-
-    expect(shouldRunVisualReviewForRun({
-      goal: 'Add screen shake on collision',
-      mode: 'refine',
-      mutatedPaths: ['src/components/Game.tsx'],
-      providerId: 'deepseek',
-      modelId: 'deepseek-chat',
-    })).toBe(false)
-    expect(shouldRunVisualReviewForRun({
-      goal: 'Improve the mobile layout',
-      mode: 'refine',
-      mutatedPaths: ['src/styles/theme.css'],
-      providerId: 'anthropic',
-      modelId: 'claude-sonnet-4-5',
-    })).toBe(true)
-  })
-
-  it('runs the deterministic layout gate regardless of vision support', () => {
+  it('runs the deterministic layout gate', () => {
     // Every create run is visual — gate applies even for a no-vision provider.
     expect(shouldRunLayoutGateForRun({
       goal: 'Build a restaurant website',
