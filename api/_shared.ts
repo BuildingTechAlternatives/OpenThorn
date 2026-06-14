@@ -1,6 +1,6 @@
 // Shared server-side helpers for Vercel Functions and the Vite dev shims.
 // Files prefixed with "_" are not treated as routes by Vercel.
-import { createHash, createCipheriv, createDecipheriv, randomBytes, hkdfSync } from 'node:crypto'
+import { createCipheriv, createDecipheriv, randomBytes, hkdfSync } from 'node:crypto'
 import { blake3 } from 'hash-wasm'
 
 // ---------------------------------------------------------------------------
