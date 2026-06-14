@@ -10,8 +10,12 @@ import {
   getReasoningParams,
   loopBreakPrompt,
   turnBudgetPrompt,
+  selectToolsForRun,
+  LEAN_TOOLSET_REMINDER,
+  capToolResultContent,
   type ToolDefinition,
 } from './agent-prompt'
+import { normalizeWrittenCode } from './agent-lint'
 import { decryptApiKey, encryptApiKey } from './crypto'
 import {
   AGENT_THINKING_PROFILES,
@@ -25,6 +29,7 @@ import {
   interactiveSmokeTest,
   formatRuntimeReport,
 } from './preview-runtime-check'
+import { inspectPreview, formatInspectReport } from './preview-inspect'
 import {
   VISUAL_REVIEW_SYSTEM,
   buildVisualReviewPrompt,
@@ -63,6 +68,8 @@ import {
   changelogToSystemReminder,
   createChangelogEntry,
   generateSessionId,
+  extractLessonFromError,
+  consolidateLessons,
 } from './agent-memory'
 import {
   DEFAULT_BASE_URLS,
@@ -955,6 +962,15 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   const thinkingLevel = normalizeThinkingLevel(input.thinkingLevel)
   const thinkingProfile = AGENT_THINKING_PROFILES[thinkingLevel]
 
+  // ── Progressive tool expansion (#6) ───────────────────────────
+  // Choose the tool set once, then hold it stable for the whole run so the API
+  // tool schema stays byte-identical across turns (prompt-cache safe).
+  const { tools: runTools, expanded: toolsExpanded } = selectToolsForRun({
+    mode,
+    isNewProject,
+    prompt: input.prompt,
+  })
+
   // ── Build initial messages ────────────────────────────────────
   const messages: LlmMessage[] = []
 
@@ -982,6 +998,12 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   }
 
   messages.push({ role: 'user', content: buildThinkingLevelPrompt(thinkingLevel) })
+
+  // When the lean tool set is in effect, tell the model so it doesn't try to
+  // call a deferred tool the system prompt still mentions.
+  if (!toolsExpanded) {
+    messages.push({ role: 'user', content: LEAN_TOOLSET_REMINDER })
+  }
 
   // SPEC PHASE: for new projects, inject spec guidance
   if (isNewProject || mode === 'create') {
@@ -1049,6 +1071,8 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     dirtySinceCompile: true,
     lastCompileOk: false,
     doneRejections: 0,
+    pendingErrorLessons: [],
+    recoveredLessons: [],
   }
 
   // Track session details for changelog
@@ -1092,7 +1116,7 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
         apiKey: provider.key.api_key,
         modelId: provider.model.id,
         system: AGENT_SYSTEM_PROMPT,
-        tools: AGENT_TOOLS,
+        tools: runTools,
         messages,
         signal: input.signal,
         onText: (chunk) => {
@@ -1341,16 +1365,17 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
         ],
       })
 
-      // ── Write changelog entry ──────────────────────────────────
+      // ── Write lessons + changelog entry ────────────────────────
       // Into currentFiles — input.files is the pre-run snapshot and is
       // discarded by the caller, which persists the returned files.
+      persistRunLessons(currentFiles, runCtx.recoveredLessons)
       await saveSessionChangelog(input.userId, currentFiles, {
         sessionId,
         prompt: input.prompt,
         filesCreated: sessionFilesCreated,
         filesEdited: sessionFilesEdited,
         approaches: [],
-        lessons: [],
+        lessons: runCtx.recoveredLessons,
       })
 
       // Persist a durable cross-project fact about what was built (#8).
@@ -1365,14 +1390,15 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     }
   }
 
-  // ── Max turns reached — write changelog anyway ─────────────────
+  // ── Max turns reached — write lessons + changelog anyway ───────
+  persistRunLessons(currentFiles, runCtx.recoveredLessons)
   await saveSessionChangelog(input.userId, currentFiles, {
     sessionId,
     prompt: input.prompt,
     filesCreated: sessionFilesCreated,
     filesEdited: sessionFilesEdited,
     approaches: [],
-    lessons: [],
+    lessons: runCtx.recoveredLessons,
   })
 
   circuitBreaker.recordSuccess(provider.key.provider_id)
@@ -1453,6 +1479,41 @@ async function saveSessionChangelog(
   }
 }
 
+/**
+ * Distil a lesson from a compile/runtime error and stash it as pending (#1).
+ * It becomes a recorded lesson only if a later compile passes — i.e. the agent
+ * actually recovered from it. Deduped to avoid repeating the same error.
+ */
+function recordPendingLesson(runCtx: RunContext, errorText: string | null): void {
+  const lesson = extractLessonFromError(errorText ?? '')
+  if (!lesson) return
+  if (runCtx.pendingErrorLessons.includes(lesson)) return
+  if (runCtx.recoveredLessons.includes(lesson)) return
+  runCtx.pendingErrorLessons.push(lesson)
+}
+
+/**
+ * Persist recovered lessons into lessons.md and consolidate the file so it
+ * stays lean (#1 + #3). Mutates `files` in place (mirrors saveSessionChangelog).
+ */
+function persistRunLessons(files: AgentCodeFile[], lessons: string[]): void {
+  if (lessons.length === 0) return
+
+  const lessonsFile = files.find((f) => f.path === 'src/lib/lessons.md')
+  let entries = lessonsFile ? parseLessons(lessonsFile.code) : []
+  for (const content of lessons) {
+    entries = addLesson(entries, 'GOTCHA', content)
+  }
+  entries = consolidateLessons(entries)
+  const formatted = formatLessons(entries)
+
+  if (lessonsFile) {
+    lessonsFile.code = formatted
+  } else {
+    files.push({ path: 'src/lib/lessons.md', language: 'md', code: formatted })
+  }
+}
+
 // ─── Public Memory API (called from UI after user corrections) ──────────────
 
 /**
@@ -1503,6 +1564,10 @@ interface RunContext {
   doneRejections: number
   /** File fingerprint for the latest passing visual review. */
   visualReviewHash?: string
+  /** Lessons distilled from compile/runtime errors not yet known to be fixed. */
+  pendingErrorLessons: string[]
+  /** Lessons from errors that a later passing compile confirmed recovered (#1). */
+  recoveredLessons: string[]
 }
 
 async function executeToolsParallel(
@@ -1580,7 +1645,11 @@ async function executeToolsParallel(
     if (result.files) currentFiles = result.files
   }
 
-  return results.filter((r): r is ToolResult => r !== null)
+  // Uniform last-line cap (#4): every tool result is bounded, so no single
+  // verbose output (minified line, giant error dump) can blow the context.
+  return results
+    .filter((r): r is ToolResult => r !== null)
+    .map((r) => ({ ...r, content: capToolResultContent(r.content) }))
 }
 
 // ─── Tool Execution ─────────────────────────────────────────────────────────
@@ -1926,10 +1995,20 @@ async function executeTool(
         }
       }
 
+      // Deterministic write-time cleanup (#5): safe normalizations the harness
+      // applies so the model doesn't have to (trailing whitespace, blank-line
+      // runs, provably-unused React hook imports).
+      const normalized = normalizeWrittenCode(language, code)
+      const finalCode = normalized.code
+
       const isNew = !existingFile
-      const newFiles = upsertFile(currentFiles, { path, language, code })
+      const newFiles = upsertFile(currentFiles, { path, language, code: finalCode })
+      const cleanupNote =
+        normalized.removedImports.length > 0
+          ? ` Cleaned up unused import(s): ${normalized.removedImports.join(', ')}.`
+          : ''
       return {
-        content: `${isNew ? 'Created' : 'Overwrote'} ${path} (${code.split('\n').length} lines, ${code.length} chars).`,
+        content: `${isNew ? 'Created' : 'Overwrote'} ${path} (${finalCode.split('\n').length} lines, ${finalCode.length} chars).${cleanupNote}`,
         isError: false,
         files: newFiles,
       }
@@ -2080,7 +2159,10 @@ async function executeTool(
           const runtime = await runtimeSmokeTest(preview.html)
           const report = formatRuntimeReport(runtime)
           if (!runtime.ok) {
-            if (runCtx) runCtx.lastCompileOk = false
+            if (runCtx) {
+              runCtx.lastCompileOk = false
+              recordPendingLesson(runCtx, report)
+            }
             return {
               content: `Build succeeded, but the app crashes at runtime.\n\n${report}`,
               isError: true,
@@ -2089,6 +2171,16 @@ async function executeTool(
           if (runCtx) {
             runCtx.lastCompileOk = true
             runCtx.dirtySinceCompile = false
+            // A passing compile confirms whatever errors preceded it were
+            // recovered — promote those distilled lessons (#1).
+            if (runCtx.pendingErrorLessons.length > 0) {
+              for (const lesson of runCtx.pendingErrorLessons) {
+                if (!runCtx.recoveredLessons.includes(lesson)) {
+                  runCtx.recoveredLessons.push(lesson)
+                }
+              }
+              runCtx.pendingErrorLessons = []
+            }
           }
           if (report) {
             // Non-fatal console warnings — surface but don't block.
@@ -2102,9 +2194,11 @@ async function executeTool(
             isError: false,
           }
         }
-        if (runCtx) runCtx.lastCompileOk = false
-
         const uniqueErrors = [...new Set(preview.errors)]
+        if (runCtx) {
+          runCtx.lastCompileOk = false
+          recordPendingLesson(runCtx, uniqueErrors.join(' | '))
+        }
         const shown = uniqueErrors.slice(0, COMPILE_MAX_ERRORS)
         const truncated =
           uniqueErrors.length > COMPILE_MAX_ERRORS
@@ -2124,6 +2218,60 @@ async function executeTool(
             suggestion: 'This might be a config issue or syntax error. Check recent changes.',
             retryable: true,
           }), isError: true,
+        }
+      }
+    }
+
+    // ── inspect_preview ─────────────────────────────────────────
+    case 'inspect_preview': {
+      if (currentFiles.length === 0) {
+        return { content: 'No files to inspect. Create some files first.', isError: false }
+      }
+      try {
+        const preview = await buildPreview(
+          currentFiles.map((f) => ({ path: f.path, content: f.code })),
+        )
+        if (preview.errors.length > 0) {
+          return {
+            content:
+              'Cannot inspect — the project does not build yet. Fix the build first:\n' +
+              [...new Set(preview.errors)].slice(0, COMPILE_MAX_ERRORS).map((e, i) => `  ${i + 1}. ${e}`).join('\n'),
+            isError: true,
+          }
+        }
+        const result = await inspectPreview(preview.html)
+        if (!result.ran) {
+          return {
+            content:
+              'Inspection unavailable in this environment (no browser). Rely on compile + careful reasoning about layout instead.',
+            isError: false,
+          }
+        }
+        const report = formatInspectReport(result)
+        if (!report) {
+          const s = result.summary
+          const stats = s
+            ? ` (${s.headings} heading(s), ${s.buttons} button(s), ${s.links} link(s), ${s.inputs} input(s)${s.imagesWithoutAlt > 0 ? `, ${s.imagesWithoutAlt} image(s) missing alt text` : ''})`
+            : ''
+          return {
+            content: `Visual inspection clean at ${result.viewports.join(' and ')} — no overflow, contrast, clipping, or overlap problems detected${stats}.`,
+            isError: false,
+          }
+        }
+        // Informational tool: any PROBLEM is surfaced in the report text but
+        // does not hard-fail the turn (inspect_preview does not gate done).
+        // isError stays false so the model reads it as feedback to act on,
+        // not a tool failure to retry.
+        return { content: report, isError: false }
+      } catch (err) {
+        return {
+          content: formatStructuredError({
+            code: 'INSPECT_CRASH',
+            message: err instanceof Error ? err.message : String(err),
+            suggestion: 'Inspection failed unexpectedly. Continue with compile-based verification.',
+            retryable: false,
+          }),
+          isError: false,
         }
       }
     }

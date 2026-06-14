@@ -131,6 +131,22 @@ export const AGENT_TOOLS: ToolDefinition[] = [
     },
   },
   {
+    name: 'inspect_preview',
+    description:
+      'Render the built app in hidden frames at phone (390px) and desktop ' +
+      '(1280px) widths and MEASURE the result — this gives you eyes on the ' +
+      'layout that compile cannot. It reports concrete, measured problems: ' +
+      'content that overflows the viewport (horizontal scroll on mobile), text ' +
+      'whose contrast is below WCAG AA (with the actual ratio), text clipped by ' +
+      'overflow:hidden, controls overlapping text, off-screen buttons, and tap ' +
+      'targets under 44×44px. Use it after the app compiles cleanly and before ' +
+      'done on any visual UI to catch design/layout bugs (the kind a user sees ' +
+      'but a transpile does not). Findings are deterministic measurements, not a ' +
+      'screenshot — no extra cost. PROBLEM items are real bugs to fix; "check" ' +
+      'items are advisory.',
+    input_schema: { type: 'object', properties: {}, additionalProperties: false },
+  },
+  {
     name: 'list_files',
     description:
       'List all files currently in the virtual project. Use this to understand ' +
@@ -343,6 +359,85 @@ export const AGENT_TOOLS: ToolDefinition[] = [
   },
 ]
 
+// ─── Progressive tool expansion (#6) ───────────────────────────────────────
+
+/**
+ * Tools always available. Kept lean so a simple "create" run sends a small,
+ * cache-stable tool schema and weak models aren't distracted by rarely-needed
+ * tools.
+ */
+const CORE_TOOL_NAMES = new Set([
+  'think',
+  'set_title',
+  'update_plan',
+  'list_files',
+  'read_file',
+  'write_file',
+  'edit_file',
+  'compile',
+  'inspect_preview',
+  'done',
+])
+
+/** Loaded on demand when the task actually needs them (refine, cleanup, search). */
+const EXPANSION_TOOL_NAMES = new Set(['multi_edit', 'delete_file', 'search_files'])
+
+const EXPANSION_TRIGGER =
+  /\b(delete|remove|clean|cleanup|refactor|rename|replace|search|find|where|unused|existing|multiple|several)\b/i
+
+/**
+ * Choose the tool set for a run. Computed ONCE at run start and held stable for
+ * the whole run so the API tool schema stays byte-identical across turns
+ * (prompt-cache safe). Expansion tools load for refine runs, runs over an
+ * existing project, or when the prompt hints at search/cleanup work.
+ */
+export function selectToolsForRun(params: {
+  mode: 'create' | 'refine'
+  isNewProject: boolean
+  prompt: string
+}): { tools: ToolDefinition[]; expanded: boolean } {
+  const expanded =
+    params.mode === 'refine' ||
+    !params.isNewProject ||
+    EXPANSION_TRIGGER.test(params.prompt)
+
+  if (expanded) return { tools: AGENT_TOOLS, expanded: true }
+
+  const tools = AGENT_TOOLS.filter((t) => CORE_TOOL_NAMES.has(t.name))
+  return { tools, expanded: false }
+}
+
+void EXPANSION_TOOL_NAMES // documents the deferred set; selection is by CORE allowlist
+
+/** Reminder injected when the lean tool set is in effect, to avoid confusion. */
+export const LEAN_TOOLSET_REMINDER = `<system-reminder>
+For this build the tool set is: think, set_title, update_plan, list_files, read_file, write_file, edit_file, compile, inspect_preview, done. The multi_edit, delete_file, and search_files tools are not loaded for this task — write_file and edit_file cover everything needed. Do not attempt to call them.
+</system-reminder>`
+
+// ─── Uniform tool-result cap (#4) ──────────────────────────────────────────
+
+/**
+ * Hard ceiling on any single tool result's character length. Individual tools
+ * already truncate by line/match/error count, but a single pathological line
+ * (a minified bundle, a giant error dump) can still blow the context window.
+ * This is the last-line uniform cap applied to every tool result.
+ */
+export const MAX_TOOL_RESULT_CHARS = 16000
+
+/**
+ * Truncate overly long tool-result content with a clear marker. Keeps the head
+ * (most relevant — error messages and file starts lead) and notes how much was
+ * dropped. Returns the input unchanged when within budget.
+ */
+export function capToolResultContent(content: string): string {
+  if (content.length <= MAX_TOOL_RESULT_CHARS) return content
+  const dropped = content.length - MAX_TOOL_RESULT_CHARS
+  return (
+    content.slice(0, MAX_TOOL_RESULT_CHARS) +
+    `\n\n[... ${dropped} more characters truncated. Narrow your request — read a specific line range, use search_files, or fix the first errors and recompile.]`
+  )
+}
+
 // ─── Tool category map (for parallel execution) ────────────────────────────
 
 export const TOOL_CATEGORIES: Record<string, 'read' | 'write' | 'compile' | 'done'> = {
@@ -350,6 +445,7 @@ export const TOOL_CATEGORIES: Record<string, 'read' | 'write' | 'compile' | 'don
   list_files: 'read',
   read_file: 'read',
   search_files: 'read',
+  inspect_preview: 'read',
   set_title: 'read',
   update_plan: 'write',
   write_file: 'write',
@@ -417,7 +513,7 @@ Work like a senior engineer, scaled to the task. A small tweak needs no ceremony
 3. **Build.** Create files in dependency order: theme.css → App.tsx → pages → components. Write complete files. Keep components focused.
 4. **Verify efficiently.** compile after a coherent batch of related edits (it builds AND runs the app), and always before done. Fix every build and runtime error before moving on. Delete files you no longer use.
 5. **Finish.** There is no automated reviewer after you — verify your own work. Before done, make sure the LAST compile passed build + runtime, every requested feature exists and works, every PLAN.md item is checked off, and the result is responsive and polished. Then call done once and stop — do not keep polishing or re-compiling after a clean pass.
-For visible UI/canvas/game changes, inspect the rendered layout before done: controls must not cover text, labels must not clip or overflow, and the mobile layout must remain usable.
+For visible UI/canvas/game changes, run inspect_preview before done to measure the rendered layout: controls must not cover text, labels must not clip or overflow, contrast must meet WCAG AA, and the mobile layout must not overflow. Fix any PROBLEM it reports.
 </approach>
 
 <tool-guidance>
@@ -429,6 +525,7 @@ For visible UI/canvas/game changes, inspect the rendered layout before done: con
 - **read_file / list_files / search_files** — understand before you change. Read each file ONCE: extract everything you need in that single read, then plan all changes with think, then apply them all with multi_edit. Do NOT re-read after an edit — the tool confirms success. Do NOT re-read to "verify the current state" — use search_files with context_lines to look up a specific section instead. Reading the same file again without editing it first is wasted tokens and a sign of drift.
 - **set_title** — call once at the very start of a new project (create mode) with a 3-6 word title.
 - **compile** — the source of truth for "does it work". Run it after writing or editing files. Do NOT compile again if no files changed since the last passing compile — the result will be identical.
+- **inspect_preview** — your eyes on the layout. After a clean compile, run it on any visual UI to get MEASURED facts: viewport overflow, real contrast ratios, clipped/overlapping/off-screen elements, small tap targets. Use it to fix design bugs you would otherwise have to guess at, then compile and (if it changed things) re-inspect. Skip it for non-visual work.
 - **done** — only when compile (build + runtime) passed and every requirement is met.
 - For visible UI, done may run screenshot review. If it rejects overlap, clipping, contrast, or mobile layout issues, fix them, compile, and call done again.
 </tool-guidance>
@@ -514,10 +611,10 @@ export function getThinkingBudget(params: {
   const multiplier = AGENT_THINKING_PROFILES[level].budgetMultiplier
   let base = 3000
 
-  if (params.mode === 'create' && params.turnCount <= 2) base = 8000 // Spec phase
-  else if (params.mode === 'create' && params.turnCount <= 5) base = 5000 // Early build
-  else if (params.mode === 'create') base = 4000 // Late build
-  else if (params.mode === 'refine') base = 2000 // Targeted edits
+  if (params.mode === 'create' && params.turnCount <= 2) base = 4500 // Spec phase
+  else if (params.mode === 'create' && params.turnCount <= 5) base = 3500 // Early build
+  else if (params.mode === 'create') base = 3000 // Late build
+  else if (params.mode === 'refine') base = 1500 // Targeted edits
 
   return Math.max(512, Math.min(12000, Math.round(base * multiplier)))
 }
