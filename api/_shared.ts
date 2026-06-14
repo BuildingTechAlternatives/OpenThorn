@@ -282,10 +282,9 @@ async function deployToCFPages(
   projectName: string,
   html: string,
 ): Promise<void> {
-  // Paths without leading slash to match wrangler's convention
+  // Only index.html — no _redirects until basic serving is confirmed working
   const files: Array<{ path: string; content: string; contentType: string }> = [
     { path: 'index.html', content: html, contentType: 'text/html; charset=utf-8' },
-    { path: '_redirects', content: '/* /index.html 200\n', contentType: 'text/plain' },
   ]
 
   // 1. Compute manifest (path → sha256)
@@ -302,38 +301,24 @@ async function deployToCFPages(
     { method: 'GET' },
   )
 
-  // 3. Check which hashes CF doesn't already have cached
-  const missingRes = await fetch(`${CF_UPLOAD_BASE}/pages/assets/check-missing`, {
+  // 3. Upload all files unconditionally (skip check-missing to avoid stale-cache issues)
+  const uploadRes = await fetch(`${CF_UPLOAD_BASE}/pages/assets/upload`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${jwt}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ hashes }),
+    body: JSON.stringify(
+      files.map((f) => ({
+        key: manifest[f.path],
+        value: Buffer.from(f.content).toString('base64'),
+        metadata: { contentType: f.contentType },
+        base64: true,
+      })),
+    ),
   })
-  if (!missingRes.ok) throw new Error(`check-missing failed: ${missingRes.status} ${await missingRes.text().catch(() => '')}`)
-  const missingData = (await missingRes.json()) as { result?: string[] }
-  const missingHashes = new Set(missingData.result ?? hashes)
-
-  // 4. Upload only the missing files (keyed by hash)
-  const toUpload = files
-    .filter((f) => missingHashes.has(manifest[f.path]))
-    .map((f) => ({
-      key: manifest[f.path],
-      value: Buffer.from(f.content).toString('base64'),
-      metadata: { contentType: f.contentType },
-      base64: true,
-    }))
-
-  if (toUpload.length > 0) {
-    const uploadRes = await fetch(`${CF_UPLOAD_BASE}/pages/assets/upload`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${jwt}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(toUpload),
-    })
-    if (!uploadRes.ok) {
-      throw new Error(`File upload failed: ${uploadRes.status} ${await uploadRes.text().catch(() => '')}`)
-    }
+  if (!uploadRes.ok) {
+    throw new Error(`File upload failed: ${uploadRes.status} ${await uploadRes.text().catch(() => '')}`)
   }
 
-  // 5. Finalize — tell CF which hashes are part of this deployment
+  // 4. Finalize — link these hashes to the project
   const upsertRes = await fetch(`${CF_UPLOAD_BASE}/pages/assets/upsert-hashes`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${jwt}`, 'Content-Type': 'application/json' },
@@ -343,7 +328,7 @@ async function deployToCFPages(
     throw new Error(`upsert-hashes failed: ${upsertRes.status} ${await upsertRes.text().catch(() => '')}`)
   }
 
-  // 6. Create deployment with manifest
+  // 5. Create deployment with manifest
   const form = new FormData()
   form.append('manifest', JSON.stringify(manifest))
 
