@@ -49,11 +49,11 @@ try {
   if (models.length > 0) {
     console.log('Sample:', models.slice(0, 5).map((m) => m.id ?? m.name).join(', '))
   }
-  console.log('OK — même flux que ProvidersPage.testProviderConnection')
+  console.log('OK — same flow as ProvidersPage.testProviderConnection')
 } catch (err) {
   console.error('FAILED:', err instanceof Error ? err.message : err)
   if (String(err).includes('fetch failed') || String(err).includes('ECONNREFUSED')) {
-    console.error('Vérifiez que le gateway tourne ou que api.rodiumai.io est accessible.')
+    console.error('Check that the gateway is running and that api.rodiumai.io is reachable.')
   }
   process.exit(1)
 }
