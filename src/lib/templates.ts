@@ -30,10 +30,10 @@ function creativePortfolio(): Template {
     category: 'Portfolio',
     accentColor: '#7c6af7',
     highlights: [
-      'Animated gradient orbs in the hero',
-      'Filterable project grid with hover effects',
-      'Skill groups with animated progress bars',
-      'Contact form with social links',
+      'Editorial hero with crisp service positioning',
+      'Filterable case-study grid with real project imagery',
+      'Skill groups with polished capability meters',
+      'Accessible contact form with proof points',
     ],
     files: [
       {
@@ -202,7 +202,7 @@ export default function Navbar() {
         <h1 className="hero-name">Alex Chen</h1>
         <p className="hero-role"><em>Full-stack developer</em> &amp; creative technologist</p>
         <p className="hero-desc">
-          I craft exceptional digital experiences — from pixel-perfect interfaces to scalable backend systems. Turning complex problems into elegant solutions.
+          I design and ship polished digital products for teams that care about speed, clarity, and craft - from first prototype to production launch.
         </p>
         <div className="hero-actions">
           <a href="#work" className="btn-primary">View my work →</a>
@@ -223,12 +223,12 @@ export default function Navbar() {
         code: `import { useState } from 'react'
 
 const PROJECTS = [
-  { name: 'Phantom Analytics', desc: 'Real-time data platform processing 10M+ events/day with custom WebGL charts.', tags: ['React', 'Node', 'WebGL'], cat: 'Web', img: 'https://picsum.photos/seed/pp1/640/400', bg: 'linear-gradient(135deg,#1a1a3e,#2d1b69)' },
-  { name: 'Orbit Design System', desc: 'Component library with 80+ components used across 5 product teams.', tags: ['Design', 'TypeScript', 'Storybook'], cat: 'Design', img: 'https://picsum.photos/seed/pp2/640/400', bg: 'linear-gradient(135deg,#0f2027,#2c5364)' },
-  { name: 'FlowCast Mobile', desc: 'Cross-platform podcast app with AI transcription and smart chapter detection.', tags: ['React Native', 'AI', 'Audio'], cat: 'Mobile', img: 'https://picsum.photos/seed/pp3/640/400', bg: 'linear-gradient(135deg,#16213e,#0f3460)' },
-  { name: 'NovaPay Gateway', desc: 'High-throughput payment API handling $2M+ daily transactions.', tags: ['Go', 'Stripe', 'Postgres'], cat: 'Web', img: 'https://picsum.photos/seed/pp4/640/400', bg: 'linear-gradient(135deg,#0d1b2a,#1b4332)' },
-  { name: 'Lumina Portfolio', desc: 'Bespoke site for award-winning photographer with immersive gallery.', tags: ['Design', 'GSAP', 'Three.js'], cat: 'Design', img: 'https://picsum.photos/seed/pp5/640/400', bg: 'linear-gradient(135deg,#1a1a2e,#0f3460)' },
-  { name: 'Halo Fitness', desc: 'iOS/Android tracker with AI training plans and progress analytics.', tags: ['React Native', 'ML', 'HealthKit'], cat: 'Mobile', img: 'https://picsum.photos/seed/pp6/640/400', bg: 'linear-gradient(135deg,#1c0a00,#4a1503)' },
+  { name: 'Phantom Analytics', desc: 'Revenue intelligence workspace with live cohort reports and executive-ready data stories.', tags: ['React', 'Node', 'Charts'], cat: 'Web', img: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&q=80&auto=format&fit=crop', bg: 'linear-gradient(135deg,#1a1a3e,#2d1b69)' },
+  { name: 'Orbit Design System', desc: 'Multi-brand component library and documentation hub for five distributed product teams.', tags: ['Design', 'TypeScript', 'Storybook'], cat: 'Design', img: 'https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=900&q=80&auto=format&fit=crop', bg: 'linear-gradient(135deg,#0f2027,#2c5364)' },
+  { name: 'FlowCast Mobile', desc: 'Premium podcast app with transcription, chapter summaries, and offline listening.', tags: ['React Native', 'AI', 'Audio'], cat: 'Mobile', img: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900&q=80&auto=format&fit=crop', bg: 'linear-gradient(135deg,#16213e,#0f3460)' },
+  { name: 'NovaPay Gateway', desc: 'Secure payments console for high-volume finance teams and operations analysts.', tags: ['Go', 'Stripe', 'Postgres'], cat: 'Web', img: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=900&q=80&auto=format&fit=crop', bg: 'linear-gradient(135deg,#0d1b2a,#1b4332)' },
+  { name: 'Lumina Portfolio', desc: 'Immersive gallery system for an editorial photographer with rich case-study pages.', tags: ['Design', 'Motion', 'CMS'], cat: 'Design', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=900&q=80&auto=format&fit=crop', bg: 'linear-gradient(135deg,#1a1a2e,#0f3460)' },
+  { name: 'Halo Fitness', desc: 'Mobile training companion with habit plans, progress insights, and coach messaging.', tags: ['React Native', 'ML', 'HealthKit'], cat: 'Mobile', img: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=900&q=80&auto=format&fit=crop', bg: 'linear-gradient(135deg,#1c0a00,#4a1503)' },
 ]
 const FILTERS = ['All', 'Web', 'Design', 'Mobile']
 
@@ -240,8 +240,8 @@ export default function Projects() {
       <div className="container">
         <div className="section-top">
           <p className="section-eyebrow">Selected work</p>
-          <h2 className="section-heading">Projects I'm proud of</h2>
-          <p className="section-sub">Hand-picked projects spanning web apps, design systems, and mobile.</p>
+          <h2 className="section-heading">Recent client work</h2>
+          <p className="section-sub">Selected launches across SaaS, commerce, design systems, and mobile products.</p>
         </div>
         <div className="filters">
           {FILTERS.map(f => (
@@ -377,14 +377,14 @@ function saasLanding(): Template {
   return {
     id: 'saas-landing',
     name: 'SaaS Landing Page',
-    description: 'A clean, high-converting landing page for a SaaS product.',
+    description: 'A polished SaaS landing page with strong conversion sections and product storytelling.',
     category: 'SaaS',
     accentColor: '#2563eb',
     highlights: [
-      'Bold hero with animated product mockup',
-      'Feature grid, testimonials, and pricing tiers',
-      'FAQ accordion with smooth expand/collapse',
-      'Full-width gradient CTA section',
+      'Clear hero, proof metrics, and animated dashboard mockup',
+      'Feature grid, testimonial cards, and pricing tiers',
+      'FAQ accordion with smooth expand/collapse behavior',
+      'Conversion-focused CTA section and footer',
     ],
     files: [
       {
@@ -466,7 +466,8 @@ button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
 .t-stars{color:#f59e0b;font-size:.9rem;letter-spacing:.05em;margin-bottom:1rem}
 .t-text{font-size:.9rem;line-height:1.7;margin-bottom:1.25rem}
 .t-author{display:flex;align-items:center;gap:.75rem}
-.t-avatar{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:.875rem;font-weight:700;color:#fff;flex-shrink:0}
+.t-avatar{width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;background:var(--bg-3)}
+.t-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .t-name{font-size:.875rem;font-weight:600}
 .t-role{font-size:.75rem;color:var(--muted)}
 
@@ -670,9 +671,9 @@ export default function Features() {
         path: 'src/components/Testimonials.tsx',
         language: 'tsx',
         code: `const TESTIMONIALS = [
-  { text: 'Synapse replaced 3 different tools. Our team spends 80% less time on reporting and AI insights drove a 23% revenue increase.', name: 'Sarah Chen', role: 'VP of Growth, Meridian', color: '#7c3aed' },
-  { text: 'I cancelled our Mixpanel subscription within a week. The UX is just on a different level.', name: 'Marcus Williams', role: 'Head of Product, Stackwell', color: '#0d9488' },
-  { text: 'The real-time alerts saved us from a major churn event. We caught a drop 48 hours before it became a real problem.', name: 'Priya Patel', role: 'CEO, Loopback AI', color: '#d97706' },
+  { text: 'Synapse replaced 3 different tools. Our team spends 80% less time on reporting and AI insights drove a 23% revenue increase.', name: 'Sarah Chen', role: 'VP of Growth, Meridian', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=80&auto=format&fit=crop' },
+  { text: 'I cancelled our Mixpanel subscription within a week. The UX is just on a different level.', name: 'Marcus Williams', role: 'Head of Product, Stackwell', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&q=80&auto=format&fit=crop' },
+  { text: 'The real-time alerts saved us from a major churn event. We caught a drop 48 hours before it became a real problem.', name: 'Priya Patel', role: 'CEO, Loopback AI', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=80&auto=format&fit=crop' },
 ]
 
 export default function Testimonials() {
@@ -690,7 +691,7 @@ export default function Testimonials() {
               <div className="t-stars">★★★★★</div>
               <p className="t-text">"{t.text}"</p>
               <div className="t-author">
-                <div className="t-avatar" style={{ background: t.color }}>{t.name[0]}</div>
+                <div className="t-avatar"><img src={t.avatar} alt={t.name} /></div>
                 <div><p className="t-name">{t.name}</p><p className="t-role">{t.role}</p></div>
               </div>
             </div>
@@ -792,10 +793,10 @@ function ecommerceStorefront(): Template {
     category: 'E-commerce',
     accentColor: '#1a5c3a',
     highlights: [
-      'Editorial hero with featured product',
-      'Product grid with hover quick-add',
-      'Slide-in cart drawer with line items',
-      'Category navigation and sticky header',
+      'Editorial commerce hero with real product photography',
+      'Responsive product grid with hover quick-add',
+      'Slide-in cart drawer with quantity controls',
+      'Refined category navigation and sticky header',
     ],
     files: [
       {
@@ -821,7 +822,7 @@ button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
 .nav-link{padding:.5rem 1rem;font-size:.875rem;color:var(--muted);transition:color .15s}
 .nav-link:hover{color:var(--text)}
 .nav-actions{display:flex;align-items:center;gap:.5rem}
-.nav-icon-btn{width:40px;height:40px;display:grid;place-items:center;border-radius:var(--r);transition:background .15s;font-size:1.1rem;position:relative}
+.nav-icon-btn{min-width:52px;height:40px;padding:0 .6rem;display:grid;place-items:center;border-radius:var(--r);transition:background .15s;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;position:relative}
 .nav-icon-btn:hover{background:var(--bg-2)}
 .cart-badge{position:absolute;top:4px;right:4px;width:16px;height:16px;background:var(--accent);color:#fff;border-radius:50%;font-size:.6rem;font-weight:700;display:grid;place-items:center}
 
@@ -838,9 +839,8 @@ button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
 .btn-wishlist:hover{border-color:var(--accent);color:var(--accent)}
 .hero-image-side{position:relative}
 .hero-product-img{width:100%;aspect-ratio:3/4;max-height:420px;border-radius:var(--r-xl);overflow:hidden;background:var(--bg-2);position:relative}
-.hero-product-emoji{font-size:8rem;filter:drop-shadow(0 20px 40px rgba(0,0,0,.15))}
 .hero-badge-float{position:absolute;bottom:2rem;left:-1.5rem;background:#fff;border-radius:var(--r-lg);padding:.875rem 1.25rem;box-shadow:0 8px 24px rgba(0,0,0,.12);display:flex;align-items:center;gap:.75rem}
-.hero-badge-icon{font-size:1.5rem}
+.hero-badge-icon{width:36px;height:36px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:grid;place-items:center;font-size:.75rem;font-weight:900;letter-spacing:.08em}
 .hero-badge-text strong{display:block;font-size:.85rem;font-weight:700}
 .hero-badge-text span{font-size:.75rem;color:var(--muted)}
 
@@ -859,7 +859,7 @@ button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
 .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem}
 .product-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;transition:all .25s;cursor:pointer}
 .product-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.1)}
-.product-img{aspect-ratio:1;background:var(--bg-2);display:flex;align-items:center;justify-content:center;font-size:4rem;position:relative;overflow:hidden}
+.product-img{aspect-ratio:1;background:var(--bg-2);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 .product-quick-add{position:absolute;bottom:0;left:0;right:0;padding:.875rem;background:var(--accent);color:#fff;font-weight:700;font-size:.875rem;text-align:center;transform:translateY(100%);transition:transform .25s}
 .product-card:hover .product-quick-add{transform:translateY(0)}
 .product-body{padding:1rem 1.25rem 1.25rem}
@@ -880,7 +880,7 @@ button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
 .cart-items{flex:1;overflow-y:auto;padding:1.25rem}
 .cart-item{display:flex;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--border)}
 .cart-item:last-child{border-bottom:none}
-.cart-item-img{width:72px;height:72px;background:var(--bg-2);border-radius:var(--r);display:grid;place-items:center;font-size:2rem;flex-shrink:0}
+.cart-item-img{width:72px;height:72px;background:var(--bg-2);border-radius:var(--r);display:grid;place-items:center;flex-shrink:0;overflow:hidden}
 .cart-item-info{flex:1}
 .cart-item-name{font-size:.875rem;font-weight:600;margin-bottom:.25rem}
 .cart-item-cat{font-size:.75rem;color:var(--muted);margin-bottom:.5rem}
@@ -898,7 +898,7 @@ button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
 .cart-checkout{display:block;width:100%;padding:1rem;background:var(--accent);color:#fff;border-radius:var(--r-lg);font-weight:700;font-size:1rem;text-align:center;transition:all .2s}
 .cart-checkout:hover{background:#134d2f}
 .cart-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem;text-align:center;color:var(--muted)}
-.cart-empty-icon{font-size:3rem;margin-bottom:1rem}
+.cart-empty-icon{font-size:.8rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:1rem}
 
 .site-footer{background:#1a1a1a;color:#e8e3da;padding:3rem 2rem 2rem;margin-top:4rem}
 .footer-inner{max-width:1300px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;margin-bottom:2rem}
@@ -931,7 +931,7 @@ export interface CartItem {
   id: number
   name: string
   price: number
-  icon: string
+  img: string
   category: string
   qty: number
 }
@@ -980,7 +980,7 @@ export default function App() {
         </div>
         <div className="footer-bottom">
           <span>© 2025 Verde. All rights reserved.</span>
-          <span>Made with care for the planet 🌿</span>
+          <span>Certified organic materials</span>
         </div>
       </footer>
       {cartOpen && <CartDrawer items={cartItems} onClose={() => setCartOpen(false)} onUpdateQty={updateQty} />}
@@ -1005,10 +1005,10 @@ export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
           <a href="#" className="nav-link">About</a>
         </nav>
         <div className="nav-actions">
-          <button className="nav-icon-btn" type="button" aria-label="Search">🔍</button>
-          <button className="nav-icon-btn" type="button" aria-label="Wishlist">♡</button>
+          <button className="nav-icon-btn" type="button" aria-label="Search">Search</button>
+          <button className="nav-icon-btn" type="button" aria-label="Wishlist">Save</button>
           <button className="nav-icon-btn" type="button" aria-label="Cart" onClick={onCartOpen}>
-            🛍️
+            Bag
             {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
           </button>
         </div>
@@ -1033,7 +1033,7 @@ export default function Hero({ onAddToCart }: HeroProps) {
         <p className="hero-desc">Premium European linen, zero compromises. Naturally breathable, endlessly versatile — from beach to city.</p>
         <p className="hero-price">€129 <span>€180</span></p>
         <div className="hero-actions">
-          <button className="btn-add" type="button" onClick={() => onAddToCart({ id: 0, name: 'Linen Shirt — Sage', price: 129, icon: '👕', category: 'Apparel' })}>
+          <button className="btn-add" type="button" onClick={() => onAddToCart({ id: 0, name: 'Linen Shirt - Sage', price: 129, img: 'https://images.unsplash.com/photo-1523381294911-8d3cead13475?w=900&q=80&auto=format&fit=crop', category: 'Apparel' })}>
             Add to cart
           </button>
           <button className="btn-wishlist" type="button">Save to wishlist</button>
@@ -1041,10 +1041,10 @@ export default function Hero({ onAddToCart }: HeroProps) {
       </div>
       <div className="hero-image-side">
         <div className="hero-product-img">
-          <img src="https://picsum.photos/seed/verde-hero/600/750" alt="Linen Essentials" />
+          <img src="https://images.unsplash.com/photo-1523381294911-8d3cead13475?w=900&q=80&auto=format&fit=crop" alt="Linen Essentials" />
         </div>
         <div className="hero-badge-float">
-          <span className="hero-badge-icon">♻️</span>
+          <span className="hero-badge-icon">ECO</span>
           <div className="hero-badge-text">
             <strong>100% sustainable</strong>
             <span>Certified organic linen</span>
@@ -1084,14 +1084,14 @@ export default function Categories() {
         code: `import type { CartItem } from '../App'
 
 const PRODUCTS = [
-  { id: 1, name: 'Linen Shirt — Sage', price: 129, icon: '👕', img: 'https://picsum.photos/seed/vp1/400/400', category: 'Apparel', rating: '4.9 (124)' },
-  { id: 2, name: 'Ceramic Pour-Over Set', price: 89, icon: '☕', img: 'https://picsum.photos/seed/vp2/400/400', category: 'Home & Living', rating: '5.0 (68)' },
-  { id: 3, name: 'Canvas Tote Bag', price: 45, icon: '👜', img: 'https://picsum.photos/seed/vp3/400/400', category: 'Accessories', rating: '4.8 (201)' },
-  { id: 4, name: 'Rosehip Face Oil', price: 64, icon: '🌹', img: 'https://picsum.photos/seed/vp4/400/400', category: 'Skincare', rating: '4.9 (89)' },
-  { id: 5, name: 'Merino Knit Sweater', price: 159, icon: '🧶', img: 'https://picsum.photos/seed/vp5/400/400', category: 'Apparel', rating: '4.7 (55)' },
-  { id: 6, name: 'Beeswax Candle Set', price: 38, icon: '🕯️', img: 'https://picsum.photos/seed/vp6/400/400', category: 'Home & Living', rating: '5.0 (143)' },
-  { id: 7, name: 'Leather Card Wallet', price: 55, icon: '💳', img: 'https://picsum.photos/seed/vp7/400/400', category: 'Accessories', rating: '4.8 (77)' },
-  { id: 8, name: 'Bamboo Body Scrub', price: 29, icon: '🎋', img: 'https://picsum.photos/seed/vp8/400/400', category: 'Skincare', rating: '4.6 (112)' },
+  { id: 1, name: 'Linen Shirt - Sage', price: 129, img: 'https://images.unsplash.com/photo-1523381294911-8d3cead13475?w=700&q=80&auto=format&fit=crop', category: 'Apparel', rating: '4.9 (124)' },
+  { id: 2, name: 'Ceramic Pour-Over Set', price: 89, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=700&q=80&auto=format&fit=crop', category: 'Home & Living', rating: '5.0 (68)' },
+  { id: 3, name: 'Canvas Tote Bag', price: 45, img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=700&q=80&auto=format&fit=crop', category: 'Accessories', rating: '4.8 (201)' },
+  { id: 4, name: 'Rosehip Face Oil', price: 64, img: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=700&q=80&auto=format&fit=crop', category: 'Skincare', rating: '4.9 (89)' },
+  { id: 5, name: 'Merino Knit Sweater', price: 159, img: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=700&q=80&auto=format&fit=crop', category: 'Apparel', rating: '4.7 (55)' },
+  { id: 6, name: 'Beeswax Candle Set', price: 38, img: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=700&q=80&auto=format&fit=crop', category: 'Home & Living', rating: '5.0 (143)' },
+  { id: 7, name: 'Leather Card Wallet', price: 55, img: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=700&q=80&auto=format&fit=crop', category: 'Accessories', rating: '4.8 (77)' },
+  { id: 8, name: 'Bamboo Body Scrub', price: 29, img: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=700&q=80&auto=format&fit=crop', category: 'Skincare', rating: '4.6 (112)' },
 ]
 
 interface ProductGridProps { onAddToCart: (item: Omit<CartItem, 'qty'>) => void }
@@ -1115,7 +1115,7 @@ export default function ProductGrid({ onAddToCart }: ProductGridProps) {
               <h3 className="product-name">{p.name}</h3>
               <div className="product-footer">
                 <span className="product-price">€{p.price}</span>
-                <span className="product-rating">★ {p.rating}</span>
+                <span className="product-rating">Rated {p.rating}</span>
               </div>
             </div>
           </div>
@@ -1151,7 +1151,7 @@ export default function CartDrawer({ items, onClose, onUpdateQty }: CartDrawerPr
         </div>
         {items.length === 0 ? (
           <div className="cart-empty">
-            <span className="cart-empty-icon">🛍️</span>
+            <span className="cart-empty-icon">Bag</span>
             <p>Your cart is empty</p>
           </div>
         ) : (
@@ -1159,7 +1159,7 @@ export default function CartDrawer({ items, onClose, onUpdateQty }: CartDrawerPr
             <div className="cart-items">
               {items.map(item => (
                 <div key={item.id} className="cart-item">
-                  <div className="cart-item-img"><img src={(item as any).img || ''} alt={item.name} /></div>
+                  <div className="cart-item-img"><img src={item.img} alt={item.name} /></div>
                   <div className="cart-item-info">
                     <p className="cart-item-name">{item.name}</p>
                     <p className="cart-item-cat">{item.category}</p>
@@ -1199,14 +1199,14 @@ function photographyStudio(): Template {
   return {
     id: 'photography-studio',
     name: 'Photography Studio',
-    description: 'A minimal, image-first portfolio for photographers and visual artists.',
+    description: 'An image-led portfolio for photographers with a refined editorial presentation.',
     category: 'Portfolio',
     accentColor: '#111111',
     highlights: [
-      'Full-bleed hero with large cover photo',
-      'Masonry-style gallery with lightbox overlay',
-      'About section with portrait and bio',
-      'Booking inquiry form',
+      'Full-bleed hero with atmospheric cover photography',
+      'Masonry-style gallery with lightbox preview',
+      'Editorial about section with portrait and client stats',
+      'Elegant booking inquiry form',
     ],
     files: [
       {
@@ -1514,14 +1514,14 @@ function restaurantLanding(): Template {
   return {
     id: 'restaurant-landing',
     name: 'Restaurant Landing',
-    description: 'A luxe, atmospheric landing page for an upscale restaurant.',
+    description: 'A refined restaurant website with cinematic imagery, menu browsing, and reservations.',
     category: 'Restaurant',
     accentColor: '#c9883a',
     highlights: [
-      'Cinematic full-bleed hero with overlay',
-      'Interactive menu with categories and dish cards',
-      'Reservation form with date and party size',
-      'Chef story and press mentions section',
+      'Cinematic hero with real restaurant photography',
+      'Interactive menu with categories and dish photography',
+      'Reservation form with service time and party size',
+      'Chef story, press mentions, and luxury footer',
     ],
     files: [
       {
@@ -1872,14 +1872,14 @@ function techBlog(): Template {
   return {
     id: 'tech-blog',
     name: 'Tech Blog',
-    description: 'A clean, editorial-style blog for developers, writers, and thought leaders.',
+    description: 'A clean editorial blog for technical teams, creators, and thought leaders.',
     category: 'Blog',
     accentColor: '#e85d2f',
     highlights: [
-      'Featured hero article with large cover image',
-      'Article grid with reading time and author info',
-      'Tag/category filter bar',
-      'Newsletter signup section',
+      'Featured hero article with strong cover photography',
+      'Article grid with authors, dates, and reading time',
+      'Tag filter bar for quick content discovery',
+      'Newsletter signup section with confirmation state',
     ],
     files: [
       {
