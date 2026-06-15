@@ -253,13 +253,22 @@ const MAX_TOOL_TURNS = 30
 
 // Full-context mode (Claude-Code-style): the whole conversation — every file
 // read and write included — stays in the context window so the model never
-// loses what it has already seen. Compaction is a last-resort safety valve for
-// pathologically long histories, NOT a routine token-saver, so the threshold
-// sits far above a normal run (MAX_TOOL_TURNS = 30). When it does fire it
-// truncates the oldest observation outputs AND clears the per-run read cache,
-// so the re-read guard never claims content that is no longer in context.
-const COMPACTION_THRESHOLD = 200
-const KEEP_RECENT_TURNS = 150
+// loses what it has already seen. Compaction is NOT a routine per-turn token
+// saver; it is an auto-compact valve that fires only when the estimated prompt
+// size approaches the model's context window (like Claude Code). When it fires
+// it truncates the oldest observation outputs (keeping the most recent turns
+// intact) AND clears the per-run read cache, so the re-read guard never claims
+// content that is no longer in the transcript.
+//
+// CONTEXT_TOKEN_BUDGET is a conservative soft cap (estimated as chars/4). Every
+// BYOK provider wired here has at least a 128k window (DeepSeek/OpenAI 128k+,
+// Anthropic 200k, Gemini 1M), so 96k leaves ample headroom for the response and
+// reasoning tokens while keeping full context for any normal-sized run. Small
+// local models (some Ollama configs) have tighter windows — tune downward there.
+const CONTEXT_TOKEN_BUDGET = 96_000
+// How many of the most recent assistant turns keep their full observation
+// output when the valve fires. Everything older is truncated to a stub.
+const KEEP_RECENT_TURNS = 6
 const SUMMARY_INTERVAL = 6
 const READ_TRUNCATE_LINES = 500
 const OBSERVATION_TOOLS = new Set([
@@ -820,14 +829,40 @@ export function shouldRejectWholeFileRewrite(params: {
 
 // ─── Context Compaction ─────────────────────────────────────────────────────
 
+/**
+ * Rough token estimate for the whole prompt (~4 chars/token). Counts text,
+ * tool inputs, tool results and thinking across every message block — enough to
+ * decide when the conversation is approaching the model's context window.
+ */
+function estimateMessageTokens(messages: LlmMessage[]): number {
+  let chars = 0
+  for (const msg of messages) {
+    if (msg.reasoningContent) chars += msg.reasoningContent.length
+    if (typeof msg.content === 'string') {
+      chars += msg.content.length
+      continue
+    }
+    for (const block of msg.content) {
+      if (block.text) chars += block.text.length
+      if (block.content) chars += block.content.length
+      if (block.thinking) chars += block.thinking.length
+      if (block.input) chars += JSON.stringify(block.input).length
+    }
+  }
+  return Math.ceil(chars / 4)
+}
+
+/**
+ * Auto-compact valve. Keeps the full conversation in context until the
+ * estimated prompt size crosses CONTEXT_TOKEN_BUDGET, then truncates the
+ * observation outputs (reads/searches/compiles) of the OLDEST turns — keeping
+ * the KEEP_RECENT_TURNS most recent turns intact — to free space. Gated on the
+ * total turns present (which includes injected cross-run history), so a refine
+ * run that starts with a large history compacts immediately rather than waiting.
+ */
 function compactMessages(
   messages: LlmMessage[],
-  turnCount: number,
 ): { messages: LlmMessage[]; compacted: boolean } {
-  if (turnCount <= COMPACTION_THRESHOLD) {
-    return { messages, compacted: false }
-  }
-
   const assistantIndices: number[] = []
   for (let i = 0; i < messages.length; i++) {
     if (messages[i].role === 'assistant') assistantIndices.push(i)
@@ -835,6 +870,9 @@ function compactMessages(
 
   const totalTurns = assistantIndices.length
   if (totalTurns <= KEEP_RECENT_TURNS + 1) {
+    return { messages, compacted: false }
+  }
+  if (estimateMessageTokens(messages) <= CONTEXT_TOKEN_BUDGET) {
     return { messages, compacted: false }
   }
 
@@ -1183,11 +1221,11 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     turnCount++
 
     // ── Compaction ──────────────────────────────────────────────
-    const compactResult = compactMessages(messages, turnCount)
+    const compactResult = compactMessages(messages)
     if (compactResult.compacted) {
-      // The safety valve fired: observation outputs for older turns are now
-      // truncated stubs. Drop the read cache so the re-read guard never points
-      // the model at content that is no longer in the transcript.
+      // The auto-compact valve fired: observation outputs for older turns are
+      // now truncated stubs. Drop the read cache so the re-read guard never
+      // points the model at content that is no longer in the transcript.
       runCtx.reads.clear()
       if (turnCount - lastSummaryTurn >= SUMMARY_INTERVAL) {
         const summary = generateProgressSummary(messages, currentFiles, turnCount)

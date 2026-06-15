@@ -34,6 +34,8 @@ export interface RuntimeCheckResult {
   interactionErrors?: string[]
   /** Internal routes that rendered a not-found / error view when navigated to. */
   routeErrors?: string[]
+  /** Canvas draw calls that received NaN/Infinity — silently invisible content. */
+  canvasErrors?: string[]
   /** Whether interactions produced any DOM change (a signal handlers are wired). */
   domChanged?: boolean
 }
@@ -61,6 +63,8 @@ function buildCaptureScript(token: string, waitMs: number, interactive = false):
   var consoleErrors = [];
   var interactionErrors = [];
   var routeErrors = [];
+  var canvasNaNCount = 0;
+  var canvasNaNSample = '';
   var interactionsRun = 0;
   var domChanged = false;
 
@@ -91,6 +95,36 @@ function buildCaptureScript(token: string, waitMs: number, interactive = false):
     } catch (e) { /* ignore */ }
     return originalConsoleError.apply(console, arguments);
   };
+
+  // ── Canvas guard ───────────────────────────────────────────────
+  // Canvas games and visualisations fail SILENTLY: drawing at a NaN/Infinity
+  // coordinate or size (e.g. a variable that is undefined because it was
+  // declared inside a block but used outside it) throws nothing and renders
+  // nothing, so the sprite is invisible while the runtime check still "passes".
+  // Wrap the 2D context draw calls and count non-finite numeric arguments; a
+  // persistent count (a per-frame bug repaints hundreds of times) is reported.
+  (function installCanvasGuard(){
+    if (typeof CanvasRenderingContext2D === 'undefined') return;
+    var proto = CanvasRenderingContext2D.prototype;
+    var methods = ['fillRect','strokeRect','clearRect','rect','arc','arcTo','ellipse',
+      'moveTo','lineTo','quadraticCurveTo','bezierCurveTo','fillText','strokeText',
+      'translate','scale','setTransform','transform','drawImage'];
+    methods.forEach(function(name){
+      var orig = proto[name];
+      if (typeof orig !== 'function') return;
+      proto[name] = function(){
+        for (var i = 0; i < arguments.length; i++) {
+          var a = arguments[i];
+          if (typeof a === 'number' && !isFinite(a)) {
+            canvasNaNCount++;
+            if (!canvasNaNSample) canvasNaNSample = name;
+            break;
+          }
+        }
+        return orig.apply(this, arguments);
+      };
+    });
+  })();
 
   // ── Interaction driver ──────────────────────────────────────────
   // Exercises the rendered UI to catch "looks done but buttons do nothing /
@@ -140,6 +174,32 @@ function buildCaptureScript(token: string, waitMs: number, interactive = false):
         else { inp.value = 'Test input'; }
         inp.dispatchEvent(new Event('input', { bubbles: true }));
         inp.dispatchEvent(new Event('change', { bubbles: true }));
+        interactionsRun++;
+      } catch (err) {
+        interactionErrors.push(describe(err));
+      }
+    }
+
+    // Press common control/game keys. Canvas games and keyboard shortcuts are
+    // driven by keydown — click-driving never reaches them, so a jump/move
+    // handler that throws (or computes a NaN coordinate) would go unseen. We
+    // fire on both document and window since apps bind to either.
+    var keys = [
+      { key: ' ', code: 'Space', keyCode: 32 },
+      { key: 'ArrowUp', code: 'ArrowUp', keyCode: 38 },
+      { key: 'ArrowDown', code: 'ArrowDown', keyCode: 40 },
+      { key: 'ArrowLeft', code: 'ArrowLeft', keyCode: 37 },
+      { key: 'ArrowRight', code: 'ArrowRight', keyCode: 39 },
+      { key: 'Enter', code: 'Enter', keyCode: 13 }
+    ];
+    for (var ki = 0; ki < keys.length; ki++) {
+      var k = keys[ki];
+      try {
+        var opts = { key: k.key, code: k.code, keyCode: k.keyCode, which: k.keyCode, bubbles: true, cancelable: true };
+        document.dispatchEvent(new KeyboardEvent('keydown', opts));
+        window.dispatchEvent(new KeyboardEvent('keydown', opts));
+        document.dispatchEvent(new KeyboardEvent('keyup', opts));
+        window.dispatchEvent(new KeyboardEvent('keyup', opts));
         interactionsRun++;
       } catch (err) {
         interactionErrors.push(describe(err));
@@ -215,6 +275,14 @@ function buildCaptureScript(token: string, waitMs: number, interactive = false):
     reported = true;
     var root = document.getElementById('root');
     var rendered = !!(root && (root.childElementCount > 0 || (root.textContent || '').trim().length > 0));
+    // A persistent non-finite draw argument (many repaints, not a one-off init
+    // transient) means part of the canvas scene is silently invisible.
+    var canvasErrors = [];
+    if (canvasNaNCount >= 8) {
+      canvasErrors.push('Canvas drawing received a non-finite value (NaN/Infinity) ' + canvasNaNCount +
+        ' times, first via ctx.' + canvasNaNSample + '. A coordinate or size passed to the canvas is ' +
+        'undefined/NaN, so that part of the scene never renders even though nothing throws.');
+    }
     try {
       parent.postMessage({
         __bloomRuntimeCheck: TOKEN,
@@ -224,6 +292,7 @@ function buildCaptureScript(token: string, waitMs: number, interactive = false):
         interactionsRun: interactionsRun,
         interactionErrors: interactionErrors,
         routeErrors: routeErrors,
+        canvasErrors: canvasErrors,
         domChanged: domChanged
       }, '*');
     } catch (e) { /* ignore */ }
@@ -343,6 +412,9 @@ export async function runtimeSmokeTest(
       const routeErrors: string[] = Array.isArray(data.routeErrors)
         ? data.routeErrors.map((e: unknown) => String(e))
         : []
+      const canvasErrors: string[] = Array.isArray(data.canvasErrors)
+        ? data.canvasErrors.map((e: unknown) => String(e))
+        : []
       const interactionsRun = Number(data.interactionsRun) || 0
       const domChanged = Boolean(data.domChanged)
 
@@ -355,6 +427,7 @@ export async function runtimeSmokeTest(
         fatalErrors.length === 0 &&
         interactionErrors.length === 0 &&
         routeErrors.length === 0 &&
+        canvasErrors.length === 0 &&
         !(rendered === false && consoleErrors.length > 0)
 
       finish({
@@ -366,6 +439,7 @@ export async function runtimeSmokeTest(
         interactionsRun,
         interactionErrors,
         routeErrors,
+        canvasErrors,
         domChanged,
       })
     }
@@ -402,16 +476,30 @@ export function formatRuntimeReport(result: RuntimeCheckResult): string | null {
   if (!result.ran) return null
   const interactionErrors = result.interactionErrors ?? []
   const routeErrors = result.routeErrors ?? []
+  const canvasErrors = result.canvasErrors ?? []
   if (
     result.ok &&
     result.consoleErrors.length === 0 &&
     interactionErrors.length === 0 &&
-    routeErrors.length === 0
+    routeErrors.length === 0 &&
+    canvasErrors.length === 0
   ) {
     return null
   }
 
   const lines: string[] = []
+
+  if (canvasErrors.length > 0) {
+    lines.push('Canvas check FAILED — content is being drawn off-screen / invisibly:')
+    canvasErrors.slice(0, 4).forEach((e, i) => lines.push(`  ${i + 1}. ${e}`))
+    lines.push(
+      'Nothing throws, so trace the value passed as the x/y/width/height (or transform) ' +
+        'argument back to where it is computed. The usual cause is a variable that is ' +
+        'undefined at the draw site — e.g. declared with const/let inside an `if`/loop block ' +
+        'but read outside it, or a state value that has not been initialised. Fix the source ' +
+        'of the NaN, then compile again.',
+    )
+  }
 
   if (routeErrors.length > 0) {
     lines.push(
