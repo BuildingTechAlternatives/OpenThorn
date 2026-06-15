@@ -112,6 +112,32 @@
   margin-top: 0.5rem;
 }
 
+.modelList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0.5rem 0;
+}
+
+.modelRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.3fr) minmax(0, 0.9fr) minmax(0, 0.9fr) auto;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.modelRow .input {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.82rem;
+}
+
+.modelHead {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.55;
+}
+
 .flagRow {
   display: flex;
   align-items: center;

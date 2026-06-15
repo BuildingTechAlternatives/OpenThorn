@@ -12,14 +12,16 @@ import {
   DEFAULT_PROVIDER_MODELS,
   parseProviderModels,
   serializeProviderModels,
+  type ProviderModel,
 } from '../../lib/providers'
 import styles from './AdminConfigPage.module.css'
 
 type Status = { kind: 'ok' | 'error'; text: string } | null
 
 export default function AdminConfigPage() {
-  // Model catalog: provider id -> serialized "Name|id, Name|id" text
-  const [catalog, setCatalog] = useState<Record<string, string>>({})
+  // Model catalog: provider id -> parsed model list (the editable source of
+  // truth; serialized only on save).
+  const [catalog, setCatalog] = useState<Record<string, ProviderModel[]>>({})
   const [overridden, setOverridden] = useState<Set<string>>(new Set())
   // Platform config
   const [disabled, setDisabled] = useState<Set<string>>(new Set())
@@ -43,9 +45,10 @@ export default function AdminConfigPage() {
       if (cancelled) return
 
       const dbMap = new Map((rows ?? []).map((r) => [r.provider_id as string, r.models as string]))
-      const seeded: Record<string, string> = {}
+      const seeded: Record<string, ProviderModel[]> = {}
       for (const p of PROVIDERS) {
-        seeded[p.id] = dbMap.get(p.id) ?? serializeProviderModels(DEFAULT_PROVIDER_MODELS[p.id] ?? [])
+        const raw = dbMap.get(p.id)
+        seeded[p.id] = raw != null ? parseProviderModels(raw) : DEFAULT_PROVIDER_MODELS[p.id] ?? []
       }
       setCatalog(seeded)
       setOverridden(new Set(dbMap.keys()))
@@ -78,8 +81,9 @@ export default function AdminConfigPage() {
   }, [])
 
   const saveCatalog = (providerId: string) => run(`catalog:${providerId}`, async () => {
-    const models = parseProviderModels(catalog[providerId])
-    if (models.length === 0) throw new Error('No valid models — use "Name|model-id" separated by commas')
+    // Drop incomplete rows (a model needs at least an id) before saving.
+    const models = (catalog[providerId] ?? []).filter((m) => m.id.trim().length > 0)
+    if (models.length === 0) throw new Error('Add at least one model with a model id.')
     const { error } = await supabase
       .from('default_models')
       .upsert(
@@ -87,6 +91,7 @@ export default function AdminConfigPage() {
         { onConflict: 'provider_id' },
       )
     if (error) throw new Error(error.message)
+    setCatalog((prev) => ({ ...prev, [providerId]: models }))
     setOverridden((prev) => new Set(prev).add(providerId))
   }, 'Model list saved — live for all users.')
 
@@ -95,7 +100,7 @@ export default function AdminConfigPage() {
     if (error) throw new Error(error.message)
     setCatalog((prev) => ({
       ...prev,
-      [providerId]: serializeProviderModels(DEFAULT_PROVIDER_MODELS[providerId] ?? []),
+      [providerId]: DEFAULT_PROVIDER_MODELS[providerId] ?? [],
     }))
     setOverridden((prev) => {
       const next = new Set(prev)
@@ -103,6 +108,31 @@ export default function AdminConfigPage() {
       return next
     })
   }, 'Reset to the bundled defaults.')
+
+  // Structured edits operate on the parsed model list directly.
+  const mutateModels = (
+    providerId: string,
+    fn: (models: ProviderModel[]) => ProviderModel[],
+  ) =>
+    setCatalog((prev) => ({ ...prev, [providerId]: fn([...(prev[providerId] ?? [])]) }))
+
+  const updateModel = (providerId: string, index: number, patch: Partial<ProviderModel>) =>
+    mutateModels(providerId, (models) => {
+      models[index] = { ...models[index], ...patch }
+      return models
+    })
+
+  const setModelFlag = (providerId: string, index: number, flag: string) =>
+    updateModel(providerId, index, {
+      recommended: flag === 'recommended',
+      cheapest: flag === 'cheapest',
+    })
+
+  const addModel = (providerId: string) =>
+    mutateModels(providerId, (models) => [...models, { name: '', id: '', contextWindow: 128_000 }])
+
+  const removeModel = (providerId: string, index: number) =>
+    mutateModels(providerId, (models) => models.filter((_, i) => i !== index))
 
   const saveDisabled = () => run('disabled', async () => {
     await setAppConfig('disabled_providers', [...disabled])
@@ -189,11 +219,12 @@ export default function AdminConfigPage() {
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Model catalog</h2>
         <p className={styles.hint}>
-          Format: <code>Name|model-id, Name|model-id</code>. Saved lists go live immediately for all users;
-          "default" means the bundled list ships with the app.
+          Each model has a display name, model id, an optional badge, and a context window (tokens). The
+          context window sizes the agent's auto-compaction budget — set it to the model's real limit.
+          Saved lists go live immediately for all users; "default" means the bundled list ships with the app.
         </p>
         {PROVIDERS.map((p) => {
-          const parsed = parseProviderModels(catalog[p.id] ?? '')
+          const parsed = catalog[p.id] ?? []
           return (
             <details key={p.id} className={styles.catalogRow}>
               <summary className={styles.catalogSummary}>
@@ -202,12 +233,63 @@ export default function AdminConfigPage() {
                   {overridden.has(p.id) ? 'overridden' : 'default'} · {parsed.length} models
                 </span>
               </summary>
-              <textarea
-                className={styles.textarea}
-                rows={3}
-                value={catalog[p.id] ?? ''}
-                onChange={(e) => setCatalog((prev) => ({ ...prev, [p.id]: e.target.value }))}
-              />
+              <div className={styles.modelList}>
+                <div className={`${styles.modelRow} ${styles.modelHead}`}>
+                  <span>Name</span>
+                  <span>Model id</span>
+                  <span>Badge</span>
+                  <span>Context (tokens)</span>
+                  <span />
+                </div>
+                {parsed.map((m, i) => (
+                  <div key={i} className={styles.modelRow}>
+                    <input
+                      className={styles.input}
+                      placeholder="Display name"
+                      value={m.name}
+                      onChange={(e) => updateModel(p.id, i, { name: e.target.value })}
+                    />
+                    <input
+                      className={styles.input}
+                      placeholder="model-id"
+                      value={m.id}
+                      onChange={(e) => updateModel(p.id, i, { id: e.target.value })}
+                    />
+                    <select
+                      className={styles.input}
+                      value={m.recommended ? 'recommended' : m.cheapest ? 'cheapest' : ''}
+                      onChange={(e) => setModelFlag(p.id, i, e.target.value)}
+                    >
+                      <option value="">—</option>
+                      <option value="recommended">recommended</option>
+                      <option value="cheapest">cheapest</option>
+                    </select>
+                    <input
+                      className={styles.input}
+                      type="number"
+                      min={1000}
+                      step={1000}
+                      placeholder="e.g. 200000"
+                      value={m.contextWindow ?? ''}
+                      onChange={(e) =>
+                        updateModel(p.id, i, {
+                          contextWindow: e.target.value ? parseInt(e.target.value, 10) : undefined,
+                        })
+                      }
+                    />
+                    <button
+                      className={styles.btnSmall}
+                      type="button"
+                      onClick={() => removeModel(p.id, i)}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button className={styles.btnSmall} type="button" onClick={() => addModel(p.id)}>
+                + Add model
+              </button>
               <div className={styles.rowActions}>
                 <button
                   className={styles.btn}
