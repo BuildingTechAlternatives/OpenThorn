@@ -1,4 +1,5 @@
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { usePageTitle } from '../lib/usePageTitle'
 import ReactMarkdown from 'react-markdown'
@@ -1737,26 +1738,21 @@ export default function ProjectBuilderPage() {
             setAgentStatus(event.toolName ? formatToolLabel(event.toolName, event.toolInput) : 'Thinking...')
           }
 
-          // Tool call started
+          // Tool call started — flushSync so each tool appears immediately in the
+          // UI instead of being batched with subsequent events by React 18's
+          // automatic batching (write_file is synchronous, so all writes for a
+          // multi-file turn would otherwise render at once).
           if (event.type === 'tool_start' && event.toolName) {
             const label = formatToolLabel(event.toolName, event.toolInput)
-            if (event.toolName === 'think') {
+            flushSync(() => {
               pushTimeline({
                 type: 'tool_call',
                 toolLabel: label,
                 toolStatus: 'running',
-                toolDetail: formatToolDetail(event.toolName, event.toolInput),
+                toolDetail: formatToolDetail(event.toolName!, event.toolInput),
               })
-              // Replaced with the collapsed thinking block when the result arrives.
-            } else {
-              pushTimeline({
-                type: 'tool_call',
-                toolLabel: label,
-                toolStatus: 'running',
-                toolDetail: formatToolDetail(event.toolName, event.toolInput),
-              })
-            }
-            setAgentStatus(label)
+              setAgentStatus(label)
+            })
           }
 
           // Tool result
