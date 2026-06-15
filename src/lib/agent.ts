@@ -72,6 +72,7 @@ import {
   DEFAULT_PROVIDER_MODELS,
   PROVIDER_DEFS,
   parseProviderModels,
+  providerDefaultContextWindow,
 } from './providers'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -163,6 +164,8 @@ interface ProviderKeyRow {
 interface ModelInfo {
   name: string
   id: string
+  /** Context window in tokens, when known — drives the auto-compaction budget. */
+  contextWindow?: number
 }
 
 interface ResolvedProvider {
@@ -853,30 +856,20 @@ function estimateMessageTokens(messages: LlmMessage[]): number {
 }
 
 /**
- * Best-effort context-window size (in tokens) for a provider/model. Used only
- * to size the auto-compact budget, so it errs toward SAFE (smaller) values:
- * underestimating just compacts a little early, while overestimating risks a
- * hard context-overflow error from the provider. Unknown models fall back to
- * 128k — the floor for every current hosted provider here.
+ * Prompt-token budget above which the auto-compact valve fires, derived from
+ * the model's context window minus headroom for the response + reasoning
+ * tokens. The window is the model's own contextWindow (from the catalog) when
+ * known, else a conservative per-provider default. Errs toward SAFE (smaller)
+ * windows: underestimating just compacts a little early, while overestimating
+ * risks a hard context-overflow error from the provider.
  */
-export function contextWindowTokens(providerId: string, modelId: string): number {
-  const id = modelId.toLowerCase()
-  // Million-token-class models.
-  if (id.includes('gemini')) return 1_000_000
-  if (/\bgpt-4\.1\b/.test(id)) return 1_000_000
-  // Anthropic Claude: 200k (some support a 1M beta, but 200k is always safe).
-  if (id.includes('claude') || providerId === 'anthropic') return 200_000
-  // Local models: the default Ollama context is small and user-configurable —
-  // we can't read it, so stay conservative.
-  if (providerId === 'ollama') return 32_000
-  // Everything else hosted here (DeepSeek, OpenAI 4o/o-series, Mistral, Groq,
-  // xAI, Cohere, Perplexity, OpenRouter, Together, Fireworks, …) is >= 128k.
-  return 128_000
-}
-
-/** Prompt-token budget above which the auto-compact valve fires. */
-export function compactionBudgetTokens(providerId: string, modelId: string): number {
-  const window = contextWindowTokens(providerId, modelId)
+export function compactionBudgetTokens(
+  providerId: string,
+  contextWindow: number | undefined,
+): number {
+  const window = contextWindow && contextWindow > 0
+    ? contextWindow
+    : providerDefaultContextWindow(providerId)
   const headroom = Math.min(window * COMPACTION_HEADROOM_FRACTION, COMPACTION_HEADROOM_TOKENS)
   return Math.max(Math.round(window - headroom), 8_000)
 }
@@ -1253,7 +1246,7 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     // ── Compaction ──────────────────────────────────────────────
     const compactResult = compactMessages(
       messages,
-      compactionBudgetTokens(provider.key.provider_id, provider.model.id),
+      compactionBudgetTokens(provider.key.provider_id, provider.model.contextWindow),
     )
     if (compactResult.compacted) {
       // The auto-compact valve fired: observation outputs for older turns are
@@ -3792,9 +3785,15 @@ async function resolveProviderWithFallback(
       const customModels = parseModels(key.models)
       const merged = mergeModels(defaultModels, customModels)
 
+      // Prefer the catalog entry for the selected model so its contextWindow
+      // (and other metadata) is carried through; fall back to the bare
+      // name/id when the user picked a model not in the catalog.
       const selected =
         selectedModel && selectedModel.provider_id === key.provider_id
-          ? { name: selectedModel.model_name, id: selectedModel.model_id }
+          ? merged.find((m) => m.id === selectedModel.model_id) ?? {
+              name: selectedModel.model_name,
+              id: selectedModel.model_id,
+            }
           : merged[0]
 
       if (!selected?.id) {
