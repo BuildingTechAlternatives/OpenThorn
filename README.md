@@ -3,11 +3,11 @@
 **The free, BYOK AI website builder — a Lovable, Bolt.new, and v0 alternative. Bring your own API key, pay your provider directly.**
 
 [![Live](https://img.shields.io/badge/live-openthorn.app-4f46e5?style=flat-square)](https://openthorn.app)
-[![License](https://img.shields.io/badge/license-proprietary-gray?style=flat-square)](#license)
+[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](#license)
 
 ---
 
-OpenThorn is a BYOK (bring-your-own-key) AI app builder. Describe what you want in plain language; the AI agent writes the code, previews it live in-browser, and deploys a working website to Netlify. **The platform is free** — you only pay your AI provider's raw per-token rates, with no subscription and no markup.
+OpenThorn is a BYOK (bring-your-own-key) AI app builder. Describe what you want in plain language; the AI agent writes the code, previews it live in-browser, and deploys a working website to Cloudflare Pages. **The platform is free** — you only pay your AI provider's raw per-token rates, with no subscription and no markup.
 
 ## Why OpenThorn?
 
@@ -25,7 +25,7 @@ Most AI builders charge $25–50/month for credits that resell API access at a m
 
 - **18 AI providers** — OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral, Groq, Together AI, xAI, Cohere, Perplexity, OpenRouter, RodiumAi, Ollama, Fireworks AI, Cerebras, Azure OpenAI, Amazon Bedrock, NVIDIA NIM
 - **In-browser preview** — generated code bundled with esbuild-wasm and rendered live; no server round-trip, no build wait
-- **One-click Netlify deploy** — from preview to public URL without leaving the app
+- **One-click Cloudflare Pages deploy** — from preview to public URL without leaving the app
 - **Full code export** — download the generated source at any point; no proprietary format, no paywall
 - **Multi-provider fallback** — if one provider hits a rate limit, the agent switches automatically and continues mid-run
 - **Real-time collaboration** — multiplayer presence via Supabase Realtime
@@ -41,7 +41,7 @@ Most AI builders charge $25–50/month for credits that resell API access at a m
 | Auth / Database | Supabase (Postgres + RLS, Realtime, Storage) |
 | Serverless API | Vercel Functions |
 | In-browser bundler | esbuild-wasm |
-| Deployment target | Netlify |
+| Deployment target | Cloudflare Pages |
 | Rate limiting | Upstash Redis (optional) |
 
 ## Getting started
@@ -50,7 +50,7 @@ Most AI builders charge $25–50/month for credits that resell API access at a m
 
 - Node.js 20+
 - A [Supabase](https://supabase.com) project
-- A [Netlify](https://app.netlify.com/user/applications) personal access token
+- A [Cloudflare](https://dash.cloudflare.com/profile/api-tokens) account and API token
 - A [Vercel](https://vercel.com) project for the API functions
 
 ### 1. Clone and install
@@ -73,7 +73,8 @@ cp .env.example .env
 | `VITE_SUPABASE_ANON_KEY` | Yes | Supabase anon key (browser) |
 | `SUPABASE_URL` | Yes | Supabase project URL (server) |
 | `SUPABASE_ANON_KEY` | Yes | Supabase anon key (server) |
-| `NETLIFY_TOKEN` | Yes | Netlify personal access token |
+| `CLOUDFLARE_API_TOKEN` | Yes | Cloudflare API token (Pages:Edit permission) |
+| `CLOUDFLARE_ACCOUNT_ID` | Yes | Cloudflare account ID |
 | `KEY_ENCRYPTION_SECRET` | Yes | 48-byte secret — generate with `openssl rand -base64 48` |
 | `UPSTASH_REDIS_REST_URL` | No | Upstash Redis URL for production rate limiting |
 | `UPSTASH_REDIS_REST_TOKEN` | No | Upstash Redis token |
@@ -108,7 +109,7 @@ npm run preview   # serve the production build locally
 ```
 api/
   _shared.ts          JWT verification, rate limiting, AES-256-GCM encryption
-  deploy-netlify.ts   Netlify deployment endpoint
+  deploy.ts           Cloudflare Pages deployment endpoint
   provider-keys.ts    API key storage endpoint
 src/
   components/         UI components with co-located CSS Modules
@@ -134,7 +135,7 @@ The app deploys on **Vercel**. `vercel.json` includes SPA rewrites and a strict 
 2. Set all required environment variables under **Project > Settings > Environment Variables**
 3. Deploy — Vercel runs `npm run build` automatically
 
-User-generated sites deploy to Netlify via the `/api/deploy-netlify` endpoint using a shared platform token; end users do not need a Netlify account.
+User-generated sites deploy to Cloudflare Pages via the `/api/deploy` endpoint using a shared platform token; end users do not need a Cloudflare account.
 
 ## Security
 
@@ -147,6 +148,10 @@ User-generated sites deploy to Netlify via the `/api/deploy-netlify` endpoint us
 
 ## License
 
-Copyright (c) 2026 Thomas Tschinkel. All rights reserved.
+MIT License — Copyright (c) 2026 Thomas Tschinkel
 
-This source code is made available for reference and educational purposes. You may not use it to operate a competing commercial service without written permission.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
