@@ -231,8 +231,6 @@ function formatToolLabel(name: string, input?: Record<string, unknown>): string 
       return `Deleting ${input?.path || 'file'}`
     case 'compile':
       return 'Verifying build'
-    case 'inspect_preview':
-      return 'Inspecting layout'
     case 'done':
       return 'Wrapping up'
     case 'set_title':
@@ -258,8 +256,6 @@ function formatToolDetail(name: string, input?: Record<string, unknown>): string
       return 'Removing unused file'
     case 'compile':
       return 'Building and running preview'
-    case 'inspect_preview':
-      return 'Measuring layout at mobile + desktop'
     case 'done':
       // The full summary renders as the completion paragraph below the
       // timeline — repeating a truncated copy here reads as a glitch.
@@ -293,10 +289,6 @@ function formatToolResultDetail(name: string, result?: string, error?: boolean):
     case 'compile':
       if (text.includes('Compilation + runtime check passed')) return 'Build and runtime check passed'
       if (text.includes('with warnings')) return 'Passed with warnings'
-      return firstLine(text).slice(0, 160)
-    case 'inspect_preview':
-      if (text.includes('inspection clean')) return 'Layout looks clean'
-      if (text.includes('[PROBLEM]')) return 'Layout problems found'
       return firstLine(text).slice(0, 160)
     case 'set_title': {
       const title = parseJsonStringField(text, 'title')

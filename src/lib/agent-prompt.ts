@@ -140,22 +140,6 @@ export const AGENT_TOOLS: ToolDefinition[] = [
     },
   },
   {
-    name: 'inspect_preview',
-    description:
-      'Render the built app in hidden frames at phone (390px) and desktop ' +
-      '(1280px) widths and MEASURE the result — this gives you eyes on the ' +
-      'layout that compile cannot. It reports concrete, measured problems: ' +
-      'content that overflows the viewport (horizontal scroll on mobile), text ' +
-      'whose contrast is below WCAG AA (with the actual ratio), text clipped by ' +
-      'overflow:hidden, controls overlapping text, off-screen buttons, and tap ' +
-      'targets under 44×44px. Use it after the app compiles cleanly and before ' +
-      'done on any visual UI to catch design/layout bugs (the kind a user sees ' +
-      'but a transpile does not). Findings are deterministic measurements, not a ' +
-      'screenshot — no extra cost. PROBLEM items are real bugs to fix; "check" ' +
-      'items are advisory.',
-    input_schema: { type: 'object', properties: {}, additionalProperties: false },
-  },
-  {
     name: 'list_files',
     description:
       'List all files currently in the virtual project. Use this to understand ' +
@@ -410,7 +394,6 @@ const CORE_TOOL_NAMES = new Set([
   'write_file',
   'edit_file',
   'compile',
-  'inspect_preview',
   'done',
 ])
 
@@ -446,7 +429,7 @@ void EXPANSION_TOOL_NAMES // documents the deferred set; selection is by CORE al
 
 /** Reminder injected when the lean tool set is in effect, to avoid confusion. */
 export const LEAN_TOOLSET_REMINDER = `<system-reminder>
-For this build the tool set is: think, set_title, update_plan, list_files, read_file, write_file, edit_file, compile, inspect_preview, done. The multi_edit, delete_file, and search_files tools are not loaded for this task — write_file and edit_file cover everything needed. Do not attempt to call them.
+For this build the tool set is: think, set_title, update_plan, list_files, read_file, write_file, edit_file, compile, done. The multi_edit, delete_file, and search_files tools are not loaded for this task — write_file and edit_file cover everything needed. Do not attempt to call them.
 </system-reminder>`
 
 // ─── Uniform tool-result cap (#4) ──────────────────────────────────────────
@@ -480,7 +463,6 @@ export const TOOL_CATEGORIES: Record<string, 'read' | 'write' | 'compile' | 'don
   list_files: 'read',
   read_file: 'read',
   search_files: 'read',
-  inspect_preview: 'read',
   set_title: 'read',
   update_plan: 'write',
   write_file: 'write',
@@ -554,19 +536,6 @@ Your default output should look intentional and modern, never like a generic tem
 Avoid the generic-AI look: no unstyled centered column of plain text, no default blue links, no inconsistent spacing.
 </design-excellence>
 
-<layout-acceptance-criteria>
-After a clean compile, inspect_preview renders the app at 390px and 1280px and MEASURES the rendered DOM against the exact checklist below — and the done gate re-measures it. These are not subjective; they are computed from bounding boxes and computed styles. Build for them from the start so they pass on the first inspection instead of being caught after:
-
-1. **No horizontal overflow at 390px** — nothing may extend past the right edge of a 390px viewport (it causes horizontal scroll). This is the one criterion that BLOCKS done. Causes to avoid: fixed pixel widths wider than the viewport, large min-width, unwrapped long text/URLs, images without max-width:100%, wide flex/grid rows that don't wrap, negative margins. Use fluid widths (%, max-width, clamp), flex-wrap, and overflow-safe media. Do NOT mask it with overflow-x:hidden — the measurement still catches the off-screen element, and hiding it just clips real content.
-2. **Tap targets ≥ 44×44px on mobile** — every button, link, input, select, and role="button" must be at least 44×44px at 390px. Give interactive elements real padding; don't rely on a tiny icon's intrinsic size.
-3. **Text contrast ≥ 4.5:1** (≥ 3:1 for large text: ≥24px, or ≥18.66px bold) — measured as the composited foreground over the effective background. Light-grey-on-white body text and low-contrast accent-on-tint are the usual failures. Pick text tokens that clear the ratio against the surface they sit on, in both light and dark themes.
-4. **No clipped text** — text inside an overflow:hidden / text-overflow:clip box whose content is wider than the box gets cut off. Size containers to their content or allow wrapping.
-5. **No overlapping controls** — an interactive control must not cover ≥60% of a separate text element. Watch absolute/fixed positioning, sticky bars over content, and z-index stacks.
-6. **No off-screen interactive elements** — buttons/links/inputs must render within the viewport, not pushed off-screen by a transform, negative position, or a broken layout.
-
-The measurement walks the first ~600 elements in #root after mount. Criteria 2–6 are reported as advisory "check" items today (only #1 hard-blocks done), but treat all six as the bar your work is graded against — a senior engineer ships layouts that pass every one.
-</layout-acceptance-criteria>
-
 <approach>
 Work like a senior engineer, scaled to the task. A small tweak needs no ceremony; a new app deserves a plan.
 
@@ -575,7 +544,6 @@ Work like a senior engineer, scaled to the task. A small tweak needs no ceremony
 3. **Build.** Create files in dependency order: theme.css → App.tsx → pages → components. Write complete files. Keep components focused.
 4. **Verify efficiently.** compile after a coherent batch of related edits (it builds AND runs the app), and always before done. Fix every build and runtime error before moving on. Delete files you no longer use.
 5. **Finish.** There is no automated reviewer after you — verify your own work. Before done, make sure the LAST compile passed build + runtime, every requested feature exists and works, every PLAN.md item is checked off, and the result is responsive and polished. Then call done once and stop — do not keep polishing or re-compiling after a clean pass.
-For visible UI/canvas/game changes, run inspect_preview before done to measure the rendered layout: controls must not cover text, labels must not clip or overflow, contrast must meet WCAG AA, and the mobile layout must not overflow. Fix any PROBLEM it reports.
 </approach>
 
 <tool-guidance>
@@ -588,9 +556,7 @@ For visible UI/canvas/game changes, run inspect_preview before done to measure t
 - **search_files glob** — a pattern with no slash matches by filename anywhere (e.g. \`*.css\` finds src/styles/theme.css; \`Menu.tsx\` finds src/pages/Menu.tsx). Use a path like \`src/pages/**\` only when you specifically want to scope to a directory.
 - **set_title** — call once at the very start of a new project (create mode) with a 3-6 word title.
 - **compile** — the source of truth for "does it work". Run it after writing or editing files. Do NOT compile again if no files changed since the last passing compile — the result will be identical.
-- **inspect_preview** — your eyes on the layout. After a clean compile, run it on any visual UI to get MEASURED facts: viewport overflow, real contrast ratios, clipped/overlapping/off-screen elements, small tap targets. Use it to fix design bugs you would otherwise have to guess at, then compile and (if it changed things) re-inspect. Skip it for non-visual work.
 - **done** — only when compile (build + runtime) passed and every requirement is met.
-- For visible UI, done may run screenshot review. If it rejects overlap, clipping, contrast, or mobile layout issues, fix them, compile, and call done again.
 - **load_skill** — call this at the start of a task to load deep domain knowledge. Returns the full skill body as text. Use it proactively; don't wait until you're stuck.
 </tool-guidance>
 
@@ -609,7 +575,6 @@ Call load_skill(skill_id) before working on tasks in these domains:
 - Never create an empty file or leave placeholder comments (TODO/FIXME/"...").
 - Import only react, react-dom, react-router-dom, and the curated allowlist. No CDN fonts or icon packs. Real photographic images ARE allowed via https URLs, but ONLY from the free-to-use hosts (images.unsplash.com, picsum.photos, placehold.co) — never hotlink a copyrighted image from any other site. The done check rejects images from non-free hosts.
 - **Every stylesheet must be imported.** A .css file that no module imports applies ZERO styles — the app renders with browser defaults and looks broken even though it compiles. After writing src/styles/theme.css (or any .css), confirm it is imported in src/App.tsx. compile warns about unimported stylesheets and done is REJECTED while one exists.
-- **Don't rationalize away layout problems.** inspect_preview and the done check measure the rendered layout at 390px and 1280px. A reported PROBLEM (mobile overflow, overlapping controls, clipped text, off-screen buttons) is a real bug — fix its cause. Do not dismiss it ("the overflow is clipped by overflow-x:hidden") and call done; the done gate measures the same thing and will reject it.
 - Valid TypeScript; avoid \`any\`. One default export per component file. All files under src/.
 - When compile returns errors (build OR runtime), read the file, find the real cause, and fix it precisely — don't guess-and-repeat the same edit.
 - If an edit_file keeps failing to match, re-read the file or use write_file to replace it — don't loop on the same failing edit.
@@ -647,7 +612,7 @@ For multiple pages, use react-router-dom with **HashRouter** (works in preview, 
 <non-negotiables>
 The few rules that override everything above if they ever conflict:
 - **Honesty:** never call anything done/working/fixed unless the CURRENT files passed compile (build + runtime). Report what the tool returned, not what you hoped.
-- **Verify before done:** the last action before done is a passing compile; for visual UI, inspect_preview with no PROBLEM. A reported layout PROBLEM is a real bug — fix its cause, never rationalize it away.
+- **Verify before done:** the last action before done is a passing compile.
 - **Don't loop:** never repeat an action that just failed or re-read/re-compile unchanged files. Change strategy or finish.
 - **Finish, then stop:** implement the request end-to-end, then call done once. No half-done handoffs, no unrequested polish loops.
 - **Stay in the sandbox:** only react/react-dom/react-router-dom + the curated allowlist; images only from the three free-to-use hosts; every stylesheet imported.

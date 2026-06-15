@@ -7,7 +7,6 @@ import {
   isContinuationRequest,
   isLikelyBuildRequest,
   mergePromptRequirementsIntoPlan,
-  shouldRunLayoutGateForRun,
   shouldRejectWholeFileRewrite,
   matchesGlob,
   nearestSnippet,
@@ -125,27 +124,6 @@ describe('agent request planning helpers', () => {
     const plan = createPlan('Add crouching')
     const next = mergePromptRequirementsIntoPlan(plan, 'continue', 'refine')
     expect(next.items).toEqual(plan.items)
-  })
-
-  it('runs the deterministic layout gate', () => {
-    // Every create run is visual — gate applies even for a no-vision provider.
-    expect(shouldRunLayoutGateForRun({
-      goal: 'Build a restaurant website',
-      mode: 'create',
-      mutatedPaths: [],
-    })).toBe(true)
-    // Refine that changed a component is visual.
-    expect(shouldRunLayoutGateForRun({
-      goal: 'Add a new dish card',
-      mode: 'refine',
-      mutatedPaths: ['src/components/MenuSection.tsx'],
-    })).toBe(true)
-    // Non-visual refine touching only data → skip.
-    expect(shouldRunLayoutGateForRun({
-      goal: 'Update the menu prices',
-      mode: 'refine',
-      mutatedPaths: ['src/data/menu.ts'],
-    })).toBe(false)
   })
 
   it('matches a no-slash glob by basename anywhere in the tree', () => {

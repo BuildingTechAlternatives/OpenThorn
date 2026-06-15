@@ -32,7 +32,6 @@ import {
   interactiveSmokeTest,
   formatRuntimeReport,
 } from './preview-runtime-check'
-import { inspectPreview, formatInspectReport } from './preview-inspect'
 import {
   PLAN_PATH,
   createPlan,
@@ -2521,60 +2520,6 @@ async function executeTool(
       }
     }
 
-    // ── inspect_preview ─────────────────────────────────────────
-    case 'inspect_preview': {
-      if (currentFiles.length === 0) {
-        return { content: 'No files to inspect. Create some files first.', isError: false }
-      }
-      try {
-        const preview = await buildPreview(
-          currentFiles.map((f) => ({ path: f.path, content: f.code })),
-        )
-        if (preview.errors.length > 0) {
-          return {
-            content:
-              'Cannot inspect — the project does not build yet. Fix the build first:\n' +
-              [...new Set(preview.errors)].slice(0, COMPILE_MAX_ERRORS).map((e, i) => `  ${i + 1}. ${e}`).join('\n'),
-            isError: true,
-          }
-        }
-        const result = await inspectPreview(preview.html)
-        if (!result.ran) {
-          return {
-            content:
-              'Inspection unavailable in this environment (no browser). Rely on compile + careful reasoning about layout instead.',
-            isError: false,
-          }
-        }
-        const report = formatInspectReport(result)
-        if (!report) {
-          const s = result.summary
-          const stats = s
-            ? ` (${s.headings} heading(s), ${s.buttons} button(s), ${s.links} link(s), ${s.inputs} input(s)${s.imagesWithoutAlt > 0 ? `, ${s.imagesWithoutAlt} image(s) missing alt text` : ''})`
-            : ''
-          return {
-            content: `Visual inspection clean at ${result.viewports.join(' and ')} — no overflow, contrast, clipping, or overlap problems detected${stats}.`,
-            isError: false,
-          }
-        }
-        // Informational tool: any PROBLEM is surfaced in the report text but
-        // does not hard-fail the turn (inspect_preview does not gate done).
-        // isError stays false so the model reads it as feedback to act on,
-        // not a tool failure to retry.
-        return { content: report, isError: false }
-      } catch (err) {
-        return {
-          content: formatStructuredError({
-            code: 'INSPECT_CRASH',
-            message: err instanceof Error ? err.message : String(err),
-            suggestion: 'Inspection failed unexpectedly. Continue with compile-based verification.',
-            retryable: false,
-          }),
-          isError: false,
-        }
-      }
-    }
-
     // ── set_title ────────────────────────────────────────────────
     case 'set_title': {
       const titleValue = typeof toolCall.input.title === 'string' ? toolCall.input.title.trim() : ''
@@ -2760,15 +2705,6 @@ async function runDoneVerificationGate(
         })
       }
 
-      // 6. Deterministic layout gate — measured PROBLEMs (mobile overflow,
-      // overlap, clipping, off-screen controls) block done. This works for
-      // EVERY provider (no vision model needed), so DeepSeek/Ollama runs can no
-      // longer rationalize a visible layout bug away and finish on it.
-      const layoutRejection = await runLayoutGate({
-        runCtx,
-        html: preview.html,
-      })
-      if (layoutRejection) return layoutRejection
     }
   } catch {
     // Inconclusive (no DOM / bundler hiccup) — never block done on a flaky check.
@@ -2778,74 +2714,6 @@ async function runDoneVerificationGate(
 }
 
 // ─── Model Calling ──────────────────────────────────────────────────────────
-
-const LAYOUT_GATE_PROMPT_RE =
-  /\b(visual|design|layout|style|css|theme|dark|light|button|icon|canvas|game|animation|sprite|particle|shake|responsive|mobile|overlap|clip|contrast|color|polish|ui)\b/i
-
-/**
- * Whether to run the DETERMINISTIC layout gate (measured overflow/overlap/etc.)
- * before accepting done. Applies to every provider — gated only on whether the
- * run touched visible UI: any create run, a visually-worded refine, or one that
- * changed a .css/.tsx/.jsx file.
- */
-export function shouldRunLayoutGateForRun(params: {
-  goal: string
-  mode: 'create' | 'refine'
-  mutatedPaths: string[]
-}): boolean {
-  if (params.mode === 'create') return true
-  if (LAYOUT_GATE_PROMPT_RE.test(params.goal)) return true
-  return params.mutatedPaths.some(
-    (path) => path.endsWith('.css') || path.endsWith('.tsx') || path.endsWith('.jsx'),
-  )
-}
-
-/**
- * Deterministic layout gate: render the built app at phone + desktop widths,
- * measure it, and reject done when there are error-severity layout PROBLEMs
- * (content overflowing the mobile viewport, controls covering text, clipped
- * text, off-screen interactive elements). Returns a rejection string or null.
- * Inconclusive environments (no DOM, nothing rendered) never block.
- */
-async function runLayoutGate({
-  runCtx,
-  html,
-}: {
-  runCtx: RunContext
-  html: string
-}): Promise<string | null> {
-  if (
-    !shouldRunLayoutGateForRun({
-      goal: runCtx.goal,
-      mode: runCtx.mode,
-      mutatedPaths: [...runCtx.mutatedPaths],
-    })
-  ) {
-    return null
-  }
-
-  let result
-  try {
-    result = await inspectPreview(html)
-  } catch {
-    return null // measurement hiccup — never block done on a flaky check
-  }
-  if (!result.ran || !result.rendered) return null
-
-  const errors = result.issues.filter((i) => i.severity === 'error')
-  if (errors.length === 0) return null
-
-  const report = formatInspectReport(result) ?? ''
-  return formatStructuredError({
-    code: 'DONE_REJECTED',
-    message:
-      'The rendered layout has measured problems a user would see (not a guess — these are measured at 390px/1280px):\n' +
-      report,
-    suggestion:
-      'Fix the PROBLEM items (mobile overflow, overlap, clipped text, off-screen controls) at their cause — do not just hide them with overflow:hidden. Compile, then call done again.',
-    retryable: true,
-  })
-}
 
 interface ModelCallResult {
   text: string
