@@ -32,6 +32,8 @@ export interface RuntimeCheckResult {
   interactionsRun?: number
   /** Errors thrown specifically while exercising interactions. */
   interactionErrors?: string[]
+  /** Internal routes that rendered a not-found / error view when navigated to. */
+  routeErrors?: string[]
   /** Whether interactions produced any DOM change (a signal handlers are wired). */
   domChanged?: boolean
 }
@@ -58,6 +60,7 @@ function buildCaptureScript(token: string, waitMs: number, interactive = false):
   var fatal = [];
   var consoleErrors = [];
   var interactionErrors = [];
+  var routeErrors = [];
   var interactionsRun = 0;
   var domChanged = false;
 
@@ -143,13 +146,67 @@ function buildCaptureScript(token: string, waitMs: number, interactive = false):
       }
     }
 
-    // Click in-page hash links (safe; won't unload).
-    var hashLinks = [].slice.call(document.querySelectorAll('a[href^="#"]')).slice(0, 3);
-    for (var k = 0; k < hashLinks.length; k++) {
-      try { hashLinks[k].click(); interactionsRun++; } catch (err) { interactionErrors.push(describe(err)); }
-    }
-
     domChanged = snapshotDom() !== before;
+  }
+
+  // ── Route driver ───────────────────────────────────────────────
+  // Click-through is not enough: a route can render WITHOUT throwing yet show a
+  // broken view (e.g. "Product not found" because a string route param is
+  // compared against a numeric id). We visit the app's own internal hash routes
+  // and flag any that land on a not-found / error state the home view did not
+  // already show — the single most common "compiles but is broken" failure.
+  var ERROR_RE = /(not found|page not found|404|does not exist|no such|couldn't find|couldnt find|cannot find|can't find|failed to load|went wrong)/i;
+
+  function rootText() {
+    var root = document.getElementById('root');
+    return root ? (root.textContent || '') : '';
+  }
+  function delay(ms) { return new Promise(function (res) { setTimeout(res, ms); }); }
+
+  function collectInternalRoutes() {
+    var seen = {};
+    var hrefs = [];
+    var anchors = [].slice.call(document.querySelectorAll('a[href^="#/"]'));
+    for (var i = 0; i < anchors.length; i++) {
+      var href = anchors[i].getAttribute('href');
+      if (!href || href === '#/' || href === '#') continue;
+      if (seen[href]) continue;
+      seen[href] = true;
+      hrefs.push(href);
+    }
+    // Prefer dynamic detail routes (/product/1, /item/abc) so we exercise data
+    // lookups, not just static pages.
+    hrefs.sort(function (a, b) {
+      var ad = /\\/[^/]+\\/[\\w-]+/.test(a) ? 0 : 1;
+      var bd = /\\/[^/]+\\/[\\w-]+/.test(b) ? 0 : 1;
+      return ad - bd;
+    });
+    return hrefs.slice(0, 6);
+  }
+
+  function navigateRoutes() {
+    var routes = collectInternalRoutes();
+    if (routes.length === 0) return Promise.resolve();
+    var baselineHadError = ERROR_RE.test(rootText());
+    var chain = Promise.resolve();
+    routes.forEach(function (href) {
+      chain = chain.then(function () {
+        try { window.location.hash = href; } catch (e) { interactionErrors.push(describe(e)); return; }
+        return delay(200).then(function () {
+          try {
+            var txt = rootText();
+            if (!baselineHadError && ERROR_RE.test(txt)) {
+              var snippet = txt.replace(/\\s+/g, ' ').trim().slice(0, 140);
+              routeErrors.push('Route ' + href + ' rendered an error/not-found view: "' + snippet + '"');
+            }
+            interactionsRun++;
+          } catch (e) { interactionErrors.push(describe(e)); }
+        });
+      });
+    });
+    // Return home so the final report reflects a normal view, not the last route.
+    chain = chain.then(function () { try { window.location.hash = '#/'; } catch (e) {} return delay(120); });
+    return chain;
   }
 
   var reported = false;
@@ -166,6 +223,7 @@ function buildCaptureScript(token: string, waitMs: number, interactive = false):
         rendered: rendered,
         interactionsRun: interactionsRun,
         interactionErrors: interactionErrors,
+        routeErrors: routeErrors,
         domChanged: domChanged
       }, '*');
     } catch (e) { /* ignore */ }
@@ -173,9 +231,11 @@ function buildCaptureScript(token: string, waitMs: number, interactive = false):
 
   function settleThenReport() {
     if (INTERACTIVE) {
-      // Let the app mount, then drive it, then let effects settle, then report.
+      // Let the app mount, drive its controls, walk its internal routes, let
+      // effects settle, then report.
       try { runInteractions(); } catch (e) { interactionErrors.push(describe(e)); }
-      setTimeout(report, 600);
+      var done = function () { setTimeout(report, 600); };
+      try { navigateRoutes().then(done, done); } catch (e) { interactionErrors.push(describe(e)); done(); }
     } else {
       report();
     }
@@ -188,8 +248,9 @@ function buildCaptureScript(token: string, waitMs: number, interactive = false):
   } else {
     window.addEventListener('load', function(){ setTimeout(settleThenReport, ${waitMs}); });
   }
-  // Safety: always report eventually, even if 'load' never fires.
-  setTimeout(report, ${waitMs} + 2500);
+  // Safety: always report eventually, even if 'load' never fires. Allow extra
+  // headroom for the interactive route walk to finish before this fires.
+  setTimeout(report, ${waitMs} + (INTERACTIVE ? 6000 : 2500));
 })();
 </script>`
 }
@@ -279,6 +340,9 @@ export async function runtimeSmokeTest(
       const interactionErrors: string[] = Array.isArray(data.interactionErrors)
         ? data.interactionErrors.map((e: unknown) => String(e))
         : []
+      const routeErrors: string[] = Array.isArray(data.routeErrors)
+        ? data.routeErrors.map((e: unknown) => String(e))
+        : []
       const interactionsRun = Number(data.interactionsRun) || 0
       const domChanged = Boolean(data.domChanged)
 
@@ -290,6 +354,7 @@ export async function runtimeSmokeTest(
       const ok =
         fatalErrors.length === 0 &&
         interactionErrors.length === 0 &&
+        routeErrors.length === 0 &&
         !(rendered === false && consoleErrors.length > 0)
 
       finish({
@@ -300,6 +365,7 @@ export async function runtimeSmokeTest(
         rendered,
         interactionsRun,
         interactionErrors,
+        routeErrors,
         domChanged,
       })
     }
@@ -335,11 +401,30 @@ export async function interactiveSmokeTest(
 export function formatRuntimeReport(result: RuntimeCheckResult): string | null {
   if (!result.ran) return null
   const interactionErrors = result.interactionErrors ?? []
-  if (result.ok && result.consoleErrors.length === 0 && interactionErrors.length === 0) {
+  const routeErrors = result.routeErrors ?? []
+  if (
+    result.ok &&
+    result.consoleErrors.length === 0 &&
+    interactionErrors.length === 0 &&
+    routeErrors.length === 0
+  ) {
     return null
   }
 
   const lines: string[] = []
+
+  if (routeErrors.length > 0) {
+    lines.push(
+      'Route check FAILED — a link the app itself renders leads to a broken view:',
+    )
+    routeErrors.slice(0, 8).forEach((e, i) => lines.push(`  ${i + 1}. ${e}`))
+    lines.push(
+      'The route did not throw, so the bug is logic — not a crash. The most common cause is the ' +
+        'route param being a string while the lookup compares it against a number (e.g. ' +
+        '`items.find(x => x.id === id)` where `id` from useParams is a string). Read the page ' +
+        'component and its data lookup, fix the comparison/param parsing, then compile again.',
+    )
+  }
 
   if (result.fatalErrors.length > 0) {
     lines.push(
@@ -371,7 +456,14 @@ export function formatRuntimeReport(result: RuntimeCheckResult): string | null {
     lines.push('Note: the app did not render any visible content into #root.')
   }
 
-  if (!result.ok) {
+  // Only the thrown/console failures warrant the generic "find the bad
+  // reference" advice; route-logic failures already have their own targeted hint
+  // above, so don't muddy them with crash-debugging guidance.
+  const hadThrownError =
+    result.fatalErrors.length > 0 ||
+    interactionErrors.length > 0 ||
+    result.consoleErrors.length > 0
+  if (!result.ok && hadThrownError) {
     lines.push(
       '',
       'These are RUNTIME errors found by actually running the app — esbuild does not catch them. ' +

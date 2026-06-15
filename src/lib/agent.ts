@@ -251,17 +251,17 @@ const MAX_TOOL_TURNS = 30
 
 // ─── Compaction Settings ────────────────────────────────────────────────────
 
-const COMPACTION_THRESHOLD = 5
-const KEEP_RECENT_TURNS = 3
+// Full-context mode (Claude-Code-style): the whole conversation — every file
+// read and write included — stays in the context window so the model never
+// loses what it has already seen. Compaction is a last-resort safety valve for
+// pathologically long histories, NOT a routine token-saver, so the threshold
+// sits far above a normal run (MAX_TOOL_TURNS = 30). When it does fire it
+// truncates the oldest observation outputs AND clears the per-run read cache,
+// so the re-read guard never claims content that is no longer in context.
+const COMPACTION_THRESHOLD = 200
+const KEEP_RECENT_TURNS = 150
 const SUMMARY_INTERVAL = 6
 const READ_TRUNCATE_LINES = 500
-/**
- * How many turns a full-file read/write keeps suppressing re-reads of the same
- * unchanged file. Generous (long refines interleave many searches between
- * reads) but bounded, so that after context compaction the agent can re-read a
- * file whose content it can no longer see.
- */
-const FULL_READ_DEDUP_TURNS = 6
 const OBSERVATION_TOOLS = new Set([
   'list_files',
   'read_file',
@@ -1164,6 +1164,12 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     recoveredLessons: [],
   }
 
+  // Seed the read cache from prior-run writes so the agent doesn't re-read
+  // files whose content is already replayed in the conversation history.
+  if (input.history && input.history.length > 0 && mode === 'refine') {
+    seedReadsFromHistory(runCtx, input.history, currentFiles)
+  }
+
   // Track session details for changelog
   const sessionFilesCreated: string[] = []
   const sessionFilesEdited: string[] = []
@@ -1179,6 +1185,10 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     // ── Compaction ──────────────────────────────────────────────
     const compactResult = compactMessages(messages, turnCount)
     if (compactResult.compacted) {
+      // The safety valve fired: observation outputs for older turns are now
+      // truncated stubs. Drop the read cache so the re-read guard never points
+      // the model at content that is no longer in the transcript.
+      runCtx.reads.clear()
       if (turnCount - lastSummaryTurn >= SUMMARY_INTERVAL) {
         const summary = generateProgressSummary(messages, currentFiles, turnCount)
         messages.push({ role: 'user', content: summary })
@@ -1776,14 +1786,55 @@ function noteFileSeen(
   const snap = fileSnap(code)
   const prev = runCtx.reads.get(path)
   if (prev && prev.snap === snap) {
-    runCtx.reads.set(path, {
-      snap,
-      turn: runCtx.turn,
-      servedStart: Math.min(prev.servedStart, servedStart),
-      servedEnd: Math.max(prev.servedEnd, servedEnd),
-    })
+    // Only union ranges that overlap or are contiguous. Merging two disjoint
+    // reads (e.g. lines 1-30 and 200-232) would falsely claim the gap between
+    // them is in context and could block a legitimate read of those lines.
+    const overlapsOrAdjacent =
+      servedStart <= prev.servedEnd + 1 && servedEnd >= prev.servedStart - 1
+    if (overlapsOrAdjacent) {
+      runCtx.reads.set(path, {
+        snap,
+        turn: runCtx.turn,
+        servedStart: Math.min(prev.servedStart, servedStart),
+        servedEnd: Math.max(prev.servedEnd, servedEnd),
+      })
+    } else {
+      runCtx.reads.set(path, { snap, turn: runCtx.turn, servedStart, servedEnd })
+    }
   } else {
     runCtx.reads.set(path, { snap, turn: runCtx.turn, servedStart, servedEnd })
+  }
+}
+
+/**
+ * Full-context mode: prior-run reads and writes are replayed verbatim in the
+ * conversation history, so their content is already in the context window. Seed
+ * the per-run read cache from those turns so the agent does not re-read files it
+ * has already seen in an earlier run.
+ *
+ * Only seed when we can prove the CURRENT file content matches what the model
+ * last saw — i.e. a `write_file` whose written content still equals the file on
+ * disk. (A bare `read_file` carries no content to verify against the current
+ * file, and the file may have been edited since, so those are not seeded — a
+ * worst case there is one redundant re-read, never a stale claim.)
+ */
+function seedReadsFromHistory(
+  runCtx: RunContext,
+  history: LlmMessage[],
+  currentFiles: AgentCodeFile[],
+): void {
+  const fileByPath = new Map(currentFiles.map((f) => [f.path, f]))
+  for (const msg of history) {
+    if (msg.role !== 'assistant' || !Array.isArray(msg.content)) continue
+    for (const block of msg.content) {
+      if (block.type !== 'tool_use' || block.name !== 'write_file') continue
+      const path = typeof block.input?.path === 'string' ? block.input.path : ''
+      const written = typeof block.input?.content === 'string' ? block.input.content : ''
+      if (!path || !written) continue
+      const file = fileByPath.get(path)
+      if (!file || fileSnap(file.code) !== fileSnap(written)) continue
+      noteFileSeen(runCtx, path, file.code, 1, file.code.split('\n').length)
+    }
   }
 }
 
@@ -1894,30 +1945,31 @@ async function executeTool(
       if (runCtx) {
         const prev = runCtx.reads.get(path)
         const requestedEnd = endIdx // already clamped to file length
-        // If the agent has already seen the WHOLE file (a full read or its own
-        // write) and it is unchanged, block the re-read across a generous
-        // window — not just 2 turns. Long refines interleave many searches
-        // between reads, and re-reading an unchanged 69-line file is pure waste.
+        // In full-context mode the transcript keeps every prior read/write, so
+        // an unchanged file the agent has already seen is still visible above
+        // and re-reading it is pure waste. The read cache is cleared on the
+        // (rare) safety-valve compaction, so an entry existing here guarantees
+        // the content is still in context — no turn window needed.
         const sawWholeFile =
           prev &&
           prev.snap === snap &&
           prev.servedStart <= 1 &&
-          prev.servedEnd >= allLines.length &&
-          runCtx.turn - prev.turn <= FULL_READ_DEDUP_TURNS
-        // For a partial prior read, only short-circuit a tightly-overlapping
-        // re-read within the last couple of turns (still in context).
+          prev.servedEnd >= allLines.length
+        // A partial prior read only covers the exact range it served (disjoint
+        // ranges are never merged across a gap), so only short-circuit when the
+        // request falls entirely inside what was already shown.
         const partialCovered =
           prev &&
           prev.snap === snap &&
-          runCtx.turn - prev.turn <= 2 &&
           offset >= prev.servedStart &&
           requestedEnd <= prev.servedEnd
         if (sawWholeFile || partialCovered) {
           return {
             content:
-              `You already have ${path} (lines ${prev.servedStart}-${prev.servedEnd}) from a moment ago ` +
-              `and it has not changed since — its content is still shown above. Do not read it again. ` +
-              `Make your edit now, or use search_files with context_lines to jump to a specific section.`,
+              `You already have ${path} (lines ${prev.servedStart}-${prev.servedEnd}) — it was read or ` +
+              `written earlier in this conversation and has not changed since, so its full content is still ` +
+              `in the transcript above. Do not read it again. Make your edit now, or use search_files with ` +
+              `context_lines to jump to a specific section.`,
             isError: false,
           }
         }
