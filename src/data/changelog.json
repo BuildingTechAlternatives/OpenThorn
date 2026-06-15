@@ -1,9 +1,133 @@
 {
-  "generatedAt": "2026-06-14",
+  "generatedAt": "2026-06-15",
   "days": [
+    {
+      "date": "2026-06-15",
+      "entries": [
+        {
+          "category": "Improved",
+          "message": "Store per-model context window; size compaction from real values",
+          "sha": "7ae85936fca51f2b477ce090939a0715eb46d870",
+          "shortSha": "7ae8593",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/7ae85936fca51f2b477ce090939a0715eb46d870"
+        },
+        {
+          "category": "Improved",
+          "message": "Scale compaction budget to each model context window",
+          "sha": "73589ec3b797c55b818153082fbcdb6818d83885",
+          "shortSha": "73589ec",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/73589ec3b797c55b818153082fbcdb6818d83885"
+        },
+        {
+          "category": "Improved",
+          "message": "Token-budget auto-compaction; catch silently-broken canvas games",
+          "sha": "222564b4665d12c65f1f8977d66fed3a2bd1d60a",
+          "shortSha": "222564b",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/222564b4665d12c65f1f8977d66fed3a2bd1d60a"
+        },
+        {
+          "category": "Improved",
+          "message": "Keep full conversation context; catch broken-but-not-crashing routes",
+          "sha": "546212630822d513393332ec470174c4e0bb58e7",
+          "shortSha": "5462126",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/546212630822d513393332ec470174c4e0bb58e7"
+        },
+        {
+          "category": "Improved",
+          "message": "Persist agent LLM history across page loads",
+          "sha": "ef66248ba065d474f94d439ed83a25250d18ed40",
+          "shortSha": "ef66248",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/ef66248ba065d474f94d439ed83a25250d18ed40"
+        },
+        {
+          "category": "Fix",
+          "message": "Fix files appearing all at once in UI during multi-file writes",
+          "sha": "2bbe16e5514894aa982f1ba2320d131e7a639cb1",
+          "shortSha": "2bbe16e",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/2bbe16e5514894aa982f1ba2320d131e7a639cb1"
+        },
+        {
+          "category": "Fix",
+          "message": "Fix sidebar overflow, remove completion file list, add cross-run conversation history",
+          "sha": "81565a8f833c05fb0704776380061250baf9222d",
+          "shortSha": "81565a8",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/81565a8f833c05fb0704776380061250baf9222d"
+        }
+      ]
+    },
     {
       "date": "2026-06-14",
       "entries": [
+        {
+          "category": "Improved",
+          "message": "Replace keyword-triggered skills with agent-driven load_skill tool",
+          "sha": "6b42924c2ff28065a59c296f2be452c3ff5ba514",
+          "shortSha": "6b42924",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/6b42924c2ff28065a59c296f2be452c3ff5ba514"
+        },
+        {
+          "category": "Improved",
+          "message": "Deduplicate published and bundled templates",
+          "sha": "02f296fbb77df505347b244079823d16888555a5",
+          "shortSha": "02f296f",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/02f296fbb77df505347b244079823d16888555a5"
+        },
+        {
+          "category": "Improved",
+          "message": "Show bundled templates alongside published templates",
+          "sha": "e854e8a90a1b5a313ef99f1dd8f3278ffabef9f6",
+          "shortSha": "e854e8a",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/e854e8a90a1b5a313ef99f1dd8f3278ffabef9f6"
+        },
+        {
+          "category": "New",
+          "message": "Add new default templates",
+          "sha": "347f38148a857ccc0cbd55e88774a26fbc0725a8",
+          "shortSha": "347f381",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/347f38148a857ccc0cbd55e88774a26fbc0725a8"
+        },
+        {
+          "category": "Improved",
+          "message": "Improve default template designs",
+          "sha": "573aec36c724d153861e3277cb61fae6f881036a",
+          "shortSha": "573aec3",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/573aec36c724d153861e3277cb61fae6f881036a"
+        },
+        {
+          "category": "Improved",
+          "message": "feat: promote Gemini 3 Flash Preview to top with Recommended badge, add Cheap badge to Gemini 3.1 Flash-Lite",
+          "sha": "d699e0b16d5cd60c58eb8872b3c0bc31d845e3df",
+          "shortSha": "d699e0b",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/d699e0b16d5cd60c58eb8872b3c0bc31d845e3df"
+        },
+        {
+          "category": "Fix",
+          "message": "fix: remove unused params and helpers left over from visual review removal",
+          "sha": "a40663f8ec269fd0eb8263882c6f1bcdcf0e4a09",
+          "shortSha": "a40663f",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/a40663f8ec269fd0eb8263882c6f1bcdcf0e4a09"
+        },
+        {
+          "category": "Improved",
+          "message": "remove visual review — screenshot-to-LLM mobile/desktop gate",
+          "sha": "33a695d859775145d9aa93be605fae099fd447fc",
+          "shortSha": "33a695d",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/33a695d859775145d9aa93be605fae099fd447fc"
+        },
+        {
+          "category": "Improved",
+          "message": "feat: phase-gated thinking — plan/debug phases think, build phases don't",
+          "sha": "852759da5ffffb0907954e5061e35fa70f1b4c03",
+          "shortSha": "852759d",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/852759da5ffffb0907954e5061e35fa70f1b4c03"
+        },
+        {
+          "category": "Improved",
+          "message": "feat: recommend Gemini 3.1 Flash Lite as default Google model and warn on credit errors",
+          "sha": "608bfcc5c6e2a735db47d3b587dd74d24af6dbf8",
+          "shortSha": "608bfcc",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/608bfcc5c6e2a735db47d3b587dd74d24af6dbf8"
+        },
         {
           "category": "Improved",
           "message": "content: mention OpenThorn is open source in blog and FAQ",
@@ -1698,123 +1822,6 @@
           "sha": "45bd48726fd1783c8f7bfd6f97d98c789b164952",
           "shortSha": "45bd487",
           "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/45bd48726fd1783c8f7bfd6f97d98c789b164952"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: implement agent enhancements with thinking, vision, and planning modules",
-          "sha": "649fa00552c57c7ae0ae4727c81ee5378c38e8ab",
-          "shortSha": "649fa00",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/649fa00552c57c7ae0ae4727c81ee5378c38e8ab"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: assign distinct colors to presence avatars based on userId hash",
-          "sha": "1ad9f4ec01135068ef7222fdc1100bc0c4e188e5",
-          "shortSha": "1ad9f4e",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/1ad9f4ec01135068ef7222fdc1100bc0c4e188e5"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: enable realtime for project_collaborators, persist share notifications via localStorage",
-          "sha": "5a07d0b82f138eb7a74969270ab17cd18dae2b68",
-          "shortSha": "5a07d0b",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/5a07d0b82f138eb7a74969270ab17cd18dae2b68"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: add presence avatar click popover showing name and email",
-          "sha": "751d3d69d22d489f0ead895b92eb54ac3a4046dc",
-          "shortSha": "751d3d6",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/751d3d69d22d489f0ead895b92eb54ac3a4046dc"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: load existing files and chat history for collaborators on mount",
-          "sha": "3b6289c37e678e29b526d1b6def54f29061db46a",
-          "shortSha": "3b6289c",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/3b6289c37e678e29b526d1b6def54f29061db46a"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: deduplicate presence on reconnect, add email to CollaboratorPresence",
-          "sha": "d7aef66cbffa8ba348ca279c2f70cb9587a39e95",
-          "shortSha": "d7aef66",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/d7aef66cbffa8ba348ca279c2f70cb9587a39e95"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: resolve RLS infinite recursion with security definer functions, add share notifications",
-          "sha": "90ba781ba994b3a517341d0484152f8d89d18443",
-          "shortSha": "90ba781",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/90ba781ba994b3a517341d0484152f8d89d18443"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: add 'Shared with me' filter to DashboardSidebar",
-          "sha": "f92a83398b0b1556a49190098f3f9834bb5cb2e2",
-          "shortSha": "f92a833",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/f92a83398b0b1556a49190098f3f9834bb5cb2e2"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: fetch shared projects and add realtime channel for new shares",
-          "sha": "f3f0a50d28cb2e1c58f5635849ba592506a50523",
-          "shortSha": "f3f0a50",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/f3f0a50d28cb2e1c58f5635849ba592506a50523"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: show online collaborator presence avatars in toolbar",
-          "sha": "da375e3c6c54ec6e6043eeb4809019d0cdbb9c75",
-          "shortSha": "da375e3",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/da375e3c6c54ec6e6043eeb4809019d0cdbb9c75"
-        }
-      ]
-    },
-    {
-      "date": "2026-06-03",
-      "entries": [
-        {
-          "category": "Improved",
-          "message": "feat: wire useCollaboration hook into ProjectBuilderPage",
-          "sha": "0e65a24c18a36dd987f55f1c83188be6ccaceaba",
-          "shortSha": "0e65a24",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/0e65a24c18a36dd987f55f1c83188be6ccaceaba"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: fire queued prompt when remote collaborator generation ends",
-          "sha": "334cd01ebd8bba64e537f0081dc84ecbc4c4e229",
-          "shortSha": "334cd01",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/334cd01ebd8bba64e537f0081dc84ecbc4c4e229"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: coordinate generating state in DB for cross-collaborator prompt queue",
-          "sha": "ab17a6e7ad40602ff3b0287c98078368d291a315",
-          "shortSha": "ab17a6e",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/ab17a6e7ad40602ff3b0287c98078368d291a315"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: remove user_id filter from project updates so collaborators can save",
-          "sha": "434f86f96e2053e93812ed84e6816cafb68b6804",
-          "shortSha": "434f86f",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/434f86f96e2053e93812ed84e6816cafb68b6804"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: resolve findFlorviaAccount to use profiles table, simplify invite link",
-          "sha": "971ae902aada4c282fb666cdafeaf132a6a9dc01",
-          "shortSha": "971ae90",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/971ae902aada4c282fb666cdafeaf132a6a9dc01"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: add useCollaboration hook with presence and Postgres Changes sync",
-          "sha": "f316c987e5a378cca8224c72130400b1e3ce1dc0",
-          "shortSha": "f316c98",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/f316c987e5a378cca8224c72130400b1e3ce1dc0"
         }
       ]
     }

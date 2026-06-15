@@ -244,9 +244,9 @@ export const DEFAULT_PROVIDER_MODELS: Record<string, ProviderModel[]> = {
   ],
   mistral: [
     { name: 'Mistral Medium 3.5', id: 'mistral-medium-3-5', contextWindow: 256_000 },
-    { name: 'Mistral Small 4', id: 'mistral-small-2603', contextWindow: 128_000 },
+    { name: 'Mistral Small 4', id: 'mistral-small-2603', contextWindow: 256_000 },
     { name: 'Mistral Large 3', id: 'mistral-large-2512', contextWindow: 256_000 },
-    { name: 'Ministral 3 14B', id: 'ministral-14b-2512', contextWindow: 128_000 },
+    { name: 'Ministral 3 14B', id: 'ministral-14b-2512', contextWindow: 256_000 },
     { name: 'Ministral 3 8B', id: 'ministral-8b-2512', contextWindow: 128_000 },
   ],
   groq: [
@@ -278,7 +278,7 @@ export const DEFAULT_PROVIDER_MODELS: Record<string, ProviderModel[]> = {
     { name: 'Command R7B', id: 'command-r7b-12-2024', contextWindow: 128_000 },
   ],
   perplexity: [
-    { name: 'Sonar Pro', id: 'sonar-pro', contextWindow: 128_000 },
+    { name: 'Sonar Pro', id: 'sonar-pro', contextWindow: 200_000 },
     { name: 'Sonar', id: 'sonar', contextWindow: 128_000 },
     { name: 'Sonar Reasoning Pro', id: 'sonar-reasoning-pro', contextWindow: 128_000 },
     { name: 'Sonar Deep Research', id: 'sonar-deep-research', contextWindow: 128_000 },

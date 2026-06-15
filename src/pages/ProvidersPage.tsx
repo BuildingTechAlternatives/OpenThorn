@@ -102,6 +102,7 @@ export default function ProvidersPage() {
   const [disabledProviders, setDisabledProviders] = useState<Set<string>>(new Set())
   const [newModelName, setNewModelName] = useState('')
   const [newModelId, setNewModelId] = useState('')
+  const [newModelContextWindow, setNewModelContextWindow] = useState<number>(1_000_000)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [testState, setTestState] = useState<{ status: 'idle' | 'testing' | 'success' | 'error'; message: string }>({
@@ -519,16 +520,33 @@ export default function ProvidersPage() {
                       <div className={styles.addModelRow}>
                         <input className={styles.addModelInput} type="text" placeholder="Model name (e.g. My Fine-tune)" value={newModelName} onChange={(e) => setNewModelName(e.target.value)} />
                         <input className={styles.addModelInput} type="text" placeholder="Model ID (e.g. ft:gpt-4.1:my-org::abc123)" value={newModelId} onChange={(e) => setNewModelId(e.target.value)} />
+                      </div>
+                      <div className={styles.addModelRow}>
+                        <label className={styles.addModelLabel}>Context limit</label>
+                        <select
+                          className={styles.addModelInput}
+                          value={newModelContextWindow}
+                          onChange={(e) => setNewModelContextWindow(Number(e.target.value))}
+                        >
+                          <option value={32_000}>32k tokens</option>
+                          <option value={64_000}>64k tokens</option>
+                          <option value={128_000}>128k tokens</option>
+                          <option value={200_000}>200k tokens</option>
+                          <option value={256_000}>256k tokens</option>
+                          <option value={1_000_000}>1M tokens (default)</option>
+                          <option value={2_000_000}>2M tokens</option>
+                        </select>
                         <button
                           className={styles.addModelBtn}
                           onClick={() => {
                             if (!newModelName.trim() || !newModelId.trim()) return
                             const current = parseProviderModels(formModels)
                             if (!current.some((m) => m.id === newModelId.trim())) {
-                              setFormModels(serializeProviderModels([...current, { name: newModelName.trim(), id: newModelId.trim() }]))
+                              setFormModels(serializeProviderModels([...current, { name: newModelName.trim(), id: newModelId.trim(), contextWindow: newModelContextWindow }]))
                             }
                             setNewModelName('')
                             setNewModelId('')
+                            setNewModelContextWindow(1_000_000)
                           }}
                           type="button"
                           disabled={!newModelName.trim() || !newModelId.trim()}

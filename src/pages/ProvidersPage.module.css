@@ -93,7 +93,9 @@
 .advancedToggle:hover { color: var(--color-text-secondary); background: rgba(255,255,255,0.04); }
 .advancedSection { margin-top: 10px; padding: 14px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--color-border); }
 
-.addModelRow { display: flex; gap: 8px; }
+.addModelRow { display: flex; gap: 8px; margin-top: 8px; }
+.addModelRow:first-child { margin-top: 0; }
+.addModelLabel { font-size: 12px; color: var(--color-text-muted); white-space: nowrap; align-self: center; flex-shrink: 0; }
 .addModelInput {
   flex: 1; min-width: 0; height: 36px; padding: 0 12px; border-radius: 10px;
   font-size: 13px; font-family: var(--font-body); color: var(--color-text);
@@ -101,6 +103,7 @@
 }
 .addModelInput:focus { border-color: var(--color-border-visible); background: rgba(255,255,255,0.05); }
 .addModelInput::placeholder { color: var(--color-text-muted); }
+select.addModelInput { appearance: none; cursor: pointer; }
 .addModelBtn {
   padding: 0 16px; border-radius: 10px; font-size: 13px; font-weight: 500; font-family: var(--font-body);
   color: var(--color-text); background: rgba(255,255,255,0.06); border: 1px solid var(--color-border-visible); cursor: pointer; flex-shrink: 0;
