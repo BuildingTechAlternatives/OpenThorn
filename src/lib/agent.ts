@@ -132,6 +132,8 @@ export interface AgentRunInput {
   maxTurns?: number
   signal?: AbortSignal
   onProgress?: (event: AgentProgressEvent) => void
+  /** Prior conversation turns from previous runs in this session. Injected after the preamble so the model has full context without re-reading every file. */
+  history?: LlmMessage[]
 }
 
 export interface AgentRunResult {
@@ -141,6 +143,8 @@ export interface AgentRunResult {
   modelName: string
   usage: RunUsage
   filesMutated: boolean
+  /** The conversation turns from this run (and any injected prior history), to be passed as `history` on the next run. */
+  conversationHistory: LlmMessage[]
 }
 
 // ─── Internal Types ─────────────────────────────────────────────────────────
@@ -169,7 +173,7 @@ interface ResolvedProvider {
   models: ModelInfo[]
 }
 
-interface LlmMessage {
+export interface LlmMessage {
   role: 'user' | 'assistant'
   content: string | LlmContentBlock[]
   /** DeepSeek thinking mode — must be replayed verbatim on subsequent calls. */
@@ -1098,6 +1102,28 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     messages.push({ role: 'user', content: planReminder })
   }
 
+  // Mark where the preamble ends. Everything from here onward (injected history
+  // + current conversation) becomes the `conversationHistory` returned to the
+  // caller so it can be passed back as `input.history` on the next run.
+  const historyInsertIndex = messages.length
+
+  // Inject prior conversation turns so the model has full context without
+  // re-reading every file from scratch. Thinking blocks and images are stripped
+  // for cross-provider safety (Anthropic doesn't need old thinking signatures
+  // replayed from a prior session; other providers don't understand them).
+  if (input.history && input.history.length > 0 && mode === 'refine') {
+    for (const msg of input.history) {
+      if (typeof msg.content === 'string') {
+        messages.push({ role: msg.role, content: msg.content })
+      } else {
+        const stripped = msg.content.filter((b) => b.type !== 'thinking' && b.type !== 'image')
+        if (stripped.length > 0) {
+          messages.push({ role: msg.role, content: stripped })
+        }
+      }
+    }
+  }
+
   // Main user prompt
   messages.push({
     role: 'user',
@@ -1276,7 +1302,7 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
       if (!filesMutatedThisRun && !buildIntent) {
         circuitBreaker.recordSuccess(provider.key.provider_id)
         input.onProgress?.({ type: 'done', files: currentFiles, filesMutated: false })
-        return { files: currentFiles, turns: turnCount, providerName, modelName, usage: totalUsage, filesMutated: false }
+        return { files: currentFiles, turns: turnCount, providerName, modelName, usage: totalUsage, filesMutated: false, conversationHistory: messages.slice(historyInsertIndex) }
       }
       messages.push({
         role: 'user',
@@ -1457,7 +1483,7 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
       // Record success on the circuit breaker
       circuitBreaker.recordSuccess(provider.key.provider_id)
       input.onProgress?.({ type: 'done', files: currentFiles, filesMutated: filesMutatedThisRun })
-      return { files: currentFiles, turns: turnCount, providerName, modelName, usage: totalUsage, filesMutated: filesMutatedThisRun }
+      return { files: currentFiles, turns: turnCount, providerName, modelName, usage: totalUsage, filesMutated: filesMutatedThisRun, conversationHistory: messages.slice(historyInsertIndex) }
     }
   }
 
@@ -1474,7 +1500,7 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
 
   circuitBreaker.recordSuccess(provider.key.provider_id)
   input.onProgress?.({ type: 'done', files: currentFiles, filesMutated: filesMutatedThisRun })
-  return { files: currentFiles, turns: turnCount, providerName, modelName, usage: totalUsage, filesMutated: filesMutatedThisRun }
+  return { files: currentFiles, turns: turnCount, providerName, modelName, usage: totalUsage, filesMutated: filesMutatedThisRun, conversationHistory: messages.slice(historyInsertIndex) }
 }
 
 // ─── Memory Management ──────────────────────────────────────────────────────

@@ -10,7 +10,7 @@ import { describeAgentError, getErrorMessage, isAbortError, logError, type Agent
 import { deploySite } from '../lib/deploy'
 import { buildPreview, escapeHtml } from '../lib/preview-bundle'
 import { capturePreviewThumbnail } from '../lib/preview-screenshot'
-import { runOpenThornAgent, type AgentCodeFile, type SelectedAgentModel } from '../lib/agent'
+import { runOpenThornAgent, type AgentCodeFile, type LlmMessage, type SelectedAgentModel } from '../lib/agent'
 import {
   normalizeThinkingLevel,
   type AgentThinkingLevel,
@@ -700,17 +700,8 @@ function formatPlanResultDetail(text: string): string {
   return `${complete}/${total} requirements complete`
 }
 
-/** Agent bookkeeping files — real project files, but not user deliverables. */
-const INTERNAL_AGENT_FILES = new Set([
-  'src/lib/PLAN.md',
-  'src/lib/CHANGELOG.md',
-  'src/lib/lessons.md',
-])
 const CHAT_SAVE_INTERVAL_MS = 750
 
-function visibleProjectFiles(files: AgentCodeFile[]): AgentCodeFile[] {
-  return files.filter((f) => !INTERNAL_AGENT_FILES.has(f.path))
-}
 
 /** True when the chat's last assistant turn is mid-run (a tool call left spinning). */
 function chatHasRunningTimeline(chat: ChatMessage[]): boolean {
@@ -818,6 +809,7 @@ export default function ProjectBuilderPage() {
   const titleShouldSaveRef = useRef(true)
   const initialAgentStartedRef = useRef(false)
   const agentAbortRef = useRef<AbortController | null>(null)
+  const agentHistoryRef = useRef<LlmMessage[]>([])
   const agentRunSnapshotRef = useRef<{
     controller: AbortController
     files: AgentCodeFile[]
@@ -1715,6 +1707,7 @@ export default function ProjectBuilderPage() {
         thinkingLevel: chosenThinkingLevel,
         mode: options.mode ?? 'refine',
         signal: controller.signal,
+        history: agentHistoryRef.current.length > 0 ? agentHistoryRef.current : undefined,
         onProgress: (event) => {
           // Streaming text — append to last text event or create new one
           if (event.type === 'text' && event.text) {
@@ -1830,6 +1823,7 @@ export default function ProjectBuilderPage() {
 
       setProjectFiles(result.files)
       if (result.filesMutated) setFirstRunComplete(true)
+      agentHistoryRef.current = result.conversationHistory
       setAgentStatus('')
 
       // Complete any remaining running tool calls
@@ -2471,22 +2465,10 @@ export default function ProjectBuilderPage() {
                     <p className={styles.completionSummary}>{message.summary}</p>
                   )}
 
-                  {/* File list at completion */}
-                  {message.files && visibleProjectFiles(message.files).length > 0 && (
-                    <div className={styles.fileList}>
-                      {visibleProjectFiles(message.files).map((file) => (
-                        <span key={file.path}>
-                          <FileIcon />
-                          {file.path}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
                   {/* Completion badge */}
                   {message.turns != null && message.turns > 0 && (
                     <div className={styles.completionBadge}>
-                      Built {message.files ? visibleProjectFiles(message.files).length : 0} files in {message.turns} turn{message.turns === 1 ? '' : 's'}
+                      Built in {message.turns} turn{message.turns === 1 ? '' : 's'}
                       {message.providerName && ` - ${message.providerName}`}
                       {message.modelName && ` / ${message.modelName}`}
                     </div>
@@ -2949,9 +2931,6 @@ function TrashIcon() {
   return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
 }
 
-function FileIcon() {
-  return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
-}
 
 function DesktopIcon() {
   return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
