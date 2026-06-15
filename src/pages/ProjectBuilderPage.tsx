@@ -906,7 +906,7 @@ export default function ProjectBuilderPage() {
       // Verify ownership before upserting to prevent IDOR
       const { data: existing, error: existingError } = await supabase
         .from('projects')
-        .select('user_id, title, files, chat_history, cf_pages_project_name, generating, generating_by, selected_model')
+        .select('user_id, title, files, chat_history, agent_history, cf_pages_project_name, generating, generating_by, selected_model')
         .eq('id', projectId)
         .maybeSingle()
 
@@ -999,6 +999,12 @@ export default function ProjectBuilderPage() {
       } else if (savedChat) {
         setMessages(sanitizeChatTimelines(savedChat))
       }
+      // Restore LLM conversation history so the agent retains full context across page loads.
+      // Don't restore if interrupted — the interrupted run will re-run and rebuild its own history.
+      if (!wasInterrupted && Array.isArray(existing?.agent_history) && (existing.agent_history as LlmMessage[]).length > 0) {
+        agentHistoryRef.current = existing.agent_history as LlmMessage[]
+      }
+
       // Clear the interruption flag even when there was no chat to resume from,
       // so a stale `generating` never survives into the next session.
       if (wasInterrupted) {
@@ -1820,6 +1826,13 @@ export default function ProjectBuilderPage() {
       setProjectFiles(result.files)
       if (result.filesMutated) setFirstRunComplete(true)
       agentHistoryRef.current = result.conversationHistory
+      if (projectId && !isViewOnly) {
+        supabase.from('projects')
+          .update({ agent_history: result.conversationHistory as unknown as Record<string, unknown>[] })
+          .eq('id', projectId)
+          .then(({ error }) => { if (error) logError('ProjectSaveAgentHistory', error) },
+               (error: unknown) => logError('ProjectSaveAgentHistory', error))
+      }
       setAgentStatus('')
 
       // Complete any remaining running tool calls
