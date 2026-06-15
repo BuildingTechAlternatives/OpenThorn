@@ -260,12 +260,12 @@ const MAX_TOOL_TURNS = 30
 // intact) AND clears the per-run read cache, so the re-read guard never claims
 // content that is no longer in the transcript.
 //
-// CONTEXT_TOKEN_BUDGET is a conservative soft cap (estimated as chars/4). Every
-// BYOK provider wired here has at least a 128k window (DeepSeek/OpenAI 128k+,
-// Anthropic 200k, Gemini 1M), so 96k leaves ample headroom for the response and
-// reasoning tokens while keeping full context for any normal-sized run. Small
-// local models (some Ollama configs) have tighter windows — tune downward there.
-const CONTEXT_TOKEN_BUDGET = 96_000
+// The budget scales with the model's actual context window (see
+// contextWindowTokens) minus headroom for the response + reasoning tokens, so a
+// 1M-token Gemini run keeps far more in context than a 128k DeepSeek run, while
+// a small local model still compacts before it overflows.
+const COMPACTION_HEADROOM_TOKENS = 48_000
+const COMPACTION_HEADROOM_FRACTION = 0.25
 // How many of the most recent assistant turns keep their full observation
 // output when the valve fires. Everything older is truncated to a stub.
 const KEEP_RECENT_TURNS = 6
@@ -853,8 +853,37 @@ function estimateMessageTokens(messages: LlmMessage[]): number {
 }
 
 /**
+ * Best-effort context-window size (in tokens) for a provider/model. Used only
+ * to size the auto-compact budget, so it errs toward SAFE (smaller) values:
+ * underestimating just compacts a little early, while overestimating risks a
+ * hard context-overflow error from the provider. Unknown models fall back to
+ * 128k — the floor for every current hosted provider here.
+ */
+export function contextWindowTokens(providerId: string, modelId: string): number {
+  const id = modelId.toLowerCase()
+  // Million-token-class models.
+  if (id.includes('gemini')) return 1_000_000
+  if (/\bgpt-4\.1\b/.test(id)) return 1_000_000
+  // Anthropic Claude: 200k (some support a 1M beta, but 200k is always safe).
+  if (id.includes('claude') || providerId === 'anthropic') return 200_000
+  // Local models: the default Ollama context is small and user-configurable —
+  // we can't read it, so stay conservative.
+  if (providerId === 'ollama') return 32_000
+  // Everything else hosted here (DeepSeek, OpenAI 4o/o-series, Mistral, Groq,
+  // xAI, Cohere, Perplexity, OpenRouter, Together, Fireworks, …) is >= 128k.
+  return 128_000
+}
+
+/** Prompt-token budget above which the auto-compact valve fires. */
+export function compactionBudgetTokens(providerId: string, modelId: string): number {
+  const window = contextWindowTokens(providerId, modelId)
+  const headroom = Math.min(window * COMPACTION_HEADROOM_FRACTION, COMPACTION_HEADROOM_TOKENS)
+  return Math.max(Math.round(window - headroom), 8_000)
+}
+
+/**
  * Auto-compact valve. Keeps the full conversation in context until the
- * estimated prompt size crosses CONTEXT_TOKEN_BUDGET, then truncates the
+ * estimated prompt size crosses the model's budget, then truncates the
  * observation outputs (reads/searches/compiles) of the OLDEST turns — keeping
  * the KEEP_RECENT_TURNS most recent turns intact — to free space. Gated on the
  * total turns present (which includes injected cross-run history), so a refine
@@ -862,6 +891,7 @@ function estimateMessageTokens(messages: LlmMessage[]): number {
  */
 function compactMessages(
   messages: LlmMessage[],
+  budgetTokens: number,
 ): { messages: LlmMessage[]; compacted: boolean } {
   const assistantIndices: number[] = []
   for (let i = 0; i < messages.length; i++) {
@@ -872,7 +902,7 @@ function compactMessages(
   if (totalTurns <= KEEP_RECENT_TURNS + 1) {
     return { messages, compacted: false }
   }
-  if (estimateMessageTokens(messages) <= CONTEXT_TOKEN_BUDGET) {
+  if (estimateMessageTokens(messages) <= budgetTokens) {
     return { messages, compacted: false }
   }
 
@@ -1221,7 +1251,10 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     turnCount++
 
     // ── Compaction ──────────────────────────────────────────────
-    const compactResult = compactMessages(messages)
+    const compactResult = compactMessages(
+      messages,
+      compactionBudgetTokens(provider.key.provider_id, provider.model.id),
+    )
     if (compactResult.compacted) {
       // The auto-compact valve fired: observation outputs for older turns are
       // now truncated stubs. Drop the read cache so the re-read guard never
