@@ -1143,23 +1143,30 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   // Seed PLAN.md from the request so the agent's plan survives compaction and
   // the done gate can verify requirement coverage. PLAN.md is the source of
   // truth; the update_plan tool mutates it.
+  // A small, self-contained edit (e.g. "make the header red", a click-to-edit
+  // tweak) shouldn't drag the whole project checklist around: don't seed new
+  // requirements, don't surface the plan reminder, and let the done gate skip
+  // plan-coverage. The existing PLAN.md (if any) is left untouched.
+  const smallRefine = mode === 'refine' && isSmallRefineRequest(input.prompt)
   const existingPlanFile = currentFiles.find((f) => f.path === PLAN_PATH)
-  const parsedPlan: AgentPlan = existingPlanFile
-    ? parsePlan(existingPlanFile.code)
-    : createPlan(input.prompt)
-  const basePlan = parsedPlan.items.length > 0 ? parsedPlan : createPlan(input.prompt)
-  const initialPlan = mergePromptRequirementsIntoPlan(basePlan, input.prompt, mode)
-  const initialPlanCode = formatPlan(initialPlan)
-  if (!existingPlanFile || existingPlanFile.code !== initialPlanCode) {
-    currentFiles = upsertFile(currentFiles, {
-      path: PLAN_PATH,
-      language: 'md',
-      code: initialPlanCode,
-    })
-  }
-  const planReminder = planToSystemReminder(initialPlan)
-  if (planReminder) {
-    messages.push({ role: 'user', content: planReminder })
+  if (!smallRefine) {
+    const parsedPlan: AgentPlan = existingPlanFile
+      ? parsePlan(existingPlanFile.code)
+      : createPlan(input.prompt)
+    const basePlan = parsedPlan.items.length > 0 ? parsedPlan : createPlan(input.prompt)
+    const initialPlan = mergePromptRequirementsIntoPlan(basePlan, input.prompt, mode)
+    const initialPlanCode = formatPlan(initialPlan)
+    if (!existingPlanFile || existingPlanFile.code !== initialPlanCode) {
+      currentFiles = upsertFile(currentFiles, {
+        path: PLAN_PATH,
+        language: 'md',
+        code: initialPlanCode,
+      })
+    }
+    const planReminder = planToSystemReminder(initialPlan)
+    if (planReminder) {
+      messages.push({ role: 'user', content: planReminder })
+    }
   }
 
   // Mark where the preamble ends. Everything from here onward (injected history
@@ -1210,6 +1217,7 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   // re-reads of unchanged files) and the mode (to ignore set_title on refine).
   const runCtx: RunContext = {
     mode,
+    smallRefine,
     goal: input.prompt,
     turn: 0,
     reads: new Map(),
@@ -1716,6 +1724,12 @@ export function recordLesson(
 /** Per-run state shared with executeTool across the whole agent run. */
 interface RunContext {
   mode: 'create' | 'refine'
+  /**
+   * True for a small, self-contained refine (e.g. "make the header red", a
+   * click-to-edit tweak). These don't carry a requirements checklist: the plan
+   * reminder is suppressed and the done gate skips the plan-coverage check.
+   */
+  smallRefine: boolean
   /** Original user request for this run; used by verification/review gates. */
   goal: string
   /** The current turn number (updated each loop iteration). */
@@ -2637,8 +2651,9 @@ async function runDoneVerificationGate(
 
   // 2. Plan-coverage gate. The run-level rejection cap prevents deadlocks if a
   // heuristic checklist is noisy, but the model must first see the concrete gap.
+  // Skipped for small refines — those don't carry a checklist to satisfy.
   const planFile = currentFiles.find((f) => f.path === PLAN_PATH)
-  if (planFile) {
+  if (planFile && !runCtx.smallRefine) {
     const unmet = unmetRequirements(parsePlan(planFile.code))
     if (unmet.length > 0) {
       return formatStructuredError({
