@@ -211,4 +211,58 @@ describe('agent request planning helpers', () => {
       alreadyRejected: false,
     })).toBe(false)
   })
+
+  it('guards large multi-change refines that keep most of the file', () => {
+    // A bigger refine (not a "small" one): the new file keeps every original
+    // line and only appends a few — the changes are localized, so it should be
+    // multi_edit, not a whole-file overwrite.
+    const bigRefine =
+      'Add a sidebar with collapsible sections, a top search bar, a user avatar ' +
+      'menu, three summary stat cards, a sortable data table with pagination, and ' +
+      'a settings panel, then wire up navigation and update the header to match.'
+    expect(bigRefine.length).toBeGreaterThan(220)
+    expect(isSmallRefineRequest(bigRefine)).toBe(false)
+
+    const existingCode = Array.from({ length: 200 }, (_, i) => `const value${i} = compute(${i})`).join('\n')
+    const newCode = existingCode + '\n' + Array.from({ length: 20 }, (_, i) => `const extra${i} = ${i}`).join('\n')
+
+    expect(shouldRejectWholeFileRewrite({
+      mode: 'refine',
+      prompt: bigRefine,
+      existingCode,
+      newCode,
+      alreadyRejected: false,
+    })).toBe(true)
+  })
+
+  it('allows a genuine rewrite where little of the original survives', () => {
+    const bigRefine =
+      'Add a sidebar with collapsible sections, a top search bar, a user avatar ' +
+      'menu, three summary stat cards, a sortable data table with pagination, and ' +
+      'a settings panel, then wire up navigation and update the header to match.'
+    const existingCode = Array.from({ length: 200 }, (_, i) => `const value${i} = compute(${i})`).join('\n')
+    // Completely different content — a real rewrite, not scattered edits.
+    const newCode = Array.from({ length: 210 }, (_, i) => `const fresh${i} = rebuild(${i})`).join('\n')
+
+    expect(shouldRejectWholeFileRewrite({
+      mode: 'refine',
+      prompt: bigRefine,
+      existingCode,
+      newCode,
+      alreadyRejected: false,
+    })).toBe(false)
+  })
+
+  it('lets an explicit redesign overwrite the whole file', () => {
+    const existingCode = Array.from({ length: 200 }, (_, i) => `const value${i} = compute(${i})`).join('\n')
+    const newCode = existingCode + '\n' + Array.from({ length: 20 }, (_, i) => `const extra${i} = ${i}`).join('\n')
+
+    expect(shouldRejectWholeFileRewrite({
+      mode: 'refine',
+      prompt: 'Redesign this page from scratch with a modern dark theme and a hero section',
+      existingCode,
+      newCode,
+      alreadyRejected: false,
+    })).toBe(false)
+  })
 })

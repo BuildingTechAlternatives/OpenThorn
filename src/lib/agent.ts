@@ -818,6 +818,30 @@ export function isSmallRefineRequest(prompt: string): boolean {
   return /\b(add|change|fix|improve|move|remove|replace|update)\b/.test(lower)
 }
 
+/** Prompts that legitimately replace a whole file rather than patch it. */
+const FULL_REWRITE_INTENT_RE =
+  /\b(rebuild|redesign|rewrite|recreate|overhaul|from scratch|start over)\b/i
+
+/**
+ * Fraction of the existing file's meaningful lines that survive verbatim in the
+ * new content. A high value means the "rewrite" is really a scatter of small
+ * edits — most of the file is identical — and should have been multi_edit.
+ * Structural noise (lone braces, short lines) is ignored so it doesn't inflate
+ * the score.
+ */
+function preservedLineFraction(existingCode: string, newCode: string): number {
+  const meaningful = (line: string) => {
+    const t = line.trim()
+    return t.length > 4 && !/^[{}()[\];,]+$/.test(t)
+  }
+  const existing = existingCode.split('\n').map((l) => l.trim()).filter(meaningful)
+  if (existing.length === 0) return 0
+  const newLines = new Set(newCode.split('\n').map((l) => l.trim()))
+  let kept = 0
+  for (const line of existing) if (newLines.has(line)) kept++
+  return kept / existing.length
+}
+
 export function shouldRejectWholeFileRewrite(params: {
   mode: 'create' | 'refine'
   prompt: string
@@ -826,13 +850,25 @@ export function shouldRejectWholeFileRewrite(params: {
   alreadyRejected: boolean
 }): boolean {
   if (params.mode !== 'refine' || params.alreadyRejected) return false
-  if (!isSmallRefineRequest(params.prompt)) return false
 
   const existingLines = params.existingCode.split('\n').length
   const newLines = params.newCode.split('\n').length
+  // Only guard substantial files of similar size — overwriting a short file, or
+  // drastically shrinking a long one, is cheap or clearly a real rewrite.
   if (existingLines < 160 || newLines < 120) return false
+  if (newLines < existingLines * 0.65) return false
 
-  return newLines >= existingLines * 0.65
+  // A small, scoped refine ("make the header red") should never wholesale-
+  // overwrite a long file, regardless of how much content changes.
+  if (isSmallRefineRequest(params.prompt)) return true
+
+  // A larger refine ("a lot of changes") may legitimately need a full rewrite —
+  // but only if the file genuinely changes. If most of the original survives
+  // verbatim, the changes are localized and should be multi_edit patches, not a
+  // whole-file overwrite that risks silently dropping working code. An explicit
+  // redesign/rewrite request opts out.
+  if (FULL_REWRITE_INTENT_RE.test(params.prompt)) return false
+  return preservedLineFraction(params.existingCode, params.newCode) >= 0.55
 }
 
 // ─── Context Compaction ─────────────────────────────────────────────────────
@@ -1096,7 +1132,6 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   const isNewProject =
     input.files.length === 0 || input.files[0].path === 'No files yet'
   const mode = input.mode ?? 'create'
-  const buildIntent = isLikelyBuildRequest(input.prompt)
   const thinkingLevel = normalizeThinkingLevel(input.thinkingLevel)
   const thinkingProfile = AGENT_THINKING_PROFILES[thinkingLevel]
   // A small, self-contained edit ("make the header red", a click-to-edit tweak)
@@ -1258,6 +1293,15 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   // Whether any file-mutating tool ran this run. Gates the text-only early
   // return: a conversational run may end without done, a build may not.
   let filesMutatedThisRun = false
+  // Whether the model has actually STARTED building this run — mutated a file,
+  // set the title, or populated the plan. This is the honest signal that a
+  // text-only reply is a stalled build rather than a conversational answer.
+  // We trust it over the prompt-text regex (isLikelyBuildRequest), which has
+  // false positives — a question like "what does this do, should I improve it?"
+  // contains a build verb but is still a question the model rightly answers in
+  // prose. Forcing such a run to "continue" makes the agent build things the
+  // user never asked for.
+  let buildActivityThisRun = false
 
   // Tool execution loop
   while (turnCount < (input.maxTurns ?? thinkingProfile.maxTurns ?? MAX_TOOL_TURNS)) {
@@ -1391,10 +1435,14 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     // ── Conversational reply (text only, no tool calls) ─────────
     // Greetings and questions ("hey", "what is this app?") are answered in
     // plain text per the system prompt — ending the response without tool
-    // calls ends the run. But if files were already modified this run, the
-    // agent must still land a verified done, so nudge it onward instead.
+    // calls ends the run. The decision to keep going hinges on whether the
+    // model has ACTUALLY started building this run (buildActivityThisRun), not
+    // on a regex over the prompt: a question that happens to contain a build
+    // verb is still a question, and the model answering it in prose is correct.
+    // Only a genuinely stalled build — one that already mutated files, set the
+    // title, or populated the plan — gets nudged onward to a verified done.
     if (toolCalls.length === 0 && (invalidCalls?.length ?? 0) === 0 && text) {
-      if (!filesMutatedThisRun && !buildIntent) {
+      if (!buildActivityThisRun) {
         circuitBreaker.recordSuccess(provider.key.provider_id)
         input.onProgress?.({ type: 'done', files: currentFiles, filesMutated: false })
         return { files: currentFiles, turns: turnCount, providerName, modelName, usage: totalUsage, filesMutated: false, conversationHistory: messages.slice(historyInsertIndex) }
@@ -1437,6 +1485,16 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
       ) {
         filesMutatedThisRun = true
         filesMutatedThisTurn = true
+        buildActivityThisRun = true
+      }
+      // Setting the title or populating the plan also counts as starting to
+      // build — a subsequent text-only turn is then a stalled build, not a
+      // conversational reply, and should be nudged toward done.
+      if (
+        ['set_title', 'update_plan'].includes(tc.name) &&
+        !toolResults[i]?.isError
+      ) {
+        buildActivityThisRun = true
       }
     }
 
@@ -2292,9 +2350,9 @@ async function executeTool(
         return {
           content: formatStructuredError({
             code: 'WHOLE_FILE_REWRITE_REJECTED',
-            message: `write_file would overwrite the long existing file ${path} for a small refine request.`,
+            message: `write_file would overwrite most of the long existing file ${path} when the changes are localized.`,
             suggestion:
-              'Use edit_file or multi_edit to patch only the specific imports, state, handlers, draw/update logic, and reset paths needed. If targeted edits fail after reading the relevant section, you may try write_file again.',
+              'Use multi_edit to patch only the specific lines that change (imports, state, handlers, JSX, styles) in one atomic call, instead of regenerating the whole file and risking dropping working code. If the targeted edits genuinely fail after reading the relevant section, you may try write_file again.',
             retryable: true,
           }),
           isError: true,
