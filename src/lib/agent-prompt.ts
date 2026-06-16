@@ -22,6 +22,8 @@ import skillReactBestPractices from './skills/react-best-practices'
 import skillMotionDevAnimations from './skills/motion-dev-animations'
 import skillPerformance from './skills/performance'
 import skillCoreWebVitals from './skills/core-web-vitals'
+import skillShadcn from './skills/shadcn'
+import skillKarpathyGuidelines from './skills/karpathy-guidelines'
 import {
   AGENT_THINKING_PROFILES,
   normalizeThinkingLevel,
@@ -153,8 +155,9 @@ export const AGENT_TOOLS: ToolDefinition[] = [
       'domain. Call this proactively at the very start of a task — it is your normal ' +
       'first move on any real build, not a last resort. Most UI work should load ' +
       'frontend-design and ui-ux-pro-max; animation work adds motion-dev-animations; ' +
-      'perf work loads performance/core-web-vitals. Loading is cheap; skipping it ' +
-      'produces generic output. The full skill body is returned as the result.',
+      'perf work loads performance/core-web-vitals; shadcn/ui component work loads ' +
+      'shadcn; coding discipline loads karpathy-guidelines. Loading is cheap; ' +
+      'skipping it produces generic output. The full skill body is returned as the result.',
     input_schema: {
       type: 'object',
       properties: {
@@ -163,9 +166,11 @@ export const AGENT_TOOLS: ToolDefinition[] = [
           enum: [
             'core-web-vitals',
             'frontend-design',
+            'karpathy-guidelines',
             'motion-dev-animations',
             'performance',
             'react-best-practices',
+            'shadcn',
             'ui-ux-pro-max',
           ],
           description: 'The skill to load.',
@@ -595,24 +600,28 @@ Work like a senior engineer, scaled to the task. A small tweak needs no ceremony
 - **set_title** — call once at the very start of a new project (create mode) with a 3-6 word title.
 - **compile** — the source of truth for "does it work". Run it after writing or editing files. Do NOT compile again if no files changed since the last passing compile — the result will be identical.
 - **done** — only when compile (build + runtime) passed and every requirement is met.
-- **load_skill** — load deep domain knowledge at the START of a task, before planning or writing code. Returns the full skill body as text. This is your normal first move on any real build (UI → frontend-design + ui-ux-pro-max; animation → motion-dev-animations; perf → performance/core-web-vitals), not a last resort when stuck. See <available-skills> for the full matching guide.
+- **load_skill** — load deep domain knowledge at the START of a task, before planning or writing code. Returns the full skill body as text. This is your normal first move on any real build (UI → frontend-design + ui-ux-pro-max; animation → motion-dev-animations; perf → performance/core-web-vitals; shadcn/ui → shadcn; coding quality → karpathy-guidelines), not a last resort when stuck. See <available-skills> for the full matching guide.
 </tool-guidance>
 
 <available-skills>
 Skills carry deep domain knowledge that is NOT in this prompt. Loading the relevant skill is the difference between generic output and expert output — it is not optional ceremony. **At the start of a task, before you plan or write code, load the skill(s) that match the work.** This is the normal way you work, not something to do only when stuck or only when asked.
 
-- ui-ux-pro-max          → Design intelligence: color palettes, UX rules, responsive patterns, accessibility, typography, animation principles
+- ui-ux-pro-max          → Design intelligence: 99 UX guidelines, color palettes, responsive patterns, accessibility, typography, animation, forms, navigation, charts
 - frontend-design        → Distinctive interfaces with bold aesthetic direction; avoids generic AI aesthetics; creative typography and layout choices
 - react-best-practices   → React 19 hooks, effects, refs, composition, component patterns
 - motion-dev-animations  → Motion.dev (Framer Motion successor): 120fps animations, scroll effects, gestures, spring physics
 - performance            → Loading speed, code splitting, image optimization, fonts, caching, runtime perf
-- core-web-vitals        → LCP, INP, CLS — specific fixes, checklists, React/Next.js patterns
+- core-web-vitals        → LCP, INP, CLS — specific fixes, checklists, React patterns
+- shadcn                 → shadcn/ui component library: CLI setup, component composition recipes, theming with CSS variables, anti-patterns, design direction
+- karpathy-guidelines    → Coding discipline: think before coding, simplicity first, surgical changes, goal-driven execution
 
 When to load (match the task, load all that apply — loading is cheap, shipping mediocre work is not):
 - Building or restyling ANY UI, page, component, or layout → **frontend-design** AND **ui-ux-pro-max** (always, for new builds — this is most tasks).
+- Using shadcn/ui components (Button, Card, Dialog, Table, etc.) → **shadcn**.
 - Adding/tuning animation, transitions, scroll effects, gestures → **motion-dev-animations**.
 - Writing or refactoring React logic (hooks, state, effects, composition) → **react-best-practices**.
 - Slowness, large bundles, image/font loading, or LCP/INP/CLS work → **performance** and/or **core-web-vitals**.
+- Any non-trivial coding task where quality and discipline matter → **karpathy-guidelines**.
 
 Skip loading only for pure conversation (a greeting or a question that needs no code) and the most trivial mechanical edits (fix a typo, change one literal value) where no domain judgment is involved. When in doubt, load the skill.
 </available-skills>
@@ -886,6 +895,18 @@ export const SKILL_BLOCKS: SkillBlock[] = [
     id: 'core-web-vitals',
     description: 'LCP, INP, CLS — specific fixes, checklists, React/Next.js patterns',
     body: skillCoreWebVitals,
+  },
+  {
+    id: 'shadcn',
+    description:
+      'shadcn/ui component library: CLI setup, component composition recipes, theming with CSS variables, common gotchas, design direction',
+    body: skillShadcn,
+  },
+  {
+    id: 'karpathy-guidelines',
+    description:
+      'Coding discipline: think before coding, simplicity first, surgical changes, goal-driven execution with verifiable criteria',
+    body: skillKarpathyGuidelines,
   },
 ]
 
