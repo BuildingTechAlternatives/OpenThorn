@@ -3,7 +3,7 @@
   z-index: 60;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.6rem;
   padding: 0.75rem;
   background: var(--color-bg-soft, var(--color-bg));
   color: var(--color-text);
@@ -45,6 +45,64 @@
   opacity: 1;
 }
 
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-text) 9%, transparent);
+}
+
+.section:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted, var(--color-text));
+}
+
+.badge {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  padding: 0.05rem 0.35rem;
+  border-radius: 999px;
+  color: var(--color-accent);
+  background: var(--color-accent-subtle, color-mix(in srgb, var(--color-accent) 16%, transparent));
+}
+
+.textInput,
+.input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--color-text) 16%, transparent);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.input {
+  min-height: 52px;
+  resize: vertical;
+}
+
+.textInput:focus,
+.input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
 .chips {
   display: flex;
   flex-wrap: wrap;
@@ -66,37 +124,33 @@
   color: var(--color-accent);
 }
 
-.input {
-  width: 100%;
-  min-height: 56px;
-  resize: vertical;
-  padding: 0.5rem;
-  border-radius: 8px;
-  border: 1px solid color-mix(in srgb, var(--color-text) 16%, transparent);
-  background: var(--color-bg);
-  color: var(--color-text);
-  font: inherit;
-  font-size: 0.85rem;
-}
-
-.input:focus {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 1px;
-}
-
+.textBtn,
 .apply {
   align-self: flex-end;
   padding: 0.4rem 0.9rem;
   border: none;
   border-radius: 8px;
-  background: var(--color-accent);
-  color: var(--color-bg);
   font-weight: 600;
   font-size: 0.82rem;
   cursor: pointer;
 }
 
+.apply {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+.textBtn {
+  background: color-mix(in srgb, var(--color-text) 14%, transparent);
+  color: var(--color-text);
+}
+
+.textBtn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-text) 22%, transparent);
+}
+
+.textBtn:disabled,
 .apply:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }

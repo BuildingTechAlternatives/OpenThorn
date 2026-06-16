@@ -12,7 +12,13 @@ import { deploySite } from '../lib/deploy'
 import { buildPreview, escapeHtml } from '../lib/preview-bundle'
 import { capturePreviewThumbnail } from '../lib/preview-screenshot'
 import PreviewEditPopover from '../components/PreviewEditPopover/PreviewEditPopover'
-import { composeEditInstruction, type EditSelection } from '../lib/preview-edit'
+import {
+  composeEditInstruction,
+  formatEditLabel,
+  applyTextEdit,
+  resolveOeidPath,
+  type EditSelection,
+} from '../lib/preview-edit'
 import { runOpenThornAgent, type AgentCodeFile, type LlmMessage, type SelectedAgentModel } from '../lib/agent'
 import {
   normalizeThinkingLevel,
@@ -824,13 +830,42 @@ export default function ProjectBuilderPage() {
   }, [projectFiles, agentRunning])
 
   // ── Visual click-to-edit ─────────────────────────────────────────────────
-  // Tell the preview iframe to enter/leave select mode. Re-runs when the
-  // preview rebuilds (new srcDoc) so the fresh frame gets the current mode.
+  // Tell the preview iframe to enter/leave select mode. Hover-tracking is
+  // paused while a selection is open (the popover is showing) so the background
+  // doesn't keep highlighting under the popover. Re-runs when the preview
+  // rebuilds (new srcDoc) so the fresh frame gets the current mode.
+  const selectActive = editMode && !selection
   useEffect(() => {
     const frame = previewFrameRef.current
-    frame?.contentWindow?.postMessage({ __openthornEdit: editMode ? 'enable' : 'disable' }, '*')
+    frame?.contentWindow?.postMessage({ __openthornEdit: selectActive ? 'enable' : 'disable' }, '*')
+  }, [selectActive, previewHtml])
+
+  useEffect(() => {
     if (!editMode) setSelection(null)
-  }, [editMode, previewHtml])
+  }, [editMode])
+
+  // Esc exits the visual editor: close the open popover first, otherwise leave
+  // edit mode. Handles both parent focus (keydown) and preview-iframe focus
+  // (the 'escape' message posted by the in-iframe select-mode script).
+  useEffect(() => {
+    if (!editMode) return
+    const exit = () => {
+      if (selection) setSelection(null)
+      else setEditMode(false)
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') exit()
+    }
+    const onMsg = (e: MessageEvent) => {
+      if (e.data?.__openthornEdit === 'escape') exit()
+    }
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('message', onMsg)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('message', onMsg)
+    }
+  }, [editMode, selection])
 
   // Receive element selections from the preview iframe.
   useEffect(() => {
@@ -1245,7 +1280,7 @@ export default function ProjectBuilderPage() {
     request: string,
     selectedModel: SelectedAgentModel | null,
     thinkingLevel: AgentThinkingLevel = activeThinkingLevel,
-    options: { reuseInitialUser?: boolean; mode?: 'create' | 'refine' } = {},
+    options: { reuseInitialUser?: boolean; mode?: 'create' | 'refine'; displayContent?: string } = {},
   ) => {
     if (!user || isViewOnly) return
 
@@ -1256,7 +1291,7 @@ export default function ProjectBuilderPage() {
       pendingRequestRef.current = { prompt: request, model: selectedModel, thinkingLevel }
       setMessages((current) => [
         ...current,
-        { id: `user-queued-${Date.now()}`, role: 'user' as const, content: request, timeline: [] },
+        { id: `user-queued-${Date.now()}`, role: 'user' as const, content: options.displayContent ?? request, timeline: [] },
       ])
       return
     }
@@ -1277,7 +1312,7 @@ export default function ProjectBuilderPage() {
     setMessages((current) => {
       const withUser = options.reuseInitialUser
         ? current
-        : [...current, { id: `user-${runId}`, role: 'user' as const, content: request, timeline: [] }]
+        : [...current, { id: `user-${runId}`, role: 'user' as const, content: options.displayContent ?? request, timeline: [] }]
 
       return [
         ...withUser,
@@ -1588,6 +1623,47 @@ export default function ProjectBuilderPage() {
   useEffect(() => {
     handleAgentRequestRef.current = handleAgentRequest
   }, [handleAgentRequest])
+
+  // Direct text-content edit from the visual editor — no AI. Patches the source
+  // deterministically when the text can be located unambiguously; otherwise
+  // falls back to the agent.
+  const handleTextEdit = useCallback((sel: EditSelection, newText: string) => {
+    if (isViewOnly) return
+    const label = formatEditLabel(sel, `change text to "${newText}"`)
+    const path = resolveOeidPath(projectFiles.map((f) => f.path), sel.oeid)
+    const file = path ? projectFiles.find((f) => f.path === path) : undefined
+    const patched = file ? applyTextEdit(file.code, sel.text, newText) : null
+
+    if (!file || patched == null) {
+      // Couldn't safely locate the text — let the agent handle it.
+      setSelection(null)
+      setEditMode(false)
+      void handleAgentRequest(
+        composeEditInstruction(sel, `Change the text to: ${newText}`),
+        activeModel,
+        activeThinkingLevel,
+        { mode: 'refine', displayContent: label },
+      )
+      return
+    }
+
+    const nextFiles = projectFiles.map((f) => (f.path === path ? { ...f, code: patched } : f))
+    setProjectFiles(nextFiles)
+    // Record the edit in the chat (auto-persists), keep edit mode on, close popover.
+    setMessages((current) => [
+      ...current,
+      { id: `user-textedit-${Date.now()}`, role: 'user' as const, content: label, timeline: [] },
+      {
+        id: `assistant-textedit-${Date.now()}`,
+        role: 'assistant' as const,
+        title: 'OpenThorn',
+        summary: `Updated the text to “${newText}”.`,
+        timeline: [],
+        files: nextFiles,
+      },
+    ])
+    setSelection(null)
+  }, [isViewOnly, projectFiles, activeModel, activeThinkingLevel, handleAgentRequest])
 
   // Resume generation that was interrupted by a page reload
   useEffect(() => {
@@ -2231,7 +2307,7 @@ export default function ProjectBuilderPage() {
 
             <div className={styles.previewTools}>
               <button
-                className={`${styles.iconBtn} ${editMode ? styles.modeActive : ''}`}
+                className={`${styles.iconBtn} ${editMode ? styles.editToggleActive : ''}`}
                 type="button"
                 aria-pressed={editMode}
                 disabled={agentRunning || effectivePreviewStatus !== 'ready'}
@@ -2254,8 +2330,15 @@ export default function ProjectBuilderPage() {
 
           {viewMode === 'preview' ? (
             <div className={styles.previewStage}>
+              {editMode && (
+                <div className={styles.editModeBadge} role="status">
+                  <EditCursorIcon />
+                  <span>{selection ? 'Editing element' : 'Click any element to edit'}</span>
+                  <kbd>Esc</kbd>
+                </div>
+              )}
               <div className={`${styles.deviceFrame} ${styles[deviceMode]}`}>
-                <div className={styles.previewCard}>
+                <div className={`${styles.previewCard} ${editMode ? styles.previewCardEditing : ''}`}>
                   <div className={styles.previewChrome}>
                     <div className={styles.previewChromeDots}>
                       <span />
@@ -2373,7 +2456,7 @@ export default function ProjectBuilderPage() {
                           // race where the enable message is posted before the frame's
                           // listener is attached).
                           previewFrameRef.current?.contentWindow?.postMessage(
-                            { __openthornEdit: editMode ? 'enable' : 'disable' },
+                            { __openthornEdit: selectActive ? 'enable' : 'disable' },
                             '*',
                           )
                         }}
@@ -2390,6 +2473,7 @@ export default function ProjectBuilderPage() {
                       })()}
                       busy={agentRunning}
                       onClose={() => setSelection(null)}
+                      onTextEdit={(sel, newText) => handleTextEdit(sel, newText)}
                       onSubmit={(instruction, sel) => {
                         setSelection(null)
                         setEditMode(false)
@@ -2397,7 +2481,7 @@ export default function ProjectBuilderPage() {
                           composeEditInstruction(sel, instruction),
                           activeModel,
                           activeThinkingLevel,
-                          { mode: 'refine' },
+                          { mode: 'refine', displayContent: formatEditLabel(sel, instruction) },
                         )
                       }}
                     />
@@ -2673,7 +2757,14 @@ function MinimizeIcon() {
 }
 
 function EditCursorIcon() {
-  return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3l7.5 18 2.3-7.2L20 11.5 3 3z"/><path d="M13 13l6 6"/></svg>
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      {/* pointer */}
+      <path d="M5 3.5l6.4 15.3 2-6.1 6.1-2L5 3.5z" fill="currentColor" fillOpacity="0.14" />
+      {/* sparkle — "smart" edit */}
+      <path d="M18.5 3v3M17 4.5h3" />
+    </svg>
+  )
 }
 
 function FolderSvg({ open }: { open?: boolean }) {

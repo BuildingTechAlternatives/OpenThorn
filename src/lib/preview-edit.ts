@@ -68,6 +68,49 @@ export function composeEditInstruction(sel: EditSelection, userText: string): st
   )
 }
 
+/** Basename of an oeid ("a/b/Navbar.tsx:9:5" → "Navbar.tsx"), or null. */
+export function oeidBasename(oeid: string | null): string | null {
+  if (!oeid) return null
+  const file = oeid.split(':')[0]
+  return file.split('/').pop() ?? null
+}
+
+/**
+ * Short, human-friendly label shown in the chat for a visual edit (the full
+ * context block is sent to the model separately, not displayed).
+ * e.g. `Edit <a> in Navbar.tsx: Change the text to: Kebab`
+ */
+export function formatEditLabel(sel: EditSelection, userText: string): string {
+  const file = oeidBasename(sel.oeid)
+  const where = file ? ` in ${file}` : ''
+  return `Edit <${sel.tag}>${where}: ${userText.trim()}`
+}
+
+/**
+ * Resolve which project file an oeid refers to. Matches by basename; returns
+ * null when the oeid is null or the basename is ambiguous (so callers can fall
+ * back to the agent rather than edit the wrong file).
+ */
+export function resolveOeidPath(paths: string[], oeid: string | null): string | null {
+  const base = oeidBasename(oeid)
+  if (!base) return null
+  const matches = paths.filter((p) => p === base || p.endsWith('/' + base))
+  return matches.length === 1 ? matches[0] : null
+}
+
+/**
+ * Deterministically replace an element's text content in source. Returns the
+ * patched code only when `oldText` occurs exactly once (literal, not regex);
+ * otherwise null so the caller can fall back to the agent.
+ */
+export function applyTextEdit(code: string, oldText: string, newText: string): string | null {
+  const needle = oldText.trim()
+  if (!needle) return null
+  const parts = code.split(needle)
+  if (parts.length !== 2) return null // 0 or >1 occurrences
+  return parts.join(newText)
+}
+
 // ─── Popover anchor math ───────────────────────────────────────────────────
 
 const GAP = 8
@@ -155,6 +198,10 @@ export function buildSelectModeScript(): string {
     if (d.__openthornEdit === 'enable') enable();
     else if (d.__openthornEdit === 'disable') disable();
   });
+  // Esc inside the preview (where focus often lives) bubbles out to the parent.
+  window.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') parent.postMessage({ __openthornEdit:'escape' }, '*');
+  }, true);
   parent.postMessage({ __openthornEdit:'ready' }, '*');
 })();
 </script>`

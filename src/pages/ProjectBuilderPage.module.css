@@ -1760,6 +1760,7 @@
 }
 
 .previewStage {
+  position: relative;
   min-height: 0;
   flex: 1;
   display: flex;
@@ -1767,6 +1768,62 @@
   justify-content: center;
   overflow: auto;
   padding: 16px;
+}
+
+/* Visual click-to-edit: clear "active" affordances */
+.editToggleActive {
+  color: var(--color-accent);
+  background: var(--color-accent-subtle, rgba(139, 92, 246, 0.12));
+  border-color: color-mix(in srgb, var(--color-accent) 55%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 30%, transparent),
+    0 4px 14px rgba(139, 92, 246, 0.25);
+}
+
+.editToggleActive:hover {
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  border-color: color-mix(in srgb, var(--color-accent) 70%, transparent);
+}
+
+.editModeBadge {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 12;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 6px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-accent) 22%, rgba(14, 11, 16, 0.92));
+  border: 1px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  animation: pageFade 0.16s ease both;
+  pointer-events: none;
+}
+
+.editModeBadge svg {
+  color: var(--color-accent);
+}
+
+.editModeBadge kbd {
+  font-size: 0.66rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  padding: 1px 6px;
+  border-radius: 6px;
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.previewCardEditing {
+  outline: 2px solid color-mix(in srgb, var(--color-accent) 70%, transparent);
+  outline-offset: 2px;
 }
 
 .deviceFrame {

@@ -3,6 +3,9 @@ import {
   injectOeidProps,
   composeEditInstruction,
   anchorPopover,
+  formatEditLabel,
+  applyTextEdit,
+  resolveOeidPath,
   type EditSelection,
 } from '../preview-edit'
 
@@ -56,6 +59,61 @@ describe('composeEditInstruction', () => {
     expect(out).not.toContain('null')
     expect(out).toContain('<h1>')
     expect(out).toContain('center this')
+  })
+})
+
+describe('formatEditLabel', () => {
+  const sel: EditSelection = {
+    oeid: 'Navbar.tsx:9:5',
+    tag: 'a',
+    text: 'Features',
+    rect: { top: 0, left: 0, width: 0, height: 0 },
+    styles: {},
+  }
+
+  it('produces a short human-readable label with file and request', () => {
+    expect(formatEditLabel(sel, 'The image is not loading')).toBe(
+      'Edit <a> in Navbar.tsx: The image is not loading',
+    )
+  })
+
+  it('omits the file when oeid is null', () => {
+    expect(formatEditLabel({ ...sel, oeid: null }, 'make it red')).toBe('Edit <a>: make it red')
+  })
+})
+
+describe('resolveOeidPath', () => {
+  const paths = ['/src/components/Navbar.tsx', '/src/App.tsx']
+
+  it('matches a unique basename', () => {
+    expect(resolveOeidPath(paths, 'Navbar.tsx:9:5')).toBe('/src/components/Navbar.tsx')
+  })
+
+  it('returns null for null oeid', () => {
+    expect(resolveOeidPath(paths, null)).toBeNull()
+  })
+
+  it('returns null when the basename is ambiguous', () => {
+    expect(resolveOeidPath(['/a/Card.tsx', '/b/Card.tsx'], 'Card.tsx:1:1')).toBeNull()
+  })
+})
+
+describe('applyTextEdit', () => {
+  it('replaces a uniquely-occurring text', () => {
+    const code = `<a>Features</a>`
+    expect(applyTextEdit(code, 'Features', 'Kebab')).toBe('<a>Kebab</a>')
+  })
+
+  it('returns null when the text is absent', () => {
+    expect(applyTextEdit('<a>Home</a>', 'Features', 'Kebab')).toBeNull()
+  })
+
+  it('returns null when the text occurs more than once (ambiguous)', () => {
+    expect(applyTextEdit('<a>Go</a><b>Go</b>', 'Go', 'Stop')).toBeNull()
+  })
+
+  it('treats the search text literally (no regex)', () => {
+    expect(applyTextEdit('price: $1.50 (each)', '$1.50 (each)', '$2.00')).toBe('price: $2.00')
   })
 })
 
