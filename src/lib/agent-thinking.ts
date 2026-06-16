@@ -33,28 +33,28 @@ export const AGENT_THINKING_PROFILES: Record<AgentThinkingLevel, AgentThinkingPr
     shortLabel: 'Low',
     description: 'Faster run with concise planning and essential checks.',
     maxTurns: 24,
-    thinking: { plan: 2048, debug: 2048, build: 0 },
+    thinking: { plan: 1024, debug: 1024, build: 0 },
   },
   medium: {
     label: 'Medium',
     shortLabel: 'Med',
     description: 'Balanced planning, building, and verification.',
     maxTurns: 44,
-    thinking: { plan: 4000, debug: 4000, build: 0 },
+    thinking: { plan: 2048, debug: 2048, build: 0 },
   },
   high: {
     label: 'High',
     shortLabel: 'High',
     description: 'More deliberate planning with extra attention to polish and edge cases.',
     maxTurns: 56,
-    thinking: { plan: 8000, debug: 6000, build: 1500 },
+    thinking: { plan: 4000, debug: 3000, build: 0 },
   },
   'extra-high': {
     label: 'Extra High',
     shortLabel: 'XHigh',
     description: 'Maximum planning and verification for complex builds.',
     maxTurns: 76,
-    thinking: { plan: 12000, debug: 10000, build: 3000 },
+    thinking: { plan: 8000, debug: 6000, build: 1500 },
   },
 }
 

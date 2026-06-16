@@ -202,21 +202,21 @@ describe('thinking budget (phase-gated)', () => {
   })
 
   it('enables thinking for planning and error recovery', () => {
-    expect(getThinkingBudget({ mode: 'create', turnCount: 1, thinkingLevel: 'medium' })).toBe(4000)
+    expect(getThinkingBudget({ mode: 'create', turnCount: 1, thinkingLevel: 'medium' })).toBe(2048)
     expect(
       getThinkingBudget({ mode: 'refine', turnCount: 7, thinkingLevel: 'medium', hasPendingErrors: true }),
-    ).toBe(4000)
+    ).toBe(2048)
   })
 
-  it('higher levels keep some build-turn thinking; lower levels do not', () => {
+  it('only the deepest level keeps build-turn thinking; the rest do not', () => {
     expect(getThinkingBudget({ mode: 'create', turnCount: 6, thinkingLevel: 'low' })).toBe(0)
-    expect(getThinkingBudget({ mode: 'create', turnCount: 6, thinkingLevel: 'high' })).toBe(1500)
-    expect(getThinkingBudget({ mode: 'create', turnCount: 6, thinkingLevel: 'extra-high' })).toBe(3000)
+    expect(getThinkingBudget({ mode: 'create', turnCount: 6, thinkingLevel: 'high' })).toBe(0)
+    expect(getThinkingBudget({ mode: 'create', turnCount: 6, thinkingLevel: 'extra-high' })).toBe(1500)
   })
 
   it('clamps an enabled budget into the supported range', () => {
-    // extra-high plan is 12000 — at the ceiling, never above it.
-    expect(getThinkingBudget({ mode: 'create', turnCount: 1, thinkingLevel: 'extra-high' })).toBe(12000)
+    // extra-high plan is 8000 — within the supported range, returned as-is.
+    expect(getThinkingBudget({ mode: 'create', turnCount: 1, thinkingLevel: 'extra-high' })).toBe(8000)
   })
 })
 

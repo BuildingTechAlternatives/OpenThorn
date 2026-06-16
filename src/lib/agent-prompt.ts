@@ -400,6 +400,25 @@ const CORE_TOOL_NAMES = new Set([
 /** Loaded on demand when the task actually needs them (refine, cleanup, search). */
 const EXPANSION_TOOL_NAMES = new Set(['multi_edit', 'delete_file', 'search_files'])
 
+/**
+ * Tools for a small, self-contained refine ("make the header red", a
+ * click-to-edit tweak). Deliberately lean: a smaller tool schema means a faster
+ * time-to-first-token on every turn, and these edits never need to set a title
+ * (refine keeps the name), touch the checklist (small refines aren't tracked in
+ * PLAN.md), or delete/search across the project. Keeps the focused-edit tools
+ * (edit_file/multi_edit) plus write_file for adding a small component.
+ */
+const SMALL_REFINE_TOOL_NAMES = new Set([
+  'think',
+  'list_files',
+  'read_file',
+  'write_file',
+  'edit_file',
+  'multi_edit',
+  'compile',
+  'done',
+])
+
 const EXPANSION_TRIGGER =
   /\b(delete|remove|clean|cleanup|refactor|rename|replace|search|find|where|unused|existing|multiple|several)\b/i
 
@@ -413,7 +432,14 @@ export function selectToolsForRun(params: {
   mode: 'create' | 'refine'
   isNewProject: boolean
   prompt: string
+  smallRefine?: boolean
 }): { tools: ToolDefinition[]; expanded: boolean } {
+  // A small refine gets the leanest set — fewest tools, fastest TTFT per turn.
+  if (params.smallRefine) {
+    const tools = AGENT_TOOLS.filter((t) => SMALL_REFINE_TOOL_NAMES.has(t.name))
+    return { tools, expanded: false }
+  }
+
   const expanded =
     params.mode === 'refine' ||
     !params.isNewProject ||
@@ -430,6 +456,11 @@ void EXPANSION_TOOL_NAMES // documents the deferred set; selection is by CORE al
 /** Reminder injected when the lean tool set is in effect, to avoid confusion. */
 export const LEAN_TOOLSET_REMINDER = `<system-reminder>
 For this build the tool set is: think, set_title, update_plan, list_files, read_file, write_file, edit_file, compile, done. The multi_edit, delete_file, and search_files tools are not loaded for this task — write_file and edit_file cover everything needed. Do not attempt to call them.
+</system-reminder>`
+
+/** Reminder injected for a small refine, whose tool set is leaner still. */
+export const SMALL_REFINE_TOOLSET_REMINDER = `<system-reminder>
+This is a small, self-contained change. The tool set is: think, list_files, read_file, write_file, edit_file, multi_edit, compile, done. set_title, update_plan, delete_file, and search_files are NOT loaded — don't call them. Go straight to the edit, compile once, then done.
 </system-reminder>`
 
 // ─── Uniform tool-result cap (#4) ──────────────────────────────────────────

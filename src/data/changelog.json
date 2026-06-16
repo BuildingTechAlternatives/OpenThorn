@@ -1,9 +1,98 @@
 {
-  "generatedAt": "2026-06-15",
+  "generatedAt": "2026-06-16",
   "days": [
+    {
+      "date": "2026-06-16",
+      "entries": [
+        {
+          "category": "Improved",
+          "message": "perf(agent): give small refines a lean, checklist-free prompt",
+          "sha": "fc02ac36aea31792e9754a8d5e604cc8ca2e9766",
+          "shortSha": "fc02ac3",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/fc02ac36aea31792e9754a8d5e604cc8ca2e9766"
+        },
+        {
+          "category": "Improved",
+          "message": "feat(agent): skip the requirements checklist for small refines",
+          "sha": "672a76d8530282e8fa04573a3f797382986f8fff",
+          "shortSha": "672a76d",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/672a76d8530282e8fa04573a3f797382986f8fff"
+        },
+        {
+          "category": "Fix",
+          "message": "fix(preview): keep click-to-edit popover on-screen + make text edits instant",
+          "sha": "a85d0211539139895b97c969c239476fbb549ce7",
+          "shortSha": "a85d021",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/a85d0211539139895b97c969c239476fbb549ce7"
+        },
+        {
+          "category": "Improved",
+          "message": "feat(agent): generate files one-per-turn + markdown build overview/summary",
+          "sha": "6d586b0cc27c97cab89206320f294c43395fdfec",
+          "shortSha": "6d586b0",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/6d586b0cc27c97cab89206320f294c43395fdfec"
+        },
+        {
+          "category": "Improved",
+          "message": "feat(preview): direct text edits, minified chat label, hover pause + Esc to exit, polished edit toggle/badge",
+          "sha": "fa0b7c9a241edfc20b967f9800f566f0c5beb31d",
+          "shortSha": "fa0b7c9",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/fa0b7c9a241edfc20b967f9800f566f0c5beb31d"
+        },
+        {
+          "category": "Improved",
+          "message": "feat(preview): wire visual click-to-edit into the project builder",
+          "sha": "ce8ade204c52afe8a7e8445053236b4861fa8821",
+          "shortSha": "ce8ade2",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/ce8ade204c52afe8a7e8445053236b4861fa8821"
+        },
+        {
+          "category": "Improved",
+          "message": "feat(preview): add edit-instruction composer and popover anchor math",
+          "sha": "b43583deaa5df11e4e0be60e83dffda02fb9ab8b",
+          "shortSha": "b43583d",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/b43583deaa5df11e4e0be60e83dffda02fb9ab8b"
+        },
+        {
+          "category": "Improved",
+          "message": "feat(preview): instrument builds with data-oeid + in-iframe select mode",
+          "sha": "1477b4b902276c45f9a172f54cc8a2bec966c204",
+          "shortSha": "1477b4b",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/1477b4b902276c45f9a172f54cc8a2bec966c204"
+        },
+        {
+          "category": "New",
+          "message": "Add Product Hunt follow badge to hero section",
+          "sha": "69ff897de187920594a6626cb3baa031b966525c",
+          "shortSha": "69ff897",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/69ff897de187920594a6626cb3baa031b966525c"
+        }
+      ]
+    },
     {
       "date": "2026-06-15",
       "entries": [
+        {
+          "category": "Improved",
+          "message": "Improve agent opening and closing message formatting",
+          "sha": "31173ee5add03cdf5e425e191cb8b456e21a7f8d",
+          "shortSha": "31173ee",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/31173ee5add03cdf5e425e191cb8b456e21a7f8d"
+        },
+        {
+          "category": "Improved",
+          "message": "Remove inspect_preview tool and layout gate from agent loop",
+          "sha": "359a3ee1be10332aba89e6a87b2cbeafc0302962",
+          "shortSha": "359a3ee",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/359a3ee1be10332aba89e6a87b2cbeafc0302962"
+        },
+        {
+          "category": "Improved",
+          "message": "Remove hardcoded default site; agent always starts with empty workspace",
+          "sha": "ca0794bc5401ae60cabb785567012747ec042191",
+          "shortSha": "ca0794b",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/ca0794bc5401ae60cabb785567012747ec042191"
+        },
         {
           "category": "Improved",
           "message": "Strengthen agent system prompt: objectivity, persistence, closing recap",
@@ -1726,102 +1815,6 @@
           "sha": "30fd49b8e36d223f03468299cc41d12e89ae05ac",
           "shortSha": "30fd49b",
           "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/30fd49b8e36d223f03468299cc41d12e89ae05ac"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: always include title in project upsert to satisfy NOT NULL constraint",
-          "sha": "dd1f2f85a6e2f2bc66b114156d4e29e604cf0a45",
-          "shortSha": "dd1f2f8",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/dd1f2f85a6e2f2bc66b114156d4e29e604cf0a45"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: remove unused variables to fix Vercel build",
-          "sha": "ba6d640abdcd4297b47faf58c908c88932993407",
-          "shortSha": "ba6d640",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/ba6d640abdcd4297b47faf58c908c88932993407"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: add vercel.json SPA rewrite so direct route access works",
-          "sha": "7e6e51c960865de5783e7becf7db5956949c8dae",
-          "shortSha": "7e6e51c",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/7e6e51c960865de5783e7becf7db5956949c8dae"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: add missing provider logo images to public/assets",
-          "sha": "9293562a9c3df3a651da9031313abe76fb19b720",
-          "shortSha": "9293562",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/9293562a9c3df3a651da9031313abe76fb19b720"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: resolve null title constraint on new project upsert and resume interrupted generation",
-          "sha": "f600475e81e982ae23f57deb3ad77b4ae02c6cd4",
-          "shortSha": "f600475",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/f600475e81e982ae23f57deb3ad77b4ae02c6cd4"
-        }
-      ]
-    },
-    {
-      "date": "2026-06-04",
-      "entries": [
-        {
-          "category": "Improved",
-          "message": "feat: template gallery polish — 3 new templates, device preview fixes, CORS navigation fix",
-          "sha": "b2b800e862eae7aaaddd9a9314d45fc5997db2a6",
-          "shortSha": "b2b800e",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/b2b800e862eae7aaaddd9a9314d45fc5997db2a6"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: implement Template Window — gallery, live preview overlay, and builder bootstrap",
-          "sha": "487e3b9b0cc18aa4a1720d71270e8329a1ed0ae6",
-          "shortSha": "487e3b9",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/487e3b9b0cc18aa4a1720d71270e8329a1ed0ae6"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: add 3 starter template definitions (portfolio, saas, ecommerce)",
-          "sha": "eca225d94e9fe7254c809d705390b873f7a2a183",
-          "shortSha": "eca225d",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/eca225d94e9fe7254c809d705390b873f7a2a183"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: project builder UX improvements",
-          "sha": "a7e8a99834cbb62ecc128369e6e3dcf855b538cb",
-          "shortSha": "a7e8a99",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/a7e8a99834cbb62ecc128369e6e3dcf855b538cb"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: responsive controls and search empty state for project manager",
-          "sha": "a31c3dd48164044bc105c5c8d2568e2316d193bc",
-          "shortSha": "a31c3dd",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/a31c3dd48164044bc105c5c8d2568e2316d193bc"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: implement list view for project manager",
-          "sha": "e760f28903bbd854f85ce1d519ddd88e6b69b4f6",
-          "shortSha": "e760f28",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/e760f28903bbd854f85ce1d519ddd88e6b69b4f6"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: add color accent bar, shared badge, relative timestamp to project cards",
-          "sha": "3d86c5beff4db0f8407a13a1b1bc9f02b6022284",
-          "shortSha": "3d86c5b",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/3d86c5beff4db0f8407a13a1b1bc9f02b6022284"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: add search, sort, and view-mode controls to project manager",
-          "sha": "46afdc3d2356bfcd6b8e771b153ae7838288200e",
-          "shortSha": "46afdc3",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/46afdc3d2356bfcd6b8e771b153ae7838288200e"
         }
       ]
     }

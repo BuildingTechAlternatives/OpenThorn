@@ -12,6 +12,7 @@ import {
   turnBudgetPrompt,
   selectToolsForRun,
   LEAN_TOOLSET_REMINDER,
+  SMALL_REFINE_TOOLSET_REMINDER,
   capToolResultContent,
   type ToolDefinition,
 } from './agent-prompt'
@@ -1093,6 +1094,9 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   const buildIntent = isLikelyBuildRequest(input.prompt)
   const thinkingLevel = normalizeThinkingLevel(input.thinkingLevel)
   const thinkingProfile = AGENT_THINKING_PROFILES[thinkingLevel]
+  // A small, self-contained edit ("make the header red", a click-to-edit tweak)
+  // runs the leanest workflow: no checklist, lean tool set, terse prompt.
+  const smallRefine = mode === 'refine' && isSmallRefineRequest(input.prompt)
 
   // ── Progressive tool expansion (#6) ───────────────────────────
   // Choose the tool set once, then hold it stable for the whole run so the API
@@ -1101,6 +1105,7 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     mode,
     isNewProject,
     prompt: input.prompt,
+    smallRefine,
   })
 
   // ── Build initial messages ────────────────────────────────────
@@ -1129,7 +1134,10 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   // When the lean tool set is in effect, tell the model so it doesn't try to
   // call a deferred tool the system prompt still mentions.
   if (!toolsExpanded) {
-    messages.push({ role: 'user', content: LEAN_TOOLSET_REMINDER })
+    messages.push({
+      role: 'user',
+      content: smallRefine ? SMALL_REFINE_TOOLSET_REMINDER : LEAN_TOOLSET_REMINDER,
+    })
   }
 
   // SPEC PHASE: for new projects, inject spec guidance
@@ -1147,7 +1155,7 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   // tweak) shouldn't drag the whole project checklist around: don't seed new
   // requirements, don't surface the plan reminder, and let the done gate skip
   // plan-coverage. The existing PLAN.md (if any) is left untouched.
-  const smallRefine = mode === 'refine' && isSmallRefineRequest(input.prompt)
+  // (smallRefine is computed once up top, near tool selection.)
   const existingPlanFile = currentFiles.find((f) => f.path === PLAN_PATH)
   if (!smallRefine) {
     const parsedPlan: AgentPlan = existingPlanFile
@@ -1750,6 +1758,12 @@ interface RunContext {
   dirtySinceCompile: boolean
   /** Whether any compile this run passed build + runtime. */
   lastCompileOk: boolean
+  /**
+   * Bundled HTML from the most recent passing compile. Reused by the done gate's
+   * interactive smoke test so it doesn't re-bundle the project through
+   * esbuild-wasm a second time. Cleared the moment files change (dirty).
+   */
+  lastPreviewHtml?: string
   /** How many times the done verification gate has rejected done this run. */
   doneRejections: number
   /** Lessons distilled from compile/runtime errors not yet known to be fixed. */
@@ -1819,6 +1833,8 @@ async function executeToolsParallel(
       // PLAN.md updates don't affect the build, so they don't dirty it.
       if (!result.isError && call.name !== 'update_plan') {
         runCtx.dirtySinceCompile = true
+        // The cached compile bundle no longer matches the files on disk.
+        runCtx.lastPreviewHtml = undefined
         if (call.input?.path) runCtx.mutatedPaths.add(normalizePath(String(call.input.path)))
       }
     }
@@ -2460,6 +2476,9 @@ async function executeTool(
           if (runCtx) {
             runCtx.lastCompileOk = true
             runCtx.dirtySinceCompile = false
+            // Stash the freshly-bundled HTML so the done gate's interactive
+            // smoke test can reuse it instead of re-bundling the same files.
+            runCtx.lastPreviewHtml = preview.html
             // A passing compile confirms whatever errors preceded it were
             // recovered — promote those distilled lessons (#1).
             if (runCtx.pendingErrorLessons.length > 0) {
@@ -2705,22 +2724,28 @@ async function runDoneVerificationGate(
 
   // 5. Interactive smoke test — the buttons must actually work.
   try {
-    const preview = await buildPreview(
-      currentFiles.map((f) => ({ path: f.path, content: f.code })),
-    )
-    if (preview.errors.length === 0) {
-      const runtime = await interactiveSmokeTest(preview.html)
-      if (runtime.ran && !runtime.ok) {
-        const report = formatRuntimeReport(runtime)
-        return formatStructuredError({
-          code: 'DONE_REJECTED',
-          message: `The app breaks when its UI is actually used.\n${report ?? ''}`,
-          suggestion:
-            'Fix the failing handler(s), compile, then call done again.',
-          retryable: true,
-        })
-      }
-
+    // Reuse the HTML bundled by the last passing compile when it's still fresh
+    // (gate #1 guarantees files are unchanged since then), so done doesn't pay
+    // for a second full esbuild-wasm bundle of identical files. Fall back to a
+    // fresh build only if no cached bundle is available.
+    let html = runCtx.lastPreviewHtml
+    if (!html) {
+      const preview = await buildPreview(
+        currentFiles.map((f) => ({ path: f.path, content: f.code })),
+      )
+      if (preview.errors.length > 0) return null // can't verify — don't block done
+      html = preview.html
+    }
+    const runtime = await interactiveSmokeTest(html)
+    if (runtime.ran && !runtime.ok) {
+      const report = formatRuntimeReport(runtime)
+      return formatStructuredError({
+        code: 'DONE_REJECTED',
+        message: `The app breaks when its UI is actually used.\n${report ?? ''}`,
+        suggestion:
+          'Fix the failing handler(s), compile, then call done again.',
+        retryable: true,
+      })
     }
   } catch {
     // Inconclusive (no DOM / bundler hiccup) — never block done on a flaky check.
@@ -2842,14 +2867,22 @@ async function callOpenAIWithTools({
   const openaiTools = toolsToOpenAIFormat(tools)
   const reasoning = getReasoningParams(providerId ?? 'openai', modelId, thinkingBudget ?? 0)
 
+  // Ask streaming responses to include a final usage chunk. OpenAI/DeepSeek and
+  // most compatibles otherwise omit `usage` entirely while streaming, which
+  // hides `prompt_tokens_details.cached_tokens` — so prompt-cache hits become
+  // invisible in telemetry even though the provider caches the prefix
+  // automatically. Harmless to providers that ignore it; the bare `{ stream:
+  // true }` fallback below omits it for the few strict ones that 400 on it.
+  const streamUsage = { include_usage: true }
+
   // When no tools are provided (e.g. visual/self review), make a plain
   // text completion — don't send an empty tools array some APIs reject.
   const attempts: Array<Record<string, unknown>> =
     tools.length === 0
-      ? [{ stream: true, ...reasoning }, { stream: false, ...reasoning }]
+      ? [{ stream: true, stream_options: streamUsage, ...reasoning }, { stream: false, ...reasoning }]
       : [
-          { tools: openaiTools, stream: true, ...reasoning },
-          { tools: openaiTools, stream: true, tool_choice: 'auto', ...reasoning },
+          { tools: openaiTools, stream: true, stream_options: streamUsage, ...reasoning },
+          { tools: openaiTools, stream: true, stream_options: streamUsage, tool_choice: 'auto', ...reasoning },
           { tools: openaiTools, stream: false, ...reasoning },
           { stream: true },
         ]
