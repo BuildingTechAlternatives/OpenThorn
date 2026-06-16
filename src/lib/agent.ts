@@ -806,6 +806,11 @@ export function mergePromptRequirementsIntoPlan(
 
 export function isSmallRefineRequest(prompt: string): boolean {
   const lower = prompt.toLowerCase().replace(/\s+/g, ' ').trim()
+  // A visual click-to-edit is always a scoped, single-element change. Its
+  // appended element/style context inflates the prompt well past the length cap
+  // below, so detect the marker first and short-circuit (keep in sync with
+  // VISUAL_EDIT_MARKER in preview-edit.ts).
+  if (lower.startsWith('[visual edit]')) return true
   if (!lower || lower.length > 220) return false
   if (/\b(rebuild|redesign|rewrite|replace everything|from scratch|entire app|whole file)\b/.test(lower)) {
     return false

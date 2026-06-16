@@ -54,6 +54,13 @@ export interface EditSelection {
   styles: Record<string, string>
 }
 
+/**
+ * Marker prefixing every visual click-to-edit instruction. Lets the agent
+ * recognize a scoped, single-element edit (always a small refine) regardless of
+ * how long the appended element/style context makes the prompt.
+ */
+export const VISUAL_EDIT_MARKER = '[Visual edit]'
+
 /** Build the scoped prompt handed to the existing agent run path. */
 export function composeEditInstruction(sel: EditSelection, userText: string): string {
   const loc = sel.oeid ? ` at ${sel.oeid.split(':').slice(0, 2).join(':')}` : ''
@@ -63,7 +70,7 @@ export function composeEditInstruction(sel: EditSelection, userText: string): st
     .join('; ')
   const styleLine = style ? ` Current styles — ${style}.` : ''
   return (
-    `[Visual edit] The user selected the <${sel.tag}> element${loc}${text}.` +
+    `${VISUAL_EDIT_MARKER} The user selected the <${sel.tag}> element${loc}${text}.` +
     `${styleLine} Apply only this change to that element: ${userText.trim()}`
   )
 }

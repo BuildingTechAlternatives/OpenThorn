@@ -6,6 +6,7 @@ import {
   addUsage,
   isContinuationRequest,
   isLikelyBuildRequest,
+  isSmallRefineRequest,
   mergePromptRequirementsIntoPlan,
   shouldRejectWholeFileRewrite,
   matchesGlob,
@@ -102,6 +103,25 @@ describe('agent request planning helpers', () => {
     expect(isLikelyBuildRequest('Can you add a double-jump power-up?')).toBe(true)
     expect(isLikelyBuildRequest('what can you build?')).toBe(false)
     expect(isLikelyBuildRequest('how does the build process work?')).toBe(false)
+  })
+
+  it('treats short tweaks as small refines but not big rewrites', () => {
+    expect(isSmallRefineRequest('Change the heading text to "Welcome"')).toBe(true)
+    expect(isSmallRefineRequest('update the navbar background to a darker shade')).toBe(true)
+    expect(isSmallRefineRequest('Rebuild the entire app from scratch')).toBe(false)
+  })
+
+  it('always treats a visual click-to-edit as a small refine, even when long', () => {
+    // The appended element + style context pushes a visual edit well past the
+    // length cap; the [Visual edit] marker must still mark it small so it skips
+    // the checklist and the done-gate plan-coverage check.
+    const visualEdit =
+      '[Visual edit] The user selected the <a> element at Navbar.tsx:50 (text: "Waitlist").' +
+      ' Current styles — color: rgb(17, 24, 39); backgroundColor: rgba(0, 0, 0, 0);' +
+      ' fontSize: 16px; fontWeight: 600; margin: 0px; padding: 8px 16px; display: inline-block;' +
+      ' textAlign: left. Apply only this change to that element: Change the text to: Join now'
+    expect(visualEdit.length).toBeGreaterThan(220)
+    expect(isSmallRefineRequest(visualEdit)).toBe(true)
   })
 
   it('adds current refine requirements to an existing completed plan', () => {
