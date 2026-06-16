@@ -1200,6 +1200,7 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
       input.files,
       mode,
       isNewProject,
+      smallRefine,
     ),
   })
 
@@ -3508,7 +3509,7 @@ function findMatchingToolUse(messages: LlmMessage[], toolUseId: string | undefin
 
 function buildUserPrompt(
   prompt: string, title: string, files: AgentCodeFile[],
-  mode: 'create' | 'refine', isNew: boolean,
+  mode: 'create' | 'refine', isNew: boolean, smallRefine = false,
 ): string {
   const leftoverFiles = files
     .filter((f) => f.path !== 'No files yet')
@@ -3530,6 +3531,9 @@ function buildUserPrompt(
       p += `\n\nNOTE: the workspace still contains files from a previous, unrelated project:\n${leftoverFiles}\nThese do not belong to what the user asked for. Overwrite the ones you reuse (App.tsx, theme.css) and delete_file the rest so the project only contains files for THIS app.`
     }
     return p + continuationContext
+  }
+  if (smallRefine) {
+    return `The user's message about the existing project: ${prompt}\n\nProject title: ${title}\n\nCurrent files:\n${leftoverFiles || '(none)'}\n\nThis is a small, self-contained change. Work in as FEW turns as possible — a competent engineer does this in one edit:\n- Do NOT touch PLAN.md or the requirements checklist. Leave it exactly as it is and do NOT call update_plan — this change is not tracked there.\n- Go straight to the edit. Read at most the ONE file you're changing (skip even that if its contents are already shown in the conversation above), then make the focused edit with edit_file/multi_edit.\n- Compile ONCE (build + runtime) to verify, then call done. No extra reads, no re-compiles, no unrequested polish.\n\nIf this is a question or remark rather than a change request, answer it in plain text and do not modify any files or call done.`
   }
   return `The user's message about the existing project: ${prompt}\n\nProject title: ${title}\n\nCurrent files:\n${leftoverFiles || '(none)'}${continuationContext}\n\nIf this requests a change, update the project: read files before editing them, use search_files to find patterns, multi_edit for several changes to one file, and delete_file to remove anything this change makes obsolete. Make focused changes and compile (build + runtime) after edits to verify.\n\nIf it is a question or remark rather than a change request, answer it in plain text (use read-only tools to look things up if needed) and do not modify any files or call done.`
 }
