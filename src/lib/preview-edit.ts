@@ -36,6 +36,62 @@ export function injectOeidProps<P extends Record<string, unknown>>(
   return { ...props, 'data-oeid': normalizeOeid(source) }
 }
 
+// ─── Selection types + scoped instruction composer ────────────────────────
+
+export interface EditRect {
+  top: number
+  left: number
+  width: number
+  height: number
+}
+
+export interface EditSelection {
+  /** "file.tsx:line:col" or null when no data-oeid was found. */
+  oeid: string | null
+  tag: string
+  text: string
+  rect: EditRect
+  styles: Record<string, string>
+}
+
+/** Build the scoped prompt handed to the existing agent run path. */
+export function composeEditInstruction(sel: EditSelection, userText: string): string {
+  const loc = sel.oeid ? ` at ${sel.oeid.split(':').slice(0, 2).join(':')}` : ''
+  const text = sel.text ? ` (text: "${sel.text.slice(0, 80)}")` : ''
+  const style = Object.entries(sel.styles)
+    .map(([k, v]) => `${k}: ${v}`)
+    .join('; ')
+  const styleLine = style ? ` Current styles — ${style}.` : ''
+  return (
+    `[Visual edit] The user selected the <${sel.tag}> element${loc}${text}.` +
+    `${styleLine} Apply only this change to that element: ${userText.trim()}`
+  )
+}
+
+// ─── Popover anchor math ───────────────────────────────────────────────────
+
+const GAP = 8
+
+/**
+ * Position a popover near an element rect (all coords in parent/overlay space).
+ * Prefers below the element; flips above when it would overflow the bottom;
+ * clamps horizontally to the viewport with an 8px margin.
+ */
+export function anchorPopover(
+  rect: EditRect,
+  popover: { width: number; height: number },
+  viewport: { width: number; height: number },
+): { top: number; left: number } {
+  const belowTop = rect.top + rect.height + GAP
+  const fitsBelow = belowTop + popover.height <= viewport.height
+  const top = fitsBelow ? belowTop : rect.top - popover.height - GAP
+
+  const maxLeft = viewport.width - popover.width - GAP
+  const left = Math.max(GAP, Math.min(rect.left, maxLeft))
+
+  return { top, left }
+}
+
 /**
  * Returns a self-contained <script> (conservative ES5-ish, like
  * preview-runtime-check.ts) that runs inside the sandboxed preview iframe.
