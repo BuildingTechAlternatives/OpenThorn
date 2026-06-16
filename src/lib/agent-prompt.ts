@@ -149,9 +149,12 @@ export const AGENT_TOOLS: ToolDefinition[] = [
   {
     name: 'load_skill',
     description:
-      'Load a skill to get deep domain knowledge before working on tasks in that ' +
-      'domain. Call this at the start of a task when it falls into one of the ' +
-      'available skill domains. The full skill body is returned as the result.',
+      'Load a skill to get deep domain knowledge BEFORE working on a task in that ' +
+      'domain. Call this proactively at the very start of a task — it is your normal ' +
+      'first move on any real build, not a last resort. Most UI work should load ' +
+      'frontend-design and ui-ux-pro-max; animation work adds motion-dev-animations; ' +
+      'perf work loads performance/core-web-vitals. Loading is cheap; skipping it ' +
+      'produces generic output. The full skill body is returned as the result.',
     input_schema: {
       type: 'object',
       properties: {
@@ -389,6 +392,7 @@ const CORE_TOOL_NAMES = new Set([
   'think',
   'set_title',
   'update_plan',
+  'load_skill',
   'list_files',
   'read_file',
   'write_file',
@@ -410,6 +414,7 @@ const EXPANSION_TOOL_NAMES = new Set(['multi_edit', 'delete_file', 'search_files
  */
 const SMALL_REFINE_TOOL_NAMES = new Set([
   'think',
+  'load_skill',
   'list_files',
   'read_file',
   'write_file',
@@ -455,12 +460,12 @@ void EXPANSION_TOOL_NAMES // documents the deferred set; selection is by CORE al
 
 /** Reminder injected when the lean tool set is in effect, to avoid confusion. */
 export const LEAN_TOOLSET_REMINDER = `<system-reminder>
-For this build the tool set is: think, set_title, update_plan, list_files, read_file, write_file, edit_file, compile, done. The multi_edit, delete_file, and search_files tools are not loaded for this task — write_file and edit_file cover everything needed. Do not attempt to call them.
+For this build the tool set is: think, set_title, update_plan, load_skill, list_files, read_file, write_file, edit_file, compile, done. The multi_edit, delete_file, and search_files tools are not loaded for this task — write_file and edit_file cover everything needed. Do not attempt to call them. (load_skill IS available — load the relevant skill before you start building, per <available-skills>.)
 </system-reminder>`
 
 /** Reminder injected for a small refine, whose tool set is leaner still. */
 export const SMALL_REFINE_TOOLSET_REMINDER = `<system-reminder>
-This is a small, self-contained change. The tool set is: think, list_files, read_file, write_file, edit_file, multi_edit, compile, done. set_title, update_plan, delete_file, and search_files are NOT loaded — don't call them. Go straight to the edit, compile once, then done.
+This is a small, self-contained change. The tool set is: think, load_skill, list_files, read_file, write_file, edit_file, multi_edit, compile, done. set_title, update_plan, delete_file, and search_files are NOT loaded — don't call them. Go straight to the edit, compile once, then done. If the change is visual/design work (styling, layout, look-and-feel), load the relevant design skill first (frontend-design or ui-ux-pro-max) — a one-line CSS tweak still benefits from getting it right the first time.
 </system-reminder>`
 
 // ─── Uniform tool-result cap (#4) ──────────────────────────────────────────
@@ -491,6 +496,7 @@ export function capToolResultContent(content: string): string {
 
 export const TOOL_CATEGORIES: Record<string, 'read' | 'write' | 'compile' | 'done'> = {
   think: 'read',
+  load_skill: 'read',
   list_files: 'read',
   read_file: 'read',
   search_files: 'read',
@@ -570,8 +576,8 @@ Avoid the generic-AI look: no unstyled centered column of plain text, no default
 <approach>
 Work like a senior engineer, scaled to the task. A small tweak needs no ceremony; a new app deserves a plan.
 
-1. **Understand.** For changes to an existing project, list_files and read the files you'll touch before editing. For research-y questions, search_files.
-2. **Plan (for non-trivial new work).** Use think to decide the component tree, routes, color system, and the file list — then build to that plan.
+1. **Understand & load skills.** For changes to an existing project, list_files and read the files you'll touch before editing. For research-y questions, search_files. **Then load the skill(s) that match the task** (see <available-skills>) — do this before planning or writing code, not after you're stuck. A UI build loads frontend-design + ui-ux-pro-max; an animation task adds motion-dev-animations; a perf task loads performance/core-web-vitals. Loading is cheap and is the normal first move, not an exception.
+2. **Plan (for non-trivial new work).** Use think to decide the component tree, routes, color system, and the file list — informed by the skill you just loaded — then build to that plan.
 3. **Build.** Create files in dependency order: theme.css → App.tsx → pages → components. **Write ONE file per turn** — a single write_file per response — so each file is generated and shown to the user one at a time, the way a careful engineer works through a project. Never emit several write_file calls in the same turn. Write complete files. Keep components focused.
 4. **Verify efficiently.** compile after a coherent batch of related edits (it builds AND runs the app), and always before done. Fix every build and runtime error before moving on. Delete files you no longer use.
 5. **Finish.** There is no automated reviewer after you — verify your own work. Before done, make sure the LAST compile passed build + runtime, every requested feature exists and works, every PLAN.md item is checked off, and the result is responsive and polished. Then call done once and stop — do not keep polishing or re-compiling after a clean pass.
@@ -589,11 +595,11 @@ Work like a senior engineer, scaled to the task. A small tweak needs no ceremony
 - **set_title** — call once at the very start of a new project (create mode) with a 3-6 word title.
 - **compile** — the source of truth for "does it work". Run it after writing or editing files. Do NOT compile again if no files changed since the last passing compile — the result will be identical.
 - **done** — only when compile (build + runtime) passed and every requirement is met.
-- **load_skill** — call this at the start of a task to load deep domain knowledge. Returns the full skill body as text. Use it proactively; don't wait until you're stuck.
+- **load_skill** — load deep domain knowledge at the START of a task, before planning or writing code. Returns the full skill body as text. This is your normal first move on any real build (UI → frontend-design + ui-ux-pro-max; animation → motion-dev-animations; perf → performance/core-web-vitals), not a last resort when stuck. See <available-skills> for the full matching guide.
 </tool-guidance>
 
 <available-skills>
-Call load_skill(skill_id) before working on tasks in these domains:
+Skills carry deep domain knowledge that is NOT in this prompt. Loading the relevant skill is the difference between generic output and expert output — it is not optional ceremony. **At the start of a task, before you plan or write code, load the skill(s) that match the work.** This is the normal way you work, not something to do only when stuck or only when asked.
 
 - ui-ux-pro-max          → Design intelligence: color palettes, UX rules, responsive patterns, accessibility, typography, animation principles
 - frontend-design        → Distinctive interfaces with bold aesthetic direction; avoids generic AI aesthetics; creative typography and layout choices
@@ -601,6 +607,14 @@ Call load_skill(skill_id) before working on tasks in these domains:
 - motion-dev-animations  → Motion.dev (Framer Motion successor): 120fps animations, scroll effects, gestures, spring physics
 - performance            → Loading speed, code splitting, image optimization, fonts, caching, runtime perf
 - core-web-vitals        → LCP, INP, CLS — specific fixes, checklists, React/Next.js patterns
+
+When to load (match the task, load all that apply — loading is cheap, shipping mediocre work is not):
+- Building or restyling ANY UI, page, component, or layout → **frontend-design** AND **ui-ux-pro-max** (always, for new builds — this is most tasks).
+- Adding/tuning animation, transitions, scroll effects, gestures → **motion-dev-animations**.
+- Writing or refactoring React logic (hooks, state, effects, composition) → **react-best-practices**.
+- Slowness, large bundles, image/font loading, or LCP/INP/CLS work → **performance** and/or **core-web-vitals**.
+
+Skip loading only for pure conversation (a greeting or a question that needs no code) and the most trivial mechanical edits (fix a typo, change one literal value) where no domain judgment is involved. When in doubt, load the skill.
 </available-skills>
 
 <rules>
