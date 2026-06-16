@@ -11,6 +11,8 @@ import { describeAgentError, getErrorMessage, isAbortError, logError, type Agent
 import { deploySite } from '../lib/deploy'
 import { buildPreview, escapeHtml } from '../lib/preview-bundle'
 import { capturePreviewThumbnail } from '../lib/preview-screenshot'
+import PreviewEditPopover from '../components/PreviewEditPopover/PreviewEditPopover'
+import { composeEditInstruction, type EditSelection } from '../lib/preview-edit'
 import { runOpenThornAgent, type AgentCodeFile, type LlmMessage, type SelectedAgentModel } from '../lib/agent'
 import {
   normalizeThinkingLevel,
@@ -393,6 +395,8 @@ export default function ProjectBuilderPage() {
   const [firstRunComplete, setFirstRunComplete] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('preview')
   const [deviceMode, setDeviceMode] = useState<DeviceMode>('desktop')
+  const [editMode, setEditMode] = useState(false)
+  const [selection, setSelection] = useState<EditSelection | null>(null)
   const [previewHtml, setPreviewHtml] = useState('')
   const [lastReadyHtml, setLastReadyHtml] = useState('')
   const [previewStatus, setPreviewStatus] = useState<'idle' | 'building' | 'ready' | 'error'>('idle')
@@ -794,7 +798,11 @@ export default function ProjectBuilderPage() {
       setPreviewErrors([])
 
       try {
-        const result = await buildPreview(projectFiles.map((f) => ({ path: f.path, content: f.code })))
+        const result = await buildPreview(
+          projectFiles.map((f) => ({ path: f.path, content: f.code })),
+          undefined,
+          { instrument: true },
+        )
         if (cancelled) return
         if (result.errors.length > 0) {
           setPreviewErrors(result.errors)
@@ -814,6 +822,36 @@ export default function ProjectBuilderPage() {
 
     return () => { cancelled = true }
   }, [projectFiles, agentRunning])
+
+  // ── Visual click-to-edit ─────────────────────────────────────────────────
+  // Tell the preview iframe to enter/leave select mode. Re-runs when the
+  // preview rebuilds (new srcDoc) so the fresh frame gets the current mode.
+  useEffect(() => {
+    const frame = previewFrameRef.current
+    frame?.contentWindow?.postMessage({ __openthornEdit: editMode ? 'enable' : 'disable' }, '*')
+    if (!editMode) setSelection(null)
+  }, [editMode, previewHtml])
+
+  // Receive element selections from the preview iframe.
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      const d = e.data
+      if (!d || !d.__openthornEdit) return
+      if (d.__openthornEdit === 'selected' && d.payload) {
+        setSelection(d.payload as EditSelection)
+      }
+    }
+    window.addEventListener('message', onMessage)
+    return () => window.removeEventListener('message', onMessage)
+  }, [])
+
+  // Editing is disabled while the agent runs (edits trigger agent runs).
+  useEffect(() => {
+    if (agentRunning && editMode) {
+      setEditMode(false)
+      setSelection(null)
+    }
+  }, [agentRunning, editMode])
 
   // Persist files to Supabase when they change (after agent has started)
   useEffect(() => {
@@ -2193,6 +2231,17 @@ export default function ProjectBuilderPage() {
 
             <div className={styles.previewTools}>
               <button
+                className={`${styles.iconBtn} ${editMode ? styles.modeActive : ''}`}
+                type="button"
+                aria-pressed={editMode}
+                disabled={agentRunning || effectivePreviewStatus !== 'ready'}
+                aria-label={editMode ? 'Exit edit mode' : 'Edit elements'}
+                title={editMode ? 'Exit edit mode' : 'Click an element to edit it'}
+                onClick={() => setEditMode((value) => !value)}
+              >
+                <EditCursorIcon />
+              </button>
+              <button
                 className={styles.iconBtn}
                 type="button"
                 aria-label={fullscreen ? 'Exit fullscreen preview' : 'Fullscreen preview'}
@@ -2320,9 +2369,38 @@ export default function ProjectBuilderPage() {
                             previewFrameRef.current?.focus()
                             previewFrameRef.current?.contentWindow?.focus()
                           }
+                          // Re-sync select mode to the freshly loaded frame (avoids the
+                          // race where the enable message is posted before the frame's
+                          // listener is attached).
+                          previewFrameRef.current?.contentWindow?.postMessage(
+                            { __openthornEdit: editMode ? 'enable' : 'disable' },
+                            '*',
+                          )
                         }}
                       />
                     </div>
+                  )}
+
+                  {editMode && selection && (
+                    <PreviewEditPopover
+                      selection={selection}
+                      frameOffset={(() => {
+                        const r = previewFrameRef.current?.getBoundingClientRect()
+                        return { top: r?.top ?? 0, left: r?.left ?? 0 }
+                      })()}
+                      busy={agentRunning}
+                      onClose={() => setSelection(null)}
+                      onSubmit={(instruction, sel) => {
+                        setSelection(null)
+                        setEditMode(false)
+                        void handleAgentRequest(
+                          composeEditInstruction(sel, instruction),
+                          activeModel,
+                          activeThinkingLevel,
+                          { mode: 'refine' },
+                        )
+                      }}
+                    />
                   )}
 
                   {firstRunComplete && previewStatus !== 'ready' && !lastReadyHtml && (
@@ -2592,6 +2670,10 @@ function FullscreenIcon() {
 
 function MinimizeIcon() {
   return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M8 3v5H3M16 3v5h5M8 21v-5H3M21 16h-5v5"/></svg>
+}
+
+function EditCursorIcon() {
+  return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3l7.5 18 2.3-7.2L20 11.5 3 3z"/><path d="M13 13l6 6"/></svg>
 }
 
 function FolderSvg({ open }: { open?: boolean }) {
