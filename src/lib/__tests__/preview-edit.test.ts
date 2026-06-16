@@ -115,6 +115,18 @@ describe('applyTextEdit', () => {
   it('treats the search text literally (no regex)', () => {
     expect(applyTextEdit('price: $1.50 (each)', '$1.50 (each)', '$2.00')).toBe('price: $2.00')
   })
+
+  it('matches whitespace-collapsed selection text against multi-line source', () => {
+    const code = `<h1>\n        Welcome to\n        the site\n      </h1>`
+    // selection text as it arrives from the iframe: collapsed to single spaces
+    expect(applyTextEdit(code, 'Welcome to the site', 'Hello')).toBe('<h1>\n        Hello\n      </h1>')
+  })
+
+  it('returns null when the whitespace-flexible match is ambiguous', () => {
+    // No literal single-space occurrence, but the flexible match hits both.
+    const code = `<a>Go  now</a><b>Go   now</b>`
+    expect(applyTextEdit(code, 'Go now', 'Stop')).toBeNull()
+  })
 })
 
 describe('anchorPopover', () => {
@@ -137,5 +149,23 @@ describe('anchorPopover', () => {
     expect(pos.left).toBe(1000 - 280 - 8)
     const pos2 = anchorPopover({ top: 100, left: -20, width: 50, height: 30 }, popover, viewport)
     expect(pos2.left).toBe(8)
+  })
+
+  it('clamps the top so a flipped-above popover never goes off the top edge', () => {
+    // Element near the top with no room below → flips above, but above would be
+    // negative; must clamp to the GAP instead of spilling off-screen.
+    const pos = anchorPopover({ top: 30, left: 100, width: 50, height: 780 }, popover, viewport)
+    expect(pos.top).toBeGreaterThanOrEqual(8)
+    expect(pos.top + popover.height).toBeLessThanOrEqual(viewport.height)
+  })
+
+  it('keeps the bottom edge on-screen for an element near the bottom', () => {
+    const pos = anchorPopover({ top: 790, left: 100, width: 50, height: 10 }, popover, viewport)
+    expect(pos.top + popover.height).toBeLessThanOrEqual(viewport.height - 8)
+  })
+
+  it('clamps the top edge visible when the popover is taller than the viewport', () => {
+    const pos = anchorPopover({ top: 400, left: 100, width: 50, height: 30 }, { width: 280, height: 900 }, viewport)
+    expect(pos.top).toBe(8)
   })
 })

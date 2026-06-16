@@ -106,9 +106,24 @@ export function resolveOeidPath(paths: string[], oeid: string | null): string | 
 export function applyTextEdit(code: string, oldText: string, newText: string): string | null {
   const needle = oldText.trim()
   if (!needle) return null
+
+  // Fast path: literal, uniquely-occurring text.
   const parts = code.split(needle)
-  if (parts.length !== 2) return null // 0 or >1 occurrences
-  return parts.join(newText)
+  if (parts.length === 2) return parts.join(newText)
+
+  // Fallback: the selection text from the preview iframe is whitespace-collapsed
+  // (`\s+` → ' '), so source that wraps the text across lines or uses multiple
+  // spaces won't match literally. Retry with a whitespace-flexible regex where
+  // each run of spaces matches one-or-more whitespace chars. Only apply when it
+  // still resolves to exactly one match (otherwise it's ambiguous → caller
+  // falls back to the agent).
+  const pattern = needle
+    .replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // escape regex metachars
+    .replace(/\s+/g, '\\s+')
+  const re = new RegExp(pattern, 'g')
+  const matches = code.match(re)
+  if (!matches || matches.length !== 1) return null
+  return code.replace(re, () => newText)
 }
 
 // ─── Popover anchor math ───────────────────────────────────────────────────
@@ -117,8 +132,10 @@ const GAP = 8
 
 /**
  * Position a popover near an element rect (all coords in parent/overlay space).
- * Prefers below the element; flips above when it would overflow the bottom;
- * clamps horizontally to the viewport with an 8px margin.
+ * Prefers below the element; flips above when it would overflow the bottom.
+ * Both axes are clamped to the viewport with an 8px margin so the popover is
+ * always fully on-screen (when it fits at all), even for elements at the very
+ * top/bottom/edges or when the popover is taller than the gap on either side.
  */
 export function anchorPopover(
   rect: EditRect,
@@ -126,10 +143,19 @@ export function anchorPopover(
   viewport: { width: number; height: number },
 ): { top: number; left: number } {
   const belowTop = rect.top + rect.height + GAP
-  const fitsBelow = belowTop + popover.height <= viewport.height
-  const top = fitsBelow ? belowTop : rect.top - popover.height - GAP
+  const aboveTop = rect.top - popover.height - GAP
+  const fitsBelow = belowTop + popover.height <= viewport.height - GAP
 
-  const maxLeft = viewport.width - popover.width - GAP
+  // Prefer below; flip above only when below overflows and above actually fits.
+  const preferred = fitsBelow ? belowTop : aboveTop >= GAP ? aboveTop : belowTop
+
+  // Clamp both axes so the popover never spills off-screen. When the popover is
+  // larger than the viewport the lower clamp (GAP) wins, keeping the top edge
+  // visible.
+  const maxTop = Math.max(GAP, viewport.height - popover.height - GAP)
+  const top = Math.max(GAP, Math.min(preferred, maxTop))
+
+  const maxLeft = Math.max(GAP, viewport.width - popover.width - GAP)
   const left = Math.max(GAP, Math.min(rect.left, maxLeft))
 
   return { top, left }
