@@ -162,6 +162,13 @@
   color: var(--color-text-muted);
 }
 
+/* Product Hunt badge */
+.phBadge {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-xl);
+}
+
 @media (max-width: 600px) {
   .valueProps {
     flex-direction: column;

@@ -91,6 +91,28 @@ export default function HeroSection() {
             </span>
           ))}
         </motion.div>
+
+        {/* Product Hunt badge */}
+        <motion.div
+          className={styles.phBadge}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+        >
+          <a
+            href="https://www.producthunt.com/products/openthorn?utm_source=badge-follow&utm_medium=badge&utm_source=badge-openthorn"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="https://api.producthunt.com/widgets/embed-image/v1/follow.svg?product_id=1244819&theme=dark"
+              alt="OpenThorn on Product Hunt"
+              width={250}
+              height={54}
+              style={{ width: 250, height: 54 }}
+            />
+          </a>
+        </motion.div>
       </div>
 
       {/* Scroll hint */}

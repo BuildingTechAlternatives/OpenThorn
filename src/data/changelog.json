@@ -6,6 +6,27 @@
       "entries": [
         {
           "category": "Improved",
+          "message": "Strengthen agent system prompt: objectivity, persistence, closing recap",
+          "sha": "7deaccaa01bfd2ca800d5bd3a9c1de7832de628e",
+          "shortSha": "7deacca",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/7deaccaa01bfd2ca800d5bd3a9c1de7832de628e"
+        },
+        {
+          "category": "New",
+          "message": "Add context limit selector for custom models; fix 3 incorrect context windows",
+          "sha": "fd460583ce8184754b60dacae4fed0ced8c8a07f",
+          "shortSha": "fd46058",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/fd460583ce8184754b60dacae4fed0ced8c8a07f"
+        },
+        {
+          "category": "New",
+          "message": "Add per-model context-window editor to the admin model catalog",
+          "sha": "410fcd62ec4a264df2d0175dca64f6f24741707f",
+          "shortSha": "410fcd6",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/410fcd62ec4a264df2d0175dca64f6f24741707f"
+        },
+        {
+          "category": "Improved",
           "message": "Store per-model context window; size compaction from real values",
           "sha": "7ae85936fca51f2b477ce090939a0715eb46d870",
           "shortSha": "7ae8593",
@@ -1801,27 +1822,6 @@
           "sha": "46afdc3d2356bfcd6b8e771b153ae7838288200e",
           "shortSha": "46afdc3",
           "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/46afdc3d2356bfcd6b8e771b153ae7838288200e"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: add search, sort, and view-mode state to project manager",
-          "sha": "477b397f36b28e7e2f0ef9b48774115eddebe05d",
-          "shortSha": "477b397",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/477b397f36b28e7e2f0ef9b48774115eddebe05d"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: fetch updated_at and add relative time + accent color helpers",
-          "sha": "de4dc8130f28cb8a0e85a0df45d8ce165cd19e2b",
-          "shortSha": "de4dc81",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/de4dc8130f28cb8a0e85a0df45d8ce165cd19e2b"
-        },
-        {
-          "category": "Improved",
-          "message": "feat: add updated_at column and trigger to projects table",
-          "sha": "45bd48726fd1783c8f7bfd6f97d98c789b164952",
-          "shortSha": "45bd487",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/45bd48726fd1783c8f7bfd6f97d98c789b164952"
         }
       ]
     }
