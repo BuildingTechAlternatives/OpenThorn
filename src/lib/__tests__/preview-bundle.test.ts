@@ -222,3 +222,43 @@ describe('buildPreview', () => {
     expect(result.html).toContain('feature-card')
   })
 })
+
+// ---------------------------------------------------------------------------
+// Integration: instrumented preview (visual click-to-edit)
+// ---------------------------------------------------------------------------
+describe('buildPreview instrument option', () => {
+  const FILES: VirtualFile[] = [
+    { path: '/src/App.tsx', content: `export default function App(){ return <h1>Hi</h1> }` },
+  ]
+
+  async function build(opts?: { instrument?: boolean }) {
+    const { buildPreview } = await import('../preview-bundle')
+    const esbuild = await import('esbuild')
+    return buildPreview(FILES, esbuild as unknown as typeof import('esbuild-wasm'), opts)
+  }
+
+  it('uses the dev jsx runtime + data-URL shim when instrument is true', async () => {
+    const { html, errors } = await build({ instrument: true })
+    expect(errors).toEqual([])
+    expect(html).toMatch(/"react\/jsx-dev-runtime":\s*"data:text\/javascript/)
+    expect(html).toContain('jsxDEV')
+  })
+
+  it('is unchanged (prod runtime, no shim, no data-oeid) when instrument is omitted', async () => {
+    const { html, errors } = await build()
+    expect(errors).toEqual([])
+    expect(html).not.toContain('jsxDEV')
+    expect(html).not.toContain('data-oeid')
+    expect(html).toMatch(/"react\/jsx-dev-runtime":\s*"https:\/\/esm\.sh/)
+  })
+
+  it('injects the select-mode script when instrument is true', async () => {
+    const { html } = await build({ instrument: true })
+    expect(html).toContain('__openthornEdit')
+  })
+
+  it('omits the select-mode script by default', async () => {
+    const { html } = await build()
+    expect(html).not.toContain('__openthornEdit')
+  })
+})

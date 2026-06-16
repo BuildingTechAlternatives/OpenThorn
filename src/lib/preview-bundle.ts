@@ -4,7 +4,9 @@ import { createVirtualFsPlugin, type VirtualFile } from './virtualFsPlugin'
 // Import the custom hash router source — injected into previews to replace
 // react-router-dom which doesn't work in srcdoc/sandboxed iframes.
 import bloomRouterSource from '../../public/openthorn-router.js?raw'
+import openthornJsxDevSource from '../../public/openthorn-jsx-dev.js?raw'
 import { ALLOWED_PACKAGES } from './allowed-packages'
+import { buildSelectModeScript } from './preview-edit'
 
 export type { VirtualFile } from './virtualFsPlugin'
 
@@ -35,7 +37,7 @@ export function buildFilesMap(files: VirtualFile[]): Record<string, string> {
 
 const REACT_VERSION = '18.2.0'
 
-function getImportMap(): Record<string, string> {
+function getImportMap(instrument = false): Record<string, string> {
   const reactUrl = `https://esm.sh/react@${REACT_VERSION}`
   const reactDomUrl = `https://esm.sh/react-dom@${REACT_VERSION}`
 
@@ -61,6 +63,13 @@ function getImportMap(): Record<string, string> {
     map[`${pkg.name}/`] = pkg.url.split('?')[0] + '/'
   }
 
+  // When instrumenting for visual click-to-edit, repoint the dev jsx runtime at
+  // our shim (served as a data URL) so host elements get a data-oeid attribute.
+  if (instrument) {
+    map['react/jsx-dev-runtime'] =
+      'data:text/javascript;base64,' + toBase64(openthornJsxDevSource)
+  }
+
   return map
 }
 
@@ -73,9 +82,15 @@ export interface PreviewResult {
  * Build a project from an array of virtual files and return an HTML string
  * suitable for rendering in a sandboxed iframe via `srcdoc`.
  */
+export interface BuildPreviewOptions {
+  /** When true, tag host DOM elements with data-oeid and include the select-mode script. */
+  instrument?: boolean
+}
+
 export async function buildPreview(
   files: VirtualFile[],
   esbuildOverride?: EsbuildLike,
+  opts: BuildPreviewOptions = {},
 ): Promise<PreviewResult> {
   const esbuild = esbuildOverride ?? esbuildWasm
 
@@ -98,6 +113,7 @@ export async function buildPreview(
       format: 'esm',
       target: 'es2020',
       jsx: 'automatic',
+      jsxDev: opts.instrument === true,
       minify: false,
       plugins: [createVirtualFsPlugin(fileMap)],
     })
@@ -125,7 +141,10 @@ export async function buildPreview(
     ? `<style>\n${cssFile.text}\n</style>`
     : ''
 
-  const importMap = JSON.stringify({ imports: getImportMap() }, null, 2)
+  const importMap = JSON.stringify({ imports: getImportMap(opts.instrument) }, null, 2)
+
+  // Select-mode script for visual click-to-edit (inert until the parent enables it).
+  const selectModeScript = opts.instrument ? buildSelectModeScript() : ''
 
   // In-memory storage polyfill — sandboxed iframes block localStorage/sessionStorage
   // when allow-same-origin is absent, so we provide noop fallbacks that keep
@@ -248,6 +267,7 @@ export async function buildPreview(
   </style>
   ${storagePolyfill}
   ${previewNavigationGuard}
+  ${selectModeScript}
 </head>
 <body>
   <div id="root"></div>
