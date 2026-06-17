@@ -73,3 +73,64 @@ describe('oauth token exchange', () => {
     await expect(exchangeOAuthCode('x', 'y')).rejects.toThrow()
   })
 })
+
+describe('connection persistence', () => {
+  const USER = '11111111-1111-4111-8111-111111111111'
+  beforeEach(() => {
+    vi.resetModules()
+    fetchMock.mockReset()
+    process.env.KEY_ENCRYPTION_SECRET = 'test-secret-test-secret-test-secret-test'
+    process.env.SUPABASE_OAUTH_CLIENT_ID = 'cid'
+    process.env.SUPABASE_OAUTH_CLIENT_SECRET = 'csecret'
+    process.env.SUPABASE_URL = 'https://openthorn.supabase.co'
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-key'
+  })
+
+  it('storeConnection upserts encrypted tokens via the service role', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({}))
+    const { storeConnection } = await import('../../../api/_supabase')
+    await storeConnection(USER, {
+      orgId: 'org_1',
+      tokens: { accessToken: 'AT', refreshToken: 'RT', expiresIn: 86400 },
+      scopes: 'all',
+    })
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(String(url)).toContain('/rest/v1/supabase_connections')
+    expect(init.headers.Authorization).toBe('Bearer service-key')
+    const row = JSON.parse(init.body as string)
+    expect(row.user_id).toBe(USER)
+    expect(row.org_id).toBe('org_1')
+    expect(row.access_token_enc).not.toContain('AT')
+    expect(row.access_token_enc.startsWith('senc:')).toBe(true)
+  })
+
+  it('getValidAccessToken returns the stored token when not expired', async () => {
+    const { encryptForUser } = await import('../../../api/_shared')
+    const future = new Date(Date.now() + 3600_000).toISOString()
+    fetchMock.mockResolvedValueOnce(jsonResponse([{
+      org_id: 'org_1',
+      access_token_enc: encryptForUser('AT', USER),
+      refresh_token_enc: encryptForUser('RT', USER),
+      expires_at: future,
+    }]))
+    const { getValidAccessToken } = await import('../../../api/_supabase')
+    await expect(getValidAccessToken(USER)).resolves.toBe('AT')
+  })
+
+  it('getValidAccessToken refreshes + re-persists when expired', async () => {
+    const { encryptForUser } = await import('../../../api/_shared')
+    const past = new Date(Date.now() - 1000).toISOString()
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse([{
+        org_id: 'org_1',
+        access_token_enc: encryptForUser('OLD', USER),
+        refresh_token_enc: encryptForUser('RT', USER),
+        expires_at: past,
+      }]))
+      .mockResolvedValueOnce(jsonResponse({ access_token: 'NEW', refresh_token: 'RT2', expires_in: 86400 }))
+      .mockResolvedValueOnce(jsonResponse({}))
+    const { getValidAccessToken } = await import('../../../api/_supabase')
+    await expect(getValidAccessToken(USER)).resolves.toBe('NEW')
+    expect(String(fetchMock.mock.calls[1][0])).toBe('https://api.supabase.com/v1/oauth/token')
+  })
+})

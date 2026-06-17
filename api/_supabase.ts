@@ -7,6 +7,7 @@
 // with the per-user AES-256-GCM scheme in _shared.ts, and only the public
 // anon key + project URL are stored in client-readable columns.
 import { createHmac, timingSafeEqual, hkdfSync } from 'node:crypto'
+import { encryptForUser, decryptForUser } from './_shared.js'
 
 const SB_API = 'https://api.supabase.com'
 const OAUTH_AUTHORIZE = `${SB_API}/v1/oauth/authorize`
@@ -109,4 +110,77 @@ export function buildAuthorizeUrl(redirectUri: string, state: string): string {
     state,
   })
   return `${OAUTH_AUTHORIZE}?${q.toString()}`
+}
+
+// ---------------------------------------------------------------------------
+// Connection persistence (OpenThorn's own Supabase, service role)
+// ---------------------------------------------------------------------------
+
+function ownEnv(): { url: string; serviceKey: string } {
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !serviceKey) throw new Error('OpenThorn Supabase service role not configured')
+  return { url, serviceKey }
+}
+
+function svcHeaders(key: string): Record<string, string> {
+  return { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }
+}
+
+export interface StoredConnection {
+  orgId: string
+  tokens: OAuthTokens
+  scopes?: string
+}
+
+export async function storeConnection(userId: string, conn: StoredConnection): Promise<void> {
+  const { url, serviceKey } = ownEnv()
+  const row = {
+    user_id: userId,
+    org_id: conn.orgId,
+    access_token_enc: encryptForUser(conn.tokens.accessToken, userId),
+    refresh_token_enc: encryptForUser(conn.tokens.refreshToken, userId),
+    expires_at: new Date(Date.now() + conn.tokens.expiresIn * 1000).toISOString(),
+    scopes: conn.scopes ?? null,
+    updated_at: new Date().toISOString(),
+  }
+  const res = await fetch(`${url}/rest/v1/supabase_connections`, {
+    method: 'POST',
+    headers: { ...svcHeaders(serviceKey), Prefer: 'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify(row),
+  })
+  if (!res.ok) throw new Error(`storeConnection failed ${res.status}`)
+}
+
+/** Returns a non-expired access token, refreshing + re-persisting if needed, or null if no connection. */
+export async function getValidAccessToken(userId: string): Promise<string | null> {
+  const { url, serviceKey } = ownEnv()
+  const res = await fetch(
+    `${url}/rest/v1/supabase_connections?user_id=eq.${userId}&select=org_id,access_token_enc,refresh_token_enc,expires_at&limit=1`,
+    { headers: { ...svcHeaders(serviceKey), Accept: 'application/json' } },
+  )
+  if (!res.ok) return null
+  const rows = (await res.json()) as Array<{
+    org_id: string
+    access_token_enc: string
+    refresh_token_enc: string
+    expires_at: string
+  }>
+  const row = rows?.[0]
+  if (!row) return null
+
+  const notExpired = new Date(row.expires_at).getTime() - REFRESH_SKEW_MS > Date.now()
+  if (notExpired) return decryptForUser(row.access_token_enc, userId)
+
+  const refreshed = await refreshOAuthToken(decryptForUser(row.refresh_token_enc, userId))
+  await storeConnection(userId, { orgId: row.org_id, tokens: refreshed })
+  return refreshed.accessToken
+}
+
+export async function deleteConnection(userId: string): Promise<void> {
+  const { url, serviceKey } = ownEnv()
+  await fetch(`${url}/rest/v1/supabase_connections?user_id=eq.${userId}`, {
+    method: 'DELETE',
+    headers: { ...svcHeaders(serviceKey), Prefer: 'return=minimal' },
+  })
 }
