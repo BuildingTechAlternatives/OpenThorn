@@ -342,6 +342,11 @@ export async function applySchema(userId: string, projectId: string, spec: Schem
     return { applied: false, alreadyApplied: true, statements: statements.length, checksum, types }
   }
 
+  // Self-heal auth config for backends connected before auto-confirm existed, so
+  // the first real schema apply also gets frictionless signup. Only on a genuine
+  // apply (not a no-op re-run), best-effort so it never blocks the migration.
+  try { await configureProjectAuth(accessToken, ref) } catch { /* non-fatal */ }
+
   // Apply the DDL as one batch, then record it in both ledgers.
   await runUserSql(accessToken, ref, statements.join('\n'))
   const name = `schema_${new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14)}`
@@ -363,6 +368,32 @@ export async function applySchema(userId: string, projectId: string, spec: Schem
   } catch { /* non-fatal */ }
 
   return { applied: true, alreadyApplied: false, statements: statements.length, checksum, types }
+}
+
+/**
+ * Configure the connected project's auth so generated apps "just work":
+ * auto-confirm email signups so signUp() returns a session immediately — no
+ * confirmation email, no redirect.
+ *
+ * Why: the OpenThorn preview runs in a sandboxed, opaque-origin `srcdoc` iframe
+ * with no real URL, so an email-confirmation round-trip has nowhere to return to.
+ * Worse, an unconfigured project defaults Supabase's Site URL to
+ * `http://localhost:3000`, so confirmation links land on a dead page.
+ * Auto-confirming sidesteps both: users sign up and are instantly logged in,
+ * in preview and in deploy alike.
+ *
+ * Idempotent and safe to call repeatedly (on connect and again on schema apply).
+ */
+export async function configureProjectAuth(accessToken: string, ref: string): Promise<void> {
+  const res = await fetch(`${SB_API}/v1/projects/${ref}/config/auth`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mailer_autoconfirm: true }),
+  })
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(`Could not configure project auth (${res.status}): ${text.slice(0, 200)}`)
+  }
 }
 
 export async function saveProjectBackend(

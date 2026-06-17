@@ -211,6 +211,23 @@ describe('schema apply', () => {
     return { org_id: 'o', access_token_enc: '', refresh_token_enc: '', expires_at: new Date(Date.now() + 3600_000).toISOString() }
   }
 
+  it('configureProjectAuth PATCHes config/auth with mailer_autoconfirm=true', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({}))
+    const { configureProjectAuth } = await import('../../../api/_supabase')
+    await configureProjectAuth('AT', 'ref1')
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(String(url)).toBe('https://api.supabase.com/v1/projects/ref1/config/auth')
+    expect(init.method).toBe('PATCH')
+    expect(init.headers.Authorization).toBe('Bearer AT')
+    expect(JSON.parse(init.body as string)).toEqual({ mailer_autoconfirm: true })
+  })
+
+  it('configureProjectAuth throws on a non-OK response', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: 'nope' }, false, 403))
+    const { configureProjectAuth } = await import('../../../api/_supabase')
+    await expect(configureProjectAuth('AT', 'ref1')).rejects.toThrow('Could not configure project auth')
+  })
+
   it('runUserSql posts to the Management API database/query endpoint', async () => {
     fetchMock.mockResolvedValueOnce(jsonResponse([{ ok: 1 }]))
     const { runUserSql } = await import('../../../api/_supabase')
@@ -230,6 +247,7 @@ describe('schema apply', () => {
       .mockResolvedValueOnce(jsonResponse([{ project_ref: 'ref1' }])) // projectRef
       .mockResolvedValueOnce(jsonResponse([]))               // ensure _openthorn_migrations
       .mockResolvedValueOnce(jsonResponse([]))               // applied checksums (none)
+      .mockResolvedValueOnce(jsonResponse({}))               // configureProjectAuth (PATCH config/auth)
       .mockResolvedValueOnce(jsonResponse([]))               // apply DDL batch
       .mockResolvedValueOnce(jsonResponse([]))               // insert into _openthorn_migrations
       .mockResolvedValueOnce(jsonResponse({}))               // mirror into project_migrations

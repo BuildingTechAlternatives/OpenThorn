@@ -279,6 +279,24 @@ export async function buildPreview(
 })();
 </script>`
 
+  // Neutralize native form submissions. The preview iframe is sandboxed WITHOUT
+  // allow-forms (and without allow-same-origin), so a native submit is either
+  // blocked outright or navigates the srcdoc away — either way the app breaks.
+  // Generated apps (especially auth pages: sign-up / sign-in) use <form>, and
+  // not every one calls preventDefault in its onSubmit. We prevent the default
+  // in the capture phase so the document never navigates, while the app's own
+  // React onSubmit handler still runs (preventDefault stops the navigation, not
+  // propagation). This mirrors the runtime smoke test's submit guard, so what
+  // passes verification also works in the live preview.
+  const formSubmitGuard = `<script>
+(function(){
+  if (typeof document === 'undefined') return;
+  document.addEventListener('submit', function(event){
+    if (!event.defaultPrevented) event.preventDefault();
+  }, true);
+})();
+</script>`
+
   const html = sanitizePreviewHtml(`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -293,6 +311,7 @@ export async function buildPreview(
   </style>
   ${storagePolyfill}
   ${previewNavigationGuard}
+  ${formSubmitGuard}
   ${selectModeScript}
 </head>
 <body>

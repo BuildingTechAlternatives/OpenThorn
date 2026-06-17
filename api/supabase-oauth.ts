@@ -2,7 +2,7 @@ import {
   hasOAuthClient, mintOAuthState, verifyOAuthState, buildAuthorizeUrl,
   exchangeOAuthCode, storeConnection, getValidAccessToken,
   listOrgProjects, getProjectConnectionInfo, saveProjectBackend, deleteConnection,
-  deleteProjectBackend, createSupabaseProject,
+  deleteProjectBackend, createSupabaseProject, configureProjectAuth,
 } from './_supabase.js'
 import { verifyUser, rateLimit } from './_shared.js'
 
@@ -101,6 +101,10 @@ export default async function handler(req: Req, res: Res): Promise<void> {
       if (!at) { res.status(400).json({ error: 'No Supabase connection' }); return }
       const info = await getProjectConnectionInfo(at, body.ref)
       await saveProjectBackend(user.id, body.projectId, body.ref, info)
+      // Auto-confirm email signups so generated auth apps work end-to-end (no
+      // dead localhost:3000 confirmation redirect). Best-effort: a connected
+      // backend is still useful even if this PATCH fails.
+      try { await configureProjectAuth(at, body.ref) } catch (e) { console.warn('configureProjectAuth failed:', e) }
       res.status(200).json({ ok: true, supabaseUrl: info.supabaseUrl }); return
     }
     if (body.action === 'disconnect-project' && body.projectId) {

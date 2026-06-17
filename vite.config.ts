@@ -32,6 +32,7 @@ import {
   deleteConnection,
   deleteProjectBackend,
   createSupabaseProject,
+  configureProjectAuth,
   applySchema,
 } from './api/_supabase'
 
@@ -215,6 +216,9 @@ export default defineConfig(({ mode, isSsrBuild }) => {
                 if (!at) return sendJson(res, 400, { error: 'No Supabase connection' })
                 const info = await getProjectConnectionInfo(at, body.ref)
                 await saveProjectBackend(user.id, body.projectId, body.ref, info)
+                // Auto-confirm email signups so generated auth apps work end-to-end
+                // (no dead localhost:3000 confirmation redirect). Best-effort.
+                try { await configureProjectAuth(at, body.ref) } catch (e) { console.warn('configureProjectAuth failed:', e) }
                 return sendJson(res, 200, { ok: true, supabaseUrl: info.supabaseUrl })
               }
               if (body.action === 'disconnect-project' && body.projectId) {

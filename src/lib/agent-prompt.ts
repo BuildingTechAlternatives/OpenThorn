@@ -541,7 +541,19 @@ This is a small, self-contained change. The tool set is: think, load_skill, list
 export const BACKEND_APPS_REMINDER = `<system-reminder>
 A Supabase backend is connected, so you can build a real app with saved data and user accounts.
 - Schema: declare tables with the set_schema tool (RLS is automatic; id, user_id, and created_at are added to every table — don't declare them). access per table: "owner" (row private to its creator), "public_read" (everyone reads, owner writes), "authenticated" (signed-in users read, owner writes). Call set_schema BEFORE writing code that queries a table; calling it again is safe and additive.
-- Data + auth in the app: import the ready-made client — import { db, auth } from '@openthorn/db'. Query with db.from('todos').select(), db.from('todos').insert({ title }), db.from('todos').update({ done: true }).eq('id', id), etc. Do NOT set user_id yourself — it defaults to the signed-in user. Auth: auth.signUp({ email, password }), auth.signInWithPassword({ email, password }), auth.signOut(), and auth.onAuthStateChange((_e, session) => …). Build real sign-up / sign-in / sign-out UI and show a signed-out state when there is no session. NEVER hardcode Supabase keys or call createClient yourself — always use @openthorn/db.
+- Data + auth in the app: import the ready-made client — import { db, auth } from '@openthorn/db'. Query with db.from('todos').select(), db.from('todos').insert({ title }), db.from('todos').update({ done: true }).eq('id', id), etc. Do NOT set user_id yourself — it defaults to the signed-in user. Auth: auth.signUp({ email, password }), auth.signInWithPassword({ email, password }), auth.signOut(), and auth.onAuthStateChange((_e, session) => …). Email confirmation is disabled for this backend, so signUp signs the user in immediately and returns a session — route straight into the app on success; do NOT build a "check your email to confirm" screen. Build real sign-up / sign-in / sign-out UI and show a signed-out state when there is no session. NEVER hardcode Supabase keys or call createClient yourself — always use @openthorn/db.
+</system-reminder>`
+
+/**
+ * Injected per-run when the project has NO connected Supabase backend. Tells the
+ * model not to silently fake a database, and to point the user at the "Backend"
+ * button to activate one.
+ */
+export const NO_BACKEND_REMINDER = `<system-reminder>
+This project has NO Supabase backend connected, so there is no real database, saved data, or user accounts available. The set_schema tool and @openthorn/db are NOT available here.
+- If the user asks for anything that needs a real backend — a database, saved/persisted data that survives reload, user accounts, sign-up / login, multi-user or shared data — DON'T silently fake it. First tell them plainly that no database is connected, and that they can activate a real one by clicking the "Backend" button (top of the builder) to connect Supabase.
+- After saying that, offer to build a front-end-only demo version in the meantime using in-browser state (React state / localStorage). Only build the localStorage demo if they want it; make clear that this data is per-browser and not a real shared database.
+- Never import @openthorn/db, call set_schema, or hardcode any Supabase keys — none of that works without a connected backend.
 </system-reminder>`
 
 // ─── Uniform tool-result cap (#4) ──────────────────────────────────────────

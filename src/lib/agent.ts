@@ -14,6 +14,7 @@ import {
   LEAN_TOOLSET_REMINDER,
   SMALL_REFINE_TOOLSET_REMINDER,
   BACKEND_APPS_REMINDER,
+  NO_BACKEND_REMINDER,
   capToolResultContent,
   type ToolDefinition,
 } from './agent-prompt'
@@ -143,6 +144,14 @@ export interface AgentRunInput {
   projectId?: string
   /** True when this project has a connected Supabase backend. */
   hasBackend?: boolean
+  /**
+   * Public Supabase config (url + anon key) for the connected backend. Passed
+   * into the agent's own compile/done verification builds so generated code that
+   * imports `@openthorn/db` resolves and runs exactly as it does in the real
+   * preview — without it, those builds omit `@openthorn/db` and every
+   * backend-using app falsely fails the runtime smoke test.
+   */
+  backendConfig?: { url: string; anonKey: string }
 }
 
 export interface AgentRunResult {
@@ -1191,8 +1200,11 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   }
 
   // When a backend is connected, tell the model it can declare schema with set_schema.
+  // When it isn't, tell it not to fake a database and to point the user at activation.
   if (hasBackend) {
     messages.push({ role: 'user', content: BACKEND_APPS_REMINDER })
+  } else {
+    messages.push({ role: 'user', content: NO_BACKEND_REMINDER })
   }
 
   // SPEC PHASE: for new projects, inject spec guidance
@@ -1294,7 +1306,10 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     doneRejections: 0,
     pendingErrorLessons: [],
     recoveredLessons: [],
-    backend: input.hasBackend && input.projectId ? { projectId: input.projectId } : undefined,
+    backend:
+      input.hasBackend && input.projectId
+        ? { projectId: input.projectId, config: input.backendConfig }
+        : undefined,
   }
 
   // Seed the read cache from prior-run writes so the agent doesn't re-read
@@ -1849,8 +1864,13 @@ interface RunContext {
   pendingErrorLessons: string[]
   /** Lessons from errors that a later passing compile confirmed recovered (#1). */
   recoveredLessons: string[]
-  /** Backend connection context for set_schema, when a backend is connected. */
-  backend?: { projectId: string }
+  /**
+   * Backend connection context for set_schema, when a backend is connected.
+   * `config` carries the public Supabase url + anon key so verification builds
+   * (compile/done) inject `@openthorn/db` and `window.__OPENTHORN_SUPABASE__`
+   * the same way the real preview does.
+   */
+  backend?: { projectId: string; config?: { url: string; anonKey: string } }
 }
 
 async function executeToolsParallel(
@@ -2575,6 +2595,8 @@ async function executeTool(
       try {
         const preview = await buildPreview(
           currentFiles.map((f) => ({ path: f.path, content: f.code })),
+          undefined,
+          runCtx?.backend?.config ? { backend: runCtx.backend.config } : undefined,
         )
         if (preview.errors.length === 0) {
           // esbuild only transpiles — it never runs the code. Actually execute
@@ -2851,6 +2873,8 @@ async function runDoneVerificationGate(
     if (!html) {
       const preview = await buildPreview(
         currentFiles.map((f) => ({ path: f.path, content: f.code })),
+        undefined,
+        runCtx.backend?.config ? { backend: runCtx.backend.config } : undefined,
       )
       if (preview.errors.length > 0) return null // can't verify — don't block done
       html = preview.html

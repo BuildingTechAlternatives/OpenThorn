@@ -1452,6 +1452,7 @@ export default function ProjectBuilderPage() {
         history: agentHistoryRef.current.length > 0 ? agentHistoryRef.current : undefined,
         projectId,
         hasBackend: backendConnected,
+        backendConfig: backendConfig ?? undefined,
         onProgress: (event) => {
           // Streaming text — append to last text event or create new one
           if (event.type === 'text' && event.text) {
@@ -2528,7 +2529,11 @@ export default function ProjectBuilderPage() {
                         ref={previewFrameRef}
                         className={styles.previewFrame}
                         srcDoc={previewStatus === 'ready' ? previewHtml : lastReadyHtml}
-                        sandbox="allow-scripts"
+                        // allow-forms lets generated <form>-based UIs (sign-up / sign-in)
+                        // submit instead of being hard-blocked by the browser. We deliberately
+                        // do NOT add allow-same-origin (that + allow-scripts = sandbox escape),
+                        // so the frame stays an opaque origin with no access to the parent.
+                        sandbox="allow-scripts allow-forms"
                         title="Live preview"
                         onLoad={() => {
                           // A rebuild swaps srcDoc and resets focus to the document body.
