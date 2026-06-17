@@ -53,3 +53,60 @@ export function verifyOAuthState(state: string): OAuthState | null {
     return null
   }
 }
+
+// ---------------------------------------------------------------------------
+// OAuth code exchange + token refresh
+// ---------------------------------------------------------------------------
+
+export interface OAuthTokens {
+  accessToken: string
+  refreshToken: string
+  expiresIn: number
+}
+
+function oauthClient(): { id: string; secret: string } {
+  const id = process.env.SUPABASE_OAUTH_CLIENT_ID
+  const secret = process.env.SUPABASE_OAUTH_CLIENT_SECRET
+  if (!id || !secret) throw new Error('Supabase OAuth client is not configured')
+  return { id, secret }
+}
+
+export function hasOAuthClient(): boolean {
+  return Boolean(process.env.SUPABASE_OAUTH_CLIENT_ID && process.env.SUPABASE_OAUTH_CLIENT_SECRET)
+}
+
+async function postToken(params: Record<string, string>): Promise<OAuthTokens> {
+  const { id, secret } = oauthClient()
+  const res = await fetch(OAUTH_TOKEN, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: 'Basic ' + Buffer.from(`${id}:${secret}`).toString('base64'),
+    },
+    body: new URLSearchParams(params).toString(),
+  })
+  const text = await res.text()
+  if (!res.ok) throw new Error(`Supabase OAuth token error ${res.status}: ${text.slice(0, 200)}`)
+  const data = JSON.parse(text) as { access_token: string; refresh_token: string; expires_in: number }
+  return { accessToken: data.access_token, refreshToken: data.refresh_token, expiresIn: data.expires_in }
+}
+
+export function exchangeOAuthCode(code: string, redirectUri: string): Promise<OAuthTokens> {
+  return postToken({ grant_type: 'authorization_code', code, redirect_uri: redirectUri })
+}
+
+export function refreshOAuthToken(refreshToken: string): Promise<OAuthTokens> {
+  return postToken({ grant_type: 'refresh_token', refresh_token: refreshToken })
+}
+
+/** Build the authorize redirect URL the browser is sent to. */
+export function buildAuthorizeUrl(redirectUri: string, state: string): string {
+  const { id } = oauthClient()
+  const q = new URLSearchParams({
+    client_id: id,
+    redirect_uri: redirectUri,
+    response_type: 'code',
+    state,
+  })
+  return `${OAUTH_AUTHORIZE}?${q.toString()}`
+}
