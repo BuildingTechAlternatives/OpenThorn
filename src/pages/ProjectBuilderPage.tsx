@@ -438,6 +438,9 @@ export default function ProjectBuilderPage() {
     () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('backend'),
   )
   const [backendConnected, setBackendConnected] = useState(false)
+  // Public Supabase config (url + anon key) for the connected backend, injected
+  // into preview + deploy so generated apps can use @openthorn/db.
+  const [backendConfig, setBackendConfig] = useState<{ url: string; anonKey: string } | null>(null)
   const [cfPagesProjectName, setCfPagesProjectName] = useState<string | null>(null)
   const titleInputRef = useRef<HTMLInputElement>(null)
   const titleShouldSaveRef = useRef(true)
@@ -738,18 +741,21 @@ export default function ProjectBuilderPage() {
   }, [projectId, user?.id])
 
   // Reflect whether this project has a connected Supabase backend (drives the
-  // toolbar "Backend" button colour). The modal also pushes updates via onStatusChange.
-  useEffect(() => {
+  // toolbar "Backend" button colour) and capture its public config for preview +
+  // deploy injection. The modal also flips backendConnected via onStatusChange;
+  // refreshBackend re-reads the full config after a connect/disconnect.
+  const refreshBackend = useCallback(async () => {
     if (!projectId) return
-    let cancelled = false
-    supabase
+    const { data } = await supabase
       .from('project_backends')
-      .select('project_ref')
+      .select('supabase_url, supabase_anon_key')
       .eq('project_id', projectId)
       .maybeSingle()
-      .then(({ data }) => { if (!cancelled) setBackendConnected(Boolean(data)) })
-    return () => { cancelled = true }
+    setBackendConnected(Boolean(data))
+    setBackendConfig(data ? { url: data.supabase_url, anonKey: data.supabase_anon_key } : null)
   }, [projectId])
+
+  useEffect(() => { void refreshBackend() }, [refreshBackend])
 
   const userName = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? 'Unknown'
 
@@ -828,7 +834,7 @@ export default function ProjectBuilderPage() {
         const result = await buildPreview(
           projectFiles.map((f) => ({ path: f.path, content: f.code })),
           undefined,
-          { instrument: true },
+          { instrument: true, backend: backendConfig ?? undefined },
         )
         if (cancelled) return
         if (result.errors.length > 0) {
@@ -962,6 +968,8 @@ export default function ProjectBuilderPage() {
       try {
         const result = await buildPreview(
           projectFiles.map((f) => ({ path: f.path, content: f.code })),
+          undefined,
+          backendConfig ? { backend: backendConfig } : undefined,
         )
 
         if (result.errors.length > 0) {
@@ -1059,6 +1067,8 @@ export default function ProjectBuilderPage() {
       // Use esbuild-based bundler — reliable, self-contained HTML
       const result = await buildPreview(
         projectFiles.map((f) => ({ path: f.path, content: f.code })),
+        undefined,
+        backendConfig ? { backend: backendConfig } : undefined,
       )
 
       if (result.errors.length > 0) {
@@ -2141,7 +2151,7 @@ export default function ProjectBuilderPage() {
               </button>
             </div>
             <div className={styles.deployBody}>
-              {projectId && <ConnectBackend projectId={projectId} onStatusChange={setBackendConnected} />}
+              {projectId && <ConnectBackend projectId={projectId} onStatusChange={() => { void refreshBackend() }} />}
             </div>
           </section>
         </div>
