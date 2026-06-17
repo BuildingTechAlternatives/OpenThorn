@@ -19,8 +19,12 @@ create policy "own connection meta is readable"
   on public.supabase_connections for select
   using (auth.uid() = user_id);
 
--- Client-safe projection — excludes *_enc columns.
-create or replace view public.supabase_connection_status as
+-- Client-safe projection — excludes *_enc columns. security_invoker makes the
+-- view run with the querying user's permissions so the base-table RLS policy
+-- (auth.uid() = user_id) applies; otherwise the view would expose every user's
+-- connection metadata.
+create or replace view public.supabase_connection_status
+  with (security_invoker = true) as
   select user_id, org_id, scopes, expires_at, updated_at
   from public.supabase_connections;
 
