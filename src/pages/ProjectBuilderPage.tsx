@@ -854,7 +854,7 @@ export default function ProjectBuilderPage() {
     build()
 
     return () => { cancelled = true }
-  }, [projectFiles, agentRunning])
+  }, [projectFiles, agentRunning, backendConfig])
 
   // ── Visual click-to-edit ─────────────────────────────────────────────────
   // Tell the preview iframe to enter/leave select mode. Hover-tracking is
@@ -1014,7 +1014,7 @@ export default function ProjectBuilderPage() {
     }
 
     savePreview()
-  }, [previewStatus, previewHtml, user, projectId, isViewOnly, projectFiles, title])
+  }, [previewStatus, previewHtml, user, projectId, isViewOnly, projectFiles, title, backendConfig])
 
   const handlePublishToCommunity = useCallback(async () => {
     if (!user || publishing) return
@@ -1096,7 +1096,7 @@ export default function ProjectBuilderPage() {
       setDeployError(err instanceof Error ? err.message : 'Deploy failed')
       setDeployState('error')
     }
-  }, [cfPagesProjectName, projectFiles, projectId, user])
+  }, [cfPagesProjectName, projectFiles, projectId, user, backendConfig])
 
 
   const handleDownloadZip = useCallback(async () => {
