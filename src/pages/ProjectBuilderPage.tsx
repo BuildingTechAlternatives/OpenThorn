@@ -1425,6 +1425,8 @@ export default function ProjectBuilderPage() {
         mode: options.mode ?? 'refine',
         signal: controller.signal,
         history: agentHistoryRef.current.length > 0 ? agentHistoryRef.current : undefined,
+        projectId,
+        hasBackend: backendConnected,
         onProgress: (event) => {
           // Streaming text — append to last text event or create new one
           if (event.type === 'text' && event.text) {
