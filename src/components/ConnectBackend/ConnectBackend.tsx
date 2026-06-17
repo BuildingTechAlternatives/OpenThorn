@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../../lib/AuthContext'
 import { supabase } from '../../lib/supabase'
 import {
-  authorizeUrl, listProjects, pickProject, revokeBackend, type RemoteProject,
+  authorizeUrl, listProjects, pickProject, revokeBackend, createProject, type RemoteProject,
 } from '../../lib/backend-connection'
 import styles from './ConnectBackend.module.css'
 
@@ -25,6 +25,12 @@ export function ConnectBackend({ projectId }: Props) {
   const [projects, setProjects] = useState<RemoteProject[] | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // New-project creation UI state.
+  const [showNew, setShowNew] = useState(false)
+  const [newName, setNewName] = useState('')
+  const [creating, setCreating] = useState(false)
+  // Refs of projects created in this session — still provisioning, not yet connectable.
+  const [provisioning, setProvisioning] = useState<Set<string>>(new Set())
 
   const refreshStatus = useCallback(async () => {
     const { data } = await supabase
@@ -63,6 +69,23 @@ export function ConnectBackend({ projectId }: Props) {
       setBusy(false)
     }
   }, [token, projectId, refreshStatus])
+
+  const create = useCallback(async () => {
+    const name = newName.trim()
+    if (!name) return
+    setCreating(true); setError(null)
+    try {
+      const { project } = await createProject(token, name)
+      setProjects((prev) => [project, ...(prev ?? [])])
+      setProvisioning((prev) => new Set(prev).add(project.ref))
+      setShowNew(false)
+      setNewName('')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to create project')
+    } finally {
+      setCreating(false)
+    }
+  }, [token, newName])
 
   const disconnect = useCallback(async () => {
     setBusy(true); setError(null)
@@ -103,16 +126,58 @@ export function ConnectBackend({ projectId }: Props) {
         <a className={styles.primary} href={authorizeUrl(token, projectId)}>Authorize Supabase</a>
       )}
       {projects && (
-        <ul className={styles.list}>
-          {projects.length === 0 && <li className={styles.desc}>No projects found in your Supabase org.</li>}
-          {projects.map((p) => (
-            <li key={p.ref}>
-              <button className={styles.projectBtn} type="button" disabled={busy} onClick={() => choose(p.ref)}>
-                {p.name} <span className={styles.ref}>{p.region}</span>
+        <>
+          {showNew ? (
+            <div className={styles.newRow}>
+              <input
+                className={styles.newInput}
+                type="text"
+                value={newName}
+                placeholder="New project name"
+                autoFocus
+                disabled={creating}
+                onChange={(e) => setNewName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') void create() }}
+              />
+              <button className={styles.primary} type="button" disabled={creating || !newName.trim()} onClick={create}>
+                {creating ? 'Creating…' : 'Create'}
               </button>
-            </li>
-          ))}
-        </ul>
+              <button className={styles.secondary} type="button" disabled={creating} onClick={() => setShowNew(false)}>
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button className={styles.addBtn} type="button" onClick={() => { setShowNew(true); setError(null) }}>
+              + Add new project
+            </button>
+          )}
+          <ul className={styles.list}>
+            {projects.length === 0 && !showNew && (
+              <li className={styles.desc}>No projects found in your Supabase org.</li>
+            )}
+            {projects.map((p) => {
+              const isProvisioning = provisioning.has(p.ref)
+              return (
+                <li key={p.ref}>
+                  <button
+                    className={styles.projectBtn}
+                    type="button"
+                    disabled={busy || isProvisioning}
+                    onClick={() => choose(p.ref)}
+                  >
+                    {p.name}{' '}
+                    <span className={styles.ref}>{isProvisioning ? 'provisioning…' : p.region}</span>
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+          {provisioning.size > 0 && (
+            <p className={styles.desc}>
+              New projects take a minute or two to provision. Once ready, reopen this panel to connect them.
+            </p>
+          )}
+        </>
       )}
     </div>
   )

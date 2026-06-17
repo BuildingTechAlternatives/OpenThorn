@@ -43,3 +43,8 @@ export function pickProject(
 export function revokeBackend(token: string): Promise<{ ok: boolean }> {
   return post(token, { action: 'revoke' })
 }
+
+/** Create a brand-new Supabase project in the user's org. Provisions async. */
+export function createProject(token: string, name: string): Promise<{ project: RemoteProject }> {
+  return post(token, { action: 'create-project', name })
+}

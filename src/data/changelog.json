@@ -6,6 +6,27 @@
       "entries": [
         {
           "category": "Improved",
+          "message": "feat(agent): make skill-loading proactive and always available",
+          "sha": "a9578888c4bee69740e6a0865786dbf8801a8ccc",
+          "shortSha": "a957888",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/a9578888c4bee69740e6a0865786dbf8801a8ccc"
+        },
+        {
+          "category": "Fix",
+          "message": "fix(agent): treat visual click-to-edit as a small refine",
+          "sha": "3035dd9fc44cfe1b0ed651b4b1ad1be266a9468e",
+          "shortSha": "3035dd9",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/3035dd9fc44cfe1b0ed651b4b1ad1be266a9468e"
+        },
+        {
+          "category": "Improved",
+          "message": "perf(agent): leaner small-refine toolset, cached done-gate bundle, lower thinking budgets, stream usage",
+          "sha": "b1baea7f9e80e89fe404ac948814ba3b67413780",
+          "shortSha": "b1baea7",
+          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/b1baea7f9e80e89fe404ac948814ba3b67413780"
+        },
+        {
+          "category": "Improved",
           "message": "perf(agent): give small refines a lean, checklist-free prompt",
           "sha": "fc02ac36aea31792e9754a8d5e604cc8ca2e9766",
           "shortSha": "fc02ac3",
@@ -1801,20 +1822,6 @@
           "sha": "02cdc0bdfff3684c0cfcbbb9a28985537d283ff3",
           "shortSha": "02cdc0b",
           "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/02cdc0bdfff3684c0cfcbbb9a28985537d283ff3"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: allow AI to name project even when a prompt-derived title exists",
-          "sha": "2ede5efb67d855a55ade64d98026d92c27ffed37",
-          "shortSha": "2ede5ef",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/2ede5efb67d855a55ade64d98026d92c27ffed37"
-        },
-        {
-          "category": "Fix",
-          "message": "fix: prevent stuck spinner and show reconnect status on page reload",
-          "sha": "30fd49b8e36d223f03468299cc41d12e89ae05ac",
-          "shortSha": "30fd49b",
-          "url": "https://github.com/BuildingTechAlternatives/OpenThorn/commit/30fd49b8e36d223f03468299cc41d12e89ae05ac"
         }
       ]
     }

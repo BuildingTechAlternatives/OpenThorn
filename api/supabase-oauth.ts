@@ -2,6 +2,7 @@ import {
   hasOAuthClient, mintOAuthState, verifyOAuthState, buildAuthorizeUrl,
   exchangeOAuthCode, storeConnection, getValidAccessToken,
   listOrgProjects, getProjectConnectionInfo, saveProjectBackend, deleteConnection,
+  createSupabaseProject,
 } from './_supabase.js'
 import { verifyUser, rateLimit } from './_shared.js'
 
@@ -77,13 +78,23 @@ export default async function handler(req: Req, res: Res): Promise<void> {
   if (!user) { res.status(401).json({ error: 'Unauthorized' }); return }
   if (!(await rateLimit(`sboauth:${user.id}`, 30, 60_000))) { res.status(429).json({ error: 'Too many requests' }); return }
   const body = (typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {}) as
-    { action?: string; projectId?: string; ref?: string }
+    { action?: string; projectId?: string; ref?: string; name?: string }
 
   try {
     if (body.action === 'list-projects') {
       const at = await getValidAccessToken(user.id)
       if (!at) { res.status(400).json({ error: 'No Supabase connection' }); return }
       res.status(200).json({ projects: await listOrgProjects(at) }); return
+    }
+    if (body.action === 'create-project' && body.name) {
+      const at = await getValidAccessToken(user.id)
+      if (!at) { res.status(400).json({ error: 'No Supabase connection' }); return }
+      const existing = await listOrgProjects(at)
+      const orgId = existing[0]?.orgId
+      const region = existing[0]?.region || 'us-east-1'
+      if (!orgId) { res.status(400).json({ error: 'No Supabase organization found to create the project in.' }); return }
+      const project = await createSupabaseProject(at, { name: body.name, orgId, region })
+      res.status(200).json({ project }); return
     }
     if (body.action === 'pick-project' && body.projectId && body.ref) {
       const at = await getValidAccessToken(user.id)

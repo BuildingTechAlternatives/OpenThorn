@@ -30,6 +30,7 @@ import {
   getProjectConnectionInfo,
   saveProjectBackend,
   deleteConnection,
+  createSupabaseProject,
 } from './api/_supabase'
 
 async function readJsonBody<T>(req: IncomingMessage): Promise<T | Record<string, never>> {
@@ -190,12 +191,22 @@ export default defineConfig(({ mode, isSsrBuild }) => {
             const user = await verifyUser(req.headers.authorization)
             if (!user) return sendJson(res, 401, { error: 'Unauthorized' })
             if (!(await rateLimit(`sboauth:${user.id}`, 30, 60_000))) return sendJson(res, 429, { error: 'Too many requests' })
-            const body = await readJsonBody<{ action?: string; projectId?: string; ref?: string }>(req)
+            const body = await readJsonBody<{ action?: string; projectId?: string; ref?: string; name?: string }>(req)
             try {
               if (body.action === 'list-projects') {
                 const at = await getValidAccessToken(user.id)
                 if (!at) return sendJson(res, 400, { error: 'No Supabase connection' })
                 return sendJson(res, 200, { projects: await listOrgProjects(at) })
+              }
+              if (body.action === 'create-project' && body.name) {
+                const at = await getValidAccessToken(user.id)
+                if (!at) return sendJson(res, 400, { error: 'No Supabase connection' })
+                const existing = await listOrgProjects(at)
+                const orgId = existing[0]?.orgId
+                const region = existing[0]?.region || 'us-east-1'
+                if (!orgId) return sendJson(res, 400, { error: 'No Supabase organization found to create the project in.' })
+                const project = await createSupabaseProject(at, { name: body.name, orgId, region })
+                return sendJson(res, 200, { project })
               }
               if (body.action === 'pick-project' && body.projectId && body.ref) {
                 const at = await getValidAccessToken(user.id)

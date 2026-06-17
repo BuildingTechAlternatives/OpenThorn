@@ -155,7 +155,7 @@ describe('management api', () => {
     expect(String(fetchMock.mock.calls[0][0])).toBe('https://api.supabase.com/v1/projects')
   })
 
-  it('getProjectConnectionInfo returns url + anon key', async () => {
+  it('getProjectConnectionInfo returns url + legacy anon key', async () => {
     fetchMock.mockResolvedValueOnce(jsonResponse([
       { name: 'anon', api_key: 'anon-xyz' },
       { name: 'service_role', api_key: 'secret-should-be-ignored' },
@@ -163,6 +163,23 @@ describe('management api', () => {
     const { getProjectConnectionInfo } = await import('../../../api/_supabase')
     const info = await getProjectConnectionInfo('AT', 'ref1')
     expect(info).toEqual({ supabaseUrl: 'https://ref1.supabase.co', anonKey: 'anon-xyz' })
+    expect(String(fetchMock.mock.calls[0][0])).toContain('/api-keys?reveal=true')
+  })
+
+  it('getProjectConnectionInfo prefers the new publishable key', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse([
+      { name: 'sb_secret', type: 'secret', api_key: 'sb_secret_xxx' },
+      { name: 'default', type: 'publishable', api_key: 'sb_publishable_abc' },
+    ]))
+    const { getProjectConnectionInfo } = await import('../../../api/_supabase')
+    const info = await getProjectConnectionInfo('AT', 'ref1')
+    expect(info.anonKey).toBe('sb_publishable_abc')
+  })
+
+  it('getProjectConnectionInfo throws a clear error when no client key exists', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse([{ name: 'sb_secret', type: 'secret', api_key: 'x' }]))
+    const { getProjectConnectionInfo } = await import('../../../api/_supabase')
+    await expect(getProjectConnectionInfo('AT', 'ref1')).rejects.toThrow(/publishable\/anon/)
   })
 
   it('saveProjectBackend upserts the public connection row', async () => {

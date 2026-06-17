@@ -6,7 +6,7 @@
 // connection. Secrets never reach the client: OAuth tokens are encrypted at rest
 // with the per-user AES-256-GCM scheme in _shared.ts, and only the public
 // anon key + project URL are stored in client-readable columns.
-import { createHmac, timingSafeEqual, hkdfSync } from 'node:crypto'
+import { createHmac, timingSafeEqual, hkdfSync, randomBytes } from 'node:crypto'
 import { encryptForUser, decryptForUser } from './_shared.js'
 
 const SB_API = 'https://api.supabase.com'
@@ -217,10 +217,51 @@ export async function getProjectConnectionInfo(
   accessToken: string,
   ref: string,
 ): Promise<{ supabaseUrl: string; anonKey: string }> {
-  const keys = await mgmt<Array<{ name: string; api_key: string }>>(accessToken, `/projects/${ref}/api-keys`)
-  const anon = keys.find((k) => k.name === 'anon')
-  if (!anon) throw new Error('No anon key returned for project')
-  return { supabaseUrl: `https://${ref}.supabase.co`, anonKey: anon.api_key }
+  // reveal=true so the key value is returned (not masked). Supabase has two key
+  // systems: the legacy JWT `anon` key and the newer `publishable` key
+  // (sb_publishable_…). supabase-js uses either in the client "anon key" slot, so
+  // accept whichever the project exposes — newer projects have no `anon` key.
+  const keys = await mgmt<Array<{ name?: string; type?: string; api_key?: string }>>(
+    accessToken,
+    `/projects/${ref}/api-keys?reveal=true`,
+  )
+  const clientKey =
+    keys.find((k) => k.type === 'publishable') ??
+    keys.find((k) => k.name === 'anon') ??
+    keys.find((k) => k.name === 'publishable')
+  if (!clientKey?.api_key) {
+    throw new Error(
+      'Could not find a publishable/anon API key for this project. If the project is paused, resume it and try again.',
+    )
+  }
+  return { supabaseUrl: `https://${ref}.supabase.co`, anonKey: clientKey.api_key }
+}
+
+/**
+ * Create a new Supabase project in the user's organization via the Management
+ * API. Provisioning is async — the returned project will not be healthy (and its
+ * API keys won't exist) for ~1-2 minutes. A strong DB password is generated
+ * server-side; the user can reset it from the Supabase dashboard if needed.
+ */
+export async function createSupabaseProject(
+  accessToken: string,
+  opts: { name: string; orgId: string; region: string },
+): Promise<SupabaseProject> {
+  const dbPass = randomBytes(24).toString('base64url')
+  const res = await fetch(`${SB_API}/v1/projects`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: opts.name,
+      organization_id: opts.orgId,
+      db_pass: dbPass,
+      region: opts.region,
+    }),
+  })
+  const text = await res.text()
+  if (!res.ok) throw new Error(`Could not create project (${res.status}): ${text.slice(0, 200)}`)
+  const p = JSON.parse(text) as { id: string; name: string; organization_id: string; region: string }
+  return { ref: p.id, name: p.name, orgId: p.organization_id, region: p.region }
 }
 
 export async function saveProjectBackend(

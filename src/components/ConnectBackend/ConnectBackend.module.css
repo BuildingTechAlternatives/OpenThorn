@@ -78,3 +78,32 @@
   color: #c0392b;
   font-size: 0.85rem;
 }
+
+.addBtn {
+  align-self: flex-start;
+  background: transparent;
+  border: 1px dashed var(--color-accent);
+  color: var(--color-accent);
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.newRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.newInput {
+  flex: 1 1 auto;
+  min-width: 12rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--color-text) 25%, transparent);
+  border-radius: 8px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
