@@ -42,6 +42,12 @@ export function pickProject(
   return post(token, { action: 'pick-project', projectId, ref })
 }
 
+/** Remove this project's backend link (keeps the user's Supabase authorization). */
+export function disconnectProject(token: string, projectId: string): Promise<{ ok: boolean }> {
+  return post(token, { action: 'disconnect-project', projectId })
+}
+
+/** Fully deauthorize the user's Supabase connection (all projects). */
 export function revokeBackend(token: string): Promise<{ ok: boolean }> {
   return post(token, { action: 'revoke' })
 }

@@ -272,6 +272,15 @@ export async function createSupabaseProject(
   return { ref: p.id, name: p.name, orgId: p.organization_id, region: p.region, status: p.status ?? 'COMING_UP' }
 }
 
+/** Remove a single project's backend link (keeps the user's OAuth connection). */
+export async function deleteProjectBackend(userId: string, projectId: string): Promise<void> {
+  const { url, serviceKey } = ownEnv()
+  await fetch(
+    `${url}/rest/v1/project_backends?project_id=eq.${encodeURIComponent(projectId)}&user_id=eq.${encodeURIComponent(userId)}`,
+    { method: 'DELETE', headers: { ...svcHeaders(serviceKey), Prefer: 'return=minimal' } },
+  )
+}
+
 export async function saveProjectBackend(
   userId: string,
   projectId: string,

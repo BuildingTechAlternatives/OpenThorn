@@ -437,6 +437,7 @@ export default function ProjectBuilderPage() {
   const [backendModalOpen, setBackendModalOpen] = useState(
     () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('backend'),
   )
+  const [backendConnected, setBackendConnected] = useState(false)
   const [cfPagesProjectName, setCfPagesProjectName] = useState<string | null>(null)
   const titleInputRef = useRef<HTMLInputElement>(null)
   const titleShouldSaveRef = useRef(true)
@@ -735,6 +736,20 @@ export default function ProjectBuilderPage() {
 
     return () => { cancelled = true }
   }, [projectId, user?.id])
+
+  // Reflect whether this project has a connected Supabase backend (drives the
+  // toolbar "Backend" button colour). The modal also pushes updates via onStatusChange.
+  useEffect(() => {
+    if (!projectId) return
+    let cancelled = false
+    supabase
+      .from('project_backends')
+      .select('project_ref')
+      .eq('project_id', projectId)
+      .maybeSingle()
+      .then(({ data }) => { if (!cancelled) setBackendConnected(Boolean(data)) })
+    return () => { cancelled = true }
+  }, [projectId])
 
   const userName = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? 'Unknown'
 
@@ -1871,14 +1886,15 @@ export default function ProjectBuilderPage() {
             className={styles.publishBtn}
             type="button"
             onClick={() => setBackendModalOpen(true)}
-            title="Connect a Supabase backend (database + accounts)"
+            title={backendConnected ? 'Backend connected' : 'Connect a Supabase backend (database + accounts)'}
+            style={backendConnected ? { background: '#16a34a', borderColor: '#16a34a', color: '#fff' } : undefined}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <ellipse cx="12" cy="5" rx="9" ry="3"/>
               <path d="M3 5v14a9 3 0 0 0 18 0V5"/>
               <path d="M3 12a9 3 0 0 0 18 0"/>
             </svg>
-            Backend
+            {backendConnected ? 'Backend ✓' : 'Backend'}
           </button>
           <button
             className={`${styles.deployBtn} ${deployState === 'deployed' ? styles.deployBtnDeployed : ''}`}
@@ -2123,7 +2139,7 @@ export default function ProjectBuilderPage() {
               </button>
             </div>
             <div className={styles.deployBody}>
-              {projectId && <ConnectBackend projectId={projectId} />}
+              {projectId && <ConnectBackend projectId={projectId} onStatusChange={setBackendConnected} />}
             </div>
           </section>
         </div>

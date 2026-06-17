@@ -2,7 +2,7 @@ import {
   hasOAuthClient, mintOAuthState, verifyOAuthState, buildAuthorizeUrl,
   exchangeOAuthCode, storeConnection, getValidAccessToken,
   listOrgProjects, getProjectConnectionInfo, saveProjectBackend, deleteConnection,
-  createSupabaseProject,
+  deleteProjectBackend, createSupabaseProject,
 } from './_supabase.js'
 import { verifyUser, rateLimit } from './_shared.js'
 
@@ -102,6 +102,10 @@ export default async function handler(req: Req, res: Res): Promise<void> {
       const info = await getProjectConnectionInfo(at, body.ref)
       await saveProjectBackend(user.id, body.projectId, body.ref, info)
       res.status(200).json({ ok: true, supabaseUrl: info.supabaseUrl }); return
+    }
+    if (body.action === 'disconnect-project' && body.projectId) {
+      await deleteProjectBackend(user.id, body.projectId)
+      res.status(200).json({ ok: true }); return
     }
     if (body.action === 'revoke') {
       await deleteConnection(user.id)

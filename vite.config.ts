@@ -30,6 +30,7 @@ import {
   getProjectConnectionInfo,
   saveProjectBackend,
   deleteConnection,
+  deleteProjectBackend,
   createSupabaseProject,
 } from './api/_supabase'
 
@@ -214,6 +215,10 @@ export default defineConfig(({ mode, isSsrBuild }) => {
                 const info = await getProjectConnectionInfo(at, body.ref)
                 await saveProjectBackend(user.id, body.projectId, body.ref, info)
                 return sendJson(res, 200, { ok: true, supabaseUrl: info.supabaseUrl })
+              }
+              if (body.action === 'disconnect-project' && body.projectId) {
+                await deleteProjectBackend(user.id, body.projectId)
+                return sendJson(res, 200, { ok: true })
               }
               if (body.action === 'revoke') {
                 await deleteConnection(user.id)

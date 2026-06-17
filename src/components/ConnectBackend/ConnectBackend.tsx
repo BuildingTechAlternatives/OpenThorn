@@ -2,13 +2,15 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../lib/AuthContext'
 import { supabase } from '../../lib/supabase'
 import {
-  authorizeUrl, listProjects, pickProject, revokeBackend, createProject, type RemoteProject,
+  authorizeUrl, listProjects, pickProject, disconnectProject, createProject, type RemoteProject,
 } from '../../lib/backend-connection'
 import styles from './ConnectBackend.module.css'
 
 interface Props {
   /** Current OpenThorn project id. */
   projectId: string
+  /** Notified whenever the connected state is determined or changes. */
+  onStatusChange?: (connected: boolean) => void
 }
 
 const READY = 'ACTIVE_HEALTHY'
@@ -27,7 +29,7 @@ function statusLabel(status: string): string {
  * database + auth to the generated app. Self-contained: reads the session from
  * useAuth and the connection status from the project_backends table.
  */
-export function ConnectBackend({ projectId }: Props) {
+export function ConnectBackend({ projectId, onStatusChange }: Props) {
   const { session } = useAuth()
   const token = session?.access_token ?? ''
 
@@ -47,8 +49,10 @@ export function ConnectBackend({ projectId }: Props) {
       .select('project_ref')
       .eq('project_id', projectId)
       .maybeSingle()
-    setConnected(Boolean(data))
-  }, [projectId])
+    const isConnected = Boolean(data)
+    setConnected(isConnected)
+    onStatusChange?.(isConnected)
+  }, [projectId, onStatusChange])
 
   useEffect(() => { void refreshStatus() }, [refreshStatus])
 
@@ -125,7 +129,7 @@ export function ConnectBackend({ projectId }: Props) {
   const disconnect = useCallback(async () => {
     setBusy(true); setError(null)
     try {
-      await revokeBackend(token)
+      await disconnectProject(token, projectId)
       setProjects(null)
       setNeedsAuth(false)
       await refreshStatus()
@@ -134,7 +138,7 @@ export function ConnectBackend({ projectId }: Props) {
     } finally {
       setBusy(false)
     }
-  }, [token, refreshStatus])
+  }, [token, projectId, refreshStatus])
 
   if (connected === null) return null
 
