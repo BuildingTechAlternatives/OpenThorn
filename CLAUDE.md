@@ -69,7 +69,7 @@ Schema lives in `supabase/migrations/` (applied via `supabase db push` or the da
 
 ## Environment
 
-Required: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `KEY_ENCRYPTION_SECRET` (48 bytes, `openssl rand -base64 48`). Optional: `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` for production rate limiting. See `.env.example`.
+Required: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `KEY_ENCRYPTION_SECRET` (48 bytes, `openssl rand -base64 48`). Optional: `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` for production rate limiting; `SUPABASE_OAUTH_CLIENT_ID`/`SUPABASE_OAUTH_CLIENT_SECRET` to enable BYO-Supabase backends (the "Authorize Supabase" flow in `api/supabase-oauth.ts` — connection storage reuses `SUPABASE_SERVICE_ROLE_KEY` and `KEY_ENCRYPTION_SECRET`). See `.env.example`.
 
 ## Conventions
 
