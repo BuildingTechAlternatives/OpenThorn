@@ -432,7 +432,11 @@ export default function ProjectBuilderPage() {
   const [publishing, setPublishing] = useState(false)
   const [publishError, setPublishError] = useState('')
   const [publishSuccess, setPublishSuccess] = useState(false)
-  const [backendModalOpen, setBackendModalOpen] = useState(false)
+  // Auto-open after the OAuth redirect (?backend=connected|error) so the user
+  // sees the project picker / error without having to re-click "Backend".
+  const [backendModalOpen, setBackendModalOpen] = useState(
+    () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('backend'),
+  )
   const [cfPagesProjectName, setCfPagesProjectName] = useState<string | null>(null)
   const titleInputRef = useRef<HTMLInputElement>(null)
   const titleShouldSaveRef = useRef(true)
