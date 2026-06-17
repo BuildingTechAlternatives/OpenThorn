@@ -50,6 +50,11 @@ export const ALLOWED_PACKAGES: AllowedPackage[] = [
     url: 'https://esm.sh/nanoid@5.0.7',
     description: 'Unique id generator: `import { nanoid } from "nanoid"`.',
   },
+  {
+    name: '@supabase/supabase-js',
+    url: 'https://esm.sh/@supabase/supabase-js@2.45.4',
+    description: 'Supabase client (database + auth). Prefer the injected `@openthorn/db` over importing this directly.',
+  },
 ]
 
 export const ALLOWED_PACKAGE_NAMES = ALLOWED_PACKAGES.map((p) => p.name)
@@ -62,5 +67,7 @@ export const RESOLVABLE_PACKAGES = new Set<string>([
   'react/jsx-runtime',
   'react/jsx-dev-runtime',
   'react-router-dom',
+  // Injected data-layer client (data URL in the import map, not from esm.sh).
+  '@openthorn/db',
   ...ALLOWED_PACKAGE_NAMES,
 ])
