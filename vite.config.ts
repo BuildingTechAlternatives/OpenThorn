@@ -32,6 +32,7 @@ import {
   deleteConnection,
   deleteProjectBackend,
   createSupabaseProject,
+  applySchema,
 } from './api/_supabase'
 
 async function readJsonBody<T>(req: IncomingMessage): Promise<T | Record<string, never>> {
@@ -227,6 +228,23 @@ export default defineConfig(({ mode, isSsrBuild }) => {
               sendJson(res, 400, { error: 'Unknown action' })
             } catch (err) {
               sendJson(res, 500, { error: err instanceof Error ? err.message : 'OAuth action failed' })
+            }
+          })
+
+          server.middlewares.use('/api/migrate', async (req, res) => {
+            if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' })
+            const user = await verifyUser(req.headers.authorization)
+            if (!user) return sendJson(res, 401, { error: 'Unauthorized' })
+            if (!(await rateLimit(`migrate:${user.id}`, 30, 60_000))) return sendJson(res, 429, { error: 'Too many requests' })
+            const body = await readJsonBody<{ projectId?: string; spec?: import('./api/_schema').SchemaSpec }>(req)
+            if (!body.projectId || !body.spec || !Array.isArray(body.spec.tables)) {
+              return sendJson(res, 400, { error: 'Missing projectId or spec' })
+            }
+            try {
+              return sendJson(res, 200, await applySchema(user.id, body.projectId, body.spec))
+            } catch (err) {
+              const msg = err instanceof Error ? err.message : 'Migration failed'
+              return sendJson(res, msg === 'BACKEND_NOT_CONNECTED' ? 400 : 500, { error: msg })
             }
           })
         },
