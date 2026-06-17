@@ -194,6 +194,8 @@ export interface SupabaseProject {
   name: string
   orgId: string
   region: string
+  /** Supabase lifecycle status, e.g. ACTIVE_HEALTHY, COMING_UP, INACTIVE. */
+  status: string
 }
 
 async function mgmt<T>(accessToken: string, path: string): Promise<T> {
@@ -206,11 +208,17 @@ async function mgmt<T>(accessToken: string, path: string): Promise<T> {
 }
 
 export async function listOrgProjects(accessToken: string): Promise<SupabaseProject[]> {
-  const raw = await mgmt<Array<{ id: string; name: string; organization_id: string; region: string }>>(
+  const raw = await mgmt<Array<{ id: string; name: string; organization_id: string; region: string; status?: string }>>(
     accessToken,
     '/projects',
   )
-  return raw.map((p) => ({ ref: p.id, name: p.name, orgId: p.organization_id, region: p.region }))
+  return raw.map((p) => ({
+    ref: p.id,
+    name: p.name,
+    orgId: p.organization_id,
+    region: p.region,
+    status: p.status ?? 'UNKNOWN',
+  }))
 }
 
 export async function getProjectConnectionInfo(
@@ -260,8 +268,8 @@ export async function createSupabaseProject(
   })
   const text = await res.text()
   if (!res.ok) throw new Error(`Could not create project (${res.status}): ${text.slice(0, 200)}`)
-  const p = JSON.parse(text) as { id: string; name: string; organization_id: string; region: string }
-  return { ref: p.id, name: p.name, orgId: p.organization_id, region: p.region }
+  const p = JSON.parse(text) as { id: string; name: string; organization_id: string; region: string; status?: string }
+  return { ref: p.id, name: p.name, orgId: p.organization_id, region: p.region, status: p.status ?? 'COMING_UP' }
 }
 
 export async function saveProjectBackend(

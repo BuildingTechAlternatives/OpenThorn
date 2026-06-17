@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../lib/AuthContext'
 import { supabase } from '../../lib/supabase'
 import {
@@ -11,11 +11,21 @@ interface Props {
   projectId: string
 }
 
+const READY = 'ACTIVE_HEALTHY'
+
+/** Human label for a non-ready project status. */
+function statusLabel(status: string): string {
+  if (status === 'COMING_UP' || status === 'UNKNOWN' || status === 'INITIATING') return 'provisioning…'
+  if (status === 'INACTIVE' || status === 'PAUSED') return 'paused'
+  if (status === 'RESTORING') return 'restoring…'
+  return status.toLowerCase().replace(/_/g, ' ')
+}
+
 /**
  * "Add a backend" panel. Lets the user authorize their Supabase account (OAuth),
- * pick a project, and connect it to this OpenThorn project — adding a database +
- * auth to the generated app. Self-contained: reads the session from useAuth and
- * the connection status from the project_backends table.
+ * pick (or create) a project, and connect it to this OpenThorn project — adding a
+ * database + auth to the generated app. Self-contained: reads the session from
+ * useAuth and the connection status from the project_backends table.
  */
 export function ConnectBackend({ projectId }: Props) {
   const { session } = useAuth()
@@ -23,14 +33,13 @@ export function ConnectBackend({ projectId }: Props) {
 
   const [connected, setConnected] = useState<boolean | null>(null)
   const [projects, setProjects] = useState<RemoteProject[] | null>(null)
+  const [needsAuth, setNeedsAuth] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   // New-project creation UI state.
   const [showNew, setShowNew] = useState(false)
   const [newName, setNewName] = useState('')
   const [creating, setCreating] = useState(false)
-  // Refs of projects created in this session — still provisioning, not yet connectable.
-  const [provisioning, setProvisioning] = useState<Set<string>>(new Set())
 
   const refreshStatus = useCallback(async () => {
     const { data } = await supabase
@@ -43,25 +52,52 @@ export function ConnectBackend({ projectId }: Props) {
 
   useEffect(() => { void refreshStatus() }, [refreshStatus])
 
-  // After the OAuth redirect bounces back (?backend=connected) we can list projects.
-  useEffect(() => {
+  // Load the org's project list. If there's no connection yet, fall back to the
+  // Authorize button. Runs whenever the panel mounts for a not-yet-connected project.
+  const loadProjects = useCallback(async () => {
     if (!token) return
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('backend') === 'connected') {
-      setBusy(true)
-      listProjects(token)
-        .then((r) => setProjects(r.projects))
-        .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load projects'))
-        .finally(() => setBusy(false))
+    try {
+      const { projects } = await listProjects(token)
+      setProjects(projects)
+      setNeedsAuth(false)
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : ''
+      if (/no supabase connection/i.test(msg)) {
+        setNeedsAuth(true)
+      } else {
+        setError(msg || 'Failed to load projects')
+      }
     }
-    if (params.get('backend') === 'error') setError(params.get('message') || 'Authorization failed')
   }, [token])
+
+  useEffect(() => {
+    if (connected === false) {
+      void loadProjects()
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('backend') === 'error') setError(params.get('message') || 'Authorization failed')
+    }
+  }, [connected, loadProjects])
+
+  // Poll while any listed project is still provisioning, so newly-created projects
+  // flip to selectable on their own. Stops once everything is healthy.
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  useEffect(() => {
+    const anyPending = (projects ?? []).some((p) => p.status !== READY)
+    if (!anyPending) {
+      if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null }
+      return
+    }
+    if (pollRef.current) return
+    pollRef.current = setInterval(() => { void loadProjects() }, 8000)
+    return () => {
+      if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null }
+    }
+  }, [projects, loadProjects])
 
   const choose = useCallback(async (ref: string) => {
     setBusy(true); setError(null)
     try {
       await pickProject(token, projectId, ref)
-      setProjects(null)
       await refreshStatus()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to connect project')
@@ -76,8 +112,7 @@ export function ConnectBackend({ projectId }: Props) {
     setCreating(true); setError(null)
     try {
       const { project } = await createProject(token, name)
-      setProjects((prev) => [project, ...(prev ?? [])])
-      setProvisioning((prev) => new Set(prev).add(project.ref))
+      setProjects((prev) => [project, ...(prev ?? []).filter((p) => p.ref !== project.ref)])
       setShowNew(false)
       setNewName('')
     } catch (e) {
@@ -92,6 +127,7 @@ export function ConnectBackend({ projectId }: Props) {
     try {
       await revokeBackend(token)
       setProjects(null)
+      setNeedsAuth(false)
       await refreshStatus()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to disconnect')
@@ -122,10 +158,12 @@ export function ConnectBackend({ projectId }: Props) {
         Connect your Supabase project to add a database, accounts, and saved data to this app.
       </p>
       {error && <p className={styles.error}>{error}</p>}
-      {!projects && (
+
+      {needsAuth && (
         <a className={styles.primary} href={authorizeUrl(token, projectId)}>Authorize Supabase</a>
       )}
-      {projects && (
+
+      {!needsAuth && projects && (
         <>
           {showNew ? (
             <div className={styles.newRow}>
@@ -156,26 +194,23 @@ export function ConnectBackend({ projectId }: Props) {
               <li className={styles.desc}>No projects found in your Supabase org.</li>
             )}
             {projects.map((p) => {
-              const isProvisioning = provisioning.has(p.ref)
+              const ready = p.status === READY
               return (
                 <li key={p.ref}>
                   <button
                     className={styles.projectBtn}
                     type="button"
-                    disabled={busy || isProvisioning}
+                    disabled={busy || !ready}
                     onClick={() => choose(p.ref)}
                   >
-                    {p.name}{' '}
-                    <span className={styles.ref}>{isProvisioning ? 'provisioning…' : p.region}</span>
+                    {p.name} <span className={styles.ref}>{ready ? p.region : statusLabel(p.status)}</span>
                   </button>
                 </li>
               )
             })}
           </ul>
-          {provisioning.size > 0 && (
-            <p className={styles.desc}>
-              New projects take a minute or two to provision. Once ready, reopen this panel to connect them.
-            </p>
+          {(projects ?? []).some((p) => p.status !== READY) && (
+            <p className={styles.desc}>New projects take a minute or two to provision — this list refreshes automatically.</p>
           )}
         </>
       )}

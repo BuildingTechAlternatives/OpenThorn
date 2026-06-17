@@ -146,11 +146,11 @@ describe('management api', () => {
 
   it('listOrgProjects maps the Management API response', async () => {
     fetchMock.mockResolvedValueOnce(jsonResponse([
-      { id: 'ref1', name: 'App One', organization_id: 'org_1', region: 'us-east-1' },
+      { id: 'ref1', name: 'App One', organization_id: 'org_1', region: 'us-east-1', status: 'ACTIVE_HEALTHY' },
     ]))
     const { listOrgProjects } = await import('../../../api/_supabase')
     const projects = await listOrgProjects('AT')
-    expect(projects[0]).toEqual({ ref: 'ref1', name: 'App One', orgId: 'org_1', region: 'us-east-1' })
+    expect(projects[0]).toEqual({ ref: 'ref1', name: 'App One', orgId: 'org_1', region: 'us-east-1', status: 'ACTIVE_HEALTHY' })
     expect(fetchMock.mock.calls[0][1].headers.Authorization).toBe('Bearer AT')
     expect(String(fetchMock.mock.calls[0][0])).toBe('https://api.supabase.com/v1/projects')
   })

@@ -7,6 +7,8 @@ export interface RemoteProject {
   name: string
   orgId: string
   region: string
+  /** Supabase lifecycle status, e.g. ACTIVE_HEALTHY, COMING_UP, INACTIVE. */
+  status: string
 }
 
 async function post<T>(token: string, body: unknown): Promise<T> {
