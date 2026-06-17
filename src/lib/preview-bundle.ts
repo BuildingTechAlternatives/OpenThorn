@@ -173,6 +173,11 @@ export async function buildPreview(
 (function(){
   if (typeof window === 'undefined') return;
 
+  // ── process.env stub ────────────────────────────────────────
+  // Some esm.sh bundles (e.g. @supabase/supabase-js deps) reference process.env
+  // at module load; without this they throw "process is not defined" in the iframe.
+  if (typeof window.process === 'undefined') { window.process = { env: {} }; }
+
   // ── Storage polyfill ────────────────────────────────────────
   function makeStorage() {
     var s = {};
