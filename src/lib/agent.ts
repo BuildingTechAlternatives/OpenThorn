@@ -13,6 +13,7 @@ import {
   selectToolsForRun,
   LEAN_TOOLSET_REMINDER,
   SMALL_REFINE_TOOLSET_REMINDER,
+  BACKEND_APPS_REMINDER,
   capToolResultContent,
   type ToolDefinition,
 } from './agent-prompt'
@@ -135,6 +136,10 @@ export interface AgentRunInput {
   onProgress?: (event: AgentProgressEvent) => void
   /** Prior conversation turns from previous runs in this session. Injected after the preamble so the model has full context without re-reading every file. */
   history?: LlmMessage[]
+  /** Current project id — required for backend (set_schema) operations. */
+  projectId?: string
+  /** True when this project has a connected Supabase backend. */
+  hasBackend?: boolean
 }
 
 export interface AgentRunResult {
@@ -1141,11 +1146,13 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   // ── Progressive tool expansion (#6) ───────────────────────────
   // Choose the tool set once, then hold it stable for the whole run so the API
   // tool schema stays byte-identical across turns (prompt-cache safe).
+  const hasBackend = Boolean(input.hasBackend && input.projectId)
   const { tools: runTools, expanded: toolsExpanded } = selectToolsForRun({
     mode,
     isNewProject,
     prompt: input.prompt,
     smallRefine,
+    hasBackend,
   })
 
   // ── Build initial messages ────────────────────────────────────
@@ -1178,6 +1185,11 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
       role: 'user',
       content: smallRefine ? SMALL_REFINE_TOOLSET_REMINDER : LEAN_TOOLSET_REMINDER,
     })
+  }
+
+  // When a backend is connected, tell the model it can declare schema with set_schema.
+  if (hasBackend) {
+    messages.push({ role: 'user', content: BACKEND_APPS_REMINDER })
   }
 
   // SPEC PHASE: for new projects, inject spec guidance
@@ -1279,6 +1291,7 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     doneRejections: 0,
     pendingErrorLessons: [],
     recoveredLessons: [],
+    backend: input.hasBackend && input.projectId ? { projectId: input.projectId } : undefined,
   }
 
   // Seed the read cache from prior-run writes so the agent doesn't re-read
@@ -1833,6 +1846,8 @@ interface RunContext {
   pendingErrorLessons: string[]
   /** Lessons from errors that a later passing compile confirmed recovered (#1). */
   recoveredLessons: string[]
+  /** Backend connection context for set_schema, when a backend is connected. */
+  backend?: { projectId: string }
 }
 
 async function executeToolsParallel(
@@ -2298,6 +2313,42 @@ async function executeTool(
       if (totalMatches >= SEARCH_MAX_MATCHES)
         header += ` (truncated at ${SEARCH_MAX_MATCHES} — narrow your pattern or use glob to filter)`
       return { content: `${header}:\n\n${results.join('\n')}`, isError: false }
+    }
+
+    // ── set_schema ──────────────────────────────────────────────
+    case 'set_schema': {
+      if (!runCtx?.backend?.projectId) {
+        return {
+          content: 'No Supabase backend is connected to this project. Ask the user to connect one via the Backend button, then retry set_schema.',
+          isError: true,
+        }
+      }
+      const tables = Array.isArray(toolCall.input.tables) ? toolCall.input.tables : []
+      if (tables.length === 0) {
+        return { content: 'set_schema requires at least one table.', isError: true }
+      }
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) return { content: 'Not signed in — cannot apply schema.', isError: true }
+        const { applySchema } = await import('./backend-connection')
+        const result = await applySchema(
+          session.access_token,
+          runCtx.backend.projectId,
+          { tables } as Parameters<typeof applySchema>[2],
+        )
+        const head = result.alreadyApplied
+          ? 'Schema already up to date (no changes applied).'
+          : `Schema applied: ${result.statements} statement(s) run against your database. Tables now have row-level security enabled.`
+        return {
+          content:
+            `${head}\n\nTypeScript types for your tables (for reference when building the UI):\n\n${result.types}\n\n` +
+            'The in-app data client lands in the next milestone — for now keep building the UI; do not hand-write Supabase client code yet.',
+          isError: false,
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Migration failed'
+        return { content: `Could not apply schema: ${msg}`, isError: true }
+      }
     }
 
     // ── write_file ──────────────────────────────────────────────
