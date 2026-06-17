@@ -68,6 +68,60 @@ export const AGENT_TOOLS: ToolDefinition[] = [
     },
   },
   {
+    name: 'set_schema',
+    description:
+      'Declare the database tables this app needs (only available when a Supabase ' +
+      'backend is connected). Provide tables with columns and an access level; ' +
+      'OpenThorn creates/updates them safely with row-level security enabled — you ' +
+      'do NOT write SQL. id (uuid), user_id (the signed-in user), and created_at are ' +
+      'added automatically to every table; do not declare them. access: "owner" = ' +
+      'each row private to its creator (todos, notes); "public_read" = anyone can read, ' +
+      'only the owner writes (blog posts); "authenticated" = any signed-in user can ' +
+      'read, only the owner writes. Calling again is safe and additive — it never drops ' +
+      'columns or data.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        tables: {
+          type: 'array',
+          description: 'The tables to create or extend.',
+          items: {
+            type: 'object',
+            properties: {
+              name: { type: 'string', description: 'snake_case table name, e.g. "todos".' },
+              access: {
+                type: 'string',
+                enum: ['owner', 'public_read', 'authenticated'],
+                description: 'Row access policy.',
+              },
+              columns: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    type: {
+                      type: 'string',
+                      enum: ['text', 'integer', 'numeric', 'boolean', 'timestamptz', 'date', 'uuid', 'jsonb'],
+                    },
+                    nullable: { type: 'boolean' },
+                    default: { description: 'Optional default (string, number, or boolean).' },
+                  },
+                  required: ['name', 'type'],
+                  additionalProperties: false,
+                },
+              },
+            },
+            required: ['name', 'access', 'columns'],
+            additionalProperties: false,
+          },
+        },
+      },
+      required: ['tables'],
+      additionalProperties: false,
+    },
+  },
+  {
     name: 'delete_file',
     description:
       'Delete a file from the project. Use this to remove files that are no ' +
@@ -402,6 +456,7 @@ const CORE_TOOL_NAMES = new Set([
   'read_file',
   'write_file',
   'edit_file',
+  'set_schema',
   'compile',
   'done',
 ])
@@ -425,6 +480,7 @@ const SMALL_REFINE_TOOL_NAMES = new Set([
   'write_file',
   'edit_file',
   'multi_edit',
+  'set_schema',
   'compile',
   'done',
 ])
@@ -443,11 +499,19 @@ export function selectToolsForRun(params: {
   isNewProject: boolean
   prompt: string
   smallRefine?: boolean
+  /** When false, the set_schema tool is excluded (no backend connected). */
+  hasBackend?: boolean
 }): { tools: ToolDefinition[]; expanded: boolean } {
+  // set_schema only makes sense when a Supabase backend is connected. It lives in
+  // the tool-name sets so it survives the core/small-refine filter; this strips it
+  // when there's no backend.
+  const gate = (tools: ToolDefinition[]): ToolDefinition[] =>
+    params.hasBackend ? tools : tools.filter((t) => t.name !== 'set_schema')
+
   // A small refine gets the leanest set — fewest tools, fastest TTFT per turn.
   if (params.smallRefine) {
     const tools = AGENT_TOOLS.filter((t) => SMALL_REFINE_TOOL_NAMES.has(t.name))
-    return { tools, expanded: false }
+    return { tools: gate(tools), expanded: false }
   }
 
   const expanded =
@@ -455,10 +519,10 @@ export function selectToolsForRun(params: {
     !params.isNewProject ||
     EXPANSION_TRIGGER.test(params.prompt)
 
-  if (expanded) return { tools: AGENT_TOOLS, expanded: true }
+  if (expanded) return { tools: gate(AGENT_TOOLS), expanded: true }
 
   const tools = AGENT_TOOLS.filter((t) => CORE_TOOL_NAMES.has(t.name))
-  return { tools, expanded: false }
+  return { tools: gate(tools), expanded: false }
 }
 
 void EXPANSION_TOOL_NAMES // documents the deferred set; selection is by CORE allowlist
@@ -471,6 +535,11 @@ For this build the tool set is: think, set_title, update_plan, load_skill, list_
 /** Reminder injected for a small refine, whose tool set is leaner still. */
 export const SMALL_REFINE_TOOLSET_REMINDER = `<system-reminder>
 This is a small, self-contained change. The tool set is: think, load_skill, list_files, read_file, write_file, edit_file, multi_edit, compile, done. set_title, update_plan, delete_file, and search_files are NOT loaded — don't call them. Go straight to the edit, compile once, then done. If the change is visual/design work (styling, layout, look-and-feel), load the relevant design skill first (frontend-design or ui-ux-pro-max) — a one-line CSS tweak still benefits from getting it right the first time.
+</system-reminder>`
+
+/** Injected per-run when the project has a connected Supabase backend. */
+export const BACKEND_APPS_REMINDER = `<system-reminder>
+A Supabase backend is connected to this project, so you can build a real app with saved data and user accounts. Use the set_schema tool to declare the tables you need — row-level security is applied automatically, and id (uuid), user_id (the signed-in user), and created_at are added to every table, so don't declare those. Choose access per table: "owner" (each row private to its creator), "public_read" (everyone reads, owner writes), or "authenticated" (any signed-in user reads, owner writes). Calling set_schema again is safe and additive. NOTE: the in-app data client and auth UI wiring land in the next milestone — for now, declare the schema you'll need and build the UI; do not hand-write Supabase client code or import a client module yet.
 </system-reminder>`
 
 // ─── Uniform tool-result cap (#4) ──────────────────────────────────────────
@@ -511,6 +580,7 @@ export const TOOL_CATEGORIES: Record<string, 'read' | 'write' | 'compile' | 'don
   edit_file: 'write',
   multi_edit: 'write',
   delete_file: 'write',
+  set_schema: 'write',
   compile: 'compile',
   done: 'done',
 }
