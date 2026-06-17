@@ -2,6 +2,9 @@
 // /api/supabase-oauth; the server holds all secrets (OAuth tokens), so the
 // browser only ever sees public values (project list, anon key URL).
 
+import type { SchemaSpec } from '../../api/_schema'
+export type { SchemaSpec, TableSpec, ColumnSpec, AccessLevel, ColumnType } from '../../api/_schema'
+
 export interface RemoteProject {
   ref: string
   name: string
@@ -11,8 +14,8 @@ export interface RemoteProject {
   status: string
 }
 
-async function post<T>(token: string, body: unknown): Promise<T> {
-  const res = await fetch('/api/supabase-oauth', {
+async function post<T>(token: string, body: unknown, path = '/api/supabase-oauth'): Promise<T> {
+  const res = await fetch(path, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -55,4 +58,17 @@ export function revokeBackend(token: string): Promise<{ ok: boolean }> {
 /** Create a brand-new Supabase project in the user's org. Provisions async. */
 export function createProject(token: string, name: string): Promise<{ project: RemoteProject }> {
   return post(token, { action: 'create-project', name })
+}
+
+export interface ApplySchemaResult {
+  applied: boolean
+  alreadyApplied: boolean
+  statements: number
+  checksum: string
+  types: string
+}
+
+/** Compile + apply a declarative schema to the project's connected Supabase DB. */
+export function applySchema(token: string, projectId: string, spec: SchemaSpec): Promise<ApplySchemaResult> {
+  return post(token, { projectId, spec }, '/api/migrate')
 }

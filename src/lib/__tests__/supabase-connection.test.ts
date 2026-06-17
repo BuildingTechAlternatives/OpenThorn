@@ -294,4 +294,15 @@ describe('backend-connection client', () => {
     const { pickProject } = await import('../backend-connection')
     await expect(pickProject('tok', 'p', 'r')).rejects.toThrow('No Supabase connection')
   })
+
+  it('applySchema POSTs the spec to /api/migrate', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ applied: true, alreadyApplied: false, statements: 3, checksum: 'abc', types: 'export interface Todos {}' }))
+    const { applySchema } = await import('../backend-connection')
+    const spec = { tables: [{ name: 'todos', access: 'owner' as const, columns: [] }] }
+    const out = await applySchema('tok', 'proj-9', spec)
+    expect(out.applied).toBe(true)
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(String(url)).toBe('/api/migrate')
+    expect(JSON.parse(init.body as string)).toEqual({ projectId: 'proj-9', spec })
+  })
 })
