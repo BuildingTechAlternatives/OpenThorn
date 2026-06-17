@@ -5,6 +5,7 @@ import { createVirtualFsPlugin, type VirtualFile } from './virtualFsPlugin'
 // react-router-dom which doesn't work in srcdoc/sandboxed iframes.
 import bloomRouterSource from '../../public/openthorn-router.js?raw'
 import openthornJsxDevSource from '../../public/openthorn-jsx-dev.js?raw'
+import openthornDbSource from '../../public/openthorn-db.js?raw'
 import { ALLOWED_PACKAGES } from './allowed-packages'
 import { buildSelectModeScript } from './preview-edit'
 
@@ -37,7 +38,7 @@ export function buildFilesMap(files: VirtualFile[]): Record<string, string> {
 
 const REACT_VERSION = '18.2.0'
 
-function getImportMap(instrument = false): Record<string, string> {
+function getImportMap(instrument = false, hasBackend = false): Record<string, string> {
   const reactUrl = `https://esm.sh/react@${REACT_VERSION}`
   const reactDomUrl = `https://esm.sh/react-dom@${REACT_VERSION}`
 
@@ -70,6 +71,13 @@ function getImportMap(instrument = false): Record<string, string> {
       'data:text/javascript;base64,' + toBase64(openthornJsxDevSource)
   }
 
+  // When a backend is connected, expose the injected data-layer client. It is a
+  // data-URL module (like the router) that reads window.__OPENTHORN_SUPABASE__ and
+  // imports @supabase/supabase-js (resolved from the allowlist above).
+  if (hasBackend) {
+    map['@openthorn/db'] = 'data:text/javascript;base64,' + toBase64(openthornDbSource)
+  }
+
   return map
 }
 
@@ -85,6 +93,11 @@ export interface PreviewResult {
 export interface BuildPreviewOptions {
   /** When true, tag host DOM elements with data-oeid and include the select-mode script. */
   instrument?: boolean
+  /**
+   * When set, inject the project's Supabase config (public url + anon key) and the
+   * @openthorn/db client module so generated apps can read/write data + authenticate.
+   */
+  backend?: { url: string; anonKey: string }
 }
 
 export async function buildPreview(
@@ -141,7 +154,14 @@ export async function buildPreview(
     ? `<style>\n${cssFile.text}\n</style>`
     : ''
 
-  const importMap = JSON.stringify({ imports: getImportMap(opts.instrument) }, null, 2)
+  const importMap = JSON.stringify({ imports: getImportMap(opts.instrument, Boolean(opts.backend)) }, null, 2)
+
+  // Public Supabase config for the injected @openthorn/db client. Only the public
+  // url + anon key (RLS is the security boundary). JSON is escaped so a stray "<"
+  // can't break out of the inline <script>.
+  const backendConfig = opts.backend
+    ? `<script>window.__OPENTHORN_SUPABASE__=${JSON.stringify({ url: opts.backend.url, anonKey: opts.backend.anonKey }).replace(/</g, '\\u003c')};</script>`
+    : ''
 
   // Select-mode script for visual click-to-edit (inert until the parent enables it).
   const selectModeScript = opts.instrument ? buildSelectModeScript() : ''
@@ -260,6 +280,7 @@ export async function buildPreview(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script type="importmap">${importMap}</script>
+  ${backendConfig}
   ${cssBlock}
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

@@ -226,6 +226,35 @@ describe('buildPreview', () => {
 // ---------------------------------------------------------------------------
 // Integration: instrumented preview (visual click-to-edit)
 // ---------------------------------------------------------------------------
+describe('buildPreview backend injection', () => {
+  const FILES: VirtualFile[] = [
+    { path: '/src/App.tsx', content: `export default function App(){ return <h1>Hi</h1> }` },
+  ]
+  async function build(opts?: { backend?: { url: string; anonKey: string } }) {
+    const { buildPreview } = await import('../preview-bundle')
+    const esbuild = await import('esbuild')
+    return buildPreview(FILES, esbuild as unknown as typeof import('esbuild-wasm'), opts)
+  }
+
+  it('omits the Supabase config + db import-map entry when no backend', async () => {
+    const { html, errors } = await build()
+    expect(errors).toEqual([])
+    expect(html).not.toContain('__OPENTHORN_SUPABASE__')
+    expect(html).not.toContain('@openthorn/db')
+  })
+
+  it('injects the config global + @openthorn/db + supabase-js when a backend is given', async () => {
+    const { html, errors } = await build({ backend: { url: 'https://ref1.supabase.co', anonKey: 'anon-123' } })
+    expect(errors).toEqual([])
+    expect(html).toContain('__OPENTHORN_SUPABASE__')
+    expect(html).toContain('https://ref1.supabase.co')
+    expect(html).toContain('anon-123')
+    const importMap = JSON.parse(html.match(/<script type="importmap">([\s\S]*?)<\/script>/)![1])
+    expect(importMap.imports['@openthorn/db']).toContain('data:text/javascript')
+    expect(importMap.imports['@supabase/supabase-js']).toContain('esm.sh/@supabase/supabase-js')
+  })
+})
+
 describe('buildPreview instrument option', () => {
   const FILES: VirtualFile[] = [
     { path: '/src/App.tsx', content: `export default function App(){ return <h1>Hi</h1> }` },
