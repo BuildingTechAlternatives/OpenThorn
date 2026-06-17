@@ -177,6 +177,9 @@ interface TimelineEvent {
   thinkingCollapsed?: boolean
   // tool call
   toolLabel?: string
+  /** Unique id of the originating tool call, used to match start↔result even when
+   *  several calls share the same label in one turn. */
+  toolCallId?: string
   toolStatus?: 'running' | 'done' | 'error'
   toolDetail?: string
   toolResult?: string
@@ -1374,29 +1377,41 @@ export default function ProjectBuilderPage() {
       pushTimeline({ type: 'status', text: trimmed, statusTone: tone })
     }
 
-    // Find and update the last matching tool call event by label.
-    const updateLastToolCall = (label: string, patch: Partial<TimelineEvent>) => {
+    // Locate the timeline entry a tool_result belongs to. Prefer the unique tool
+    // call id (so several same-named calls in one turn resolve independently);
+    // fall back to the oldest still-running entry with the same label.
+    const findToolCallIndex = (id: string | undefined, label: string): number => {
+      if (id) {
+        const byId = timeline.findIndex((e) => e.type === 'tool_call' && e.toolCallId === id)
+        if (byId !== -1) return byId
+      }
+      // Oldest running match — never re-resolve an already-finished entry.
+      const running = timeline.findIndex(
+        (e) => e.type === 'tool_call' && e.toolLabel === label && e.toolStatus === 'running',
+      )
+      if (running !== -1) return running
       for (let i = timeline.length - 1; i >= 0; i--) {
-        if (timeline[i].type === 'tool_call' && timeline[i].toolLabel === label) {
-          timeline[i] = { ...timeline[i], ...patch }
-          updateAssistantMessage(assistantId, { timeline: [...timeline] })
-          return true
-        }
+        if (timeline[i].type === 'tool_call' && timeline[i].toolLabel === label) return i
+      }
+      return -1
+    }
+
+    const updateLastToolCall = (label: string, patch: Partial<TimelineEvent>, id?: string) => {
+      const i = findToolCallIndex(id, label)
+      if (i !== -1) {
+        timeline[i] = { ...timeline[i], ...patch }
+        updateAssistantMessage(assistantId, { timeline: [...timeline] })
+        return true
       }
       return false
     }
 
-    const replaceLastToolCall = (label: string, replacement: Omit<TimelineEvent, 'id' | 'timestamp'>) => {
-      for (let i = timeline.length - 1; i >= 0; i--) {
-        if (timeline[i].type === 'tool_call' && timeline[i].toolLabel === label) {
-          timeline[i] = {
-            ...replacement,
-            id: timeline[i].id,
-            timestamp: timeline[i].timestamp,
-          }
-          updateAssistantMessage(assistantId, { timeline: [...timeline] })
-          return true
-        }
+    const replaceLastToolCall = (label: string, replacement: Omit<TimelineEvent, 'id' | 'timestamp'>, id?: string) => {
+      const i = findToolCallIndex(id, label)
+      if (i !== -1) {
+        timeline[i] = { ...replacement, id: timeline[i].id, timestamp: timeline[i].timestamp }
+        updateAssistantMessage(assistantId, { timeline: [...timeline] })
+        return true
       }
       return false
     }
@@ -1476,6 +1491,7 @@ export default function ProjectBuilderPage() {
               pushTimeline({
                 type: 'tool_call',
                 toolLabel: label,
+                toolCallId: event.toolCallId,
                 toolStatus: 'running',
                 toolDetail: formatToolDetail(event.toolName!, event.toolInput),
               })
@@ -1491,13 +1507,13 @@ export default function ProjectBuilderPage() {
                 updateLastToolCall(label, {
                   toolStatus: 'error',
                   toolDetail: formatToolResultDetail(event.toolName, event.toolResult, event.toolError),
-                })
+                }, event.toolCallId)
               } else if (event.toolResult?.trim()) {
                 const replaced = replaceLastToolCall(label, {
                   type: 'thinking',
                   thought: event.toolResult,
                   thinkingCollapsed: true,
-                })
+                }, event.toolCallId)
                 if (!replaced) {
                   pushTimeline({
                     type: 'thinking',
@@ -1506,14 +1522,14 @@ export default function ProjectBuilderPage() {
                   })
                 }
               } else {
-                updateLastToolCall(label, { toolStatus: 'done' })
+                updateLastToolCall(label, { toolStatus: 'done' }, event.toolCallId)
               }
             } else {
               const label = formatToolLabel(event.toolName, event.toolInput)
               updateLastToolCall(label, {
                 toolStatus: event.toolError ? 'error' : 'done',
                 toolDetail: formatToolResultDetail(event.toolName, event.toolResult, event.toolError),
-              })
+              }, event.toolCallId)
             }
 
             if (event.toolName === 'done' && event.toolResult) {

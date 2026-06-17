@@ -105,6 +105,9 @@ export interface AgentProgressEvent {
     | 'generating'
   text?: string
   toolName?: string
+  /** Unique id of the tool call (tool_use id), so the UI can match start↔result
+   *  even when several calls share the same name in one turn. */
+  toolCallId?: string
   toolInput?: Record<string, unknown>
   toolResult?: string
   toolError?: boolean
@@ -1886,9 +1889,9 @@ async function executeToolsParallel(
   if (parallelTasks.length > 0) {
     const parallelResults = await Promise.all(
       parallelTasks.map(({ index, call }) => {
-        onProgress?.({ type: 'tool_start', toolName: call.name, toolInput: call.input })
+        onProgress?.({ type: 'tool_start', toolName: call.name, toolCallId: call.id, toolInput: call.input })
         return executeTool(call, currentFiles, signal, provider, onProgress, runCtx).then((result) => {
-          onProgress?.({ type: 'tool_result', toolName: call.name, toolInput: call.input, toolResult: result.content, toolError: result.isError, files: result.files })
+          onProgress?.({ type: 'tool_result', toolName: call.name, toolCallId: call.id, toolInput: call.input, toolResult: result.content, toolError: result.isError, files: result.files })
           return { index, result }
         })
       }),
@@ -1901,9 +1904,9 @@ async function executeToolsParallel(
 
   // Phase 2: Writes sequentially
   for (const { index, call } of writes) {
-    onProgress?.({ type: 'tool_start', toolName: call.name, toolInput: call.input })
+    onProgress?.({ type: 'tool_start', toolName: call.name, toolCallId: call.id, toolInput: call.input })
     const result = await executeTool(call, currentFiles, signal, provider, onProgress, runCtx)
-    onProgress?.({ type: 'tool_result', toolName: call.name, toolInput: call.input, toolResult: result.content, toolError: result.isError, files: result.files })
+    onProgress?.({ type: 'tool_result', toolName: call.name, toolCallId: call.id, toolInput: call.input, toolResult: result.content, toolError: result.isError, files: result.files })
     results[index] = result
     if (result.files) {
       currentFiles = result.files
@@ -1920,9 +1923,9 @@ async function executeToolsParallel(
 
   // Phase 3: Compile, Phase 4: Done — sequentially, in call order
   for (const { index, call } of [...compileCalls, ...doneCalls]) {
-    onProgress?.({ type: 'tool_start', toolName: call.name, toolInput: call.input })
+    onProgress?.({ type: 'tool_start', toolName: call.name, toolCallId: call.id, toolInput: call.input })
     const result = await executeTool(call, currentFiles, signal, provider, onProgress, runCtx)
-    onProgress?.({ type: 'tool_result', toolName: call.name, toolInput: call.input, toolResult: result.content, toolError: result.isError, files: result.files })
+    onProgress?.({ type: 'tool_result', toolName: call.name, toolCallId: call.id, toolInput: call.input, toolResult: result.content, toolError: result.isError, files: result.files })
     results[index] = result
     if (result.files) currentFiles = result.files
   }
