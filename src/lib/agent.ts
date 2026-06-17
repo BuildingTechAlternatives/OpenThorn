@@ -2341,8 +2341,10 @@ async function executeTool(
           : `Schema applied: ${result.statements} statement(s) run against your database. Tables now have row-level security enabled.`
         return {
           content:
-            `${head}\n\nTypeScript types for your tables (for reference when building the UI):\n\n${result.types}\n\n` +
-            'The in-app data client lands in the next milestone — for now keep building the UI; do not hand-write Supabase client code yet.',
+            `${head}\n\nTypeScript types for your tables:\n\n${result.types}\n\n` +
+            "Use the data client in your app: import { db, auth } from '@openthorn/db'. " +
+            "Read/write with db.from('<table>').select() / .insert({...}) / .update({...}).eq('id', id) / .delete().eq('id', id) — never pass user_id, it defaults to the signed-in user. " +
+            'Build sign-in/up/out UI with auth.signInWithPassword / auth.signUp / auth.signOut and gate writes behind a session.',
           isError: false,
         }
       } catch (err) {
