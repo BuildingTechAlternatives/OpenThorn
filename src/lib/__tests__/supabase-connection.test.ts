@@ -178,3 +178,34 @@ describe('management api', () => {
     }))
   })
 })
+
+describe('backend-connection client', () => {
+  beforeEach(() => { vi.resetModules(); fetchMock.mockReset() })
+
+  it('pickProject POSTs the chosen ref with the auth token', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ ok: true, supabaseUrl: 'https://ref1.supabase.co' }))
+    const { pickProject } = await import('../backend-connection')
+    const out = await pickProject('tok', 'proj-9', 'ref1')
+    expect(out.supabaseUrl).toBe('https://ref1.supabase.co')
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(String(url)).toBe('/api/supabase-oauth')
+    expect(init.headers.Authorization).toBe('Bearer tok')
+    expect(JSON.parse(init.body as string)).toEqual({ action: 'pick-project', projectId: 'proj-9', ref: 'ref1' })
+  })
+
+  it('authorizeUrl encodes token + projectId into the start URL', async () => {
+    const { authorizeUrl } = await import('../backend-connection')
+    const out = authorizeUrl('to ken', 'proj 9')
+    expect(out.startsWith('/api/supabase-oauth?')).toBe(true)
+    const q = new URLSearchParams(out.split('?')[1])
+    expect(q.get('action')).toBe('start')
+    expect(q.get('token')).toBe('to ken')
+    expect(q.get('projectId')).toBe('proj 9')
+  })
+
+  it('pickProject throws the server error message on failure', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ error: 'No Supabase connection' }, false, 400))
+    const { pickProject } = await import('../backend-connection')
+    await expect(pickProject('tok', 'p', 'r')).rejects.toThrow('No Supabase connection')
+  })
+})
