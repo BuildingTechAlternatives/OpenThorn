@@ -8,6 +8,7 @@
 // anon key + project URL are stored in client-readable columns.
 import { createHmac, timingSafeEqual, hkdfSync, randomBytes } from 'node:crypto'
 import { encryptForUser, decryptForUser } from './_shared.js'
+import { compileSchema, schemaToTypes, type SchemaSpec } from './_schema.js'
 
 const SB_API = 'https://api.supabase.com'
 const OAUTH_AUTHORIZE = `${SB_API}/v1/oauth/authorize`
@@ -279,6 +280,89 @@ export async function deleteProjectBackend(userId: string, projectId: string): P
     `${url}/rest/v1/project_backends?project_id=eq.${encodeURIComponent(projectId)}&user_id=eq.${encodeURIComponent(userId)}`,
     { method: 'DELETE', headers: { ...svcHeaders(serviceKey), Prefer: 'return=minimal' } },
   )
+}
+
+// ---------------------------------------------------------------------------
+// Schema migrations — compile a declarative spec and apply it to the user's DB
+// ---------------------------------------------------------------------------
+
+/** Look up a project's Supabase ref (client-safe column, read with service role). */
+async function projectRef(userId: string, projectId: string): Promise<string | null> {
+  const { url, serviceKey } = ownEnv()
+  const res = await fetch(
+    `${url}/rest/v1/project_backends?project_id=eq.${encodeURIComponent(projectId)}&user_id=eq.${encodeURIComponent(userId)}&select=project_ref&limit=1`,
+    { headers: { ...svcHeaders(serviceKey), Accept: 'application/json' } },
+  )
+  if (!res.ok) return null
+  const rows = (await res.json()) as Array<{ project_ref?: string }>
+  return rows?.[0]?.project_ref ?? null
+}
+
+/** Run arbitrary SQL on the user's database via the Management API. */
+export async function runUserSql<T = unknown>(accessToken: string, ref: string, query: string): Promise<T> {
+  const res = await fetch(`${SB_API}/v1/projects/${ref}/database/query`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query }),
+  })
+  const text = await res.text()
+  if (!res.ok) throw new Error(`Database query failed (${res.status}): ${text.slice(0, 300)}`)
+  try { return JSON.parse(text) as T } catch { return [] as unknown as T }
+}
+
+const MIGRATIONS_DDL =
+  `create table if not exists public._openthorn_migrations (` +
+  `version bigserial primary key, name text not null, checksum text not null unique, ` +
+  `applied_at timestamptz not null default now());`
+
+export interface ApplySchemaResult {
+  applied: boolean
+  alreadyApplied: boolean
+  statements: number
+  checksum: string
+  types: string
+}
+
+export async function applySchema(userId: string, projectId: string, spec: SchemaSpec): Promise<ApplySchemaResult> {
+  const accessToken = await getValidAccessToken(userId)
+  if (!accessToken) throw new Error('BACKEND_NOT_CONNECTED')
+  const ref = await projectRef(userId, projectId)
+  if (!ref) throw new Error('BACKEND_NOT_CONNECTED')
+
+  const { statements, checksum } = compileSchema(spec)
+  const types = schemaToTypes(spec)
+
+  // Ensure the ledger exists, then skip if this exact schema already applied.
+  await runUserSql(accessToken, ref, MIGRATIONS_DDL)
+  const existing = await runUserSql<Array<{ checksum: string }>>(
+    accessToken, ref,
+    `select checksum from public._openthorn_migrations where checksum = '${checksum}' limit 1;`,
+  )
+  if (Array.isArray(existing) && existing.length > 0) {
+    return { applied: false, alreadyApplied: true, statements: statements.length, checksum, types }
+  }
+
+  // Apply the DDL as one batch, then record it in both ledgers.
+  await runUserSql(accessToken, ref, statements.join('\n'))
+  const name = `schema_${new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14)}`
+  await runUserSql(
+    accessToken, ref,
+    `insert into public._openthorn_migrations (name, checksum) values ('${name}', '${checksum}');`,
+  )
+
+  // Mirror into OpenThorn's own ledger (best-effort; never blocks the apply).
+  try {
+    const { url, serviceKey } = ownEnv()
+    await fetch(`${url}/rest/v1/project_migrations`, {
+      method: 'POST',
+      headers: { ...svcHeaders(serviceKey), Prefer: 'return=minimal' },
+      body: JSON.stringify({
+        project_id: projectId, version: Date.now(), name, sql: statements.join('\n'), checksum,
+      }),
+    })
+  } catch { /* non-fatal */ }
+
+  return { applied: true, alreadyApplied: false, statements: statements.length, checksum, types }
 }
 
 export async function saveProjectBackend(

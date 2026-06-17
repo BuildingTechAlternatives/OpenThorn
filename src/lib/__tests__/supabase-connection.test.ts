@@ -196,6 +196,75 @@ describe('management api', () => {
   })
 })
 
+describe('schema apply', () => {
+  const USER = '11111111-1111-4111-8111-111111111111'
+  beforeEach(() => {
+    vi.resetModules(); fetchMock.mockReset()
+    process.env.KEY_ENCRYPTION_SECRET = 'test-secret-test-secret-test-secret-test'
+    process.env.SUPABASE_OAUTH_CLIENT_ID = 'cid'
+    process.env.SUPABASE_OAUTH_CLIENT_SECRET = 'csecret'
+    process.env.SUPABASE_URL = 'https://openthorn.supabase.co'
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-key'
+  })
+
+  function connRow() {
+    return { org_id: 'o', access_token_enc: '', refresh_token_enc: '', expires_at: new Date(Date.now() + 3600_000).toISOString() }
+  }
+
+  it('runUserSql posts to the Management API database/query endpoint', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse([{ ok: 1 }]))
+    const { runUserSql } = await import('../../../api/_supabase')
+    await runUserSql('AT', 'ref1', 'select 1;')
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(String(url)).toBe('https://api.supabase.com/v1/projects/ref1/database/query')
+    expect(init.method).toBe('POST')
+    expect(init.headers.Authorization).toBe('Bearer AT')
+    expect(JSON.parse(init.body as string)).toEqual({ query: 'select 1;' })
+  })
+
+  it('applySchema runs DDL, records the ledger, and returns types', async () => {
+    const { encryptForUser } = await import('../../../api/_shared')
+    const conn = { ...connRow(), access_token_enc: encryptForUser('AT', USER), refresh_token_enc: encryptForUser('RT', USER) }
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse([conn]))           // getValidAccessToken
+      .mockResolvedValueOnce(jsonResponse([{ project_ref: 'ref1' }])) // projectRef
+      .mockResolvedValueOnce(jsonResponse([]))               // ensure _openthorn_migrations
+      .mockResolvedValueOnce(jsonResponse([]))               // applied checksums (none)
+      .mockResolvedValueOnce(jsonResponse([]))               // apply DDL batch
+      .mockResolvedValueOnce(jsonResponse([]))               // insert into _openthorn_migrations
+      .mockResolvedValueOnce(jsonResponse({}))               // mirror into project_migrations
+    const { applySchema } = await import('../../../api/_supabase')
+    const out = await applySchema(USER, 'proj-9', {
+      tables: [{ name: 'todos', access: 'owner', columns: [{ name: 'title', type: 'text' }] }],
+    })
+    expect(out.applied).toBe(true)
+    expect(out.types).toContain('export interface Todos')
+  })
+
+  it('applySchema is a no-op when the checksum already applied', async () => {
+    const { encryptForUser } = await import('../../../api/_shared')
+    const conn = { ...connRow(), access_token_enc: encryptForUser('AT', USER), refresh_token_enc: encryptForUser('RT', USER) }
+    const { compileSchema } = await import('../../../api/_schema')
+    const spec = { tables: [{ name: 'todos', access: 'owner' as const, columns: [{ name: 'title', type: 'text' as const }] }] }
+    const { checksum } = compileSchema(spec)
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse([conn]))                   // getValidAccessToken
+      .mockResolvedValueOnce(jsonResponse([{ project_ref: 'ref1' }])) // projectRef
+      .mockResolvedValueOnce(jsonResponse([]))                       // ensure table
+      .mockResolvedValueOnce(jsonResponse([{ checksum }]))           // applied checksums — present
+    const { applySchema } = await import('../../../api/_supabase')
+    const out = await applySchema(USER, 'proj-9', spec)
+    expect(out.applied).toBe(false)
+    expect(out.alreadyApplied).toBe(true)
+  })
+
+  it('applySchema throws BACKEND_NOT_CONNECTED when there is no connection', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse([]))  // getValidAccessToken → no row
+    const { applySchema } = await import('../../../api/_supabase')
+    await expect(applySchema(USER, 'proj-9', { tables: [] })).rejects.toThrow('BACKEND_NOT_CONNECTED')
+  })
+})
+
 describe('backend-connection client', () => {
   beforeEach(() => { vi.resetModules(); fetchMock.mockReset() })
 
