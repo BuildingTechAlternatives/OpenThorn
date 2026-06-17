@@ -432,6 +432,7 @@ export default function ProjectBuilderPage() {
   const [publishing, setPublishing] = useState(false)
   const [publishError, setPublishError] = useState('')
   const [publishSuccess, setPublishSuccess] = useState(false)
+  const [backendModalOpen, setBackendModalOpen] = useState(false)
   const [cfPagesProjectName, setCfPagesProjectName] = useState<string | null>(null)
   const titleInputRef = useRef<HTMLInputElement>(null)
   const titleShouldSaveRef = useRef(true)
@@ -1863,6 +1864,19 @@ export default function ProjectBuilderPage() {
             Publish
           </button>
           <button
+            className={styles.publishBtn}
+            type="button"
+            onClick={() => setBackendModalOpen(true)}
+            title="Connect a Supabase backend (database + accounts)"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <ellipse cx="12" cy="5" rx="9" ry="3"/>
+              <path d="M3 5v14a9 3 0 0 0 18 0V5"/>
+              <path d="M3 12a9 3 0 0 0 18 0"/>
+            </svg>
+            Backend
+          </button>
+          <button
             className={`${styles.deployBtn} ${deployState === 'deployed' ? styles.deployBtnDeployed : ''}`}
             type="button"
             onClick={deployState === 'deployed' ? () => window.open(deployUrl, '_blank') : handleDeploy}
@@ -2048,10 +2062,6 @@ export default function ProjectBuilderPage() {
             </div>
 
             <div className={styles.deployBody}>
-              {deployState !== 'deploying' && projectId && (
-                <ConnectBackend projectId={projectId} />
-              )}
-
               {deployState === 'deploying' && (
                 <div className={styles.deployStatus}>
                   <span className={styles.spinnerLarge} />
@@ -2086,6 +2096,30 @@ export default function ProjectBuilderPage() {
                   </button>
                 </div>
               )}
+            </div>
+          </section>
+        </div>
+      )}
+
+      {backendModalOpen && (
+        <div
+          className={styles.shareOverlay}
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setBackendModalOpen(false)
+          }}
+        >
+          <section className={styles.deployModal} role="dialog" aria-modal="true" aria-labelledby="backend-modal-title">
+            <div className={styles.shareHeader}>
+              <div>
+                <h2 id="backend-modal-title">Backend</h2>
+              </div>
+              <button className={styles.closeBtn} type="button" aria-label="Close" onClick={() => setBackendModalOpen(false)}>
+                <CloseIcon />
+              </button>
+            </div>
+            <div className={styles.deployBody}>
+              {projectId && <ConnectBackend projectId={projectId} />}
             </div>
           </section>
         </div>
