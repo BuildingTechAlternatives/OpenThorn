@@ -1,0 +1,80 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+  border-radius: 12px;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.desc {
+  margin: 0;
+  color: var(--color-text);
+  opacity: 0.7;
+  font-size: 0.9rem;
+}
+
+.primary {
+  align-self: flex-start;
+  background: var(--color-accent);
+  color: #fff;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.secondary,
+.projectBtn {
+  align-self: flex-start;
+  background: transparent;
+  border: 1px solid var(--color-accent);
+  color: var(--color-text);
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.projectBtn {
+  width: 100%;
+  text-align: left;
+}
+
+.projectBtn:disabled,
+.secondary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ref {
+  opacity: 0.6;
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+}
+
+.connected {
+  margin: 0;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.error {
+  margin: 0;
+  color: #c0392b;
+  font-size: 0.85rem;
+}

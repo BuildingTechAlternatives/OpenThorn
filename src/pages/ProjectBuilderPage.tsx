@@ -9,6 +9,7 @@ import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabase'
 import { describeAgentError, getErrorMessage, isAbortError, logError, type AgentErrorInfo } from '../lib/errors'
 import { deploySite } from '../lib/deploy'
+import { ConnectBackend } from '../components/ConnectBackend/ConnectBackend'
 import { buildPreview, escapeHtml } from '../lib/preview-bundle'
 import { capturePreviewThumbnail } from '../lib/preview-screenshot'
 import PreviewEditPopover from '../components/PreviewEditPopover/PreviewEditPopover'
@@ -2047,6 +2048,10 @@ export default function ProjectBuilderPage() {
             </div>
 
             <div className={styles.deployBody}>
+              {deployState !== 'deploying' && projectId && (
+                <ConnectBackend projectId={projectId} />
+              )}
+
               {deployState === 'deploying' && (
                 <div className={styles.deployStatus}>
                   <span className={styles.spinnerLarge} />
