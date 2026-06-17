@@ -134,3 +134,47 @@ describe('connection persistence', () => {
     expect(String(fetchMock.mock.calls[1][0])).toBe('https://api.supabase.com/v1/oauth/token')
   })
 })
+
+describe('management api', () => {
+  const USER = '11111111-1111-4111-8111-111111111111'
+  beforeEach(() => {
+    vi.resetModules()
+    fetchMock.mockReset()
+    process.env.SUPABASE_URL = 'https://openthorn.supabase.co'
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-key'
+  })
+
+  it('listOrgProjects maps the Management API response', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse([
+      { id: 'ref1', name: 'App One', organization_id: 'org_1', region: 'us-east-1' },
+    ]))
+    const { listOrgProjects } = await import('../../../api/_supabase')
+    const projects = await listOrgProjects('AT')
+    expect(projects[0]).toEqual({ ref: 'ref1', name: 'App One', orgId: 'org_1', region: 'us-east-1' })
+    expect(fetchMock.mock.calls[0][1].headers.Authorization).toBe('Bearer AT')
+    expect(String(fetchMock.mock.calls[0][0])).toBe('https://api.supabase.com/v1/projects')
+  })
+
+  it('getProjectConnectionInfo returns url + anon key', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse([
+      { name: 'anon', api_key: 'anon-xyz' },
+      { name: 'service_role', api_key: 'secret-should-be-ignored' },
+    ]))
+    const { getProjectConnectionInfo } = await import('../../../api/_supabase')
+    const info = await getProjectConnectionInfo('AT', 'ref1')
+    expect(info).toEqual({ supabaseUrl: 'https://ref1.supabase.co', anonKey: 'anon-xyz' })
+  })
+
+  it('saveProjectBackend upserts the public connection row', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({}))
+    const { saveProjectBackend } = await import('../../../api/_supabase')
+    await saveProjectBackend(USER, 'proj-9', 'ref1', { supabaseUrl: 'https://ref1.supabase.co', anonKey: 'anon-xyz' })
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(String(url)).toContain('/rest/v1/project_backends')
+    const row = JSON.parse(init.body as string)
+    expect(row).toEqual(expect.objectContaining({
+      project_id: 'proj-9', user_id: USER, project_ref: 'ref1',
+      supabase_url: 'https://ref1.supabase.co', supabase_anon_key: 'anon-xyz',
+    }))
+  })
+})

@@ -184,3 +184,63 @@ export async function deleteConnection(userId: string): Promise<void> {
     headers: { ...svcHeaders(serviceKey), Prefer: 'return=minimal' },
   })
 }
+
+// ---------------------------------------------------------------------------
+// Supabase Management API — projects + keys
+// ---------------------------------------------------------------------------
+
+export interface SupabaseProject {
+  ref: string
+  name: string
+  orgId: string
+  region: string
+}
+
+async function mgmt<T>(accessToken: string, path: string): Promise<T> {
+  const res = await fetch(`${SB_API}/v1${path}`, {
+    headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' },
+  })
+  const text = await res.text()
+  if (!res.ok) throw new Error(`Supabase Management API ${res.status}: ${text.slice(0, 200)}`)
+  return JSON.parse(text) as T
+}
+
+export async function listOrgProjects(accessToken: string): Promise<SupabaseProject[]> {
+  const raw = await mgmt<Array<{ id: string; name: string; organization_id: string; region: string }>>(
+    accessToken,
+    '/projects',
+  )
+  return raw.map((p) => ({ ref: p.id, name: p.name, orgId: p.organization_id, region: p.region }))
+}
+
+export async function getProjectConnectionInfo(
+  accessToken: string,
+  ref: string,
+): Promise<{ supabaseUrl: string; anonKey: string }> {
+  const keys = await mgmt<Array<{ name: string; api_key: string }>>(accessToken, `/projects/${ref}/api-keys`)
+  const anon = keys.find((k) => k.name === 'anon')
+  if (!anon) throw new Error('No anon key returned for project')
+  return { supabaseUrl: `https://${ref}.supabase.co`, anonKey: anon.api_key }
+}
+
+export async function saveProjectBackend(
+  userId: string,
+  projectId: string,
+  ref: string,
+  info: { supabaseUrl: string; anonKey: string },
+): Promise<void> {
+  const { url, serviceKey } = ownEnv()
+  const res = await fetch(`${url}/rest/v1/project_backends`, {
+    method: 'POST',
+    headers: { ...svcHeaders(serviceKey), Prefer: 'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify({
+      project_id: projectId,
+      user_id: userId,
+      project_ref: ref,
+      supabase_url: info.supabaseUrl,
+      supabase_anon_key: info.anonKey,
+      updated_at: new Date().toISOString(),
+    }),
+  })
+  if (!res.ok) throw new Error(`saveProjectBackend failed ${res.status}`)
+}
