@@ -6,7 +6,7 @@ import styles from './FaqPage.module.css'
 
 // Shown on the page and kept loosely in sync with content edits to faq.json —
 // answer engines favor visibly dated, current facts.
-const LAST_UPDATED = '2026-06-11'
+const LAST_UPDATED = '2026-06-18'
 
 // FAQ content lives in src/data/faq.json (plain text) so scripts/prerender.mjs
 // can emit the same questions/answers as static FAQPage JSON-LD. Answers that

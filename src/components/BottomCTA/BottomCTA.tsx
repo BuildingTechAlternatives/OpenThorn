@@ -20,11 +20,12 @@ export default function BottomCTA() {
             Turn the next rough prompt into a working app.
           </h2>
           <p className={styles.subtitle}>
-            Skip the platform tax and keep momentum: bring your model keys, generate real code, and ship from your own repo.
+            Skip the platform tax and keep momentum: bring your model keys, generate real code — frontend or full-stack — and ship from your own repo.
           </p>
           <div className={styles.proofRow} aria-label="OpenThorn advantages">
             <span>BYOK pricing</span>
             <span>GitHub export</span>
+            <span>Supabase backend</span>
             <span>No subscription wall</span>
           </div>
           <p className={styles.learnMore}>

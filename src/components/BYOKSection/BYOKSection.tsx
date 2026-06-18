@@ -29,6 +29,11 @@ const featureCards: Carousel3DCard[] = [
     title: 'Deploy in one click',
     description: 'From prompt to production in under a minute. Push live when you\'re ready, not when a plan allows.',
   },
+  {
+    icon: <DatabaseIcon />,
+    title: 'Full-stack, free',
+    description: 'Connect your Supabase project and the agent adds a real database and user auth — Supabase free tier included.',
+  },
 ]
 
 export default function BYOKSection() {
@@ -50,7 +55,8 @@ export default function BYOKSection() {
           a subscription you can't escape.
           <span className={styles.bodyHighlight}> OpenThorn is different.</span> You
           bring your own AI keys, pay providers directly, and keep every line
-          of code. No vendor lock-in, no recurring tax on your creativity.
+          of code. Build anything from a landing page to a full-stack app with
+          a database and user auth — no vendor lock-in, no recurring tax.
         </p>
       </motion.div>
 
@@ -107,6 +113,15 @@ function GlobeIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+    </svg>
+  )
+}
+function DatabaseIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <ellipse cx="12" cy="5" rx="9" ry="3" />
+      <path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5" />
+      <path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3" />
     </svg>
   )
 }

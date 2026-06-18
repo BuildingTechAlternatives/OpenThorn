@@ -4,7 +4,7 @@
     "items": [
       {
         "question": "What is OpenThorn?",
-        "answer": "OpenThorn is an AI-powered app builder. You describe what you want to build in plain language, and OpenThorn generates the code and deploys a working website — no coding skills required."
+        "answer": "OpenThorn is an AI-powered app builder. You describe what you want to build in plain language and OpenThorn generates the code — from a simple landing page to a full-stack app with a database and user authentication. No coding skills required."
       },
       {
         "question": "Do I need to know how to code?",
@@ -63,6 +63,27 @@
       {
         "question": "Can I delete my data?",
         "answer": "Yes. Email btalabs.contact@gmail.com to request full account and data deletion. We will process your request within 30 days."
+      }
+    ]
+  },
+  {
+    "label": "Backend & Full-stack",
+    "items": [
+      {
+        "question": "Can I build full-stack apps, not just websites?",
+        "answer": "Yes. OpenThorn can generate complete full-stack applications — not just static sites. Connect your Supabase project and the AI agent will add a real PostgreSQL database, user authentication, and row-level security to your app automatically."
+      },
+      {
+        "question": "How does the Supabase integration work?",
+        "answer": "In the project builder, open the Backend panel and authorize your Supabase account. You can pick an existing Supabase project or create a new one directly from OpenThorn. Once connected, the agent knows your database is available and writes code that uses it — queries, auth flows, and all. Supabase offers a free tier, so you can get started without a credit card."
+      },
+      {
+        "question": "Do I need a paid Supabase plan?",
+        "answer": "No. Supabase has a generous free tier that covers most hobby and early-stage projects. You only need to upgrade if your app outgrows the free limits — OpenThorn itself never charges for backend features."
+      },
+      {
+        "question": "What backend features does the agent support?",
+        "answer": "The agent can create database tables, write SQL migrations, set up row-level security policies, handle user sign-up and login, store and query data, and use Supabase Storage for file uploads — all by describing what you want in plain language."
       }
     ]
   },
