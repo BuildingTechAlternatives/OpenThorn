@@ -7,13 +7,11 @@ import {
   isContinuationRequest,
   isLikelyBuildRequest,
   isSmallRefineRequest,
-  mergePromptRequirementsIntoPlan,
   shouldRejectWholeFileRewrite,
   matchesGlob,
   nearestSnippet,
   type RunUsage,
 } from '../agent'
-import { applyPlanUpdate, createPlan, unmetRequirements } from '../agent-plan'
 
 describe('isRetryableStatus', () => {
   it('retries timeouts, rate limits, and server errors', () => {
@@ -113,8 +111,7 @@ describe('agent request planning helpers', () => {
 
   it('always treats a visual click-to-edit as a small refine, even when long', () => {
     // The appended element + style context pushes a visual edit well past the
-    // length cap; the [Visual edit] marker must still mark it small so it skips
-    // the checklist and the done-gate plan-coverage check.
+    // length cap; the [Visual edit] marker must still mark it small.
     const visualEdit =
       '[Visual edit] The user selected the <a> element at Navbar.tsx:50 (text: "Waitlist").' +
       ' Current styles — color: rgb(17, 24, 39); backgroundColor: rgba(0, 0, 0, 0);' +
@@ -122,28 +119,6 @@ describe('agent request planning helpers', () => {
       ' textAlign: left. Apply only this change to that element: Change the text to: Join now'
     expect(visualEdit.length).toBeGreaterThan(220)
     expect(isSmallRefineRequest(visualEdit)).toBe(true)
-  })
-
-  it('adds current refine requirements to an existing completed plan', () => {
-    const oldPlan = applyPlanUpdate(createPlan('Build a game with score'), {
-      check: [1, 2],
-    })
-    const next = mergePromptRequirementsIntoPlan(
-      oldPlan,
-      'Add a sound effect toggle for jumps and collisions',
-      'refine',
-    )
-
-    expect(next.items.length).toBeGreaterThan(oldPlan.items.length)
-    expect(unmetRequirements(next).map((item) => item.text).join(' ').toLowerCase()).toContain(
-      'sound effect toggle',
-    )
-  })
-
-  it('does not invent requirements for a plain continuation', () => {
-    const plan = createPlan('Add crouching')
-    const next = mergePromptRequirementsIntoPlan(plan, 'continue', 'refine')
-    expect(next.items).toEqual(plan.items)
   })
 
   it('matches a no-slash glob by basename anywhere in the tree', () => {

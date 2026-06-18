@@ -1,14 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import {
-  createPlan,
-  parsePlan,
-  formatPlan,
-  applyPlanUpdate,
-  extractRequirements,
-  unmetRequirements,
-  planToSystemReminder,
-} from '../agent-plan'
-import {
   rememberForUser,
   loadUserMemory,
   inferPreferencesFromPrompt,
@@ -23,54 +14,6 @@ import {
   inferThinkingPhase,
 } from '../agent-prompt'
 import { RESOLVABLE_PACKAGES, ALLOWED_PACKAGE_NAMES } from '../allowed-packages'
-
-// ─── Plan & requirements (#5) ───────────────────────────────────────────────
-
-describe('agent-plan', () => {
-  it('extracts discrete requirements from a prompt', () => {
-    const reqs = extractRequirements(
-      'Build a todo app with a dark mode toggle and a calendar view',
-    )
-    expect(reqs.length).toBeGreaterThanOrEqual(2)
-    expect(reqs.join(' ').toLowerCase()).toContain('dark mode')
-  })
-
-  it('falls back to the whole prompt when it cannot split', () => {
-    expect(extractRequirements('Portfolio').length).toBe(1)
-  })
-
-  it('round-trips through format/parse', () => {
-    const plan = createPlan('Build a landing page with pricing and FAQ')
-    const restored = parsePlan(formatPlan(plan))
-    expect(restored.items.length).toBe(plan.items.length)
-    expect(restored.items[0].text).toBe(plan.items[0].text)
-    expect(restored.items.every((i) => !i.done)).toBe(true)
-  })
-
-  it('checks items off and tracks unmet requirements', () => {
-    let plan = createPlan('Add login and signup and logout')
-    expect(unmetRequirements(plan).length).toBe(plan.items.length)
-    plan = applyPlanUpdate(plan, { check: [1] })
-    expect(plan.items.find((i) => i.id === 1)?.done).toBe(true)
-    expect(unmetRequirements(plan).length).toBe(plan.items.length - 1)
-  })
-
-  it('replaces and appends requirements', () => {
-    let plan = createPlan('x')
-    plan = applyPlanUpdate(plan, { setRequirements: ['A', 'B'] })
-    expect(plan.items.map((i) => i.text)).toEqual(['A', 'B'])
-    plan = applyPlanUpdate(plan, { addRequirements: ['C'] })
-    expect(plan.items.map((i) => i.text)).toEqual(['A', 'B', 'C'])
-    expect(plan.items[2].id).toBe(3)
-  })
-
-  it('produces an injectable reminder that flags unchecked items', () => {
-    const plan = createPlan('Build a blog with comments')
-    const reminder = planToSystemReminder(plan)
-    expect(reminder).toContain('<system-reminder>')
-    expect(reminder).toContain('unchecked')
-  })
-})
 
 // ─── Cross-project memory (#8) ──────────────────────────────────────────────
 

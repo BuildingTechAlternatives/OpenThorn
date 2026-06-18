@@ -146,9 +146,9 @@ export const AGENT_TOOLS: ToolDefinition[] = [
       'compile passed BOTH the build and the runtime check (no errors, the app ' +
       'renders) and every requested feature is implemented and working. There is ' +
       'no separate reviewer after this — you are responsible for the result, so ' +
-      'compile right before finishing and self-check each requirement in PLAN.md. ' +
+      'compile right before finishing and self-check every requested feature. ' +
       'done is VERIFIED: it is rejected if files changed since the last passing ' +
-      'compile, if PLAN.md requirements are still unchecked, if a stylesheet ' +
+      'compile, if a stylesheet ' +
       'exists that nothing imports (the app would render unstyled), if the app\'s ' +
       'buttons/inputs throw errors when actually exercised, or if the rendered ' +
       'layout is measured to have PROBLEMs (mobile overflow, overlapping controls, ' +
@@ -333,44 +333,6 @@ export const AGENT_TOOLS: ToolDefinition[] = [
     },
   },
   {
-    name: 'update_plan',
-    description:
-      'Update the project plan and requirements checklist (PLAN.md), the agent\'s ' +
-      'durable working memory that survives context compaction. Use it to: refine ' +
-      'the requirements derived from the user\'s request (set_requirements), add a ' +
-      'newly-discovered requirement (add_requirements), check items off as you ' +
-      'complete them (check), or record design decisions (notes). Check items off ' +
-      'as you finish them so the plan reflects real progress before you finish.',
-    input_schema: {
-      type: 'object',
-      properties: {
-        goal: { type: 'string', description: 'Optional: restate the overall goal.' },
-        set_requirements: {
-          type: 'array',
-          items: { type: 'string' },
-          description: 'Replace the entire requirements checklist with these items.',
-        },
-        add_requirements: {
-          type: 'array',
-          items: { type: 'string' },
-          description: 'Append these new requirements to the checklist.',
-        },
-        check: {
-          type: 'array',
-          items: { type: 'integer' },
-          description: 'Requirement ids (numbers) to mark complete.',
-        },
-        uncheck: {
-          type: 'array',
-          items: { type: 'integer' },
-          description: 'Requirement ids (numbers) to mark incomplete.',
-        },
-        notes: { type: 'string', description: 'Replace the free-form design notes.' },
-      },
-      additionalProperties: false,
-    },
-  },
-  {
     name: 'think',
     description:
       'Think through a design decision, architecture choice, or implementation approach. ' +
@@ -450,7 +412,6 @@ export const AGENT_TOOLS: ToolDefinition[] = [
 const CORE_TOOL_NAMES = new Set([
   'think',
   'set_title',
-  'update_plan',
   'load_skill',
   'list_files',
   'read_file',
@@ -529,12 +490,12 @@ void EXPANSION_TOOL_NAMES // documents the deferred set; selection is by CORE al
 
 /** Reminder injected when the lean tool set is in effect, to avoid confusion. */
 export const LEAN_TOOLSET_REMINDER = `<system-reminder>
-For this build the tool set is: think, set_title, update_plan, load_skill, list_files, read_file, write_file, edit_file, compile, done. The multi_edit, delete_file, and search_files tools are not loaded for this task — write_file and edit_file cover everything needed. Do not attempt to call them. (load_skill IS available — load the relevant skill before you start building, per <available-skills>.)
+For this build the tool set is: think, set_title, load_skill, list_files, read_file, write_file, edit_file, compile, done. The multi_edit, delete_file, and search_files tools are not loaded for this task — write_file and edit_file cover everything needed. Do not attempt to call them. (load_skill IS available — load the relevant skill before you start building, per <available-skills>.)
 </system-reminder>`
 
 /** Reminder injected for a small refine, whose tool set is leaner still. */
 export const SMALL_REFINE_TOOLSET_REMINDER = `<system-reminder>
-This is a small, self-contained change. The tool set is: think, load_skill, list_files, read_file, write_file, edit_file, multi_edit, compile, done. set_title, update_plan, delete_file, and search_files are NOT loaded — don't call them. Go straight to the edit, compile once, then done. If the change is visual/design work (styling, layout, look-and-feel), load the relevant design skill first (frontend-design or ui-ux-pro-max) — a one-line CSS tweak still benefits from getting it right the first time.
+This is a small, self-contained change. The tool set is: think, load_skill, list_files, read_file, write_file, edit_file, multi_edit, compile, done. set_title, delete_file, and search_files are NOT loaded — don't call them. Go straight to the edit, compile once, then done. If the change is visual/design work (styling, layout, look-and-feel), load the relevant design skill first (frontend-design or ui-ux-pro-max) — a one-line CSS tweak still benefits from getting it right the first time.
 </system-reminder>`
 
 /** Injected per-run when the project has a connected Supabase backend. */
@@ -589,7 +550,6 @@ export const TOOL_CATEGORIES: Record<string, 'read' | 'write' | 'compile' | 'don
   read_file: 'read',
   search_files: 'read',
   set_title: 'read',
-  update_plan: 'write',
   write_file: 'write',
   edit_file: 'write',
   multi_edit: 'write',
@@ -669,7 +629,7 @@ Work like a senior engineer, scaled to the task. A small tweak needs no ceremony
 2. **Plan (for non-trivial new work).** Use think to decide the component tree, routes, color system, and the file list — informed by the skill you just loaded — then build to that plan.
 3. **Build.** Create files in dependency order: theme.css → App.tsx → pages → components. **Write ONE file per turn** — a single write_file per response — so each file is generated and shown to the user one at a time, the way a careful engineer works through a project. Never emit several write_file calls in the same turn. Write complete files. Keep components focused.
 4. **Verify efficiently.** compile after a coherent batch of related edits (it builds AND runs the app), and always before done. Fix every build and runtime error before moving on. Delete files you no longer use.
-5. **Finish.** There is no automated reviewer after you — verify your own work. Before done, make sure the LAST compile passed build + runtime, every requested feature exists and works, every PLAN.md item is checked off, and the result is responsive and polished. Then call done once and stop — do not keep polishing or re-compiling after a clean pass.
+5. **Finish.** There is no automated reviewer after you — verify your own work. Before done, make sure the LAST compile passed build + runtime, every requested feature exists and works, and the result is responsive and polished. Then call done once and stop — do not keep polishing or re-compiling after a clean pass.
 </approach>
 
 <tool-guidance>
@@ -929,7 +889,7 @@ export function turnBudgetPrompt(turnsLeft: number): string {
 The run ends automatically when turns run out — unfinished work is what the user gets. Prioritize landing the build:
 1. Finish only what is essential to the core request; skip optional polish.
 2. Reserve the final 2 turns: one for compile (build + runtime), one for done.
-3. If not every PLAN.md requirement can be finished, complete the most important ones, check them off with update_plan, and call done with an honest summary of what is and isn't included.
+3. If not every requested feature can be finished, complete the most important ones and call done with an honest summary of what is and isn't included.
 </system-reminder>`
 }
 

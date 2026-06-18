@@ -36,18 +36,6 @@ import {
   formatRuntimeReport,
 } from './preview-runtime-check'
 import {
-  PLAN_PATH,
-  createPlan,
-  extractRequirements,
-  parsePlan,
-  formatPlan,
-  applyPlanUpdate,
-  planToSystemReminder,
-  unmetRequirements,
-  type AgentPlan,
-  type PlanUpdate,
-} from './agent-plan'
-import {
   loadUserMemory,
   rememberForUser,
   userMemoryToSystemReminder,
@@ -786,40 +774,6 @@ export function isLikelyBuildRequest(prompt: string): boolean {
   return BUILD_VERB_RE.test(cleaned)
 }
 
-function normalizeRequirementForCompare(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .replace(/\b(a|an|the|please|can|could|you|to|do|does|with|and)\b/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-function requirementExists(plan: AgentPlan, requirement: string): boolean {
-  const target = normalizeRequirementForCompare(requirement)
-  if (!target) return true
-  return plan.items.some((item) => {
-    const existing = normalizeRequirementForCompare(item.text)
-    return existing === target || existing.includes(target) || target.includes(existing)
-  })
-}
-
-export function mergePromptRequirementsIntoPlan(
-  plan: AgentPlan,
-  prompt: string,
-  mode: 'create' | 'refine',
-): AgentPlan {
-  if (mode !== 'refine' || !isLikelyBuildRequest(prompt) || isContinuationRequest(prompt)) {
-    return plan
-  }
-
-  const additions = extractRequirements(prompt).filter(
-    (requirement) => !requirementExists(plan, requirement),
-  )
-  if (additions.length === 0) return plan
-
-  return applyPlanUpdate(plan, { addRequirements: additions })
-}
 
 export function isSmallRefineRequest(prompt: string): boolean {
   const lower = prompt.toLowerCase().replace(/\s+/g, ' ').trim()
@@ -1214,36 +1168,6 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
 
   let currentFiles = normalizeFiles(input.files)
 
-  // ── Plan + requirements checklist (#5) ────────────────────────
-  // Seed PLAN.md from the request so the agent's plan survives compaction and
-  // the done gate can verify requirement coverage. PLAN.md is the source of
-  // truth; the update_plan tool mutates it.
-  // A small, self-contained edit (e.g. "make the header red", a click-to-edit
-  // tweak) shouldn't drag the whole project checklist around: don't seed new
-  // requirements, don't surface the plan reminder, and let the done gate skip
-  // plan-coverage. The existing PLAN.md (if any) is left untouched.
-  // (smallRefine is computed once up top, near tool selection.)
-  const existingPlanFile = currentFiles.find((f) => f.path === PLAN_PATH)
-  if (!smallRefine) {
-    const parsedPlan: AgentPlan = existingPlanFile
-      ? parsePlan(existingPlanFile.code)
-      : createPlan(input.prompt)
-    const basePlan = parsedPlan.items.length > 0 ? parsedPlan : createPlan(input.prompt)
-    const initialPlan = mergePromptRequirementsIntoPlan(basePlan, input.prompt, mode)
-    const initialPlanCode = formatPlan(initialPlan)
-    if (!existingPlanFile || existingPlanFile.code !== initialPlanCode) {
-      currentFiles = upsertFile(currentFiles, {
-        path: PLAN_PATH,
-        language: 'md',
-        code: initialPlanCode,
-      })
-    }
-    const planReminder = planToSystemReminder(initialPlan)
-    if (planReminder) {
-      messages.push({ role: 'user', content: planReminder })
-    }
-  }
-
   // Mark where the preamble ends. Everything from here onward (injected history
   // + current conversation) becomes the `conversationHistory` returned to the
   // caller so it can be passed back as `input.history` on the next run.
@@ -1518,13 +1442,10 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
         filesMutatedThisTurn = true
         buildActivityThisRun = true
       }
-      // Setting the title or populating the plan also counts as starting to
-      // build — a subsequent text-only turn is then a stalled build, not a
-      // conversational reply, and should be nudged toward done.
-      if (
-        ['set_title', 'update_plan'].includes(tc.name) &&
-        !toolResults[i]?.isError
-      ) {
+      // Setting the title also counts as starting to build — a subsequent
+      // text-only turn is then a stalled build, not a conversational reply,
+      // and should be nudged toward done.
+      if (tc.name === 'set_title' && !toolResults[i]?.isError) {
         buildActivityThisRun = true
       }
     }
@@ -1594,17 +1515,6 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
           },
         ],
       })
-    }
-
-    // ── Plan re-injection (#5) ──────────────────────────────────
-    // If the agent updated the plan this turn, surface the fresh checklist so
-    // it stays salient even after compaction.
-    if (toolCalls.some((tc) => tc.name === 'update_plan')) {
-      const planFile = currentFiles.find((f) => f.path === PLAN_PATH)
-      if (planFile) {
-        const reminder = planToSystemReminder(parsePlan(planFile.code))
-        if (reminder) messages.push({ role: 'user', content: reminder })
-      }
     }
 
     // ── Loop / stuck detection (#9) ─────────────────────────────
@@ -1844,7 +1754,7 @@ interface RunContext {
    * re-reading a file the agent just wrote, and overlapping fragment re-reads.
    */
   reads: Map<string, { snap: string; turn: number; servedStart: number; servedEnd: number }>
-  /** Project files changed during this run, excluding PLAN.md bookkeeping. */
+  /** Project files changed during this run. */
   mutatedPaths: Set<string>
   /** Long existing files where write_file was already rejected once this run. */
   rewriteGuardedPaths: Set<string>
@@ -1931,8 +1841,7 @@ async function executeToolsParallel(
     if (result.files) {
       currentFiles = result.files
       // Source changed → the last compile no longer vouches for the project.
-      // PLAN.md updates don't affect the build, so they don't dirty it.
-      if (!result.isError && call.name !== 'update_plan') {
+      if (!result.isError) {
         runCtx.dirtySinceCompile = true
         // The cached compile bundle no longer matches the files on disk.
         runCtx.lastPreviewHtml = undefined
@@ -2047,47 +1956,6 @@ async function executeTool(
     // ── think ──────────────────────────────────────────────────
     case 'think': {
       return { content: String(toolCall.input.thought ?? ''), isError: false }
-    }
-
-    // ── update_plan ─────────────────────────────────────────────
-    case 'update_plan': {
-      const planFile = currentFiles.find((f) => f.path === PLAN_PATH)
-      const plan = planFile ? parsePlan(planFile.code) : { goal: '', items: [], notes: '' }
-
-      const asStringArray = (v: unknown): string[] | undefined =>
-        Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : undefined
-      const asNumberArray = (v: unknown): number[] | undefined =>
-        Array.isArray(v) ? v.map(Number).filter((n) => Number.isFinite(n)) : undefined
-
-      const update: PlanUpdate = {
-        goal: typeof toolCall.input.goal === 'string' ? toolCall.input.goal : undefined,
-        setRequirements: asStringArray(toolCall.input.set_requirements),
-        addRequirements: asStringArray(toolCall.input.add_requirements),
-        check: asNumberArray(toolCall.input.check),
-        uncheck: asNumberArray(toolCall.input.uncheck),
-        notes: typeof toolCall.input.notes === 'string' ? toolCall.input.notes : undefined,
-      }
-
-      const nextPlan = applyPlanUpdate(plan, update)
-      const newFiles = upsertFile(currentFiles, {
-        path: PLAN_PATH,
-        language: 'md',
-        code: formatPlan(nextPlan),
-      })
-      const remaining = unmetRequirements(nextPlan).length
-      const emptyHint =
-        nextPlan.items.length === 0
-          ? '\nThe checklist is EMPTY. Call update_plan again with set_requirements listing the concrete, checkable features you are building — done is verified against this list.'
-          : ''
-      return {
-        content:
-          `Plan updated. ${nextPlan.items.length} requirement(s), ${remaining} still unchecked.${emptyHint}\n` +
-          nextPlan.items
-            .map((it) => `  [${it.done ? 'x' : ' '}] ${it.id}. ${it.text}`)
-            .join('\n'),
-        isError: false,
-        files: newFiles,
-      }
     }
 
     // ── list_files ──────────────────────────────────────────────
@@ -2786,9 +2654,7 @@ async function executeTool(
  * or null to accept done. Checks, cheapest first:
  *
  * 1. Files changed since the last passing compile (or no passing compile yet).
- * 2. PLAN.md has unchecked requirements (create mode, fires at most once —
- *    the seeded checklist is heuristic and may contain noise).
- * 3. Interactive smoke test: build the app and actually exercise its buttons,
+ * 2. Interactive smoke test: build the app and actually exercise its buttons,
  *    inputs, and hash links; reject when a handler throws.
  */
 async function runDoneVerificationGate(
@@ -2810,26 +2676,7 @@ async function runDoneVerificationGate(
     })
   }
 
-  // 2. Plan-coverage gate. The run-level rejection cap prevents deadlocks if a
-  // heuristic checklist is noisy, but the model must first see the concrete gap.
-  // Skipped for small refines — those don't carry a checklist to satisfy.
-  const planFile = currentFiles.find((f) => f.path === PLAN_PATH)
-  if (planFile && !runCtx.smallRefine) {
-    const unmet = unmetRequirements(parsePlan(planFile.code))
-    if (unmet.length > 0) {
-      return formatStructuredError({
-        code: 'DONE_REJECTED',
-        message: `PLAN.md still has ${unmet.length} unchecked requirement(s): ${unmet
-          .map((i) => `${i.id}. ${i.text}`)
-          .join('; ')}`,
-        suggestion:
-            'Either finish these requirements, or — if one is already done or no longer applies — update the checklist with update_plan (check it off or rewrite the list), then call done again.',
-        retryable: true,
-      })
-    }
-  }
-
-  // 3. Orphaned-stylesheet gate (deterministic, cross-file). A written-but-
+  // 2. Orphaned-stylesheet gate (deterministic, cross-file). A written-but-
   // unimported .css file means the app renders unstyled — compile passes, the
   // app "works", but it looks broken. This catches the single most common
   // silent failure and works for every provider (no vision needed).
@@ -3691,15 +3538,9 @@ function buildUserPrompt(
     .filter((f) => f.path !== 'No files yet')
     .map((f) => `- ${f.path}`)
     .join('\n')
-  const planFile = files.find((f) => f.path === PLAN_PATH)
-  const plan = planFile ? parsePlan(planFile.code) : null
-  const uncheckedPlanItems = plan ? unmetRequirements(plan) : []
-  const continuationContext =
-    isContinuationRequest(prompt) && uncheckedPlanItems.length > 0
-      ? `\n\nThe user is asking you to continue the unfinished work. Continue with the unchecked PLAN.md requirement(s):\n${uncheckedPlanItems
-          .map((item) => `- ${item.id}. ${item.text}`)
-          .join('\n')}\nDo not just summarize the project; take the next concrete tool action toward those items.`
-      : ''
+  const continuationContext = isContinuationRequest(prompt)
+    ? '\n\nThe user is asking you to continue the unfinished work. Take the next concrete tool action toward completing the remaining features.'
+    : ''
 
   if (isNew || mode === 'create') {
     let p = `The user's message: ${prompt}\n\nProject title: ${title}\n\nIf this is a request to build something, create a web app for it: think about the design and file plan first, then create files in order: theme.css → App.tsx → pages → components. Write complete files and compile after every few to catch build AND runtime errors early.\n\nIf it is NOT a build request (a greeting, casual remark, or question), do not build anything — reply in plain text with no tool calls.`
@@ -3709,7 +3550,7 @@ function buildUserPrompt(
     return p + continuationContext
   }
   if (smallRefine) {
-    return `The user's message about the existing project: ${prompt}\n\nProject title: ${title}\n\nCurrent files:\n${leftoverFiles || '(none)'}\n\nThis is a small, self-contained change. Work in as FEW turns as possible — a competent engineer does this in one edit:\n- Do NOT touch PLAN.md or the requirements checklist. Leave it exactly as it is and do NOT call update_plan — this change is not tracked there.\n- Go straight to the edit. Read at most the ONE file you're changing (skip even that if its contents are already shown in the conversation above), then make the focused edit with edit_file/multi_edit.\n- Compile ONCE (build + runtime) to verify, then call done. No extra reads, no re-compiles, no unrequested polish.\n\nIf this is a question or remark rather than a change request, answer it in plain text and do not modify any files or call done.`
+    return `The user's message about the existing project: ${prompt}\n\nProject title: ${title}\n\nCurrent files:\n${leftoverFiles || '(none)'}\n\nThis is a small, self-contained change. Work in as FEW turns as possible — a competent engineer does this in one edit:\n- Go straight to the edit. Read at most the ONE file you're changing (skip even that if its contents are already shown in the conversation above), then make the focused edit with edit_file/multi_edit.\n- Compile ONCE (build + runtime) to verify, then call done. No extra reads, no re-compiles, no unrequested polish.\n\nIf this is a question or remark rather than a change request, answer it in plain text and do not modify any files or call done.`
   }
   return `The user's message about the existing project: ${prompt}\n\nProject title: ${title}\n\nCurrent files:\n${leftoverFiles || '(none)'}${continuationContext}\n\nIf this requests a change, update the project: read files before editing them, use search_files to find patterns, multi_edit for several changes to one file, and delete_file to remove anything this change makes obsolete. Make focused changes and compile (build + runtime) after edits to verify.\n\nIf it is a question or remark rather than a change request, answer it in plain text (use read-only tools to look things up if needed) and do not modify any files or call done.`
 }

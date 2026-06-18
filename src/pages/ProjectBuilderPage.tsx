@@ -247,8 +247,6 @@ function formatToolLabel(name: string, input?: Record<string, unknown>): string 
       return 'Wrapping up'
     case 'set_title':
       return 'Naming project'
-    case 'update_plan':
-      return 'Updating checklist'
     default:
       return name.replace(/_/g, ' ').replace(/^\w/, (char) => char.toUpperCase())
   }
@@ -306,8 +304,6 @@ function formatToolResultDetail(name: string, result?: string, error?: boolean):
       const title = parseJsonStringField(text, 'title')
       return title ? `Project named "${title}"` : 'Title updated'
     }
-    case 'update_plan':
-      return formatPlanResultDetail(text)
     case 'done':
       // Full summary renders separately as the completion paragraph.
       return ''
@@ -328,15 +324,6 @@ function parseJsonStringField(text: string, field: string): string {
   } catch {
     return ''
   }
-}
-
-function formatPlanResultDetail(text: string): string {
-  const match = text.match(/Plan updated\. (\d+) requirement\(s\), (\d+) still unchecked\./)
-  if (!match) return 'Checklist updated'
-  const total = Number(match[1])
-  const remaining = Number(match[2])
-  const complete = Math.max(0, total - remaining)
-  return `${complete}/${total} requirements complete`
 }
 
 const CHAT_SAVE_INTERVAL_MS = 750
