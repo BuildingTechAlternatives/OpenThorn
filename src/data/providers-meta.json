@@ -21,7 +21,7 @@
       { "name": "Create an OpenAI API key", "text": "Sign in at platform.openai.com, add at least $5 of prepaid credit, and create a new secret key under API keys. Copy it immediately — it is shown only once." },
       { "name": "Set a spend limit", "text": "In the OpenAI billing settings, set a monthly budget so usage can never exceed what you choose to prepay." },
       { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose OpenAI, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a GPT model, and describe the site in plain language. Preview it live in the browser, iterate conversationally, then deploy to Netlify or export the source." }
+      { "name": "Describe your website and ship it", "text": "Create a project, pick a GPT model, and describe the site in plain language. Preview it live in the browser, iterate conversationally, then deploy to Cloudflare Pages or export the source." }
     ],
     "faqs": [
       { "question": "How much does it cost to build a website with the OpenAI API?", "answer": "You pay OpenAI's per-token rates only — OpenThorn adds no markup and no subscription. A typical site costs cents with GPT-5.4 mini and roughly $0.50–$3 with GPT-5.5, versus $20–50/month for credit-based AI builders." },
@@ -51,7 +51,7 @@
       { "name": "Create an Anthropic API key", "text": "Sign in at console.anthropic.com, add prepaid credit (from $5), and create a key under Settings → API keys. Copy it immediately — it is shown only once." },
       { "name": "Set a spend limit", "text": "Prepaid credit is itself a hard cap; you can also configure monthly spend limits in the console so costs stay predictable." },
       { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Anthropic, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a Claude model, and describe the site. Preview it live, iterate conversationally, then deploy to Netlify or export the full source." }
+      { "name": "Describe your website and ship it", "text": "Create a project, pick a Claude model, and describe the site. Preview it live, iterate conversationally, then deploy to Cloudflare Pages or export the full source." }
     ],
     "faqs": [
       { "question": "How much does it cost to build a website with the Claude API?", "answer": "You pay Anthropic's per-token rates only. With Claude Sonnet 4.6 a typical site costs $0.50–$2; with Claude Haiku 4.5, cents. There is no OpenThorn subscription or markup — compare that with $25+/month for credit-based builders." },
@@ -81,7 +81,7 @@
       { "name": "Create a Gemini API key", "text": "Sign in at aistudio.google.com with a Google account and click Get API key. The free tier requires no billing details." },
       { "name": "Optionally add billing", "text": "For higher rate limits and access to the strongest models, enable billing in Google AI Studio and set a budget alert in Google Cloud." },
       { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Google Gemini, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a Gemini model, and describe the site. Preview it live, iterate conversationally, then deploy to Netlify or export the full source." }
+      { "name": "Describe your website and ship it", "text": "Create a project, pick a Gemini model, and describe the site. Preview it live, iterate conversationally, then deploy to Cloudflare Pages or export the full source." }
     ],
     "faqs": [
       { "question": "Can I build a website with AI completely free using Gemini?", "answer": "Yes. Google AI Studio's free tier issues API keys with daily request limits and no credit card. Combined with OpenThorn's free platform, you can build and deploy your first website for $0 — the only constraint is the free tier's daily quota." },
@@ -110,7 +110,7 @@
       { "name": "Create a DeepSeek API key", "text": "Sign up at platform.deepseek.com, top up a small prepaid balance, and create a key under API Keys." },
       { "name": "Note the prepaid cap", "text": "Your prepaid balance is a hard spend cap — usage simply stops when it runs out, so costs can never surprise you." },
       { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose DeepSeek, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick DeepSeek Chat or Reasoner, and describe the site. Preview it live, iterate, then deploy to Netlify or export the source." }
+      { "name": "Describe your website and ship it", "text": "Create a project, pick DeepSeek Chat or Reasoner, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
     ],
     "faqs": [
       { "question": "Is DeepSeek good enough to build a real website?", "answer": "Yes. DeepSeek's recent models score competitively with Western flagships on coding benchmarks while costing a fraction per token. For most landing pages and multi-page sites the output quality is strong, and OpenThorn's verification gate catches compile errors before you ship." },
@@ -140,7 +140,7 @@
       { "name": "Create a Mistral API key", "text": "Sign up at console.mistral.ai and create a key under API Keys. The free experiment tier requires no payment details." },
       { "name": "Optionally add billing", "text": "For higher rate limits and the largest models, add a payment method and set usage alerts in the console." },
       { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Mistral AI, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a Mistral model, and describe the site. Preview it live, iterate, then deploy to Netlify or export the source." }
+      { "name": "Describe your website and ship it", "text": "Create a project, pick a Mistral model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
     ],
     "faqs": [
       { "question": "Does Mistral have a free API tier I can use with OpenThorn?", "answer": "Yes. La Plateforme's free experiment tier issues API keys with rate limits and no payment details, and OpenThorn itself is free — so your first websites can cost $0." },
@@ -200,7 +200,7 @@
       { "name": "Create a Together AI API key", "text": "Sign up at api.together.ai and copy your key from Settings → API Keys. New accounts include a small free credit." },
       { "name": "Set a spend alert", "text": "Configure billing alerts in the Together dashboard so usage stays visible and predictable." },
       { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Together AI, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick an open model, and describe the site. Preview it live, iterate, then deploy to Netlify or export the source." }
+      { "name": "Describe your website and ship it", "text": "Create a project, pick an open model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
     ],
     "faqs": [
       { "question": "Which open-source model on Together AI is best for websites?", "answer": "DeepSeek V4 Pro is the strongest all-rounder; Qwen3 Coder 480B excels at intricate component logic. For simple sites, Llama 3.3 70B Turbo is faster and cheaper. All cost a fraction of proprietary flagship rates." },
@@ -229,7 +229,7 @@
       { "name": "Create an xAI API key", "text": "Sign in at console.x.ai, add prepaid credit, and create an API key." },
       { "name": "Note the prepaid cap", "text": "Prepaid credit is a hard spend limit — usage stops when the balance runs out." },
       { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose xAI, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a Grok model, and describe the site. Preview it live, iterate, then deploy to Netlify or export the source." }
+      { "name": "Describe your website and ship it", "text": "Create a project, pick a Grok model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
     ],
     "faqs": [
       { "question": "Is Grok good at building websites?", "answer": "Yes — Grok 4.3 performs competitively on coding tasks and handles complete website generation well in OpenThorn, including multi-page sites. The reasoning variant helps with more intricate component logic." },
@@ -259,7 +259,7 @@
       { "name": "Create a Cohere API key", "text": "Sign up at dashboard.cohere.com — a free trial key with rate limits is issued immediately, no payment details required." },
       { "name": "Upgrade for production use", "text": "Add billing for a production key with higher limits, and set usage alerts in the dashboard." },
       { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Cohere, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a Command model, and describe the site. Preview it live, iterate, then deploy to Netlify or export the source." }
+      { "name": "Describe your website and ship it", "text": "Create a project, pick a Command model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
     ],
     "faqs": [
       { "question": "Can I try Cohere with OpenThorn for free?", "answer": "Yes. Cohere's trial keys are free with rate limits and require no payment details, and OpenThorn itself is free — so evaluating a full website build costs $0." },
@@ -289,7 +289,7 @@
       { "name": "Create a Perplexity API key", "text": "Sign in at perplexity.ai, open Settings → API, add credit (Pro subscribers get a monthly allowance), and generate a key." },
       { "name": "Mind the request pricing", "text": "Sonar models bill per token plus a small per-search fee — check the pricing docs so costs stay predictable." },
       { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Perplexity, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a Sonar model, and describe the site. Preview it live, iterate, then deploy to Netlify or export the source." }
+      { "name": "Describe your website and ship it", "text": "Create a project, pick a Sonar model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
     ],
     "faqs": [
       { "question": "Why use Perplexity to build a website?", "answer": "Sonar models are search-grounded — they can pull current facts from the web while generating, which helps for content-heavy sites that reference real, up-to-date information. For pure code generation, a dedicated coding model may be a better fit." },
@@ -319,7 +319,7 @@
       { "name": "Create an OpenRouter account and key", "text": "Sign up at openrouter.ai, add prepaid credits, and create a key under Settings → Keys." },
       { "name": "Browse the model catalog", "text": "openrouter.ai/models lists hundreds of models with live per-token prices — including some free ones." },
       { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose OpenRouter, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick any model from the catalog, and describe the site. Preview it live, iterate, then deploy to Netlify or export the source." }
+      { "name": "Describe your website and ship it", "text": "Create a project, pick any model from the catalog, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
     ],
     "faqs": [
       { "question": "Why use OpenRouter instead of a direct provider key?", "answer": "One account, one balance, hundreds of models — you can compare Claude, GPT, Gemini, and open-source models in OpenThorn without creating separate accounts. The trade-off is a small platform fee on credit purchases." },
@@ -349,7 +349,7 @@
       { "name": "Install Ollama", "text": "Download Ollama from ollama.com for Windows, macOS, or Linux and install it — it runs a local server on port 11434." },
       { "name": "Pull a coding model", "text": "Run `ollama pull qwen2.5-coder` in a terminal. A 7B model needs roughly 8 GB of RAM; larger variants produce better code." },
       { "name": "Connect Ollama to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Ollama, and point it at your local endpoint. No API key required." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick your local model, and describe the site. Everything runs on your machine; deploy to Netlify or export when ready." }
+      { "name": "Describe your website and ship it", "text": "Create a project, pick your local model, and describe the site. Everything runs on your machine; deploy to Cloudflare Pages or export when ready." }
     ],
     "faqs": [
       { "question": "Can I really build a website with AI completely free and offline?", "answer": "Yes. Ollama runs open models locally — no API key, no token bills, no cloud. OpenThorn's platform is free, so the entire build costs $0. Quality depends on the model size your hardware can run; local models are weaker than cloud flagships but capable for simpler sites." },
@@ -379,7 +379,7 @@
       { "name": "Create a Fireworks API key", "text": "Sign up at app.fireworks.ai — new accounts include free credit — and create a key under API Keys." },
       { "name": "Set a spend alert", "text": "Configure billing alerts in the Fireworks dashboard to keep usage visible." },
       { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Fireworks AI, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick an open model, and describe the site. Preview it live, iterate, then deploy to Netlify or export the source." }
+      { "name": "Describe your website and ship it", "text": "Create a project, pick an open model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
     ],
     "faqs": [
       { "question": "How much does a website cost with Fireworks AI?", "answer": "Typically cents per complete site — Fireworks serves open-source models at rates far below proprietary flagships, new accounts include free credit, and OpenThorn adds no markup." },
@@ -437,7 +437,7 @@
       { "name": "Create an Azure OpenAI resource", "text": "In Azure AI Foundry (ai.azure.com), create an Azure OpenAI resource in your preferred region — this is where data residency is decided." },
       { "name": "Deploy a model", "text": "Create a deployment of a GPT model and note its deployment name — Azure routes API calls by deployment, not model ID." },
       { "name": "Connect to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Azure OpenAI, and enter your endpoint, key, and deployment name. Everything is encrypted server-side." },
-      { "name": "Describe your website and ship it", "text": "Create a project and describe the site. Usage bills to your Azure subscription under your existing governance. Deploy to Netlify or export the source." }
+      { "name": "Describe your website and ship it", "text": "Create a project and describe the site. Usage bills to your Azure subscription under your existing governance. Deploy to Cloudflare Pages or export the source." }
     ],
     "faqs": [
       { "question": "Why use Azure OpenAI instead of OpenAI directly?", "answer": "Governance. Azure OpenAI runs GPT models inside your Azure subscription with your choice of region, your compliance certifications, your private networking, and consolidated enterprise billing — the standard route for organizations with Azure agreements." },
@@ -466,7 +466,7 @@
       { "name": "Enable model access in Bedrock", "text": "In the AWS Bedrock console, request access to the Claude models in your preferred region — approval is typically immediate." },
       { "name": "Create scoped IAM credentials", "text": "Create an IAM user or role with bedrock:InvokeModel permission only, and generate an access key pair. Least-privilege keys limit blast radius." },
       { "name": "Connect to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Amazon Bedrock, and enter your credentials and region. Everything is encrypted server-side with AES-256-GCM." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a Claude model, and describe the site. Usage appears in your AWS bill and CloudWatch logs. Deploy to Netlify or export the source." }
+      { "name": "Describe your website and ship it", "text": "Create a project, pick a Claude model, and describe the site. Usage appears in your AWS bill and CloudWatch logs. Deploy to Cloudflare Pages or export the source." }
     ],
     "faqs": [
       { "question": "Why use Bedrock instead of the Anthropic API directly?", "answer": "AWS governance: IAM-scoped access, your chosen region for data residency, CloudWatch audit trails, and one consolidated AWS bill. Per-token prices are close to Anthropic's direct rates, so you pay for control, not extra margin." },
@@ -495,7 +495,7 @@
       { "name": "Create an NVIDIA API key", "text": "Sign up at build.nvidia.com — developer accounts include free credits — and generate an API key from the model catalog." },
       { "name": "Pick a model from the catalog", "text": "Browse build.nvidia.com for available models; DeepSeek R1 and Nemotron are strong choices for code." },
       { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose NVIDIA NIM, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a model, and describe the site. Preview it live, iterate, then deploy to Netlify or export the source." }
+      { "name": "Describe your website and ship it", "text": "Create a project, pick a model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
     ],
     "faqs": [
       { "question": "Can I use NVIDIA NIM with OpenThorn for free?", "answer": "Yes — new developer accounts on build.nvidia.com include free credits, and OpenThorn is free, so your first website builds cost $0." },
@@ -526,7 +526,7 @@
       { "name": "Create a RodiumAi account and API key", "text": "Register at rodiumai.io, open the dashboard, and create an API key. Copy it somewhere safe — you will paste it into OpenThorn." },
       { "name": "Top up your RODI credits", "text": "Add RODI credits from the dashboard using Mobile Money (MTN MoMo, Orange Money, Wave, M-Pesa, and others) so API calls can debit your balance." },
       { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose RodiumAi, paste your key, and run Test connection to sync models. The key is encrypted server-side with AES-256-GCM." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a RodiumAi model, describe the site in plain language, preview it live, then deploy to Netlify or export the React source." }
+      { "name": "Describe your website and ship it", "text": "Create a project, pick a RodiumAi model, describe the site in plain language, preview it live, then deploy to Cloudflare Pages or export the React source." }
     ],
     "faqs": [
       { "question": "How is RodiumAi different from OpenRouter in OpenThorn?", "answer": "Both are OpenAI-compatible aggregators that route one key to many models. RodiumAi's distinction is billing: prepaid RODI credits topped up with Mobile Money (MTN MoMo, Orange Money, Wave, M-Pesa, and more) and edge nodes across Africa — built for developers who want local payment rails without a Western credit card. OpenThorn charges nothing either way; you pay the gateway directly." },

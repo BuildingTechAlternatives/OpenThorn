@@ -61,7 +61,7 @@
       { "feature": "AI usage billing", "openthorn": "You pay your provider directly at raw per-token rates", "competitor": "Credits metered over input/output tokens, bought from Vercel" },
       { "feature": "Bring your own API key", "openthorn": "Yes — 18 providers", "competitor": "No" },
       { "feature": "Model choice", "openthorn": "Any model from OpenAI, Anthropic, Gemini, DeepSeek, Groq, and 13 more", "competitor": "v0's own model tiers (Mini, Pro, Max)" },
-      { "feature": "Ecosystem", "openthorn": "Provider-agnostic; deploy to Netlify or export and host anywhere", "competitor": "Optimized for Next.js and Vercel deployment" },
+      { "feature": "Ecosystem", "openthorn": "Provider-agnostic; deploy to Cloudflare Pages or export and host anywhere", "competitor": "Optimized for Next.js and Vercel deployment" },
       { "feature": "Code export", "openthorn": "Full source export, no paywall", "competitor": "Code visible/exportable; Git integration" }
     ],
     "faqs": [
@@ -114,7 +114,7 @@
     ],
     "faqs": [
       { "question": "Is OpenThorn a free alternative to Durable?", "answer": "Yes, for the website itself — OpenThorn is free and a typical site costs cents to a few dollars in provider tokens. Durable's value is the bundled business suite (CRM, invoicing, marketing); if you need those tools, that is what its subscription pays for." },
-      { "question": "Can I export my website from Durable?", "answer": "No — Durable sites are hosted on Durable and there is no source-code export. OpenThorn generates React source you can export, push to GitHub, and host anywhere, including for free on Netlify." },
+      { "question": "Can I export my website from Durable?", "answer": "No — Durable sites are hosted on Durable and there is no source-code export. OpenThorn generates React source you can export, push to GitHub, and host anywhere, including for free on Cloudflare Pages." },
       { "question": "Should I use Durable or OpenThorn?", "answer": "Pick Durable if you run a small business, want a site live in minutes with zero technical steps, and value the bundled CRM and invoicing. Pick OpenThorn if you want full ownership of the code, model choice, and per-token pricing instead of a subscription." }
     ],
     "verdict": "Durable is the fastest path to a small-business site with bundled business tools. OpenThorn gives you actual source code, free, at token prices. Choose based on whether you want a managed business suite or owned, portable code."
@@ -132,7 +132,7 @@
       { "feature": "Platform price", "openthorn": "Free — no subscription, no platform fee", "competitor": "Free plan (Wix branding, wixsite.com domain); Light ~$17/month; Core ~$29; Business ~$39; Business Elite ~$159 (annual billing)" },
       { "feature": "AI usage billing", "openthorn": "You pay your provider directly at raw per-token rates", "competitor": "AI features included in all plans" },
       { "feature": "Bring your own API key", "openthorn": "Yes — 18 providers", "competitor": "No" },
-      { "feature": "Custom domain on free tier", "openthorn": "Yes — deploy to Netlify or host the exported code anywhere", "competitor": "No — requires a paid plan" },
+      { "feature": "Custom domain on free tier", "openthorn": "Yes — deploy to Cloudflare Pages or host the exported code anywhere", "competitor": "No — requires a paid plan" },
       { "feature": "Code export", "openthorn": "Full React source export, no paywall", "competitor": "No — sites are locked to Wix hosting" },
       { "feature": "Ecosystem", "openthorn": "Provider-agnostic, host-agnostic", "competitor": "Large app market, e-commerce, bookings — all within Wix" }
     ],

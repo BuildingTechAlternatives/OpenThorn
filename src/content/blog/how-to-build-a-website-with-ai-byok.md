@@ -4,7 +4,7 @@ Here is the full process, start to finish.
 
 ## Step 1: Choose an AI provider and get an API key
 
-Any of OpenThorn's 17 supported providers works: OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral AI, Groq, Together AI, xAI, Cohere, Perplexity, OpenRouter, Ollama, Fireworks AI, Cerebras, Azure OpenAI, Amazon Bedrock, or NVIDIA NIM. If you are unsure, OpenAI or Anthropic are the easiest starting points. See our guide on [how to get an API key](/blog/how-to-get-an-ai-api-key) for exact steps.
+Any of OpenThorn's 18 supported providers works: OpenAI, Anthropic, Google Gemini, DeepSeek, Mistral AI, Groq, Together AI, xAI, Cohere, Perplexity, OpenRouter, Ollama, Fireworks AI, Cerebras, Azure OpenAI, Amazon Bedrock, or NVIDIA NIM. If you are unsure, OpenAI or Anthropic are the easiest starting points. See our guide on [how to get an API key](/blog/how-to-get-an-ai-api-key) for exact steps.
 
 ## Step 2: Create a free OpenThorn account
 
@@ -24,7 +24,7 @@ The live preview runs entirely in your browser. Ask for changes the same way you
 
 ## Step 6: Deploy or export
 
-One click deploys to Netlify on a public URL. Or export the full source as a zip — it is standard React + Vite code that runs anywhere. There is no export paywall and no proprietary format.
+One click deploys to Cloudflare Pages on a public URL. Or export the full source as a zip — it is standard React + Vite code that runs anywhere. There is no export paywall and no proprietary format.
 
 ## What it costs
 

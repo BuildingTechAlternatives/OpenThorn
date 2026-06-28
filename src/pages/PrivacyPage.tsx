@@ -6,7 +6,7 @@ export default function PrivacyPage() {
     description: 'How OpenThorn handles your data. Your provider API keys are encrypted at rest, and we use only cookieless, privacy-friendly analytics.',
   })
   return (
-    <LegalPage title="Privacy Policy" lastUpdated="June 10, 2026">
+    <LegalPage title="Privacy Policy" lastUpdated="June 29, 2026">
       <h2>1. Who We Are</h2>
       <p>
         OpenThorn is operated by <strong>Thomas Tschinkel</strong>, located in{' '}
@@ -44,9 +44,9 @@ export default function PrivacyPage() {
           and code pushed to GitHub when you enable repository sync.
         </li>
         <li>
-          <strong>Deployment data</strong> - generated HTML, project identifiers, Netlify
-          site IDs, deploy IDs, deploy URLs, and related deployment status data when you
-          use the Netlify deployment feature.
+          <strong>Deployment data</strong> - generated HTML, project identifiers, Cloudflare
+          Pages project names, deploy IDs, deploy URLs, and related deployment status data
+          when you use the deployment feature.
         </li>
         <li>
           <strong>Community and collaboration data</strong> - public shared projects,
@@ -80,7 +80,7 @@ export default function PrivacyPage() {
       <ul>
         <li>
           <strong>Providing the service</strong> - account access, project storage,
-          AI generation, GitHub sync, Netlify deploys, collaboration, and community
+          AI generation, GitHub sync, Cloudflare Pages deploys, collaboration, and community
           features are processed under Art. 6(1)(b) GDPR (performance of a contract).
         </li>
         <li>
@@ -133,8 +133,8 @@ export default function PrivacyPage() {
           OAuth access tokens, repository metadata, and project code are processed by GitHub.
         </li>
         <li>
-          <strong>Netlify, Inc.</strong> - when you deploy, generated HTML and deployment
-          metadata are sent to Netlify to create or update a site.
+          <strong>Cloudflare, Inc.</strong> - when you deploy, generated HTML and deployment
+          metadata are sent to Cloudflare Pages to create or update a site.
         </li>
         <li>
           <strong>CDN and package providers</strong> - generated previews may load runtime
@@ -198,8 +198,8 @@ export default function PrivacyPage() {
         </li>
         <li>
           <strong>Deployment metadata</strong> - retained while needed to show and update
-          your deployment. Data hosted by Netlify may remain in your Netlify-managed site
-          according to Netlify's retention practices.
+          your deployment. Data hosted by Cloudflare may remain in your Cloudflare
+          Pages-managed site according to Cloudflare's retention practices.
         </li>
         <li>
           <strong>Browser-local data</strong> - remains on your device until you clear it,
