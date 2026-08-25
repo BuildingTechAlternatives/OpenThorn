@@ -2907,11 +2907,13 @@ async function callOpenAIWithTools({
       }
     : { temperature: 0.22, max_tokens: MAX_OUTPUT_TOKENS }
 
-  // GPT-5.6 family: function tools + reasoning_effort is rejected on
-  // /v1/chat/completions ("use /v1/responses or set reasoning_effort to
-  // 'none'"). Direct-OpenAI tool calls therefore omit the param entirely and
-  // run at the model's default effort; plain text shapes keep explicit control.
-  const toolReasoning = isOpenaiDirect ? {} : reasoning
+  // GPT-5.6 family: function tools on /v1/chat/completions require
+  // reasoning_effort EXPLICITLY 'none' — even omitting the param is rejected
+  // ("use /v1/responses or set reasoning_effort to 'none'", verified against
+  // a live 400). Non-reasoning OpenAI models must not receive the param at
+  // all; other openai-compatible providers keep their computed params.
+  const isOpenaiReasoner = Object.keys(reasoning).length > 0
+  const toolReasoning = !isOpenaiDirect ? reasoning : isOpenaiReasoner ? { reasoning_effort: 'none' } : {}
 
   // When no tools are provided (e.g. visual/self review), make a plain
   // text completion — don't send an empty tools array some APIs reject.
