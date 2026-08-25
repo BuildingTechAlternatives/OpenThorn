@@ -2907,18 +2907,24 @@ async function callOpenAIWithTools({
       }
     : { temperature: 0.22, max_tokens: MAX_OUTPUT_TOKENS }
 
+  // GPT-5.6 family: function tools + reasoning_effort is rejected on
+  // /v1/chat/completions ("use /v1/responses or set reasoning_effort to
+  // 'none'"). Direct-OpenAI tool calls therefore omit the param entirely and
+  // run at the model's default effort; plain text shapes keep explicit control.
+  const toolReasoning = isOpenaiDirect ? {} : reasoning
+
   // When no tools are provided (e.g. visual/self review), make a plain
   // text completion — don't send an empty tools array some APIs reject.
   const attempts: Array<Record<string, unknown>> =
     tools.length === 0
       ? [{ stream: true, stream_options: streamUsage, ...reasoning }, { stream: false, ...reasoning }]
       : [
-          { tools: openaiTools, stream: true, stream_options: streamUsage, ...reasoning },
+          { tools: openaiTools, stream: true, stream_options: streamUsage, ...toolReasoning },
           // 'auto' is already the default tool_choice when tools are present,
           // and some strict OpenAI-compatible servers 400 on `stream_options`
           // instead of ignoring it — retry streaming WITH tools but WITHOUT it.
-          { tools: openaiTools, stream: true, ...reasoning },
-          { tools: openaiTools, stream: false, ...reasoning },
+          { tools: openaiTools, stream: true, ...toolReasoning },
+          { tools: openaiTools, stream: false, ...toolReasoning },
           // NOTE: deliberately NO bare no-tools fallback here. If the provider
           // rejects our tool definitions, a tool-less request would "succeed"
           // with prose-only output and the run would end as a fake completion —
