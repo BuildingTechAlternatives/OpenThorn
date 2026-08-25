@@ -234,10 +234,6 @@ export const DEFAULT_PROVIDER_MODELS: Record<string, ProviderModel[]> = {
     { name: 'GPT-OSS 120B', id: 'gpt-oss-120b', recommended: true, contextWindow: 128_000 },
     { name: 'Gemma 4 31B', id: 'gemma-4-31b', cheapest: true, contextWindow: 128_000 },
   ],
-  nvidia: [
-    { name: 'DeepSeek R1', id: 'deepseek-ai/deepseek-r1', contextWindow: 128_000 },
-    { name: 'Llama 3.1 Nemotron Ultra 253B', id: 'nvidia/llama-3.1-nemotron-ultra-253b-v1', contextWindow: 128_000 },
-  ],
 }
 
 export function parseProviderModels(raw: string | null | undefined): ProviderModel[] {

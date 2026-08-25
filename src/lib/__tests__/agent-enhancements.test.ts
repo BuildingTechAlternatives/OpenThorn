@@ -115,7 +115,9 @@ describe('getReasoningParams', () => {
   it('returns nothing for non-reasoning models', () => {
     expect(getReasoningParams('openai', 'gpt-4o', 4000)).toEqual({})
     expect(getReasoningParams('google', 'gemini-1.5-pro', 4000)).toEqual({})
-    expect(getReasoningParams('perplexity', 'sonar-reasoning-pro', 4000)).toEqual({})
+    // sonar-reasoning-pro DOES get reasoning_effort now; plain sonar does not.
+    expect(getReasoningParams('perplexity', 'sonar', 4000)).toEqual({})
+    expect(getReasoningParams('perplexity', 'sonar-pro', 4000)).toEqual({})
   })
 })
 

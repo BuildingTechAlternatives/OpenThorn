@@ -105,7 +105,7 @@ export const AGENT_TOOLS: ToolDefinition[] = [
                       enum: ['text', 'integer', 'numeric', 'boolean', 'timestamptz', 'date', 'uuid', 'jsonb'],
                     },
                     nullable: { type: 'boolean' },
-                    default: { description: 'Optional default (string, number, or boolean).' },
+                    default: { type: 'string', description: 'Optional default value (stored as given; strings, numbers, and booleans accepted).' },
                   },
                   required: ['name', 'type'],
                   additionalProperties: false,
@@ -835,21 +835,33 @@ export function getReasoningParams(
   if (providerId === 'google') {
     // Gemini 3.5+ replaced thinkingBudget (integer) with thinkingLevel (string enum).
     if (/gemini-3\.[0-9]|thinking/.test(id)) {
-      const level = thinkingBudget >= 6000 ? 'high' : thinkingBudget >= 3000 ? 'medium' : thinkingBudget >= 1000 ? 'low' : 'minimal'
+      let level = thinkingBudget >= 6000 ? 'high' : thinkingBudget >= 3000 ? 'medium' : thinkingBudget >= 1000 ? 'low' : 'minimal'
+      // Pro-tier Gemini 3 models reject unsupported levels with a 400: no Pro
+      // model supports `minimal`, and the original gemini-3-pro(-preview) only
+      // supports low/high (3.1+ added medium back).
+      if (level === 'minimal' && id.includes('-pro')) level = 'low'
+      else if (level === 'medium' && id.includes('gemini-3-pro')) level = 'high'
       return { thinkingConfig: { thinkingLevel: level } }
     }
-    // Gemini 2.5 uses an integer token budget.
+    // Gemini 2.5 uses an integer token budget (valid range 128–32768).
     if (/gemini-2\.5/.test(id)) {
-      return { thinkingConfig: { thinkingBudget: Math.min(thinkingBudget, 8192) } }
+      // 2.5 Pro cannot disable thinking — budget 0 is invalid there. Omit the
+      // config instead so the model keeps its dynamic-thinking default; Flash
+      // variants accept 0 to switch thinking off on mechanical turns.
+      if (thinkingBudget <= 0) {
+        return id.includes('gemini-2.5-pro') ? {} : { thinkingConfig: { thinkingBudget: 0 } }
+      }
+      return { thinkingConfig: { thinkingBudget: Math.max(128, Math.min(thinkingBudget, 8192)) } }
     }
     return {}
   }
 
   // OpenAI-compatible reasoning models use `reasoning_effort`.
-  // Covers: OpenAI o-series / GPT-5, GPT-OSS (Groq/Cerebras), xAI Grok reasoning,
-  // DeepSeek reasoner and DeepSeek V4 thinking mode.
+  // Covers: OpenAI o-series / GPT-5, GPT-OSS (Groq/Cerebras), xAI Grok 4.5+
+  // (documented reasoning_effort support; older Grok models error on it),
+  // DeepSeek reasoner/V4 thinking mode and Perplexity sonar-reasoning.
   const isReasoner =
-    /(^|[/_-])o[1345]($|[/_-])|gpt-5|gpt5|o3|o4|reasoner|deepseek-[rv]|gpt-oss|grok.+reasoning/.test(id)
+    /(^|[/_-])o[1345]($|[/_-])|gpt-5|gpt5|o3|o4|reasoner|deepseek-[rv]|gpt-oss|grok-4\.[56]|grok.+reasoning|sonar-reasoning/.test(id)
   if (isReasoner) {
     const effort = thinkingBudget >= 6000 ? 'high' : thinkingBudget >= 3000 ? 'medium' : 'low'
     return { reasoning_effort: effort }
