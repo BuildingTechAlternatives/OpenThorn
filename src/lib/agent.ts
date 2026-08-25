@@ -2852,6 +2852,17 @@ async function callOpenAIWithTools({
   // true }` fallback below omits it for the few strict ones that 400 on it.
   const streamUsage = { include_usage: true }
 
+  // The official OpenAI API rejects legacy `max_tokens` on GPT-5.x / o-series
+  // ("use max_completion_tokens"), and its reasoning models only accept the
+  // default temperature. Other openai-compatible providers expect max_tokens.
+  const isOpenaiDirect = providerId === 'openai'
+  const sampling: Record<string, unknown> = isOpenaiDirect
+    ? {
+        ...(Object.keys(reasoning).length > 0 ? {} : { temperature: 0.22 }),
+        max_completion_tokens: MAX_OUTPUT_TOKENS,
+      }
+    : { temperature: 0.22, max_tokens: MAX_OUTPUT_TOKENS }
+
   // When no tools are provided (e.g. visual/self review), make a plain
   // text completion — don't send an empty tools array some APIs reject.
   const attempts: Array<Record<string, unknown>> =
@@ -2883,7 +2894,7 @@ async function callOpenAIWithTools({
           headers,
           body: JSON.stringify({
             model: modelId, messages: openaiMessages,
-            temperature: 0.22, max_tokens: MAX_OUTPUT_TOKENS, ...attempt,
+            ...sampling, ...attempt,
           }),
           signal: combinedSignal,
         })
