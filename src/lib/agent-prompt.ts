@@ -833,8 +833,10 @@ export function getReasoningParams(
   const id = modelId.toLowerCase()
 
   if (providerId === 'google') {
-    // Gemini 3.5+ replaced thinkingBudget (integer) with thinkingLevel (string enum).
-    if (/gemini-3\.[0-9]|thinking/.test(id)) {
+    // Gemini 3.5+ replaced thinkingBudget (integer) with thinkingLevel (string
+    // enum). Match bare `gemini-3` too so ids like gemini-3-pro-preview (no
+    // patch digit) are covered.
+    if (/gemini-[3-9]|thinking/.test(id)) {
       let level = thinkingBudget >= 6000 ? 'high' : thinkingBudget >= 3000 ? 'medium' : thinkingBudget >= 1000 ? 'low' : 'minimal'
       // Pro-tier Gemini 3 models reject unsupported levels with a 400: no Pro
       // model supports `minimal`, and the original gemini-3-pro(-preview) only

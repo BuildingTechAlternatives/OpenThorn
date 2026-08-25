@@ -103,6 +103,26 @@ describe('getReasoningParams', () => {
     expect(getReasoningParams('google', 'gemini-3.5-flash', 500)).toEqual({ thinkingConfig: { thinkingLevel: 'minimal' } })
   })
 
+  it('clamps thinkingLevel to what Gemini 3 Pro models accept', () => {
+    // No Pro model supports `minimal`.
+    expect(getReasoningParams('google', 'gemini-3.1-pro-preview', 500)).toEqual({ thinkingConfig: { thinkingLevel: 'low' } })
+    // The original gemini-3-pro(-preview) only supports low/high.
+    expect(getReasoningParams('google', 'gemini-3-pro-preview', 4000)).toEqual({ thinkingConfig: { thinkingLevel: 'high' } })
+    // 3.1+ Pro restored `medium`.
+    expect(getReasoningParams('google', 'gemini-3.1-pro-preview', 4000)).toEqual({ thinkingConfig: { thinkingLevel: 'medium' } })
+  })
+
+  it('keeps Gemini 2.5 budgets inside the valid 128–32768 range', () => {
+    const out = getReasoningParams('google', 'gemini-2.5-flash', 64) as { thinkingConfig: { thinkingBudget: number } }
+    expect(out.thinkingConfig.thinkingBudget).toBe(128)
+  })
+
+  it('never disables thinking on gemini-2.5-pro (budget 0 invalid there)', () => {
+    expect(getReasoningParams('google', 'gemini-2.5-pro', 0)).toEqual({})
+    // Flash variants may switch thinking off entirely.
+    expect(getReasoningParams('google', 'gemini-2.5-flash', 0)).toEqual({ thinkingConfig: { thinkingBudget: 0 } })
+  })
+
   it('maps gpt-oss (Groq/Cerebras) to reasoning_effort', () => {
     expect(getReasoningParams('groq', 'openai/gpt-oss-120b', 7000)).toEqual({ reasoning_effort: 'high' })
     expect(getReasoningParams('cerebras', 'gpt-oss-120b', 4000)).toEqual({ reasoning_effort: 'medium' })
@@ -110,6 +130,9 @@ describe('getReasoningParams', () => {
 
   it('maps grok reasoning models to reasoning_effort', () => {
     expect(getReasoningParams('xai', 'grok-4.20-reasoning', 7000)).toEqual({ reasoning_effort: 'high' })
+    // Grok 4.5/4.6 document native reasoning_effort support (older Grok errors on it).
+    expect(getReasoningParams('xai', 'grok-4.6', 7000)).toEqual({ reasoning_effort: 'high' })
+    expect(getReasoningParams('xai', 'grok-4.5', 1500)).toEqual({ reasoning_effort: 'low' })
   })
 
   it('returns nothing for non-reasoning models', () => {

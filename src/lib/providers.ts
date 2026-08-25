@@ -284,7 +284,7 @@ export function providerDefaultContextWindow(providerId: string): number {
       return 256_000
     case 'ollama':
       return 32_000
-    // deepseek, mistral, groq, perplexity, openrouter, cerebras, nvidia and
+    // deepseek, mistral, groq, perplexity, openrouter, cerebras and
     // anything unknown.
     default:
       return 128_000
