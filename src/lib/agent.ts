@@ -1206,6 +1206,7 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
   const failedProviderIds = new Set<string>()
   let failovers = 0
   let consecutiveEmptyTurns = 0
+  let truncationNudges = 0
 
   const loopDetector = new LoopDetector()
   // Per-run state for tool execution: tracks reads (to short-circuit redundant
@@ -1392,6 +1393,18 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     // Only a genuinely stalled build — one that already mutated files, set the
     // title, or populated the plan — gets nudged onward to a verified done.
     if (toolCalls.length === 0 && (invalidCalls?.length ?? 0) === 0 && text) {
+      // A length-truncated response never reached its tool calls — ending the
+      // run here would present a half-sentence plan as a finished build. Nudge
+      // the model to continue (bounded so a pathological provider can't loop).
+      if (modelResult.truncated && truncationNudges < 2) {
+        truncationNudges++
+        messages.push({
+          role: 'user',
+          content:
+            'Your previous response was cut off by the output token limit before you issued any tool call. Continue now: skip preamble and issue your next concrete tool call directly (write_file / edit_file / compile / done), keeping prose minimal until the project is complete.',
+        })
+        continue
+      }
       if (!buildActivityThisRun) {
         circuitBreaker.recordSuccess(provider.key.provider_id)
         input.onProgress?.({ type: 'done', files: currentFiles, filesMutated: false })
@@ -1407,6 +1420,7 @@ export async function runOpenThornAgent(input: AgentRunInput): Promise<AgentRunR
     }
 
     // ── Execute tools with parallelism ──────────────────────────
+    truncationNudges = 0 // real progress — a future truncation gets fresh nudges
     runCtx.turn = turnCount
     const toolResults = await executeToolsParallel(
       toolCalls,
@@ -2752,6 +2766,11 @@ interface ModelCallResult {
   usage?: RunUsage
   /** Tool calls whose arguments were not valid JSON — surfaced as errors. */
   invalidCalls?: InvalidToolCall[]
+  /**
+   * The provider hit its output token limit (finish_reason 'length'). Such a
+   * response may end mid-sentence without the intended tool calls.
+   */
+  truncated?: boolean
 }
 
 interface InvalidToolCall {
@@ -2854,12 +2873,14 @@ async function callOpenAIWithTools({
 
   // The official OpenAI API rejects legacy `max_tokens` on GPT-5.x / o-series
   // ("use max_completion_tokens"), and its reasoning models only accept the
-  // default temperature. Other openai-compatible providers expect max_tokens.
+  // default temperature. Reasoning tokens draw from the same completion
+  // budget, so the default 8k would truncate mid-preamble before any tool
+  // call — give OpenAI's larger output ceiling real headroom.
   const isOpenaiDirect = providerId === 'openai'
   const sampling: Record<string, unknown> = isOpenaiDirect
     ? {
         ...(Object.keys(reasoning).length > 0 ? {} : { temperature: 0.22 }),
-        max_completion_tokens: MAX_OUTPUT_TOKENS,
+        max_completion_tokens: 32768,
       }
     : { temperature: 0.22, max_tokens: MAX_OUTPUT_TOKENS }
 
@@ -2991,7 +3012,7 @@ async function parseOpenAINonStream(response: Response, onText: (chunk: string) 
       }
     }
   }
-  return { text, toolCalls, invalidCalls, usage: parseOpenAIUsage(payload?.usage), reasoningContent }
+  return { text, toolCalls, invalidCalls, usage: parseOpenAIUsage(payload?.usage), reasoningContent, truncated: choice?.finish_reason === 'length' }
 }
 
 /** Best-effort usage extraction from an OpenAI-compatible usage object. */
@@ -3017,6 +3038,7 @@ async function parseOpenAIToolStream(
   const decoder = new TextDecoder()
   let buffer = '', fullText = '', fullReasoning = ''
   let usage: RunUsage | undefined
+  let finishReason: string | undefined
   const toolCalls: Map<number, { id: string; name: string; arguments: string }> = new Map()
 
   try {
@@ -3032,9 +3054,11 @@ async function parseOpenAIToolStream(
         if (!trimmed || !trimmed.startsWith('data:')) continue
         const data = trimmed.slice(5).trim()
         if (data === '[DONE]') continue
+
         try {
           const parsed = JSON.parse(data)
           if (parsed?.usage) usage = parseOpenAIUsage(parsed.usage) ?? usage
+          if (parsed?.choices?.[0]?.finish_reason) finishReason = parsed.choices[0].finish_reason
           const delta = parsed?.choices?.[0]?.delta
           if (delta?.reasoning_content) fullReasoning += delta.reasoning_content
           if (delta?.content) { fullText += delta.content; onText(delta.content) }
@@ -3063,7 +3087,7 @@ async function parseOpenAIToolStream(
       }
     }
   }
-  return { text: fullText, toolCalls: parsedToolCalls, invalidCalls, usage, reasoningContent: fullReasoning || undefined }
+  return { text: fullText, toolCalls: parsedToolCalls, invalidCalls, usage, reasoningContent: fullReasoning || undefined, truncated: finishReason === 'length' }
 }
 
 // ─── Anthropic (with caching + thinking) ────────────────────────────────────
