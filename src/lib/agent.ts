@@ -235,22 +235,15 @@ const ALLOWED_PROVIDER_HOSTS = new Set([
   'api.deepseek.com',
   'api.mistral.ai',
   'api.groq.com',
-  'api.together.xyz',
   'openrouter.ai',
   'api.openrouter.ai',
   'api.x.ai',
-  'api.together.ai',
   'api.perplexity.ai',
-  'api.fireworks.ai',
   'api.cerebras.ai',
-  'api.cohere.com',
-  'api.cohere.ai',
-  'api.rodiumai.io',
   'api.github.com',
   'models.github.com',
   'localhost',
   '127.0.0.1',
-  'bedrock-runtime.us-east-1.amazonaws.com',
 ])
 
 const MAX_OUTPUT_TOKENS = 8192
@@ -315,8 +308,10 @@ const MAX_PROVIDER_FAILOVERS = 2
 const ANTHROPIC_THINKING_BUDGET = 4000
 
 function supportsManualAnthropicThinking(modelId: string): boolean {
+  // Adaptive-thinking models (Fable/Mythos 5, Opus/Sonnet 5, Opus 4.7+)
+  // reject or ignore manual `thinking` budgets.
   const id = modelId.toLowerCase()
-  return !/(claude-fable|claude-mythos|claude-opus-4-[78])/.test(id)
+  return !/(claude-fable|claude-mythos|claude-opus-4-[78]|claude-opus-5|claude-sonnet-5)/.test(id)
 }
 
 function sanitizeGeminiToolSchema(value: unknown): unknown {
@@ -2807,9 +2802,6 @@ async function callModelWithTools({
   thinkingBudget?: number
 }): Promise<ModelCallResult> {
   const providerDef = PROVIDER_DEFS[providerId]
-  if (providerDef?.apiFormat === 'bedrock') {
-    throw new Error('Amazon Bedrock requires a server-side Bedrock Converse adapter and is not available through the browser agent yet.')
-  }
   if (providerDef?.apiFormat === 'anthropic' || providerId === 'anthropic') {
     return callAnthropicWithTools({ baseUrl, apiKey, modelId, system, tools, messages, signal, onText, onToolStream, thinkingBudget })
   }
@@ -2839,12 +2831,7 @@ async function callOpenAIWithTools({
   thinkingBudget?: number
 }): Promise<ModelCallResult> {
   const url = baseUrl.endsWith('/chat/completions') ? baseUrl : `${baseUrl}/chat/completions`
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-  if (providerId === 'azure') {
-    headers['api-key'] = apiKey
-  } else {
-    headers.Authorization = `Bearer ${apiKey}`
-  }
+  const headers: Record<string, string> = { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }
   if (providerId === 'openrouter') {
     headers['HTTP-Referer'] = window.location.origin
     headers['X-OpenRouter-Title'] = 'OpenThorn'
@@ -3567,11 +3554,7 @@ function validateProviderUrl(raw: string): string {
   try { hostname = new URL(clean).hostname.toLowerCase() } catch {
     throw new Error(`Invalid base URL: ${clean.slice(0, 100)}`)
   }
-  const isAllowedHost =
-    ALLOWED_PROVIDER_HOSTS.has(hostname) ||
-    hostname.endsWith('.openai.azure.com') ||
-    hostname.endsWith('.services.ai.azure.com') ||
-    /^bedrock-runtime\.[a-z0-9-]+\.amazonaws\.com$/.test(hostname)
+  const isAllowedHost = ALLOWED_PROVIDER_HOSTS.has(hostname)
   if (!isAllowedHost) {
     throw new Error(
       `Provider URL host "${hostname}" is not in the allowed list. ` +

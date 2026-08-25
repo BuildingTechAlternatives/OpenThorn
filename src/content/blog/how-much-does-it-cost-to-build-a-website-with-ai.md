@@ -24,7 +24,7 @@ Applying those token figures to published June 2026 rates, the cost of one compl
 | Tier | Examples | Cost per complete site |
 |---|---|---|
 | **Free** | [Google Gemini](https://www.openthorn.app/build-with/google) free tier, [Groq](https://www.openthorn.app/build-with/groq), [Cerebras](https://www.openthorn.app/build-with/cerebras), [Ollama](https://www.openthorn.app/build-with/ollama) (local) | **$0** within daily limits |
-| **Very cheap** | [DeepSeek](https://www.openthorn.app/build-with/deepseek), open models via [Together](https://www.openthorn.app/build-with/together) / [Fireworks](https://www.openthorn.app/build-with/fireworks), Gemini Flash (paid) | **single-digit cents** |
+| **Very cheap** | [DeepSeek](https://www.openthorn.app/build-with/deepseek), Gemini Flash (paid) | **single-digit cents** |
 | **Mid-tier** | [Claude Sonnet](https://www.openthorn.app/build-with/anthropic), GPT mid-tier, [Mistral](https://www.openthorn.app/build-with/mistral) | **$0.50 – $2** |
 | **Flagship** | GPT flagship, Claude's most capable models, [Grok](https://www.openthorn.app/build-with/xai) | **$1 – $3+** |
 
@@ -55,7 +55,7 @@ For someone building a handful of sites a year, the gap is stark: **$240–300 p
 
 ## How to make a build cost even less
 
-- **Start on a free tier.** [Gemini](https://www.openthorn.app/build-with/google), [Groq](https://www.openthorn.app/build-with/groq), [Cerebras](https://www.openthorn.app/build-with/cerebras), [Mistral](https://www.openthorn.app/build-with/mistral), and [Cohere](https://www.openthorn.app/build-with/cohere) all issue free API keys with daily limits — enough to build your first sites for **$0**.
+- **Start on a free tier.** [Gemini](https://www.openthorn.app/build-with/google), [Groq](https://www.openthorn.app/build-with/groq), [Cerebras](https://www.openthorn.app/build-with/cerebras), and [Mistral](https://www.openthorn.app/build-with/mistral) all issue free API keys with daily limits — enough to build your first sites for **$0**.
 - **Match the model to the job.** Use a cheap, fast model (Gemini Flash, DeepSeek, an open model) for simple sites and quick iterations; save a flagship for complex, multi-page builds.
 - **Run locally with [Ollama](https://www.openthorn.app/build-with/ollama).** Models run on your own hardware: no key, no token bill, nothing leaves your machine.
 - **Set a provider spend limit.** Every provider lets you cap monthly spend or pre-fund a balance, so a build can never cost more than you allow.

@@ -12,21 +12,51 @@
     "consoleLabel": "platform.openai.com/api-keys",
     "pricingUrl": "https://openai.com/api/pricing/",
     "models": [
-      { "name": "GPT-5.5", "note": "Flagship model — strongest reasoning and code quality for complex, multi-page sites." },
-      { "name": "GPT-5.4", "note": "Excellent quality at a lower price; a solid default for most websites." },
-      { "name": "GPT-5.4 mini", "note": "Fast and cheap — good for simple sites and quick iterations." }
+      {
+        "name": "GPT-5.5",
+        "note": "Flagship model — strongest reasoning and code quality for complex, multi-page sites."
+      },
+      {
+        "name": "GPT-5.4",
+        "note": "Excellent quality at a lower price; a solid default for most websites."
+      },
+      {
+        "name": "GPT-5.4 mini",
+        "note": "Fast and cheap — good for simple sites and quick iterations."
+      }
     ],
     "costNote": "With GPT-5.4 mini, a typical landing page costs a few cents in tokens; with GPT-5.5, expect roughly $0.50–$3 per complete site depending on size and revisions. Check OpenAI's pricing page for current per-token rates.",
     "steps": [
-      { "name": "Create an OpenAI API key", "text": "Sign in at platform.openai.com, add at least $5 of prepaid credit, and create a new secret key under API keys. Copy it immediately — it is shown only once." },
-      { "name": "Set a spend limit", "text": "In the OpenAI billing settings, set a monthly budget so usage can never exceed what you choose to prepay." },
-      { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose OpenAI, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a GPT model, and describe the site in plain language. Preview it live in the browser, iterate conversationally, then deploy to Cloudflare Pages or export the source." }
+      {
+        "name": "Create an OpenAI API key",
+        "text": "Sign in at platform.openai.com, add at least $5 of prepaid credit, and create a new secret key under API keys. Copy it immediately — it is shown only once."
+      },
+      {
+        "name": "Set a spend limit",
+        "text": "In the OpenAI billing settings, set a monthly budget so usage can never exceed what you choose to prepay."
+      },
+      {
+        "name": "Connect the key to OpenThorn",
+        "text": "Sign up free at openthorn.app, open the Providers page, choose OpenAI, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw."
+      },
+      {
+        "name": "Describe your website and ship it",
+        "text": "Create a project, pick a GPT model, and describe the site in plain language. Preview it live in the browser, iterate conversationally, then deploy to Cloudflare Pages or export the source."
+      }
     ],
     "faqs": [
-      { "question": "How much does it cost to build a website with the OpenAI API?", "answer": "You pay OpenAI's per-token rates only — OpenThorn adds no markup and no subscription. A typical site costs cents with GPT-5.4 mini and roughly $0.50–$3 with GPT-5.5, versus $20–50/month for credit-based AI builders." },
-      { "question": "Is my OpenAI API key safe in OpenThorn?", "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can also set a spend limit in your OpenAI dashboard and rotate or revoke the key at any time." },
-      { "question": "Which OpenAI model should I pick for website generation?", "answer": "GPT-5.4 is the best default: near-flagship code quality at a lower price. Use GPT-5.5 for complex multi-page sites with custom logic, and GPT-5.4 mini when speed and minimal cost matter more than polish." }
+      {
+        "question": "How much does it cost to build a website with the OpenAI API?",
+        "answer": "You pay OpenAI's per-token rates only — OpenThorn adds no markup and no subscription. A typical site costs cents with GPT-5.4 mini and roughly $0.50–$3 with GPT-5.5, versus $20–50/month for credit-based AI builders."
+      },
+      {
+        "question": "Is my OpenAI API key safe in OpenThorn?",
+        "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can also set a spend limit in your OpenAI dashboard and rotate or revoke the key at any time."
+      },
+      {
+        "question": "Which OpenAI model should I pick for website generation?",
+        "answer": "GPT-5.4 is the best default: near-flagship code quality at a lower price. Use GPT-5.5 for complex multi-page sites with custom logic, and GPT-5.4 mini when speed and minimal cost matter more than polish."
+      }
     ]
   },
   {
@@ -42,21 +72,51 @@
     "consoleLabel": "console.anthropic.com",
     "pricingUrl": "https://www.anthropic.com/pricing",
     "models": [
-      { "name": "Claude Sonnet 4.6", "note": "The sweet spot for web generation — excellent code quality at $3/M input, $15/M output tokens." },
-      { "name": "Claude Fable 5", "note": "Anthropic's most capable model, for the most demanding multi-page builds." },
-      { "name": "Claude Haiku 4.5", "note": "Fast and inexpensive — great for simple sites and rapid iteration." }
+      {
+        "name": "Claude Sonnet 4.6",
+        "note": "The sweet spot for web generation — excellent code quality at $3/M input, $15/M output tokens."
+      },
+      {
+        "name": "Claude Fable 5",
+        "note": "Anthropic's most capable model, for the most demanding multi-page builds."
+      },
+      {
+        "name": "Claude Haiku 4.5",
+        "note": "Fast and inexpensive — great for simple sites and rapid iteration."
+      }
     ],
     "costNote": "With Claude Sonnet 4.6 ($3/M input, $15/M output tokens), a complete landing page typically costs $0.50–$2 in API usage. Claude Haiku 4.5 brings that down to cents.",
     "steps": [
-      { "name": "Create an Anthropic API key", "text": "Sign in at console.anthropic.com, add prepaid credit (from $5), and create a key under Settings → API keys. Copy it immediately — it is shown only once." },
-      { "name": "Set a spend limit", "text": "Prepaid credit is itself a hard cap; you can also configure monthly spend limits in the console so costs stay predictable." },
-      { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Anthropic, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a Claude model, and describe the site. Preview it live, iterate conversationally, then deploy to Cloudflare Pages or export the full source." }
+      {
+        "name": "Create an Anthropic API key",
+        "text": "Sign in at console.anthropic.com, add prepaid credit (from $5), and create a key under Settings → API keys. Copy it immediately — it is shown only once."
+      },
+      {
+        "name": "Set a spend limit",
+        "text": "Prepaid credit is itself a hard cap; you can also configure monthly spend limits in the console so costs stay predictable."
+      },
+      {
+        "name": "Connect the key to OpenThorn",
+        "text": "Sign up free at openthorn.app, open the Providers page, choose Anthropic, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw."
+      },
+      {
+        "name": "Describe your website and ship it",
+        "text": "Create a project, pick a Claude model, and describe the site. Preview it live, iterate conversationally, then deploy to Cloudflare Pages or export the full source."
+      }
     ],
     "faqs": [
-      { "question": "How much does it cost to build a website with the Claude API?", "answer": "You pay Anthropic's per-token rates only. With Claude Sonnet 4.6 a typical site costs $0.50–$2; with Claude Haiku 4.5, cents. There is no OpenThorn subscription or markup — compare that with $25+/month for credit-based builders." },
-      { "question": "Which Claude model is best for building websites?", "answer": "Claude Sonnet 4.6 is the best default — it is one of the strongest coding models available at mid-tier pricing. Choose Claude Fable 5 for the most complex builds, or Claude Haiku 4.5 when cost and speed matter most." },
-      { "question": "Is my Anthropic API key safe in OpenThorn?", "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. Prepaid credit caps your maximum exposure, and you can rotate or revoke the key in the Anthropic console at any time." }
+      {
+        "question": "How much does it cost to build a website with the Claude API?",
+        "answer": "You pay Anthropic's per-token rates only. With Claude Sonnet 4.6 a typical site costs $0.50–$2; with Claude Haiku 4.5, cents. There is no OpenThorn subscription or markup — compare that with $25+/month for credit-based builders."
+      },
+      {
+        "question": "Which Claude model is best for building websites?",
+        "answer": "Claude Sonnet 4.6 is the best default — it is one of the strongest coding models available at mid-tier pricing. Choose Claude Fable 5 for the most complex builds, or Claude Haiku 4.5 when cost and speed matter most."
+      },
+      {
+        "question": "Is my Anthropic API key safe in OpenThorn?",
+        "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. Prepaid credit caps your maximum exposure, and you can rotate or revoke the key in the Anthropic console at any time."
+      }
     ]
   },
   {
@@ -72,21 +132,51 @@
     "consoleLabel": "aistudio.google.com",
     "pricingUrl": "https://ai.google.dev/gemini-api/docs/pricing",
     "models": [
-      { "name": "Gemini 3.5 Flash", "note": "Fast, capable, and very cheap — the best default for website generation." },
-      { "name": "Gemini 2.5 Pro", "note": "Stronger reasoning for complex sites; higher per-token price." },
-      { "name": "Gemini 2.5 Flash-Lite", "note": "The cheapest option — fine for simple pages and experiments." }
+      {
+        "name": "Gemini 3.5 Flash",
+        "note": "Fast, capable, and very cheap — the best default for website generation."
+      },
+      {
+        "name": "Gemini 2.5 Pro",
+        "note": "Stronger reasoning for complex sites; higher per-token price."
+      },
+      {
+        "name": "Gemini 2.5 Flash-Lite",
+        "note": "The cheapest option — fine for simple pages and experiments."
+      }
     ],
     "costNote": "On the free tier, your first sites cost $0 within daily limits. On paid tiers, Gemini Flash models are among the cheapest capable models available — a complete site typically costs single-digit cents.",
     "steps": [
-      { "name": "Create a Gemini API key", "text": "Sign in at aistudio.google.com with a Google account and click Get API key. The free tier requires no billing details." },
-      { "name": "Optionally add billing", "text": "For higher rate limits and access to the strongest models, enable billing in Google AI Studio and set a budget alert in Google Cloud." },
-      { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Google Gemini, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a Gemini model, and describe the site. Preview it live, iterate conversationally, then deploy to Cloudflare Pages or export the full source." }
+      {
+        "name": "Create a Gemini API key",
+        "text": "Sign in at aistudio.google.com with a Google account and click Get API key. The free tier requires no billing details."
+      },
+      {
+        "name": "Optionally add billing",
+        "text": "For higher rate limits and access to the strongest models, enable billing in Google AI Studio and set a budget alert in Google Cloud."
+      },
+      {
+        "name": "Connect the key to OpenThorn",
+        "text": "Sign up free at openthorn.app, open the Providers page, choose Google Gemini, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw."
+      },
+      {
+        "name": "Describe your website and ship it",
+        "text": "Create a project, pick a Gemini model, and describe the site. Preview it live, iterate conversationally, then deploy to Cloudflare Pages or export the full source."
+      }
     ],
     "faqs": [
-      { "question": "Can I build a website with AI completely free using Gemini?", "answer": "Yes. Google AI Studio's free tier issues API keys with daily request limits and no credit card. Combined with OpenThorn's free platform, you can build and deploy your first website for $0 — the only constraint is the free tier's daily quota." },
-      { "question": "Which Gemini model should I use for website generation?", "answer": "Gemini 3.5 Flash is the best default — fast, capable, and very cheap. Use Gemini 2.5 Pro when a site needs more complex logic, or Flash-Lite for quick experiments at minimal cost." },
-      { "question": "Is my Gemini API key safe in OpenThorn?", "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can revoke or regenerate the key in Google AI Studio at any time." }
+      {
+        "question": "Can I build a website with AI completely free using Gemini?",
+        "answer": "Yes. Google AI Studio's free tier issues API keys with daily request limits and no credit card. Combined with OpenThorn's free platform, you can build and deploy your first website for $0 — the only constraint is the free tier's daily quota."
+      },
+      {
+        "question": "Which Gemini model should I use for website generation?",
+        "answer": "Gemini 3.5 Flash is the best default — fast, capable, and very cheap. Use Gemini 2.5 Pro when a site needs more complex logic, or Flash-Lite for quick experiments at minimal cost."
+      },
+      {
+        "question": "Is my Gemini API key safe in OpenThorn?",
+        "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can revoke or regenerate the key in Google AI Studio at any time."
+      }
     ]
   },
   {
@@ -102,20 +192,47 @@
     "consoleLabel": "platform.deepseek.com",
     "pricingUrl": "https://api-docs.deepseek.com/quick_start/pricing",
     "models": [
-      { "name": "DeepSeek Chat", "note": "The default — strong general coding ability at very low cost." },
-      { "name": "DeepSeek Reasoner", "note": "Adds explicit reasoning for more complex builds; still inexpensive." }
+      {
+        "name": "DeepSeek Chat",
+        "note": "The default — strong general coding ability at very low cost."
+      },
+      {
+        "name": "DeepSeek Reasoner",
+        "note": "Adds explicit reasoning for more complex builds; still inexpensive."
+      }
     ],
     "costNote": "DeepSeek's per-token prices are typically 10–20× lower than Western flagship models. A complete website usually costs low single-digit cents in API usage.",
     "steps": [
-      { "name": "Create a DeepSeek API key", "text": "Sign up at platform.deepseek.com, top up a small prepaid balance, and create a key under API Keys." },
-      { "name": "Note the prepaid cap", "text": "Your prepaid balance is a hard spend cap — usage simply stops when it runs out, so costs can never surprise you." },
-      { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose DeepSeek, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick DeepSeek Chat or Reasoner, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
+      {
+        "name": "Create a DeepSeek API key",
+        "text": "Sign up at platform.deepseek.com, top up a small prepaid balance, and create a key under API Keys."
+      },
+      {
+        "name": "Note the prepaid cap",
+        "text": "Your prepaid balance is a hard spend cap — usage simply stops when it runs out, so costs can never surprise you."
+      },
+      {
+        "name": "Connect the key to OpenThorn",
+        "text": "Sign up free at openthorn.app, open the Providers page, choose DeepSeek, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw."
+      },
+      {
+        "name": "Describe your website and ship it",
+        "text": "Create a project, pick DeepSeek Chat or Reasoner, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source."
+      }
     ],
     "faqs": [
-      { "question": "Is DeepSeek good enough to build a real website?", "answer": "Yes. DeepSeek's recent models score competitively with Western flagships on coding benchmarks while costing a fraction per token. For most landing pages and multi-page sites the output quality is strong, and OpenThorn's verification gate catches compile errors before you ship." },
-      { "question": "How much does a website cost with the DeepSeek API?", "answer": "Usually low single-digit cents per complete site — DeepSeek's per-token rates are typically 10–20× lower than flagship Western models. There is no OpenThorn fee on top." },
-      { "question": "Is my DeepSeek API key safe in OpenThorn?", "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. Your prepaid balance also caps maximum spend by design." }
+      {
+        "question": "Is DeepSeek good enough to build a real website?",
+        "answer": "Yes. DeepSeek's recent models score competitively with Western flagships on coding benchmarks while costing a fraction per token. For most landing pages and multi-page sites the output quality is strong, and OpenThorn's verification gate catches compile errors before you ship."
+      },
+      {
+        "question": "How much does a website cost with the DeepSeek API?",
+        "answer": "Usually low single-digit cents per complete site — DeepSeek's per-token rates are typically 10–20× lower than flagship Western models. There is no OpenThorn fee on top."
+      },
+      {
+        "question": "Is my DeepSeek API key safe in OpenThorn?",
+        "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. Your prepaid balance also caps maximum spend by design."
+      }
     ]
   },
   {
@@ -131,21 +248,51 @@
     "consoleLabel": "console.mistral.ai",
     "pricingUrl": "https://mistral.ai/pricing",
     "models": [
-      { "name": "Mistral Large", "note": "Mistral's flagship — the best choice for complete website builds." },
-      { "name": "Mistral Medium 3.5", "note": "Strong quality at a lower price point." },
-      { "name": "Codestral", "note": "Code-specialized model — fast and effective for iteration." }
+      {
+        "name": "Mistral Large",
+        "note": "Mistral's flagship — the best choice for complete website builds."
+      },
+      {
+        "name": "Mistral Medium 3.5",
+        "note": "Strong quality at a lower price point."
+      },
+      {
+        "name": "Codestral",
+        "note": "Code-specialized model — fast and effective for iteration."
+      }
     ],
     "costNote": "On the free tier your first sites cost $0 within rate limits. Paid per-token rates are competitive with mid-tier models — a typical site costs cents to under a dollar.",
     "steps": [
-      { "name": "Create a Mistral API key", "text": "Sign up at console.mistral.ai and create a key under API Keys. The free experiment tier requires no payment details." },
-      { "name": "Optionally add billing", "text": "For higher rate limits and the largest models, add a payment method and set usage alerts in the console." },
-      { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Mistral AI, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a Mistral model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
+      {
+        "name": "Create a Mistral API key",
+        "text": "Sign up at console.mistral.ai and create a key under API Keys. The free experiment tier requires no payment details."
+      },
+      {
+        "name": "Optionally add billing",
+        "text": "For higher rate limits and the largest models, add a payment method and set usage alerts in the console."
+      },
+      {
+        "name": "Connect the key to OpenThorn",
+        "text": "Sign up free at openthorn.app, open the Providers page, choose Mistral AI, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw."
+      },
+      {
+        "name": "Describe your website and ship it",
+        "text": "Create a project, pick a Mistral model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source."
+      }
     ],
     "faqs": [
-      { "question": "Does Mistral have a free API tier I can use with OpenThorn?", "answer": "Yes. La Plateforme's free experiment tier issues API keys with rate limits and no payment details, and OpenThorn itself is free — so your first websites can cost $0." },
-      { "question": "Why choose Mistral over OpenAI or Anthropic?", "answer": "Mistral is a European provider with EU-hosted options, which matters for data-residency requirements. Its models are competitive for web generation, and the free tier makes starting cheaper than any prepaid-only provider." },
-      { "question": "Is my Mistral API key safe in OpenThorn?", "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can rotate or revoke the key in the Mistral console at any time." }
+      {
+        "question": "Does Mistral have a free API tier I can use with OpenThorn?",
+        "answer": "Yes. La Plateforme's free experiment tier issues API keys with rate limits and no payment details, and OpenThorn itself is free — so your first websites can cost $0."
+      },
+      {
+        "question": "Why choose Mistral over OpenAI or Anthropic?",
+        "answer": "Mistral is a European provider with EU-hosted options, which matters for data-residency requirements. Its models are competitive for web generation, and the free tier makes starting cheaper than any prepaid-only provider."
+      },
+      {
+        "question": "Is my Mistral API key safe in OpenThorn?",
+        "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can rotate or revoke the key in the Mistral console at any time."
+      }
     ]
   },
   {
@@ -161,51 +308,51 @@
     "consoleLabel": "console.groq.com",
     "pricingUrl": "https://groq.com/pricing",
     "models": [
-      { "name": "Groq Compound", "note": "Groq's agentic system — a strong default for website builds." },
-      { "name": "GPT OSS 120B", "note": "OpenAI's open-weight model served at Groq speed — great quality per dollar." },
-      { "name": "Llama 3.3 70B Versatile", "note": "Reliable open model, very cheap and fast." }
+      {
+        "name": "Groq Compound",
+        "note": "Groq's agentic system — a strong default for website builds."
+      },
+      {
+        "name": "GPT OSS 120B",
+        "note": "OpenAI's open-weight model served at Groq speed — great quality per dollar."
+      },
+      {
+        "name": "Llama 3.3 70B Versatile",
+        "note": "Reliable open model, very cheap and fast."
+      }
     ],
     "costNote": "The free tier covers first sites at $0 within daily limits. Paid rates for open models are very low — a complete website typically costs under ten cents.",
     "steps": [
-      { "name": "Create a Groq API key", "text": "Sign up at console.groq.com and create a key under API Keys. The free tier requires no payment details." },
-      { "name": "Optionally upgrade for higher limits", "text": "The developer tier unlocks higher rate limits with pay-as-you-go billing; set a spend cap in the console." },
-      { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Groq, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a model, and describe the site. Generation streams at hundreds of tokens per second — preview, iterate, then deploy or export." }
+      {
+        "name": "Create a Groq API key",
+        "text": "Sign up at console.groq.com and create a key under API Keys. The free tier requires no payment details."
+      },
+      {
+        "name": "Optionally upgrade for higher limits",
+        "text": "The developer tier unlocks higher rate limits with pay-as-you-go billing; set a spend cap in the console."
+      },
+      {
+        "name": "Connect the key to OpenThorn",
+        "text": "Sign up free at openthorn.app, open the Providers page, choose Groq, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw."
+      },
+      {
+        "name": "Describe your website and ship it",
+        "text": "Create a project, pick a model, and describe the site. Generation streams at hundreds of tokens per second — preview, iterate, then deploy or export."
+      }
     ],
     "faqs": [
-      { "question": "Why use Groq for AI website building?", "answer": "Speed. Groq's custom LPU hardware serves models at hundreds of tokens per second — often 5–10× faster than standard GPU APIs — so each agent iteration completes in seconds. Combined with the free tier, it is one of the best ways to try OpenThorn." },
-      { "question": "Is Groq the same as Grok?", "answer": "No. Groq is an AI inference company with custom LPU hardware that serves open models extremely fast. Grok is xAI's model family — OpenThorn supports both, as separate providers." },
-      { "question": "How much does a website cost with the Groq API?", "answer": "On the free tier, $0 within daily limits. On paid tiers, open models served by Groq cost so little per token that a complete website is typically under ten cents." }
-    ]
-  },
-  {
-    "slug": "together",
-    "name": "Together AI",
-    "logo": "/assets/togetherai.png",
-    "title": "Build a website with your Together AI API key",
-    "description": "Connect your Together AI API key to OpenThorn and build complete websites with the best open-source models — DeepSeek, Qwen, and Llama — at low per-token rates.",
-    "lastVerified": "2026-06-12",
-    "answer": "Yes — Together AI gives you one API key for the strongest open-source models (DeepSeek V4 Pro, Qwen3 Coder, Llama) at low per-token prices. Create a key at api.together.ai, paste it into OpenThorn (free, encrypted server-side), and a typical website costs cents in API usage.",
-    "freeTier": "New accounts receive a small free credit to start; after that, pay-as-you-go with no minimum commitment.",
-    "consoleUrl": "https://api.together.ai/settings/api-keys",
-    "consoleLabel": "api.together.ai",
-    "pricingUrl": "https://www.together.ai/pricing",
-    "models": [
-      { "name": "DeepSeek V4 Pro", "note": "Frontier-class open model — the strongest choice for website builds." },
-      { "name": "Qwen3 Coder 480B", "note": "Code-specialized giant — excellent for complex component logic." },
-      { "name": "Llama 3.3 70B Turbo", "note": "Fast, cheap, reliable for simpler sites." }
-    ],
-    "costNote": "Open-source model rates on Together are a fraction of proprietary flagship prices — a complete website typically costs cents.",
-    "steps": [
-      { "name": "Create a Together AI API key", "text": "Sign up at api.together.ai and copy your key from Settings → API Keys. New accounts include a small free credit." },
-      { "name": "Set a spend alert", "text": "Configure billing alerts in the Together dashboard so usage stays visible and predictable." },
-      { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Together AI, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick an open model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
-    ],
-    "faqs": [
-      { "question": "Which open-source model on Together AI is best for websites?", "answer": "DeepSeek V4 Pro is the strongest all-rounder; Qwen3 Coder 480B excels at intricate component logic. For simple sites, Llama 3.3 70B Turbo is faster and cheaper. All cost a fraction of proprietary flagship rates." },
-      { "question": "How much does a website cost with Together AI?", "answer": "Typically cents per complete site — open-source per-token rates are far below proprietary models, and OpenThorn adds no markup or subscription." },
-      { "question": "Is my Together AI key safe in OpenThorn?", "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can rotate the key in the Together dashboard at any time." }
+      {
+        "question": "Why use Groq for AI website building?",
+        "answer": "Speed. Groq's custom LPU hardware serves models at hundreds of tokens per second — often 5–10× faster than standard GPU APIs — so each agent iteration completes in seconds. Combined with the free tier, it is one of the best ways to try OpenThorn."
+      },
+      {
+        "question": "Is Groq the same as Grok?",
+        "answer": "No. Groq is an AI inference company with custom LPU hardware that serves open models extremely fast. Grok is xAI's model family — OpenThorn supports both, as separate providers."
+      },
+      {
+        "question": "How much does a website cost with the Groq API?",
+        "answer": "On the free tier, $0 within daily limits. On paid tiers, open models served by Groq cost so little per token that a complete website is typically under ten cents."
+      }
     ]
   },
   {
@@ -221,50 +368,47 @@
     "consoleLabel": "console.x.ai",
     "pricingUrl": "https://x.ai/api",
     "models": [
-      { "name": "Grok 4.3", "note": "xAI's current flagship — strong code generation for complete sites." },
-      { "name": "Grok 4.20 Reasoning", "note": "Explicit reasoning variant for more complex builds." }
+      {
+        "name": "Grok 4.3",
+        "note": "xAI's current flagship — strong code generation for complete sites."
+      },
+      {
+        "name": "Grok 4.20 Reasoning",
+        "note": "Explicit reasoning variant for more complex builds."
+      }
     ],
     "costNote": "Grok pricing is competitive with mid-to-flagship Western models — a typical website costs roughly $0.50–$2 in API usage.",
     "steps": [
-      { "name": "Create an xAI API key", "text": "Sign in at console.x.ai, add prepaid credit, and create an API key." },
-      { "name": "Note the prepaid cap", "text": "Prepaid credit is a hard spend limit — usage stops when the balance runs out." },
-      { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose xAI, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a Grok model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
+      {
+        "name": "Create an xAI API key",
+        "text": "Sign in at console.x.ai, add prepaid credit, and create an API key."
+      },
+      {
+        "name": "Note the prepaid cap",
+        "text": "Prepaid credit is a hard spend limit — usage stops when the balance runs out."
+      },
+      {
+        "name": "Connect the key to OpenThorn",
+        "text": "Sign up free at openthorn.app, open the Providers page, choose xAI, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw."
+      },
+      {
+        "name": "Describe your website and ship it",
+        "text": "Create a project, pick a Grok model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source."
+      }
     ],
     "faqs": [
-      { "question": "Is Grok good at building websites?", "answer": "Yes — Grok 4.3 performs competitively on coding tasks and handles complete website generation well in OpenThorn, including multi-page sites. The reasoning variant helps with more intricate component logic." },
-      { "question": "How much does a website cost with the xAI API?", "answer": "Roughly $0.50–$2 per complete site at Grok's published per-token rates, depending on size and revisions. OpenThorn adds no markup or subscription." },
-      { "question": "Is my xAI API key safe in OpenThorn?", "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. Prepaid credit caps your maximum exposure." }
-    ]
-  },
-  {
-    "slug": "cohere",
-    "name": "Cohere",
-    "logo": "/assets/cohere.png",
-    "title": "Build a website with your Cohere API key",
-    "description": "Connect your Cohere API key to OpenThorn and build complete websites with Command models — including a free trial key for evaluation.",
-    "lastVerified": "2026-06-12",
-    "answer": "Yes — Cohere issues free trial API keys with rate limits, so you can try building a website for $0. Create a key at dashboard.cohere.com, paste it into OpenThorn (free, encrypted server-side), and describe your site. Command A+ is Cohere's strongest model for code generation.",
-    "freeTier": "Yes — trial keys are free with rate limits; production keys are pay-as-you-go.",
-    "consoleUrl": "https://dashboard.cohere.com/api-keys",
-    "consoleLabel": "dashboard.cohere.com",
-    "pricingUrl": "https://cohere.com/pricing",
-    "models": [
-      { "name": "Command A+", "note": "Cohere's strongest model — the best choice for website builds." },
-      { "name": "Command A", "note": "Solid quality at a lower price." },
-      { "name": "Command R+", "note": "Older but cheap — fine for simple pages." }
-    ],
-    "costNote": "Trial keys cover evaluation at $0 within rate limits. Production per-token rates are competitive with mid-tier models — a typical site costs cents to under a dollar.",
-    "steps": [
-      { "name": "Create a Cohere API key", "text": "Sign up at dashboard.cohere.com — a free trial key with rate limits is issued immediately, no payment details required." },
-      { "name": "Upgrade for production use", "text": "Add billing for a production key with higher limits, and set usage alerts in the dashboard." },
-      { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Cohere, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a Command model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
-    ],
-    "faqs": [
-      { "question": "Can I try Cohere with OpenThorn for free?", "answer": "Yes. Cohere's trial keys are free with rate limits and require no payment details, and OpenThorn itself is free — so evaluating a full website build costs $0." },
-      { "question": "Which Cohere model should I use for website generation?", "answer": "Command A+ is the strongest choice for complete websites. Command A offers a good quality-to-price balance for simpler sites." },
-      { "question": "Is my Cohere API key safe in OpenThorn?", "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can rotate or revoke keys in the Cohere dashboard at any time." }
+      {
+        "question": "Is Grok good at building websites?",
+        "answer": "Yes — Grok 4.3 performs competitively on coding tasks and handles complete website generation well in OpenThorn, including multi-page sites. The reasoning variant helps with more intricate component logic."
+      },
+      {
+        "question": "How much does a website cost with the xAI API?",
+        "answer": "Roughly $0.50–$2 per complete site at Grok's published per-token rates, depending on size and revisions. OpenThorn adds no markup or subscription."
+      },
+      {
+        "question": "Is my xAI API key safe in OpenThorn?",
+        "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. Prepaid credit caps your maximum exposure."
+      }
     ]
   },
   {
@@ -280,21 +424,51 @@
     "consoleLabel": "perplexity.ai/settings/api",
     "pricingUrl": "https://docs.perplexity.ai/guides/pricing",
     "models": [
-      { "name": "Sonar Pro", "note": "The strongest Sonar model — best for complete website builds." },
-      { "name": "Sonar", "note": "Cheaper and faster for simpler sites." },
-      { "name": "Sonar Reasoning Pro", "note": "Adds explicit reasoning for complex structures." }
+      {
+        "name": "Sonar Pro",
+        "note": "The strongest Sonar model — best for complete website builds."
+      },
+      {
+        "name": "Sonar",
+        "note": "Cheaper and faster for simpler sites."
+      },
+      {
+        "name": "Sonar Reasoning Pro",
+        "note": "Adds explicit reasoning for complex structures."
+      }
     ],
     "costNote": "Sonar per-token rates are competitive with mid-tier models; search-grounded requests add a small per-request fee. A typical site costs under a dollar.",
     "steps": [
-      { "name": "Create a Perplexity API key", "text": "Sign in at perplexity.ai, open Settings → API, add credit (Pro subscribers get a monthly allowance), and generate a key." },
-      { "name": "Mind the request pricing", "text": "Sonar models bill per token plus a small per-search fee — check the pricing docs so costs stay predictable." },
-      { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Perplexity, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a Sonar model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
+      {
+        "name": "Create a Perplexity API key",
+        "text": "Sign in at perplexity.ai, open Settings → API, add credit (Pro subscribers get a monthly allowance), and generate a key."
+      },
+      {
+        "name": "Mind the request pricing",
+        "text": "Sonar models bill per token plus a small per-search fee — check the pricing docs so costs stay predictable."
+      },
+      {
+        "name": "Connect the key to OpenThorn",
+        "text": "Sign up free at openthorn.app, open the Providers page, choose Perplexity, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw."
+      },
+      {
+        "name": "Describe your website and ship it",
+        "text": "Create a project, pick a Sonar model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source."
+      }
     ],
     "faqs": [
-      { "question": "Why use Perplexity to build a website?", "answer": "Sonar models are search-grounded — they can pull current facts from the web while generating, which helps for content-heavy sites that reference real, up-to-date information. For pure code generation, a dedicated coding model may be a better fit." },
-      { "question": "Do Perplexity Pro subscribers get API credit?", "answer": "Yes — Perplexity Pro includes a monthly API credit allowance, which is enough to build several websites in OpenThorn without separate billing." },
-      { "question": "Is my Perplexity API key safe in OpenThorn?", "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can revoke the key in your Perplexity settings at any time." }
+      {
+        "question": "Why use Perplexity to build a website?",
+        "answer": "Sonar models are search-grounded — they can pull current facts from the web while generating, which helps for content-heavy sites that reference real, up-to-date information. For pure code generation, a dedicated coding model may be a better fit."
+      },
+      {
+        "question": "Do Perplexity Pro subscribers get API credit?",
+        "answer": "Yes — Perplexity Pro includes a monthly API credit allowance, which is enough to build several websites in OpenThorn without separate billing."
+      },
+      {
+        "question": "Is my Perplexity API key safe in OpenThorn?",
+        "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can revoke the key in your Perplexity settings at any time."
+      }
     ]
   },
   {
@@ -310,21 +484,51 @@
     "consoleLabel": "openrouter.ai",
     "pricingUrl": "https://openrouter.ai/models",
     "models": [
-      { "name": "Claude Sonnet (latest)", "note": "Anthropic's coding workhorse via one OpenRouter key." },
-      { "name": "OpenAI GPT (latest)", "note": "Current GPT flagship without a separate OpenAI account." },
-      { "name": "Gemini Flash (latest)", "note": "Google's fast, cheap model for quick builds." }
+      {
+        "name": "Claude Sonnet (latest)",
+        "note": "Anthropic's coding workhorse via one OpenRouter key."
+      },
+      {
+        "name": "OpenAI GPT (latest)",
+        "note": "Current GPT flagship without a separate OpenAI account."
+      },
+      {
+        "name": "Gemini Flash (latest)",
+        "note": "Google's fast, cheap model for quick builds."
+      }
     ],
     "costNote": "You pay roughly the underlying provider's per-token rate (OpenRouter adds a small fee when buying credits). Free-tier open models cost $0 within rate limits.",
     "steps": [
-      { "name": "Create an OpenRouter account and key", "text": "Sign up at openrouter.ai, add prepaid credits, and create a key under Settings → Keys." },
-      { "name": "Browse the model catalog", "text": "openrouter.ai/models lists hundreds of models with live per-token prices — including some free ones." },
-      { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose OpenRouter, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick any model from the catalog, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
+      {
+        "name": "Create an OpenRouter account and key",
+        "text": "Sign up at openrouter.ai, add prepaid credits, and create a key under Settings → Keys."
+      },
+      {
+        "name": "Browse the model catalog",
+        "text": "openrouter.ai/models lists hundreds of models with live per-token prices — including some free ones."
+      },
+      {
+        "name": "Connect the key to OpenThorn",
+        "text": "Sign up free at openthorn.app, open the Providers page, choose OpenRouter, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw."
+      },
+      {
+        "name": "Describe your website and ship it",
+        "text": "Create a project, pick any model from the catalog, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source."
+      }
     ],
     "faqs": [
-      { "question": "Why use OpenRouter instead of a direct provider key?", "answer": "One account, one balance, hundreds of models — you can compare Claude, GPT, Gemini, and open-source models in OpenThorn without creating separate accounts. The trade-off is a small platform fee on credit purchases." },
-      { "question": "Does OpenRouter have free models?", "answer": "Yes — several hosted open-source models are free with rate limits, so you can build your first OpenThorn site for $0 before adding credits." },
-      { "question": "Is my OpenRouter API key safe in OpenThorn?", "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. Prepaid credits cap your maximum spend." }
+      {
+        "question": "Why use OpenRouter instead of a direct provider key?",
+        "answer": "One account, one balance, hundreds of models — you can compare Claude, GPT, Gemini, and open-source models in OpenThorn without creating separate accounts. The trade-off is a small platform fee on credit purchases."
+      },
+      {
+        "question": "Does OpenRouter have free models?",
+        "answer": "Yes — several hosted open-source models are free with rate limits, so you can build your first OpenThorn site for $0 before adding credits."
+      },
+      {
+        "question": "Is my OpenRouter API key safe in OpenThorn?",
+        "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. Prepaid credits cap your maximum spend."
+      }
     ]
   },
   {
@@ -340,51 +544,51 @@
     "consoleLabel": "ollama.com",
     "pricingUrl": "https://ollama.com/library",
     "models": [
-      { "name": "Qwen 2.5 Coder", "note": "The best local coding model for its size — recommended default." },
-      { "name": "Llama 3.2", "note": "Light and fast on modest hardware." },
-      { "name": "Mistral", "note": "Solid all-rounder that runs on most machines." }
+      {
+        "name": "Qwen 2.5 Coder",
+        "note": "The best local coding model for its size — recommended default."
+      },
+      {
+        "name": "Llama 3.2",
+        "note": "Light and fast on modest hardware."
+      },
+      {
+        "name": "Mistral",
+        "note": "Solid all-rounder that runs on most machines."
+      }
     ],
     "costNote": "$0 — inference runs on your own hardware. Larger models produce better websites but need more RAM/VRAM (a 7B coder model runs on most modern laptops).",
     "steps": [
-      { "name": "Install Ollama", "text": "Download Ollama from ollama.com for Windows, macOS, or Linux and install it — it runs a local server on port 11434." },
-      { "name": "Pull a coding model", "text": "Run `ollama pull qwen2.5-coder` in a terminal. A 7B model needs roughly 8 GB of RAM; larger variants produce better code." },
-      { "name": "Connect Ollama to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Ollama, and point it at your local endpoint. No API key required." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick your local model, and describe the site. Everything runs on your machine; deploy to Cloudflare Pages or export when ready." }
+      {
+        "name": "Install Ollama",
+        "text": "Download Ollama from ollama.com for Windows, macOS, or Linux and install it — it runs a local server on port 11434."
+      },
+      {
+        "name": "Pull a coding model",
+        "text": "Run `ollama pull qwen2.5-coder` in a terminal. A 7B model needs roughly 8 GB of RAM; larger variants produce better code."
+      },
+      {
+        "name": "Connect Ollama to OpenThorn",
+        "text": "Sign up free at openthorn.app, open the Providers page, choose Ollama, and point it at your local endpoint. No API key required."
+      },
+      {
+        "name": "Describe your website and ship it",
+        "text": "Create a project, pick your local model, and describe the site. Everything runs on your machine; deploy to Cloudflare Pages or export when ready."
+      }
     ],
     "faqs": [
-      { "question": "Can I really build a website with AI completely free and offline?", "answer": "Yes. Ollama runs open models locally — no API key, no token bills, no cloud. OpenThorn's platform is free, so the entire build costs $0. Quality depends on the model size your hardware can run; local models are weaker than cloud flagships but capable for simpler sites." },
-      { "question": "What hardware do I need for Ollama?", "answer": "A 7B coding model like Qwen 2.5 Coder runs on most modern laptops with 8 GB+ RAM. More RAM or a GPU lets you run larger variants, which noticeably improves generated code quality." },
-      { "question": "Is local AI private?", "answer": "Yes — with Ollama your prompts and generated code never leave your machine. This is the strongest privacy option among all providers OpenThorn supports." }
-    ]
-  },
-  {
-    "slug": "fireworks",
-    "name": "Fireworks AI",
-    "logo": "/assets/fireworks.png",
-    "title": "Build a website with your Fireworks AI API key",
-    "description": "Connect your Fireworks AI API key to OpenThorn and build complete websites with fast-served open models — DeepSeek, Llama, and Qwen at low per-token rates.",
-    "lastVerified": "2026-06-12",
-    "answer": "Yes — Fireworks AI serves the strongest open-source models (DeepSeek V3.2, Qwen3, Llama 3.3) on fast, optimized infrastructure. Create a key at app.fireworks.ai (new accounts include free credit), paste it into OpenThorn (free, encrypted server-side), and a typical website costs cents in API usage.",
-    "freeTier": "New accounts include a small free credit; after that, pay-as-you-go at low open-model rates.",
-    "consoleUrl": "https://app.fireworks.ai",
-    "consoleLabel": "app.fireworks.ai",
-    "pricingUrl": "https://fireworks.ai/pricing",
-    "models": [
-      { "name": "DeepSeek V3.2", "note": "Frontier-class open model — the strongest choice for website builds." },
-      { "name": "Qwen3 235B A22B", "note": "Large MoE model with excellent code ability." },
-      { "name": "Llama 3.3 70B Instruct", "note": "Fast and cheap for simpler sites." }
-    ],
-    "costNote": "Open-model rates on Fireworks are a fraction of proprietary flagship prices — a complete website typically costs cents.",
-    "steps": [
-      { "name": "Create a Fireworks API key", "text": "Sign up at app.fireworks.ai — new accounts include free credit — and create a key under API Keys." },
-      { "name": "Set a spend alert", "text": "Configure billing alerts in the Fireworks dashboard to keep usage visible." },
-      { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Fireworks AI, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick an open model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
-    ],
-    "faqs": [
-      { "question": "How much does a website cost with Fireworks AI?", "answer": "Typically cents per complete site — Fireworks serves open-source models at rates far below proprietary flagships, new accounts include free credit, and OpenThorn adds no markup." },
-      { "question": "Which Fireworks model is best for website generation?", "answer": "DeepSeek V3.2 is the strongest all-rounder. Qwen3 235B excels at complex code; Llama 3.3 70B is the fast, cheap option for simple sites." },
-      { "question": "Is my Fireworks API key safe in OpenThorn?", "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can rotate keys in the Fireworks dashboard at any time." }
+      {
+        "question": "Can I really build a website with AI completely free and offline?",
+        "answer": "Yes. Ollama runs open models locally — no API key, no token bills, no cloud. OpenThorn's platform is free, so the entire build costs $0. Quality depends on the model size your hardware can run; local models are weaker than cloud flagships but capable for simpler sites."
+      },
+      {
+        "question": "What hardware do I need for Ollama?",
+        "answer": "A 7B coding model like Qwen 2.5 Coder runs on most modern laptops with 8 GB+ RAM. More RAM or a GPU lets you run larger variants, which noticeably improves generated code quality."
+      },
+      {
+        "question": "Is local AI private?",
+        "answer": "Yes — with Ollama your prompts and generated code never leave your machine. This is the strongest privacy option among all providers OpenThorn supports."
+      }
     ]
   },
   {
@@ -400,78 +604,51 @@
     "consoleLabel": "cloud.cerebras.ai",
     "pricingUrl": "https://www.cerebras.ai/pricing",
     "models": [
-      { "name": "GPT OSS 120B", "note": "OpenAI's open-weight model at extreme speed — the strongest choice." },
-      { "name": "Llama 4 Scout 17B", "note": "Light, fast, capable for simpler sites." },
-      { "name": "Llama 3.3 70B", "note": "Reliable open model, very cheap." }
+      {
+        "name": "GPT OSS 120B",
+        "note": "OpenAI's open-weight model at extreme speed — the strongest choice."
+      },
+      {
+        "name": "Llama 4 Scout 17B",
+        "note": "Light, fast, capable for simpler sites."
+      },
+      {
+        "name": "Llama 3.3 70B",
+        "note": "Reliable open model, very cheap."
+      }
     ],
     "costNote": "Free tier covers first sites at $0 within daily limits; paid open-model rates make a complete website cost well under ten cents.",
     "steps": [
-      { "name": "Create a Cerebras API key", "text": "Sign up at cloud.cerebras.ai and create a key — the free tier requires no payment details." },
-      { "name": "Optionally upgrade for higher limits", "text": "Paid tiers unlock higher daily token budgets; set alerts in the dashboard." },
-      { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Cerebras, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a model, and watch generation stream at thousands of tokens per second. Preview, iterate, then deploy or export." }
+      {
+        "name": "Create a Cerebras API key",
+        "text": "Sign up at cloud.cerebras.ai and create a key — the free tier requires no payment details."
+      },
+      {
+        "name": "Optionally upgrade for higher limits",
+        "text": "Paid tiers unlock higher daily token budgets; set alerts in the dashboard."
+      },
+      {
+        "name": "Connect the key to OpenThorn",
+        "text": "Sign up free at openthorn.app, open the Providers page, choose Cerebras, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw."
+      },
+      {
+        "name": "Describe your website and ship it",
+        "text": "Create a project, pick a model, and watch generation stream at thousands of tokens per second. Preview, iterate, then deploy or export."
+      }
     ],
     "faqs": [
-      { "question": "Why is Cerebras so fast?", "answer": "Cerebras builds wafer-scale chips — entire silicon wafers acting as one processor — which serve open models at thousands of tokens per second, typically the fastest inference commercially available. For an iterative agent like OpenThorn's, that means near-instant build cycles." },
-      { "question": "Can I use Cerebras with OpenThorn for free?", "answer": "Yes — Cerebras offers a free API tier with daily token limits and no credit card, and OpenThorn is free, so your first websites cost $0." },
-      { "question": "Is my Cerebras API key safe in OpenThorn?", "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can rotate the key in the Cerebras dashboard at any time." }
-    ]
-  },
-  {
-    "slug": "azure",
-    "name": "Azure OpenAI",
-    "logo": "/assets/azure.png",
-    "title": "Build a website with Azure OpenAI",
-    "description": "Connect your Azure OpenAI deployment to OpenThorn and build complete websites with GPT models under your organization's Azure governance, regions, and billing.",
-    "lastVerified": "2026-06-12",
-    "answer": "Yes — OpenThorn supports Azure OpenAI, so teams can build websites with GPT models under existing Azure governance: your subscription, your region, your compliance boundary, your billing. Deploy a model in Azure AI Foundry, paste the endpoint key and deployment name into OpenThorn, and build.",
-    "freeTier": "No free tier, but usage bills to your existing Azure subscription — new Azure accounts often include trial credit.",
-    "consoleUrl": "https://ai.azure.com",
-    "consoleLabel": "ai.azure.com (Azure AI Foundry)",
-    "pricingUrl": "https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/",
-    "models": [
-      { "name": "Your GPT deployment", "note": "Azure uses named deployments — deploy any available GPT model and use its deployment name in OpenThorn." }
-    ],
-    "costNote": "Per-token rates mirror OpenAI's, billed through your Azure subscription — a typical site costs cents to a few dollars depending on the deployed model.",
-    "steps": [
-      { "name": "Create an Azure OpenAI resource", "text": "In Azure AI Foundry (ai.azure.com), create an Azure OpenAI resource in your preferred region — this is where data residency is decided." },
-      { "name": "Deploy a model", "text": "Create a deployment of a GPT model and note its deployment name — Azure routes API calls by deployment, not model ID." },
-      { "name": "Connect to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Azure OpenAI, and enter your endpoint, key, and deployment name. Everything is encrypted server-side." },
-      { "name": "Describe your website and ship it", "text": "Create a project and describe the site. Usage bills to your Azure subscription under your existing governance. Deploy to Cloudflare Pages or export the source." }
-    ],
-    "faqs": [
-      { "question": "Why use Azure OpenAI instead of OpenAI directly?", "answer": "Governance. Azure OpenAI runs GPT models inside your Azure subscription with your choice of region, your compliance certifications, your private networking, and consolidated enterprise billing — the standard route for organizations with Azure agreements." },
-      { "question": "What is a deployment name and why does OpenThorn need it?", "answer": "Azure routes API calls to named model deployments rather than raw model IDs. You create a deployment in Azure AI Foundry and give OpenThorn its name along with the endpoint and key." },
-      { "question": "Does Azure OpenAI cost more than OpenAI?", "answer": "Per-token rates are generally equivalent to OpenAI's; you pay through your Azure subscription. The value is governance and data residency rather than price." }
-    ]
-  },
-  {
-    "slug": "bedrock",
-    "name": "Amazon Bedrock",
-    "logo": "/assets/bedrock.png",
-    "title": "Build a website with Amazon Bedrock",
-    "description": "Connect Amazon Bedrock to OpenThorn and build complete websites with Claude models running inside your AWS account — your IAM controls, your region, your billing.",
-    "lastVerified": "2026-06-12",
-    "answer": "Yes — OpenThorn supports Amazon Bedrock, so you can build websites with Claude models running inside your own AWS account: IAM-scoped credentials, your chosen region, CloudWatch auditability, and consolidated AWS billing. Enable model access in the Bedrock console, create scoped IAM credentials, and connect them to OpenThorn.",
-    "freeTier": "No free tier; usage bills to your AWS account at per-token rates similar to Anthropic's direct prices.",
-    "consoleUrl": "https://console.aws.amazon.com/bedrock",
-    "consoleLabel": "AWS Bedrock console",
-    "pricingUrl": "https://aws.amazon.com/bedrock/pricing/",
-    "models": [
-      { "name": "Claude Opus 4.8", "note": "Anthropic's strongest Bedrock model for the most demanding builds." },
-      { "name": "Claude Sonnet 4.6", "note": "The best default — excellent code quality at mid-tier pricing." }
-    ],
-    "costNote": "Per-token rates are close to Anthropic's direct prices, billed through AWS — a typical site costs $0.50–$2 with Claude Sonnet 4.6.",
-    "steps": [
-      { "name": "Enable model access in Bedrock", "text": "In the AWS Bedrock console, request access to the Claude models in your preferred region — approval is typically immediate." },
-      { "name": "Create scoped IAM credentials", "text": "Create an IAM user or role with bedrock:InvokeModel permission only, and generate an access key pair. Least-privilege keys limit blast radius." },
-      { "name": "Connect to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose Amazon Bedrock, and enter your credentials and region. Everything is encrypted server-side with AES-256-GCM." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a Claude model, and describe the site. Usage appears in your AWS bill and CloudWatch logs. Deploy to Cloudflare Pages or export the source." }
-    ],
-    "faqs": [
-      { "question": "Why use Bedrock instead of the Anthropic API directly?", "answer": "AWS governance: IAM-scoped access, your chosen region for data residency, CloudWatch audit trails, and one consolidated AWS bill. Per-token prices are close to Anthropic's direct rates, so you pay for control, not extra margin." },
-      { "question": "Which Bedrock model should I use for websites?", "answer": "Claude Sonnet 4.6 is the best default — one of the strongest coding models available at mid-tier pricing. Use Claude Opus 4.8 for the most complex multi-page builds." },
-      { "question": "What IAM permissions does OpenThorn need?", "answer": "Only bedrock:InvokeModel on the models you intend to use. Create a dedicated least-privilege IAM user so the credentials can do nothing else in your account." }
+      {
+        "question": "Why is Cerebras so fast?",
+        "answer": "Cerebras builds wafer-scale chips — entire silicon wafers acting as one processor — which serve open models at thousands of tokens per second, typically the fastest inference commercially available. For an iterative agent like OpenThorn's, that means near-instant build cycles."
+      },
+      {
+        "question": "Can I use Cerebras with OpenThorn for free?",
+        "answer": "Yes — Cerebras offers a free API tier with daily token limits and no credit card, and OpenThorn is free, so your first websites cost $0."
+      },
+      {
+        "question": "Is my Cerebras API key safe in OpenThorn?",
+        "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can rotate the key in the Cerebras dashboard at any time."
+      }
     ]
   },
   {
@@ -487,51 +664,47 @@
     "consoleLabel": "build.nvidia.com",
     "pricingUrl": "https://build.nvidia.com",
     "models": [
-      { "name": "DeepSeek R1", "note": "Strong reasoning model served on NVIDIA infrastructure." },
-      { "name": "Llama 3.1 Nemotron Ultra 253B", "note": "NVIDIA's tuned large model — capable for complex builds." }
+      {
+        "name": "DeepSeek R1",
+        "note": "Strong reasoning model served on NVIDIA infrastructure."
+      },
+      {
+        "name": "Llama 3.1 Nemotron Ultra 253B",
+        "note": "NVIDIA's tuned large model — capable for complex builds."
+      }
     ],
     "costNote": "Free developer credits cover first sites at $0; afterwards, open-model rates keep a typical website in the cents range.",
     "steps": [
-      { "name": "Create an NVIDIA API key", "text": "Sign up at build.nvidia.com — developer accounts include free credits — and generate an API key from the model catalog." },
-      { "name": "Pick a model from the catalog", "text": "Browse build.nvidia.com for available models; DeepSeek R1 and Nemotron are strong choices for code." },
-      { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose NVIDIA NIM, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source." }
+      {
+        "name": "Create an NVIDIA API key",
+        "text": "Sign up at build.nvidia.com — developer accounts include free credits — and generate an API key from the model catalog."
+      },
+      {
+        "name": "Pick a model from the catalog",
+        "text": "Browse build.nvidia.com for available models; DeepSeek R1 and Nemotron are strong choices for code."
+      },
+      {
+        "name": "Connect the key to OpenThorn",
+        "text": "Sign up free at openthorn.app, open the Providers page, choose NVIDIA NIM, and paste your key. It is encrypted server-side with AES-256-GCM and never exposed raw."
+      },
+      {
+        "name": "Describe your website and ship it",
+        "text": "Create a project, pick a model, and describe the site. Preview it live, iterate, then deploy to Cloudflare Pages or export the source."
+      }
     ],
     "faqs": [
-      { "question": "Can I use NVIDIA NIM with OpenThorn for free?", "answer": "Yes — new developer accounts on build.nvidia.com include free credits, and OpenThorn is free, so your first website builds cost $0." },
-      { "question": "Which NVIDIA-served model is best for website generation?", "answer": "DeepSeek R1 is the strongest for reasoning-heavy builds; Llama 3.1 Nemotron Ultra is NVIDIA's tuned large model and handles complete sites well." },
-      { "question": "Is my NVIDIA API key safe in OpenThorn?", "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can rotate the key on build.nvidia.com at any time." }
-    ]
-  },
-  {
-    "slug": "rodiumai",
-    "name": "RodiumAi",
-    "logo": "/assets/rodiumai.png",
-    "title": "Build a website with your RodiumAi API key",
-    "description": "Connect your RodiumAi API key to OpenThorn and build complete websites — one OpenAI-compatible key routes to 50+ models (Claude, GPT, Gemini, DeepSeek, Llama), billed in RODI credits you top up with Mobile Money.",
-    "lastVerified": "2026-06-14",
-    "answer": "Yes — RodiumAi is an OpenAI-compatible API gateway: one key routes to 50+ models from OpenAI, Anthropic, Google, DeepSeek, Meta, and others using provider/model syntax (e.g. anthropic/claude-sonnet-4-6). You pay in prepaid RODI credits topped up with Mobile Money, which makes it a fit for developers in Africa who want to skip a Western credit card. Create a key at rodiumai.io, paste it into OpenThorn (free, encrypted server-side), and build.",
-    "freeTier": "No documented standing free API allowance — RodiumAi runs on a prepaid RODI credit wallet. You can register for free; building requires topping up credits via Mobile Money (MTN MoMo, Orange Money, Wave, M-Pesa, Airtel Money, and more).",
-    "consoleUrl": "https://rodiumai.io/dashboard",
-    "consoleLabel": "rodiumai.io/dashboard",
-    "pricingUrl": "https://rodiumai.io/pricing",
-    "models": [
-      { "name": "Claude Sonnet 4.6", "note": "The best default for complete React sites — strong code quality at mid-tier cost." },
-      { "name": "Claude Opus 4.8", "note": "Anthropic's strongest model, for the most demanding multi-page builds." },
-      { "name": "Gemini 3.5 Flash", "note": "Fast and cheap — great for landing pages and quick iterations." },
-      { "name": "DeepSeek V4 Pro", "note": "Frontier-class open routing — excellent value on complex builds." }
-    ],
-    "costNote": "Billed from your prepaid RODI credit balance at the gateway's published rates — compare models and prices at rodiumai.io/pricing. Edge nodes in Lagos, Nairobi, Dakar, and Accra keep latency low across Africa.",
-    "steps": [
-      { "name": "Create a RodiumAi account and API key", "text": "Register at rodiumai.io, open the dashboard, and create an API key. Copy it somewhere safe — you will paste it into OpenThorn." },
-      { "name": "Top up your RODI credits", "text": "Add RODI credits from the dashboard using Mobile Money (MTN MoMo, Orange Money, Wave, M-Pesa, and others) so API calls can debit your balance." },
-      { "name": "Connect the key to OpenThorn", "text": "Sign up free at openthorn.app, open the Providers page, choose RodiumAi, paste your key, and run Test connection to sync models. The key is encrypted server-side with AES-256-GCM." },
-      { "name": "Describe your website and ship it", "text": "Create a project, pick a RodiumAi model, describe the site in plain language, preview it live, then deploy to Cloudflare Pages or export the React source." }
-    ],
-    "faqs": [
-      { "question": "How is RodiumAi different from OpenRouter in OpenThorn?", "answer": "Both are OpenAI-compatible aggregators that route one key to many models. RodiumAi's distinction is billing: prepaid RODI credits topped up with Mobile Money (MTN MoMo, Orange Money, Wave, M-Pesa, and more) and edge nodes across Africa — built for developers who want local payment rails without a Western credit card. OpenThorn charges nothing either way; you pay the gateway directly." },
-      { "question": "Which RodiumAi model should I pick for website generation?", "answer": "Claude Sonnet 4.6 is the best default for polished React sites. Use Gemini 3.5 Flash when speed and cost matter most, or Claude Opus 4.8 / DeepSeek V4 Pro for the most demanding multi-page builds." },
-      { "question": "Is my RodiumAi API key safe in OpenThorn?", "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can revoke and rotate keys anytime from the RodiumAi dashboard." }
+      {
+        "question": "Can I use NVIDIA NIM with OpenThorn for free?",
+        "answer": "Yes — new developer accounts on build.nvidia.com include free credits, and OpenThorn is free, so your first website builds cost $0."
+      },
+      {
+        "question": "Which NVIDIA-served model is best for website generation?",
+        "answer": "DeepSeek R1 is the strongest for reasoning-heavy builds; Llama 3.1 Nemotron Ultra is NVIDIA's tuned large model and handles complete sites well."
+      },
+      {
+        "question": "Is my NVIDIA API key safe in OpenThorn?",
+        "answer": "Keys are encrypted server-side with AES-256-GCM using per-user derived keys and are never exposed raw to the browser. You can rotate the key on build.nvidia.com at any time."
+      }
     ]
   }
 ]

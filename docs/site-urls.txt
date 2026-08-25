@@ -22,16 +22,11 @@ https://www.openthorn.app/build-with/google
 https://www.openthorn.app/build-with/deepseek
 https://www.openthorn.app/build-with/mistral
 https://www.openthorn.app/build-with/groq
-https://www.openthorn.app/build-with/together
 https://www.openthorn.app/build-with/xai
-https://www.openthorn.app/build-with/cohere
 https://www.openthorn.app/build-with/perplexity
 https://www.openthorn.app/build-with/openrouter
 https://www.openthorn.app/build-with/ollama
-https://www.openthorn.app/build-with/fireworks
 https://www.openthorn.app/build-with/cerebras
-https://www.openthorn.app/build-with/azure
-https://www.openthorn.app/build-with/bedrock
 https://www.openthorn.app/build-with/nvidia
 https://www.openthorn.app/glossary
 https://www.openthorn.app/changelog

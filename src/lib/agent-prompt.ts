@@ -846,9 +846,10 @@ export function getReasoningParams(
   }
 
   // OpenAI-compatible reasoning models use `reasoning_effort`.
-  // Covers: OpenAI o-series / GPT-5, GPT-OSS (Groq/Cerebras), xAI Grok reasoning, DeepSeek reasoner.
+  // Covers: OpenAI o-series / GPT-5, GPT-OSS (Groq/Cerebras), xAI Grok reasoning,
+  // DeepSeek reasoner and DeepSeek V4 thinking mode.
   const isReasoner =
-    /(^|[/_-])o[1345]($|[/_-])|gpt-5|gpt5|o3|o4|reasoner|deepseek-r|gpt-oss|grok.+reasoning/.test(id)
+    /(^|[/_-])o[1345]($|[/_-])|gpt-5|gpt5|o3|o4|reasoner|deepseek-[rv]|gpt-oss|grok.+reasoning/.test(id)
   if (isReasoner) {
     const effort = thinkingBudget >= 6000 ? 'high' : thinkingBudget >= 3000 ? 'medium' : 'low'
     return { reasoning_effort: effort }

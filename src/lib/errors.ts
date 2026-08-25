@@ -16,13 +16,11 @@ export interface AgentErrorInfo {
   tip?: string
 }
 
-const GEMINI_FLASH_LITE_ID = 'gemini-3.1-flash-lite'
-
 function isExpensiveGeminiModel(modelId: string | undefined): boolean {
-  return !!modelId && modelId.startsWith('gemini-') && modelId !== GEMINI_FLASH_LITE_ID
+  return !!modelId && modelId.startsWith('gemini-') && !/-flash-lite/.test(modelId)
 }
 
-const GEMINI_FLASH_LITE_TIP = " This model is expensive and burns through free-tier quota quickly. Consider switching to Gemini 3.1 Flash Lite in the model selector — it's much cheaper and works great for most projects."
+const GEMINI_FLASH_LITE_TIP = " This model is expensive and burns through free-tier quota quickly. Consider switching to a Gemini Flash Lite model in the model selector — it's much cheaper and works great for most projects."
 
 /**
  * Classify a raw agent/provider error message into a short title and an

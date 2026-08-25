@@ -249,8 +249,6 @@ export default function ProvidersPage() {
       if (providerId === 'anthropic') {
         headers['x-api-key'] = formKey.trim()
         headers['anthropic-version'] = '2023-06-01'
-      } else if (providerId === 'azure') {
-        headers['api-key'] = formKey.trim()
       } else if (providerId !== 'google' && providerId !== 'ollama') {
         headers.Authorization = `Bearer ${formKey.trim()}`
       }

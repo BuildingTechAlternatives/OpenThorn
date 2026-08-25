@@ -14,8 +14,6 @@ export type ProviderApiFormat =
   | 'openai'
   | 'anthropic'
   | 'gemini'
-  | 'azure-openai'
-  | 'bedrock'
 
 export interface ProviderDef {
   id: string
@@ -99,29 +97,11 @@ export const PROVIDERS: ProviderDef[] = [
     testable: true,
   },
   {
-    id: 'together',
-    name: 'Together AI',
-    baseUrl: 'https://api.together.xyz/v1',
-    color: '#6366F1',
-    logo: '/assets/togetherai.png',
-    apiFormat: 'openai',
-    testable: true,
-  },
-  {
     id: 'xai',
     name: 'xAI',
     baseUrl: 'https://api.x.ai/v1',
     color: '#E5E7EB',
     logo: '/assets/xai.png',
-    apiFormat: 'openai',
-    testable: true,
-  },
-  {
-    id: 'cohere',
-    name: 'Cohere',
-    baseUrl: 'https://api.cohere.ai/compatibility/v1',
-    color: '#39D353',
-    logo: '/assets/cohere.png',
     apiFormat: 'openai',
     testable: true,
   },
@@ -146,29 +126,11 @@ export const PROVIDERS: ProviderDef[] = [
     testable: true,
   },
   {
-    id: 'rodiumai',
-    name: 'RodiumAi',
-    baseUrl: 'https://api.rodiumai.io/v1',
-    color: '#4F46E5',
-    logo: '/assets/rodiumai.png',
-    apiFormat: 'openai',
-    testable: true,
-  },
-  {
     id: 'ollama',
     name: 'Ollama',
     baseUrl: 'http://localhost:11434/v1',
     color: '#374151',
     logo: '/assets/ollama.png',
-    apiFormat: 'openai',
-    testable: true,
-  },
-  {
-    id: 'fireworks',
-    name: 'Fireworks AI',
-    baseUrl: 'https://api.fireworks.ai/inference/v1',
-    color: '#EF4444',
-    logo: '/assets/fireworks.png',
     apiFormat: 'openai',
     testable: true,
   },
@@ -180,25 +142,6 @@ export const PROVIDERS: ProviderDef[] = [
     logo: '/assets/celebras.png',
     apiFormat: 'openai',
     testable: true,
-  },
-  {
-    id: 'azure',
-    name: 'Azure OpenAI',
-    baseUrl: 'https://YOUR_RESOURCE.openai.azure.com/openai/v1',
-    color: '#0078D4',
-    logo: '/assets/azure.png',
-    apiFormat: 'azure-openai',
-    testable: true,
-  },
-  {
-    id: 'bedrock',
-    name: 'Amazon Bedrock',
-    baseUrl: 'https://bedrock-runtime.us-east-1.amazonaws.com',
-    color: '#FF9900',
-    logo: '/assets/bedrock.png',
-    apiFormat: 'bedrock',
-    testable: false,
-    testNote: 'Bedrock uses the AWS runtime/Converse API and cannot be tested through the generic browser model-list endpoint.',
   },
 ]
 
@@ -216,31 +159,33 @@ export const DEFAULT_BASE_URLS = Object.fromEntries(
 
 export const DEFAULT_PROVIDER_MODELS: Record<string, ProviderModel[]> = {
   openai: [
+    // GPT-5.6 family (GA July 2026); the bare `gpt-5.6` alias routes to sol.
+    { name: 'GPT-5.6 Sol', id: 'gpt-5.6-sol', recommended: true, contextWindow: 1_000_000 },
+    { name: 'GPT-5.6 Terra', id: 'gpt-5.6-terra', contextWindow: 1_000_000 },
+    { name: 'GPT-5.6 Luna', id: 'gpt-5.6-luna', cheapest: true, contextWindow: 1_000_000 },
     { name: 'GPT-5.5', id: 'gpt-5.5', contextWindow: 1_000_000 },
-    { name: 'GPT-5.5 Pro', id: 'gpt-5.5-pro', contextWindow: 1_000_000 },
-    { name: 'GPT-5.4', id: 'gpt-5.4', contextWindow: 1_000_000 },
-    { name: 'GPT-5.4 Pro', id: 'gpt-5.4-pro', contextWindow: 1_000_000 },
     { name: 'GPT-5.4 mini', id: 'gpt-5.4-mini', contextWindow: 1_000_000 },
   ],
   anthropic: [
-    { name: 'Claude Fable 5', id: 'claude-fable-5', contextWindow: 200_000 },
-    { name: 'Claude Opus 4.8', id: 'claude-opus-4-8', contextWindow: 200_000 },
-    { name: 'Claude Sonnet 4.6', id: 'claude-sonnet-4-6', contextWindow: 1_000_000 },
-    { name: 'Claude Haiku 4.5', id: 'claude-haiku-4-5-20251001', contextWindow: 200_000 },
-    { name: 'Claude Mythos 5', id: 'claude-mythos-5', contextWindow: 200_000 },
+    // Fable/Mythos/Opus 5/Sonnet 5 all run the 1M window by default now.
+    { name: 'Claude Fable 5', id: 'claude-fable-5', contextWindow: 1_000_000 },
+    { name: 'Claude Opus 5', id: 'claude-opus-5', contextWindow: 1_000_000 },
+    { name: 'Claude Sonnet 5', id: 'claude-sonnet-5', recommended: true, contextWindow: 1_000_000 },
+    { name: 'Claude Haiku 4.5', id: 'claude-haiku-4-5-20251001', cheapest: true, contextWindow: 200_000 },
+    { name: 'Claude Mythos 5', id: 'claude-mythos-5', contextWindow: 1_000_000 },
   ],
   google: [
-    { name: 'Gemini 3 Flash Preview', id: 'gemini-3-flash-preview', recommended: true, contextWindow: 1_000_000 },
+    { name: 'Gemini 3.7 Flash', id: 'gemini-3.7-flash', recommended: true, contextWindow: 1_000_000 },
+    { name: 'Gemini 3.6 Flash', id: 'gemini-3.6-flash', contextWindow: 1_000_000 },
     { name: 'Gemini 3.5 Flash', id: 'gemini-3.5-flash', contextWindow: 1_000_000 },
+    { name: 'Gemini 3.5 Flash-Lite', id: 'gemini-3.5-flash-lite', cheapest: true, contextWindow: 1_000_000 },
     { name: 'Gemini 3.1 Pro Preview', id: 'gemini-3.1-pro-preview', contextWindow: 1_000_000 },
-    { name: 'Gemini 3.1 Flash-Lite', id: 'gemini-3.1-flash-lite', cheapest: true, contextWindow: 1_000_000 },
-    { name: 'Gemini 3.1 Pro Preview (Custom Tools)', id: 'gemini-3.1-pro-preview-customtools', contextWindow: 1_000_000 },
   ],
   deepseek: [
+    // deepseek-chat/deepseek-reasoner were retired July 24, 2026.
     { name: 'DeepSeek V4 Pro', id: 'deepseek-v4-pro', contextWindow: 1_000_000 },
     { name: 'DeepSeek V4 Flash', id: 'deepseek-v4-flash', contextWindow: 1_000_000 },
-    { name: 'DeepSeek Chat (alias)', id: 'deepseek-chat', contextWindow: 128_000 },
-    { name: 'DeepSeek Reasoner (alias)', id: 'deepseek-reasoner', contextWindow: 128_000 },
+    { name: 'DeepSeek V4 Flash Vision (Experimental)', id: 'deepseek-v4-flash-vision-exp', contextWindow: 1_000_000 },
   ],
   mistral: [
     { name: 'Mistral Medium 3.5', id: 'mistral-medium-3-5', contextWindow: 256_000 },
@@ -250,32 +195,17 @@ export const DEFAULT_PROVIDER_MODELS: Record<string, ProviderModel[]> = {
     { name: 'Ministral 3 8B', id: 'ministral-8b-2512', contextWindow: 128_000 },
   ],
   groq: [
-    { name: 'Llama 3.3 70B Versatile', id: 'llama-3.3-70b-versatile', contextWindow: 128_000 },
-    { name: 'GPT-OSS 120B', id: 'openai/gpt-oss-120b', contextWindow: 128_000 },
-    { name: 'Qwen3 32B', id: 'qwen/qwen3-32b', contextWindow: 128_000 },
-    { name: 'Llama 3.1 8B Instant', id: 'llama-3.1-8b-instant', contextWindow: 128_000 },
-    { name: 'Kimi K2 Instruct', id: 'moonshotai/kimi-k2-instruct-0905', contextWindow: 256_000 },
-  ],
-  together: [
-    { name: 'DeepSeek V4 Pro', id: 'deepseek-ai/DeepSeek-V4-Pro', contextWindow: 1_000_000 },
-    { name: 'Kimi K2.6', id: 'moonshotai/Kimi-K2.6', contextWindow: 256_000 },
-    { name: 'GLM-5.1', id: 'zai-org/GLM-5.1', contextWindow: 200_000 },
-    { name: 'Qwen3.5 397B A17B', id: 'Qwen/Qwen3.5-397B-A17B', contextWindow: 256_000 },
-    { name: 'GPT-OSS 120B', id: 'openai/gpt-oss-120b', contextWindow: 128_000 },
+    // llama-3.3-70b / llama-3.1-8b / qwen3-32b were shut down Aug 16, 2026.
+    { name: 'GPT-OSS 120B', id: 'openai/gpt-oss-120b', recommended: true, contextWindow: 128_000 },
+    { name: 'Qwen3.6 27B', id: 'qwen/qwen3.6-27b', contextWindow: 128_000 },
+    { name: 'GPT-OSS 20B', id: 'openai/gpt-oss-20b', cheapest: true, contextWindow: 128_000 },
   ],
   xai: [
+    // Grok 4.6 (Aug 2026) is the frontier model; grok-code-fast-1 is no longer listed.
+    { name: 'Grok 4.6', id: 'grok-4.6', recommended: true, contextWindow: 500_000 },
+    { name: 'Grok 4.5', id: 'grok-4.5', contextWindow: 500_000 },
     { name: 'Grok 4.3', id: 'grok-4.3', contextWindow: 1_000_000 },
-    { name: 'Grok 4.3 Latest', id: 'grok-4.3-latest', contextWindow: 1_000_000 },
-    { name: 'Grok Latest', id: 'grok-latest', contextWindow: 1_000_000 },
-    { name: 'Grok Build 0.1', id: 'grok-build-0.1', contextWindow: 1_000_000 },
-    { name: 'Grok Code Fast', id: 'grok-code-fast-1', contextWindow: 256_000 },
-  ],
-  cohere: [
-    { name: 'Command A+', id: 'command-a-plus-05-2026', contextWindow: 256_000 },
-    { name: 'Command A', id: 'command-a-03-2025', contextWindow: 256_000 },
-    { name: 'Command A Reasoning', id: 'command-a-reasoning-08-2025', contextWindow: 256_000 },
-    { name: 'Command A Vision', id: 'command-a-vision-07-2025', contextWindow: 256_000 },
-    { name: 'Command R7B', id: 'command-r7b-12-2024', contextWindow: 128_000 },
+    { name: 'Grok Build 0.1', id: 'grok-build-0.1', contextWindow: 256_000 },
   ],
   perplexity: [
     { name: 'Sonar Pro', id: 'sonar-pro', contextWindow: 200_000 },
@@ -284,50 +214,25 @@ export const DEFAULT_PROVIDER_MODELS: Record<string, ProviderModel[]> = {
     { name: 'Sonar Deep Research', id: 'sonar-deep-research', contextWindow: 128_000 },
   ],
   openrouter: [
-    { name: 'GPT-5.5 Pro', id: 'openai/gpt-5.5-pro', contextWindow: 1_000_000 },
-    { name: 'Claude Opus 4.8', id: 'anthropic/claude-opus-4.8', contextWindow: 200_000 },
-    { name: 'Claude Fable 5', id: 'anthropic/claude-fable-5', contextWindow: 200_000 },
-    { name: 'Gemini 3.5 Flash', id: 'google/gemini-3.5-flash', contextWindow: 1_000_000 },
-    { name: 'DeepSeek V4 Pro', id: 'deepseek/deepseek-v4-pro', contextWindow: 1_000_000 },
-  ],
-  rodiumai: [
-    { name: 'Claude Sonnet 4.6', id: 'anthropic/claude-sonnet-4-6', contextWindow: 1_000_000 },
-    { name: 'Claude Opus 4.8', id: 'anthropic/claude-opus-4-8', contextWindow: 200_000 },
-    { name: 'GPT-5.5 Pro', id: 'openai/gpt-5.5-pro', contextWindow: 1_000_000 },
-    { name: 'Gemini 3.5 Flash', id: 'google/gemini-3.5-flash', contextWindow: 1_000_000 },
+    { name: 'GPT-5.6 Sol', id: 'openai/gpt-5.6-sol', recommended: true, contextWindow: 1_000_000 },
+    { name: 'Claude Opus 5', id: 'anthropic/claude-opus-5', contextWindow: 1_000_000 },
+    { name: 'Gemini 3.7 Flash', id: 'google/gemini-3.7-flash', contextWindow: 1_000_000 },
+    { name: 'Grok 4.6', id: 'x-ai/grok-4.6', contextWindow: 500_000 },
     { name: 'DeepSeek V4 Pro', id: 'deepseek/deepseek-v4-pro', contextWindow: 1_000_000 },
   ],
   ollama: [
-    { name: 'Llama 3.3', id: 'llama3.3', contextWindow: 32_000 },
-    { name: 'DeepSeek V3', id: 'deepseek-v3', contextWindow: 32_000 },
-    { name: 'Qwen3-VL', id: 'qwen3-vl', contextWindow: 32_000 },
-    { name: 'Llama 3.2 Vision', id: 'llama3.2-vision', contextWindow: 32_000 },
-    { name: 'Mistral Small', id: 'mistral-small', contextWindow: 32_000 },
-  ],
-  fireworks: [
-    { name: 'DeepSeek V4 Pro', id: 'accounts/fireworks/models/deepseek-v4-pro', contextWindow: 1_000_000 },
-    { name: 'Kimi K2.6', id: 'accounts/fireworks/models/kimi-k2p6', contextWindow: 256_000 },
-    { name: 'GLM 5.1', id: 'accounts/fireworks/models/glm-5p1', contextWindow: 200_000 },
-    { name: 'Qwen3.6 Plus', id: 'accounts/fireworks/models/qwen3p6-plus', contextWindow: 256_000 },
-    { name: 'MiniMax M2.7', id: 'accounts/fireworks/models/minimax-m2p7', contextWindow: 256_000 },
+    // Local pulls — context depends on the user's machine, keep conservative.
+    { name: 'Qwen3.8', id: 'qwen3.8', contextWindow: 32_000 },
+    { name: 'Qwen3 Coder', id: 'qwen3-coder', contextWindow: 32_000 },
+    { name: 'GLM 4.7 Flash', id: 'glm-4.7-flash', contextWindow: 32_000 },
+    { name: 'Gemma 4', id: 'gemma4', contextWindow: 32_000 },
+    { name: 'DeepSeek R1', id: 'deepseek-r1', contextWindow: 32_000 },
   ],
   cerebras: [
-    { name: 'Z.ai GLM 4.7', id: 'zai-glm-4.7', contextWindow: 200_000 },
-    { name: 'GPT-OSS 120B', id: 'gpt-oss-120b', contextWindow: 128_000 },
-  ],
-  azure: [
-    { name: 'GPT-5.5', id: 'gpt-5.5', contextWindow: 1_000_000 },
-    { name: 'GPT-5.4 Pro', id: 'gpt-5.4-pro', contextWindow: 1_000_000 },
-    { name: 'GPT-5.4', id: 'gpt-5.4', contextWindow: 1_000_000 },
-    { name: 'GPT-5.4 mini', id: 'gpt-5.4-mini', contextWindow: 1_000_000 },
-    { name: 'GPT-5.4 nano', id: 'gpt-5.4-nano', contextWindow: 1_000_000 },
-  ],
-  bedrock: [
-    { name: 'OpenAI GPT-5.5', id: 'openai.gpt-5.5', contextWindow: 1_000_000 },
-    { name: 'Claude Opus 4.8', id: 'anthropic.claude-opus-4-8', contextWindow: 200_000 },
-    { name: 'Claude Sonnet 4.6', id: 'anthropic.claude-sonnet-4-6', contextWindow: 1_000_000 },
-    { name: 'DeepSeek V3.2', id: 'deepseek.v3.2', contextWindow: 128_000 },
-    { name: 'GPT-OSS 120B', id: 'openai.gpt-oss-120b', contextWindow: 128_000 },
+    // Public endpoints currently serve gpt-oss-120b + gemma-4-31b (GLM is
+    // dedicated-endpoint-only).
+    { name: 'GPT-OSS 120B', id: 'gpt-oss-120b', recommended: true, contextWindow: 128_000 },
+    { name: 'Gemma 4 31B', id: 'gemma-4-31b', cheapest: true, contextWindow: 128_000 },
   ],
   nvidia: [
     { name: 'DeepSeek R1', id: 'deepseek-ai/deepseek-r1', contextWindow: 128_000 },
@@ -375,18 +280,16 @@ export function serializeProviderModels(models: ProviderModel[]): string {
 export function providerDefaultContextWindow(providerId: string): number {
   switch (providerId) {
     case 'openai':
-    case 'azure':
     case 'google':
       return 1_000_000
     case 'anthropic':
-    case 'rodiumai':
       return 200_000
     case 'xai':
       return 256_000
     case 'ollama':
       return 32_000
-    // deepseek, mistral, groq, together, cohere, perplexity, openrouter,
-    // fireworks, cerebras, bedrock, nvidia and anything unknown.
+    // deepseek, mistral, groq, perplexity, openrouter, cerebras, nvidia and
+    // anything unknown.
     default:
       return 128_000
   }
