@@ -10,6 +10,7 @@ import Header from './components/Header/Header'
 import HeroSection from './components/HeroSection/HeroSection'
 import MeetOpenThornSection from './components/MeetOpenThornSection/MeetOpenThornSection'
 import BYOKSection from './components/BYOKSection/BYOKSection'
+import AdsterraNativeBanner from './components/AdsterraNativeBanner/AdsterraNativeBanner'
 import BottomCTA from './components/BottomCTA/BottomCTA'
 import Footer from './components/Footer/Footer'
 import AuthModal from './components/AuthModal/AuthModal'
@@ -75,6 +76,7 @@ function HomePage() {
       <HeroSection />
       <MeetOpenThornSection />
       <BYOKSection />
+      <AdsterraNativeBanner />
       <BottomCTA />
     </>
   )

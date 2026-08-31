@@ -1,1 +1,4 @@
-google.com, pub-7071904662816669, DIRECT, f08c47fec0942fa0
+# Authorized digital sellers for openthorn.app inventory.
+# Replace the Adsterra line below with the exact record shown in the Adsterra
+# dashboard if it includes a certification (4th) field.
+adsterra.com, 31110698, DIRECT
