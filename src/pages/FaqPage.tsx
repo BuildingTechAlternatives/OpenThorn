@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { usePageTitle } from '../lib/usePageTitle'
+import { adAfterIndex } from '../lib/ad-placement'
+import AdsterraNativeBanner from '../components/AdsterraNativeBanner/AdsterraNativeBanner'
 import faqData from '../data/faq.json'
 import styles from './FaqPage.module.css'
 
@@ -95,6 +97,9 @@ function AccordionItem({ question, answer }: FaqItem) {
   )
 }
 
+// Placed between FAQ groups, roughly mid-page. -1 means "too few groups".
+const adSlot = adAfterIndex(faqData.length, 4)
+
 export default function FaqPage() {
   usePageTitle('FAQ', {
     description: 'Answers to common questions about OpenThorn — how bring-your-own-key works, supported AI providers, costs, and deploying your generated site.',
@@ -124,13 +129,16 @@ export default function FaqPage() {
           </p>
         </header>
 
-        {faqData.map((category) => (
-          <section key={category.label} className={styles.group}>
-            <p className={styles.groupLabel}>{category.label}</p>
-            {category.items.map((item) => (
-              <AccordionItem key={item.question} {...item} />
-            ))}
-          </section>
+        {faqData.map((category, index) => (
+          <Fragment key={category.label}>
+            <section className={styles.group}>
+              <p className={styles.groupLabel}>{category.label}</p>
+              {category.items.map((item) => (
+                <AccordionItem key={item.question} {...item} />
+              ))}
+            </section>
+            {index === adSlot && <AdsterraNativeBanner variant="inline" />}
+          </Fragment>
         ))}
 
         <div className={styles.cta}>

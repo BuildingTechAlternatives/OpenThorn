@@ -2,6 +2,7 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 import { usePageTitle } from '../lib/usePageTitle'
 import { useJsonLd } from '../lib/useJsonLd'
 import providersMeta from '../data/providers-meta.json'
+import AdsterraNativeBanner from '../components/AdsterraNativeBanner/AdsterraNativeBanner'
 import styles from './BuildWithPage.module.css'
 
 export interface ProviderGuide {
@@ -112,6 +113,8 @@ export default function BuildWithPage() {
             </li>
           ))}
         </ul>
+
+        <AdsterraNativeBanner variant="inline" />
 
         <h2 className={styles.sectionTitle}>How to build your website</h2>
         <ol className={styles.steps}>

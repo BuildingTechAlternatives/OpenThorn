@@ -4,6 +4,8 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { getPostBySlug, type BlogPost } from '../data/blogPosts'
 import { fetchPublishedPosts } from '../lib/blog'
+import { splitMarkdownForAd } from '../lib/ad-placement'
+import AdsterraNativeBanner from '../components/AdsterraNativeBanner/AdsterraNativeBanner'
 import { usePageTitle } from '../lib/usePageTitle'
 import { useJsonLd } from '../lib/useJsonLd'
 import styles from './BlogPostPage.module.css'
@@ -14,6 +16,32 @@ function formatDate(iso: string) {
     month: 'long',
     day: 'numeric',
   })
+}
+
+const markdownComponents = {
+  h1: ({ children }: { children?: React.ReactNode }) => <h1 className={styles.h1}>{children}</h1>,
+  h2: ({ children }: { children?: React.ReactNode }) => <h2 className={styles.h2}>{children}</h2>,
+  h3: ({ children }: { children?: React.ReactNode }) => <h3 className={styles.h3}>{children}</h3>,
+  p: ({ children }: { children?: React.ReactNode }) => <p className={styles.p}>{children}</p>,
+  a: ({ href, children }: { href?: string; children?: React.ReactNode }) => (
+    <a href={href} className={styles.a} target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">
+      {children}
+    </a>
+  ),
+  ul: ({ children }: { children?: React.ReactNode }) => <ul className={styles.ul}>{children}</ul>,
+  ol: ({ children }: { children?: React.ReactNode }) => <ol className={styles.ol}>{children}</ol>,
+  li: ({ children }: { children?: React.ReactNode }) => <li className={styles.li}>{children}</li>,
+  code: ({ children, className }: { children?: React.ReactNode; className?: string }) => {
+    const isBlock = className?.includes('language-')
+    return isBlock
+      ? <code className={styles.codeBlock}>{children}</code>
+      : <code className={styles.codeInline}>{children}</code>
+  },
+  pre: ({ children }: { children?: React.ReactNode }) => <pre className={styles.pre}>{children}</pre>,
+  hr: () => <hr className={styles.hr} />,
+  blockquote: ({ children }: { children?: React.ReactNode }) => (
+    <blockquote className={styles.blockquote}>{children}</blockquote>
+  ),
 }
 
 function estimateReadTime(content: string) {
@@ -113,6 +141,10 @@ export default function BlogPostPage() {
     return <Navigate to="/blog" replace />
   }
 
+  // Ad sits on the section boundary closest to ~35% of the body; short posts
+  // get no ad at all rather than a forced slot.
+  const [intro, rest] = splitMarkdownForAd(post.content) ?? [post.content, null]
+
   return (
     <div className={styles.page}>
       <div className={styles.container}>
@@ -155,34 +187,17 @@ export default function BlogPostPage() {
         )}
 
         <article className={styles.article}>
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            components={{
-              h1: ({ children }) => <h1 className={styles.h1}>{children}</h1>,
-              h2: ({ children }) => <h2 className={styles.h2}>{children}</h2>,
-              h3: ({ children }) => <h3 className={styles.h3}>{children}</h3>,
-              p: ({ children }) => <p className={styles.p}>{children}</p>,
-              a: ({ href, children }) => (
-                <a href={href} className={styles.a} target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">
-                  {children}
-                </a>
-              ),
-              ul: ({ children }) => <ul className={styles.ul}>{children}</ul>,
-              ol: ({ children }) => <ol className={styles.ol}>{children}</ol>,
-              li: ({ children }) => <li className={styles.li}>{children}</li>,
-              code: ({ children, className }) => {
-                const isBlock = className?.includes('language-')
-                return isBlock
-                  ? <code className={styles.codeBlock}>{children}</code>
-                  : <code className={styles.codeInline}>{children}</code>
-              },
-              pre: ({ children }) => <pre className={styles.pre}>{children}</pre>,
-              hr: () => <hr className={styles.hr} />,
-              blockquote: ({ children }) => <blockquote className={styles.blockquote}>{children}</blockquote>,
-            }}
-          >
-            {post.content}
+          <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+            {intro}
           </ReactMarkdown>
+          {rest && (
+            <>
+              <AdsterraNativeBanner variant="inline" />
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                {rest}
+              </ReactMarkdown>
+            </>
+          )}
         </article>
       </div>
     </div>

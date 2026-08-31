@@ -2,6 +2,7 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 import { usePageTitle } from '../lib/usePageTitle'
 import { useJsonLd } from '../lib/useJsonLd'
 import compareMeta from '../data/compare-meta.json'
+import AdsterraNativeBanner from '../components/AdsterraNativeBanner/AdsterraNativeBanner'
 import styles from './ComparePage.module.css'
 
 interface CompareEntry {
@@ -85,6 +86,8 @@ export default function ComparePage() {
             </tbody>
           </table>
         </div>
+
+        <AdsterraNativeBanner variant="inline" />
 
         <h2 className={styles.sectionTitle}>Common questions</h2>
         {entry.faqs.map((f) => (

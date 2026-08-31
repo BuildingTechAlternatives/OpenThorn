@@ -1,0 +1,86 @@
+.wrapper {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  text-align: center;
+}
+
+/* Standalone slot between two page sections. */
+.section {
+  max-width: var(--max-width);
+  padding: var(--space-2xl) var(--space-lg);
+}
+
+/* Slot inside article/content flow: fenced off so it can't be read as our UI. */
+.inline {
+  width: 100%;
+  margin: var(--space-xl) 0;
+  padding: var(--space-lg) 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-muted);
+}
+
+/*
+ * The creative is a fixed 728x90 iframe. Adsterra drops it (plus a wrapper div)
+ * into this slot, so we keep the slot at the creative's exact size and scale the
+ * whole thing down on narrow screens instead of letting it overflow the page.
+ */
+.slot {
+  width: 100%;
+  max-width: 728px;
+  height: 90px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+}
+
+.slot > * {
+  width: 728px;
+  height: 90px;
+  flex: none;
+  transform-origin: center center;
+}
+
+/* Nothing rendered (blocked tag, empty response) — collapse the slot. */
+.wrapper:has(.slot:empty) {
+  display: none;
+}
+
+/* scale = (viewport - horizontal padding) / 728 */
+@media (max-width: 768px) {
+  .slot { height: 86px; }
+  .slot > * { transform: scale(0.95); }
+}
+
+@media (max-width: 640px) {
+  .slot { height: 72px; }
+  .slot > * { transform: scale(0.8); }
+}
+
+@media (max-width: 520px) {
+  .slot { height: 59px; }
+  .slot > * { transform: scale(0.65); }
+}
+
+@media (max-width: 420px) {
+  .slot { height: 45px; }
+  .slot > * { transform: scale(0.5); }
+}
+
+@media (max-width: 360px) {
+  .slot { height: 38px; }
+  .slot > * { transform: scale(0.42); }
+}

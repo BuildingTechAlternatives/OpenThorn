@@ -9,6 +9,7 @@ import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
 import Header from './components/Header/Header'
 import HeroSection from './components/HeroSection/HeroSection'
 import MeetOpenThornSection from './components/MeetOpenThornSection/MeetOpenThornSection'
+import AdsterraBanner from './components/AdsterraBanner/AdsterraBanner'
 import BYOKSection from './components/BYOKSection/BYOKSection'
 import AdsterraNativeBanner from './components/AdsterraNativeBanner/AdsterraNativeBanner'
 import BottomCTA from './components/BottomCTA/BottomCTA'
@@ -17,6 +18,7 @@ import AuthModal from './components/AuthModal/AuthModal'
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
 import AdminGuard from './components/AdminGuard/AdminGuard'
 import AnnouncementBanner from './components/AnnouncementBanner/AnnouncementBanner'
+import CookieConsent from './components/CookieConsent/CookieConsent'
 import styles from './App.module.css'
 
 // Route pages are code-split so the heavy builder/preview stack (esbuild-wasm,
@@ -75,6 +77,7 @@ function HomePage() {
     <>
       <HeroSection />
       <MeetOpenThornSection />
+      <AdsterraBanner />
       <BYOKSection />
       <AdsterraNativeBanner />
       <BottomCTA />
@@ -197,6 +200,7 @@ export default function App() {
       </div>
       <Analytics />
       <SpeedInsights />
+      <CookieConsent />
     </ErrorBoundary>
   )
 }

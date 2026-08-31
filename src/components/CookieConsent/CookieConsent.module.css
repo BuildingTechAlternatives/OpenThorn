@@ -1,0 +1,211 @@
+.panel {
+  position: fixed;
+  left: 50%;
+  bottom: var(--space-lg);
+  transform: translateX(-50%);
+  z-index: 500;
+  width: min(920px, calc(100vw - var(--space-lg) * 2));
+  background: var(--color-surface-overlay);
+  border: 1px solid var(--color-border-visible);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  animation: consentRise 0.35s var(--ease-out-expo, ease-out) both;
+}
+
+@keyframes consentRise {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.bannerBody {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.bannerText {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 var(--space-xs);
+}
+
+.text {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.link {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.primary,
+.secondary,
+.ghost {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  padding: 9px var(--space-lg);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+/* Accept and reject share equal visual prominence. */
+.primary {
+  background: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  color: var(--color-bg);
+}
+.primary:hover { background: var(--color-accent-glow); border-color: var(--color-accent-glow); }
+
+.secondary {
+  background: transparent;
+  border: 1px solid var(--color-border-visible);
+  color: var(--color-text);
+}
+.secondary:hover { border-color: var(--color-text-muted); }
+
+.ghost {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  padding: var(--space-xs) var(--space-sm);
+}
+.ghost:hover { color: var(--color-text); }
+
+/* Preferences view */
+
+.preferences {
+  width: min(640px, calc(100vw - var(--space-lg) * 2));
+}
+
+.category {
+  margin-top: var(--space-md);
+  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+}
+
+.categoryHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.categoryHeader input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
+.categoryHeader input:disabled {
+  cursor: default;
+}
+
+.alwaysOn,
+.defaultOff {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.alwaysOn { color: var(--color-text-muted); }
+.defaultOff { color: var(--color-warm-accent); }
+
+.categoryText {
+  margin: var(--space-sm) 0 0 26px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+.preferences .actions {
+  flex-direction: row;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: var(--space-lg);
+}
+
+.preferences .ghost {
+  padding: 9px var(--space-md);
+}
+
+@media (max-width: 720px) {
+  .panel {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: none;
+    width: auto;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  @keyframes consentRise {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .bannerBody {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .primary,
+  .secondary {
+    width: 100%;
+  }
+
+  .preferences .actions {
+    flex-direction: column;
+  }
+
+  .preferences .ghost {
+    width: 100%;
+  }
+
+  .categoryText {
+    margin-left: 0;
+  }
+}
