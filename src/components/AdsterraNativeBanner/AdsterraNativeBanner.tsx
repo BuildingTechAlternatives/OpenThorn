@@ -12,7 +12,16 @@ const CONTAINER_ID = 'container-acd496412d230553ca4f4a243557f98c'
  */
 let activeScript: HTMLScriptElement | null = null
 
-export default function AdsterraNativeBanner() {
+interface AdsterraNativeBannerProps {
+  /** `section` for standalone page sections, `inline` inside article content. */
+  variant?: 'section' | 'inline'
+}
+
+/**
+ * Renders the Adsterra native banner once per page — the tag's container id is
+ * fixed, so mounting two instances on the same route would break both.
+ */
+export default function AdsterraNativeBanner({ variant = 'section' }: AdsterraNativeBannerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [failed, setFailed] = useState(false)
 
@@ -44,7 +53,10 @@ export default function AdsterraNativeBanner() {
   if (failed) return null
 
   return (
-    <aside className={styles.wrapper} aria-label="Advertisement">
+    <aside
+      className={`${styles.wrapper} ${variant === 'inline' ? styles.inline : styles.section}`}
+      aria-label="Advertisement"
+    >
       <span className={styles.label}>Advertisement</span>
       <div id={CONTAINER_ID} className={styles.container} ref={containerRef} />
     </aside>

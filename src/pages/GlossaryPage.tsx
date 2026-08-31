@@ -1,10 +1,16 @@
+import { Fragment } from 'react'
 import { Link } from 'react-router-dom'
 import { usePageTitle } from '../lib/usePageTitle'
 import { useJsonLd } from '../lib/useJsonLd'
+import { adAfterIndex } from '../lib/ad-placement'
+import AdsterraNativeBanner from '../components/AdsterraNativeBanner/AdsterraNativeBanner'
 import glossary from '../data/glossary.json'
 import styles from './GlossaryPage.module.css'
 
 const SITE_URL = 'https://www.openthorn.app'
+
+// Placed between entries, roughly mid-page. -1 means "too few entries".
+const adSlot = adAfterIndex(glossary.length, 8)
 
 export default function GlossaryPage() {
   usePageTitle('AI Website Builder Glossary', {
@@ -35,11 +41,14 @@ export default function GlossaryPage() {
           AI — no jargon required to get started.
         </p>
 
-        {glossary.map((g) => (
-          <section key={g.id} id={g.id} className={styles.entry}>
-            <h2>{g.term}</h2>
-            <p>{g.definition}</p>
-          </section>
+        {glossary.map((g, index) => (
+          <Fragment key={g.id}>
+            <section id={g.id} className={styles.entry}>
+              <h2>{g.term}</h2>
+              <p>{g.definition}</p>
+            </section>
+            {index === adSlot && <AdsterraNativeBanner variant="inline" />}
+          </Fragment>
         ))}
 
         <p className={styles.links}>
