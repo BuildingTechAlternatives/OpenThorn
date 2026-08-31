@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { hasAdvertisingConsent, subscribe } from '../../lib/consent'
 import styles from './AdsterraBanner.module.css'
 
 /** Adsterra 728x90 leaderboard tag (key ff83f3c35150d2aecedaf3a3a6c536b7). */
@@ -29,16 +30,21 @@ interface AdsterraBannerProps {
  * container (`#container-<key>`) directly before the script tag — so the script
  * is appended inside our slot, never into `document.head`, and the slot is the
  * unit's positioning context.
+ *
+ * Consent-gated: nothing renders and the external Adsterra script is never
+ * injected until the visitor has explicitly enabled Advertising/Marketing.
  */
 export default function AdsterraBanner({ variant = 'section' }: AdsterraBannerProps) {
   const slotRef = useRef<HTMLDivElement>(null)
   const [failed, setFailed] = useState(false)
+  const consented = useSyncExternalStore(subscribe, hasAdvertisingConsent, () => false)
 
   useEffect(() => {
     const slot = slotRef.current
-    if (!slot) return
+    if (!consented || !slot) return
 
     activeScript?.remove()
+    setFailed(false)
     window.atOptions = {
       key: KEY,
       format: 'iframe',
@@ -60,10 +66,11 @@ export default function AdsterraBanner({ variant = 'section' }: AdsterraBannerPr
       slot.innerHTML = ''
       delete window.atOptions
     }
-  }, [])
+  }, [consented])
 
-  // Blocked or unreachable tags (ad blockers, offline) leave no empty gap.
-  if (failed) return null
+  // No consent (or a blocked/unreachable tag) — render nothing at all, so the
+  // slot never appears to be part of OpenThorn's UI.
+  if (!consented || failed) return null
 
   return (
     <aside
