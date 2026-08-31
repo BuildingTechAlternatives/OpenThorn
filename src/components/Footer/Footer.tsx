@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import styles from './Footer.module.css'
+import { openConsentPreferences } from '../../lib/consent'
 
 const solutionsLinks = [
   { label: 'Founders', href: '/blog/introducing-openthorn' },
@@ -98,6 +99,13 @@ export default function Footer() {
               {legalLinks.map((l) => (
                 <Link key={l.label} to={l.to}>{l.label}</Link>
               ))}
+              <button
+                type="button"
+                className={styles.cookiePrefsBtn}
+                onClick={openConsentPreferences}
+              >
+                Cookie Settings
+              </button>
             </div>
           </div>
         </div>

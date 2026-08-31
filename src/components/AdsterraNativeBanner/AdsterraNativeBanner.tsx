@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { hasAdvertisingConsent, subscribe } from '../../lib/consent'
 import styles from './AdsterraNativeBanner.module.css'
 
 /** Adsterra native-banner tag (zone acd496412d230553ca4f4a243557f98c). */
@@ -20,19 +21,26 @@ interface AdsterraNativeBannerProps {
 /**
  * Renders the Adsterra native banner once per page — the tag's container id is
  * fixed, so mounting two instances on the same route would break both.
+ *
+ * Consent-gated: nothing renders and the external Adsterra script is never
+ * injected until the visitor has explicitly enabled Advertising/Marketing.
+ * Granting consent mid-session loads the tag; revoking it removes the script
+ * and unmounts the slot.
  */
 export default function AdsterraNativeBanner({ variant = 'section' }: AdsterraNativeBannerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [failed, setFailed] = useState(false)
+  const consented = useSyncExternalStore(subscribe, hasAdvertisingConsent, () => false)
 
   useEffect(() => {
     const container = containerRef.current
-    if (!container) return
+    if (!consented || !container) return
 
     // Adsterra's invoke.js fills whichever element matches CONTAINER_ID when it
     // executes, so re-append the tag on mount to refill a freshly mounted
     // container (route re-entry, Strict Mode double-invoke).
     activeScript?.remove()
+    setFailed(false)
 
     const script = document.createElement('script')
     script.async = true
@@ -47,10 +55,11 @@ export default function AdsterraNativeBanner({ variant = 'section' }: AdsterraNa
       if (activeScript === script) activeScript = null
       container.innerHTML = ''
     }
-  }, [])
+  }, [consented])
 
-  // Blocked or unreachable tags (ad blockers, offline) leave no empty gap.
-  if (failed) return null
+  // No consent (or a blocked/unreachable tag) — render nothing at all, so the
+  // slot never appears to be part of OpenThorn's UI.
+  if (!consented || failed) return null
 
   return (
     <aside

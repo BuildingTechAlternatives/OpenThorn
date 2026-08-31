@@ -1,12 +1,13 @@
-import LegalPage from './LegalPage'
+﻿import LegalPage from './LegalPage'
 import { usePageTitle } from '../lib/usePageTitle'
 
 export default function PrivacyPage() {
   usePageTitle('Privacy Policy', {
-    description: 'How OpenThorn handles your data. Your provider API keys are encrypted at rest, and we use only cookieless, privacy-friendly analytics.',
+    description:
+      'How OpenThorn handles your data. Your provider API keys are encrypted at rest, analytics are cookieless, and advertising only loads with your consent.',
   })
   return (
-    <LegalPage title="Privacy Policy" lastUpdated="June 29, 2026">
+    <LegalPage title="Privacy Policy" lastUpdated="August 31, 2026">
       <h2>1. Who We Are</h2>
       <p>
         OpenThorn is operated by <strong>Thomas Tschinkel</strong>, located in{' '}
@@ -60,6 +61,15 @@ export default function PrivacyPage() {
           projects on the same browser.
         </li>
         <li>
+          <strong>Advertising data (only with your consent)</strong> - if you enable the
+          Advertising/Marketing category in the consent banner, our advertising partner
+          Adsterra and its advertising partners may process data such as your IP address,
+          browser and device information, ad impressions and interactions, and may use
+          cookies or similar technologies for advertising, measurement, and
+          fraud-prevention purposes. If you decline, no advertising scripts load and no
+          such data is processed for these purposes.
+        </li>
+        <li>
           <strong>Technical data</strong> - IP address, browser/device data, request
           logs, error information, and security events processed by our hosting,
           authentication, database, font, CDN, and integration providers.
@@ -103,6 +113,14 @@ export default function PrivacyPage() {
           GitHub sync, provider keys, public sharing, or deployment, we process the data
           needed for that feature under Art. 6(1)(b) GDPR and, where required, your
           consent under Art. 6(1)(a) GDPR.
+        </li>
+        <li>
+          <strong>Advertising and marketing</strong> - third-party advertising
+          technologies, including Adsterra's, are processed only with your consent under
+          Art. 6(1)(a) GDPR. Advertising is disabled by default, and you can change or
+          withdraw your choice at any time via "Cookie Settings" in the footer. Withdrawing
+          consent stops future advertising loads but does not affect processing that
+          already took place.
         </li>
       </ul>
 
@@ -148,6 +166,27 @@ export default function PrivacyPage() {
           OAuth provider, that provider processes authentication data according to its own
           terms and privacy policy.
         </li>
+        <li>
+          <strong>Adsterra (advertising network)</strong> - only if and when you consent to
+          the Advertising/Marketing category, ads on public content pages are served by
+          Adsterra (operated by Ad Market Limited, Cyprus, and Admedia LLC FZ, UAE).
+          Adsterra and its advertising partners may process data such as your IP address,
+          browser and device information, ad impressions and interactions, and may use
+          cookies or similar technologies for advertising, measurement, and
+          fraud-prevention purposes. See the{' '}
+          <a
+            href="https://www.adsterra.com/privacy-policy/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Adsterra Privacy Policy
+          </a>{' '}
+          and{' '}
+          <a href="https://adsterra.com/cookies/" target="_blank" rel="noopener noreferrer">
+            Adsterra Cookies Policy
+          </a>{' '}
+          for details.
+        </li>
       </ul>
       <p>
         OpenThorn does not sell your personal data. API keys are not used for OpenThorn
@@ -162,7 +201,49 @@ export default function PrivacyPage() {
         terms.
       </p>
 
-      <h2>5. Security Measures</h2>
+      <h2>5. Advertising on OpenThorn</h2>
+      <p>
+        OpenThorn shows advertising on some public marketing and content pages to help keep
+        the service free. Ads are provided by <strong>Adsterra</strong>, an advertising
+        network operated by Ad Market Limited (Cyprus) and Admedia LLC FZ (United Arab
+        Emirates).
+      </p>
+      <p>
+        Advertising is non-essential and <strong>disabled by default</strong>. When you
+        first visit, a consent banner lets you choose between accepting all services,
+        rejecting non-essential services, or managing categories individually. Advertising
+        scripts, including Adsterra's, are not loaded before you explicitly enable the
+        Advertising/Marketing category, and rejecting keeps them fully disabled - not
+        merely hidden. You can change or withdraw your choice at any time via "Cookie
+        Settings" in the footer.
+      </p>
+      <p>
+        When enabled, Adsterra and its advertising partners may process data such as your
+        IP address, browser and device information, ad impressions and interactions with
+        ads, and may use cookies or similar technologies for advertising, measurement, and
+        fraud-prevention purposes, as described in the{' '}
+        <a
+          href="https://www.adsterra.com/privacy-policy/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Adsterra Privacy Policy
+        </a>{' '}
+        and{' '}
+        <a href="https://adsterra.com/cookies/" target="_blank" rel="noopener noreferrer">
+          Adsterra Cookies Policy
+        </a>
+        . This processing is based on your consent (Art. 6(1)(a) GDPR). Withdrawing consent
+        stops future advertising loads but does not affect processing that already took
+        place.
+      </p>
+      <p>
+        Advertising is limited to public marketing and content pages. Authenticated product
+        areas - the dashboard, project builder, templates, community, providers, profile,
+        settings, and admin - remain ad-free.
+      </p>
+
+      <h2>6. Security Measures</h2>
       <p>
         We use technical and organisational measures intended to protect personal data,
         including Supabase row-level security, authenticated access controls, HTTPS,
@@ -177,7 +258,7 @@ export default function PrivacyPage() {
         and key rotation, and you should revoke a key immediately if you suspect misuse.
       </p>
 
-      <h2>6. Public Sharing</h2>
+      <h2>7. Public Sharing</h2>
       <p>
         If you publish a project to the Community, its title, preview, generated content,
         author/profile information, likes count, and related metadata may be visible to
@@ -185,7 +266,7 @@ export default function PrivacyPage() {
         data, or personal information you do not want to make public.
       </p>
 
-      <h2>7. Data Retention</h2>
+      <h2>8. Data Retention</h2>
       <ul>
         <li>
           <strong>Account, profile, project, provider-key, integration, collaboration,
@@ -211,7 +292,7 @@ export default function PrivacyPage() {
         </li>
       </ul>
 
-      <h2>8. International Data Transfers</h2>
+      <h2>9. International Data Transfers</h2>
       <p>
         Some providers are based in or process data in the United States and other
         countries outside the EU/EEA. Where required, transfers are protected by adequacy
@@ -219,7 +300,7 @@ export default function PrivacyPage() {
         applicable, or other safeguards under Chapter V GDPR.
       </p>
 
-      <h2>9. Your Rights</h2>
+      <h2>10. Your Rights</h2>
       <p>Under the GDPR you have the right to:</p>
       <ul>
         <li><strong>Access</strong> - request a copy of your personal data.</li>
@@ -245,7 +326,7 @@ export default function PrivacyPage() {
         We will respond within 30 days.
       </p>
 
-      <h2>10. Complaints</h2>
+      <h2>11. Complaints</h2>
       <p>
         If you believe we have handled your data unlawfully, you have the right to lodge a
         complaint with the Italian data protection authority:{' '}
@@ -260,7 +341,7 @@ export default function PrivacyPage() {
         ).
       </p>
 
-      <h2>11. Changes to This Policy</h2>
+      <h2>12. Changes to This Policy</h2>
       <p>
         We may update this policy from time to time. When we do, we will update the "Last
         updated" date at the top of this page. For material changes that affect your
@@ -269,7 +350,7 @@ export default function PrivacyPage() {
         service and, where required by law, seek your renewed consent.
       </p>
 
-      <h2>12. Contact</h2>
+      <h2>13. Contact</h2>
       <p>
         For any questions about this privacy policy or your personal data, contact us at{' '}
         <strong><a href="mailto:btalabs.contact@gmail.com">btalabs.contact@gmail.com</a></strong>.
