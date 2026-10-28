@@ -63,7 +63,7 @@ export default function HeroSection() {
         >
           Describe what you want to build — OpenThorn generates the code,
           wires up a database and auth, and deploys it anywhere. Frontend or full-stack.
-        </motion.p>
+        {' '}<a href="https://btalabs.dev/nixsite" target="_blank" rel="noopener noreferrer" className={styles.nixsiteLink}>Continued as NixSite at BTA Labs →</a></motion.p>
 
         {/* Big input */}
         <motion.div

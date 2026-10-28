@@ -248,3 +248,16 @@
     white-space: nowrap;
   }
 }
+
+
+.nixsiteLink {
+  display: inline-block;
+  margin-top: 0.75rem;
+  color: #c4b5fd;
+  font-weight: 600;
+  text-decoration: none;
+}
+.nixsiteLink:hover {
+  text-decoration: underline;
+  color: #ddd6fe;
+}

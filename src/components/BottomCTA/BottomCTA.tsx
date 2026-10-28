@@ -33,7 +33,7 @@ export default function BottomCTA() {
             <Link to="/blog/what-is-a-byok-ai-website-builder">what a BYOK AI website builder is</Link>,
             compare <Link to="/pricing">AI model pricing</Link>, or browse the{' '}
             <Link to="/faq">FAQ</Link>.
-          </p>
+          {' '}Prefer the current BTA Labs product?{' '}<a href="https://btalabs.dev/nixsite" target="_blank" rel="noopener noreferrer">Continue on NixSite</a>{' '}or{' '}<a href="https://btalabs.dev/build" target="_blank" rel="noopener noreferrer">open the builder</a>.</p>
         </div>
 
         <div className={styles.actionPanel}>

@@ -3,9 +3,12 @@
 **The free, BYOK AI website builder — a Lovable, Bolt.new, and v0 alternative. Bring your own API key, pay your provider directly.**
 
 [![Live](https://img.shields.io/badge/live-openthorn.app-4f46e5?style=flat-square)](https://openthorn.app)
+[![NixSite](https://img.shields.io/badge/continued%20as-NixSite%20%40%20btalabs.dev-22c55e?style=flat-square)](https://btalabs.dev/nixsite)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](#license)
 
 ---
+
+> **Continued as [NixSite](https://btalabs.dev/nixsite)** at [BTA Labs](https://btalabs.dev) — same free BYOK model. Open the builder at [btalabs.dev/build](https://btalabs.dev/build).
 
 OpenThorn is a BYOK (bring-your-own-key) AI app builder. Describe what you want in plain language; the AI agent writes the code, previews it live in-browser, and deploys a working website to Cloudflare Pages. **The platform is free** — you only pay your AI provider's raw per-token rates, with no subscription and no markup.
 

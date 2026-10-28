@@ -55,8 +55,7 @@ export default function Footer() {
             </a>
             <p className={styles.tagline}>
               Turn a description into a deployed website â€” with your own API keys and your
-              own infrastructure.
-            </p>
+              own infrastructure. Continued as <a href="https://btalabs.dev/nixsite" target="_blank" rel="noopener noreferrer">NixSite</a> at BTA Labs.</p>
           </div>
 
           {/* Solutions */}

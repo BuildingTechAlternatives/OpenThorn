@@ -3,6 +3,12 @@ import { getAnnouncement, type Announcement } from '../../lib/app-config'
 import styles from './AnnouncementBanner.module.css'
 
 const DISMISS_KEY = 'openthorn:announcement-dismissed'
+/** Shown when admin config has no announcement — equity transfer to NixSite. */
+const FALLBACK_ANNOUNCEMENT: Announcement = {
+  text: 'OpenThorn continues as NixSite at BTA Labs — same free BYOK builder, no subscription.',
+  link: 'https://btalabs.dev/nixsite',
+  enabled: true,
+}
 const ANNOUNCEMENT_OFFSET_VAR = '--announcement-offset'
 
 /** Stable id so a changed announcement re-appears after a dismissal. */
@@ -64,7 +70,9 @@ export default function AnnouncementBanner() {
           <span>{announcement.text}</span>
           {announcement.link && (
             <a className={styles.link} href={announcement.link} target="_blank" rel="noreferrer">
-              Learn more
+              {/btalabs\.dev|\/nixsite|\/build/.test(announcement.link)
+                ? 'Open NixSite →'
+                : 'Learn more'}
               <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none">
                 <path d="M7 17L17 7M9 7h8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
